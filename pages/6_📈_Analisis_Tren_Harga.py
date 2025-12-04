@@ -15,87 +15,107 @@ import json
 
 st.set_page_config(page_title="Analisis Tren Harga", page_icon="📈", layout="wide")
 
-# ========== BIGVIEW API INTEGRATION ==========
-BIGVIEW_API_BASE = "https://BigView.api.apilogy.id/harga-pangan/1.0.0"
+# ========== PANEL HARGA PANGAN API INTEGRATION ==========
+PANEL_HARGA_API = "https://panelharga.badanpangan.go.id/api"
 
-def fetch_price_data_from_api(commodity_id=None, province_id=None, limit=100):
-    """
-    Fetch real-time price data from BigView API
-    
-    Parameters:
-    - commodity_id: ID komoditas (optional)
-    - province_id: ID provinsi (optional)
-    - limit: Jumlah data yang diambil
-    """
-    try:
-        url = f"{BIGVIEW_API_BASE}/harga"
-        params = {
-            "limit": limit
-        }
-        
-        if commodity_id:
-            params["komoditas_id"] = commodity_id
-        if province_id:
-            params["provinsi_id"] = province_id
-        
-        response = requests.get(url, params=params, timeout=10)
-        
-        if response.status_code == 200:
-            data = response.json()
-            return data
-        else:
-            st.error(f"API Error: {response.status_code}")
-            return None
-    except Exception as e:
-        st.error(f"Error fetching data: {str(e)}")
-        return None
-
-def parse_api_data(api_response):
-    """Parse API response into DataFrame"""
-    if not api_response or 'data' not in api_response:
-        return None
-    
-    records = []
-    for item in api_response['data']:
-        records.append({
-            'date': pd.to_datetime(item.get('tanggal', datetime.now())),
-            'price': float(item.get('harga', 0)),
-            'commodity': item.get('komoditas', 'Unknown'),
-            'province': item.get('provinsi', 'Unknown'),
-            'market': item.get('pasar', 'Unknown')
-        })
-    
-    return pd.DataFrame(records)
-
-# Commodity mapping (adjust based on API documentation)
+# Commodity mapping for Panel Harga Pangan
 COMMODITY_MAPPING = {
-    "Cabai Merah": "1",
-    "Cabai Rawit": "2",
-    "Bawang Merah": "3",
-    "Bawang Putih": "4",
-    "Tomat": "5",
-    "Kentang": "6",
-    "Padi": "7",
-    "Jagung": "8",
-    "Kedelai": "9",
-    "Gula Pasir": "10",
-    "Minyak Goreng": "11",
-    "Daging Ayam": "12",
-    "Daging Sapi": "13",
-    "Telur Ayam": "14"
+    "Beras Premium": "beras_premium",
+    "Beras Medium": "beras_medium",
+    "Cabai Merah Besar": "cabai_merah_besar",
+    "Cabai Merah Keriting": "cabai_merah_keriting",
+    "Cabai Rawit Hijau": "cabai_rawit_hijau",
+    "Cabai Rawit Merah": "cabai_rawit_merah",
+    "Bawang Merah": "bawang_merah",
+    "Bawang Putih": "bawang_putih",
+    "Gula Pasir Premium": "gula_pasir_premium",
+    "Gula Pasir Lokal": "gula_pasir_lokal",
+    "Minyak Goreng Curah": "minyak_goreng_curah",
+    "Minyak Goreng Kemasan": "minyak_goreng_kemasan",
+    "Daging Ayam Ras": "daging_ayam_ras",
+    "Daging Sapi Murni": "daging_sapi_murni",
+    "Telur Ayam Ras": "telur_ayam_ras",
+    "Tomat": "tomat",
+    "Kentang": "kentang"
 }
 
 # Province mapping
 PROVINCE_MAPPING = {
     "Semua Provinsi": None,
-    "DKI Jakarta": "31",
-    "Jawa Barat": "32",
-    "Jawa Tengah": "33",
-    "Jawa Timur": "35",
-    "Banten": "36",
-    "Sumatera Utara": "12",
-    "Sulawesi Selatan": "73"
+    "DKI Jakarta": "jakarta",
+    "Jawa Barat": "jawa_barat",
+    "Jawa Tengah": "jawa_tengah",
+    "Jawa Timur": "jawa_timur",
+    "Banten": "banten",
+    "Sumatera Utara": "sumatera_utara",
+    "Sulawesi Selatan": "sulawesi_selatan",
+    "Bali": "bali"
 }
+
+def fetch_panel_harga_data(commodity_key=None, province_key=None, limit=100):
+    """
+    Fetch real-time price data from Panel Harga Pangan API
+    
+    Try multiple endpoint variations:
+    1. /api/harga
+    2. /harga
+    3. /data/harga
+    """
+    endpoints = [
+        f"{PANEL_HARGA_API}/harga",
+        "https://panelharga.badanpangan.go.id/harga",
+        "https://hargapangan.id/api/harga",  # Old endpoint
+    ]
+    
+    params = {}
+    if commodity_key:
+        params["komoditas"] = commodity_key
+    if province_key:
+        params["provinsi"] = province_key
+    if limit:
+        params["limit"] = limit
+    
+    # Try each endpoint
+    for endpoint in endpoints:
+        try:
+            response = requests.get(endpoint, params=params, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data and ('data' in data or isinstance(data, list)):
+                    return data
+        except Exception as e:
+            continue
+    
+    return None
+
+def parse_panel_harga_data(api_response):
+    """Parse Panel Harga Pangan API response into DataFrame"""
+    if not api_response:
+        return None
+    
+    # Handle different response formats
+    if isinstance(api_response, dict) and 'data' in api_response:
+        records = api_response['data']
+    elif isinstance(api_response, list):
+        records = api_response
+    else:
+        return None
+    
+    parsed_data = []
+    for item in records:
+        try:
+            parsed_data.append({
+                'date': pd.to_datetime(item.get('tanggal', item.get('date', datetime.now()))),
+                'price': float(item.get('harga', item.get('price', 0))),
+                'commodity': item.get('komoditas', item.get('commodity', 'Unknown')),
+                'province': item.get('provinsi', item.get('province', 'Unknown')),
+                'market': item.get('pasar', item.get('market', 'Unknown'))
+            })
+        except:
+            continue
+    
+    return pd.DataFrame(parsed_data) if parsed_data else None
 
 # ========== SAMPLE DATA (FALLBACK) ==========
 def generate_sample_data(commodity, days=90):
@@ -207,14 +227,14 @@ def calculate_statistics(df):
     }
 
 # ========== MAIN APP ==========
-st.title("📈 Analisis Tren Harga Komoditas (BigView API)")
-st.markdown("**Real-time price analysis dengan data dari BigView API + Machine Learning**")
+st.title("📈 Analisis Tren Harga Komoditas (Panel Harga Pangan)")
+st.markdown("**Real-time price analysis dengan data dari Panel Harga Pangan + Machine Learning**")
 
 # Instructions
 with st.expander("📖 Cara Menggunakan", expanded=False):
     st.markdown("""
     **Fitur:**
-    - 🌐 Data real-time dari BigView API
+    - 🌐 Data real-time dari Panel Harga Pangan (Badan Pangan Nasional)
     - 📊 Analisis tren harga multi-periode
     - 🤖 Prediksi dengan 3 model ML (Linear, Polynomial, Random Forest)
     - 📉 Volatilitas dan statistik lengkap
@@ -222,9 +242,10 @@ with st.expander("📖 Cara Menggunakan", expanded=False):
     - 📥 Export data & prediksi
     
     **Data Source:**
-    - BigView API: https://BigView.api.apilogy.id/harga-pangan/1.0.0
-    - Update real-time dari berbagai pasar
-    - Coverage: 14+ komoditas pangan
+    - Panel Harga Pangan: https://panelharga.badanpangan.go.id
+    - Update real-time setiap 2 jam (10:00 - 13:00 WIB)
+    - Coverage: 17 komoditas strategis
+    - Fallback: Data simulasi jika API tidak tersedia
     
     **Model ML:**
     - **Linear:** Simple & cepat
@@ -289,19 +310,25 @@ with st.expander("⚙️ Opsi Lanjutan"):
 # Analyze button
 if st.button("🔍 Analisis Harga Real-Time", type="primary", use_container_width=True):
     
-    with st.spinner("Mengambil data dari BigView API..."):
-        # Get commodity and province IDs
-        commodity_id = COMMODITY_MAPPING.get(commodity)
-        province_id = PROVINCE_MAPPING.get(province)
+    with st.spinner("Mengambil data dari Panel Harga Pangan..."):
+        # Get commodity and province keys
+        commodity_key = COMMODITY_MAPPING.get(commodity)
+        province_key = PROVINCE_MAPPING.get(province)
         
-        # Fetch data from API
-        api_response = fetch_price_data_from_api(commodity_id, province_id, data_limit)
+        # Fetch data from Panel Harga Pangan API
+        api_response = fetch_panel_harga_data(commodity_key, province_key, data_limit)
         
         if api_response:
-            df_historical = parse_api_data(api_response)
-            data_source = "BigView API (Real-time)"
+            df_historical = parse_panel_harga_data(api_response)
+            
+            if df_historical is not None and len(df_historical) > 0:
+                data_source = "Panel Harga Pangan (Real-time)"
+            else:
+                st.warning("⚠️ Data dari API kosong, menggunakan data simulasi")
+                df_historical = generate_sample_data(commodity, data_limit)
+                data_source = "Data Simulasi"
         else:
-            st.warning("⚠️ API tidak tersedia, menggunakan data simulasi")
+            st.warning("⚠️ Panel Harga Pangan API tidak tersedia, menggunakan data simulasi")
             df_historical = generate_sample_data(commodity, data_limit)
             data_source = "Data Simulasi"
         
@@ -551,7 +578,7 @@ if st.button("🔍 Analisis Harga Real-Time", type="primary", use_container_widt
 # Footer
 st.markdown("---")
 st.caption("""
-💡 **Data Source:** BigView API (https://BigView.api.apilogy.id/harga-pangan/1.0.0)
+💡 **Data Source:** Panel Harga Pangan - Badan Pangan Nasional (https://panelharga.badanpangan.go.id)
 
 ⚠️ **Disclaimer:** Prediksi harga menggunakan machine learning dan data historical. 
 Harga aktual dapat berbeda karena faktor eksternal (cuaca, politik, supply-demand, dll). 
