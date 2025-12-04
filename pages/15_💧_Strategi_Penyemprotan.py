@@ -13,6 +13,7 @@ st.set_page_config(page_title="Strategi Penyemprotan", page_icon="💧", layout=
 
 # ========== PEST & DISEASE DATABASE ==========
 PEST_DISEASE_DB = {
+    # ===== PADI =====
     "Wereng Coklat": {
         "type": "Hama",
         "severity": "High",
@@ -23,31 +24,49 @@ PEST_DISEASE_DB = {
         "spray_interval": 7,
         "optimal_time": "Pagi (06:00-09:00) atau Sore (16:00-18:00)",
         "weather_conditions": {
-            "max_wind_speed": 10,  # km/h
-            "max_temp": 32,  # celsius
-            "min_humidity": 60,  # percent
-            "no_rain_hours": 6  # hours after spray
+            "max_wind_speed": 10,
+            "max_temp": 32,
+            "min_humidity": 60,
+            "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Thiamethoxam",
-        "safety_period": 14  # days before harvest
+        "safety_period": 14
     },
-    "Ulat Grayak": {
+    "Wereng Hijau": {
         "type": "Hama",
-        "severity": "Medium",
-        "target_crops": ["Padi", "Jagung", "Cabai"],
-        "active_ingredient": "Klorpirifos",
-        "dosage_per_ha": "1-2 L",
+        "severity": "High",
+        "target_crops": ["Padi"],
+        "active_ingredient": "Buprofezin",
+        "dosage_per_ha": "500-750 ml",
         "water_volume": "400-600 L/ha",
-        "spray_interval": 7,
-        "optimal_time": "Sore (16:00-18:00)",
+        "spray_interval": 10,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 32,
+            "min_humidity": 60,
+            "no_rain_hours": 6
+        },
+        "resistance_management": "Rotasi dengan Piridaben",
+        "safety_period": 14
+    },
+    "Penggerek Batang Padi": {
+        "type": "Hama",
+        "severity": "High",
+        "target_crops": ["Padi"],
+        "active_ingredient": "Karbofuran",
+        "dosage_per_ha": "10-15 kg",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 14,
+        "optimal_time": "Pagi (06:00-09:00)",
         "weather_conditions": {
             "max_wind_speed": 8,
             "max_temp": 30,
             "min_humidity": 65,
-            "no_rain_hours": 4
+            "no_rain_hours": 6
         },
-        "resistance_management": "Rotasi dengan Emamektin Benzoat",
-        "safety_period": 7
+        "resistance_management": "Rotasi dengan Fipronil",
+        "safety_period": 21
     },
     "Blas Padi": {
         "type": "Penyakit",
@@ -84,6 +103,342 @@ PEST_DISEASE_DB = {
         },
         "resistance_management": "Rotasi dengan Streptomisin",
         "safety_period": 10
+    },
+    "Busuk Pelepah Daun": {
+        "type": "Penyakit",
+        "severity": "Medium",
+        "target_crops": ["Padi"],
+        "active_ingredient": "Validamycin",
+        "dosage_per_ha": "500-750 ml",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 10,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 30,
+            "min_humidity": 70,
+            "no_rain_hours": 6
+        },
+        "resistance_management": "Rotasi dengan Hexaconazole",
+        "safety_period": 14
+    },
+    
+    # ===== JAGUNG =====
+    "Ulat Grayak": {
+        "type": "Hama",
+        "severity": "Medium",
+        "target_crops": ["Jagung", "Padi", "Cabai"],
+        "active_ingredient": "Klorpirifos",
+        "dosage_per_ha": "1-2 L",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Sore (16:00-18:00)",
+        "weather_conditions": {
+            "max_wind_speed": 8,
+            "max_temp": 30,
+            "min_humidity": 65,
+            "no_rain_hours": 4
+        },
+        "resistance_management": "Rotasi dengan Emamektin Benzoat",
+        "safety_period": 7
+    },
+    "Penggerek Jagung": {
+        "type": "Hama",
+        "severity": "High",
+        "target_crops": ["Jagung"],
+        "active_ingredient": "Deltamethrin",
+        "dosage_per_ha": "250-500 ml",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Sore (16:00-18:00)",
+        "weather_conditions": {
+            "max_wind_speed": 8,
+            "max_temp": 30,
+            "min_humidity": 60,
+            "no_rain_hours": 4
+        },
+        "resistance_management": "Rotasi dengan Spinosad",
+        "safety_period": 7
+    },
+    "Bulai Jagung": {
+        "type": "Penyakit",
+        "severity": "High",
+        "target_crops": ["Jagung"],
+        "active_ingredient": "Metalaxyl",
+        "dosage_per_ha": "1-2 kg",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 28,
+            "min_humidity": 70,
+            "no_rain_hours": 6
+        },
+        "resistance_management": "Rotasi dengan Dimethomorph",
+        "safety_period": 14
+    },
+    "Karat Daun Jagung": {
+        "type": "Penyakit",
+        "severity": "Medium",
+        "target_crops": ["Jagung"],
+        "active_ingredient": "Mancozeb",
+        "dosage_per_ha": "2-3 kg",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 30,
+            "min_humidity": 65,
+            "no_rain_hours": 6
+        },
+        "resistance_management": "Rotasi dengan Propiconazole",
+        "safety_period": 7
+    },
+    
+    # ===== CABAI =====
+    "Thrips": {
+        "type": "Hama",
+        "severity": "High",
+        "target_crops": ["Cabai", "Tomat"],
+        "active_ingredient": "Abamectin",
+        "dosage_per_ha": "250-500 ml",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 5,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 8,
+            "max_temp": 30,
+            "min_humidity": 60,
+            "no_rain_hours": 4
+        },
+        "resistance_management": "Rotasi dengan Spinosad",
+        "safety_period": 3
+    },
+    "Kutu Daun (Aphids)": {
+        "type": "Hama",
+        "severity": "Medium",
+        "target_crops": ["Cabai", "Tomat", "Kentang"],
+        "active_ingredient": "Imidakloprid",
+        "dosage_per_ha": "200-300 ml",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 30,
+            "min_humidity": 60,
+            "no_rain_hours": 4
+        },
+        "resistance_management": "Rotasi dengan Acetamiprid",
+        "safety_period": 7
+    },
+    "Lalat Buah": {
+        "type": "Hama",
+        "severity": "High",
+        "target_crops": ["Cabai", "Tomat"],
+        "active_ingredient": "Methyl Eugenol + Malathion",
+        "dosage_per_ha": "50-100 ml",
+        "water_volume": "200-400 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Sore (16:00-18:00)",
+        "weather_conditions": {
+            "max_wind_speed": 8,
+            "max_temp": 32,
+            "min_humidity": 60,
+            "no_rain_hours": 4
+        },
+        "resistance_management": "Rotasi dengan Spinosad",
+        "safety_period": 7
+    },
+    "Antraknosa Cabai": {
+        "type": "Penyakit",
+        "severity": "High",
+        "target_crops": ["Cabai"],
+        "active_ingredient": "Mankozeb + Carbendazim",
+        "dosage_per_ha": "2-3 kg",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 30,
+            "min_humidity": 70,
+            "no_rain_hours": 6
+        },
+        "resistance_management": "Rotasi dengan Azoxystrobin",
+        "safety_period": 7
+    },
+    "Layu Fusarium": {
+        "type": "Penyakit",
+        "severity": "High",
+        "target_crops": ["Cabai", "Tomat"],
+        "active_ingredient": "Benomyl",
+        "dosage_per_ha": "500-750 g",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 10,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 28,
+            "min_humidity": 70,
+            "no_rain_hours": 6
+        },
+        "resistance_management": "Rotasi dengan Trichoderma",
+        "safety_period": 14
+    },
+    
+    # ===== TOMAT =====
+    "Ulat Buah Tomat": {
+        "type": "Hama",
+        "severity": "High",
+        "target_crops": ["Tomat"],
+        "active_ingredient": "Bacillus thuringiensis",
+        "dosage_per_ha": "500-1000 g",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 5,
+        "optimal_time": "Sore (16:00-18:00)",
+        "weather_conditions": {
+            "max_wind_speed": 8,
+            "max_temp": 30,
+            "min_humidity": 60,
+            "no_rain_hours": 4
+        },
+        "resistance_management": "Rotasi dengan Indoxacarb",
+        "safety_period": 1
+    },
+    "Bercak Daun Tomat": {
+        "type": "Penyakit",
+        "severity": "Medium",
+        "target_crops": ["Tomat"],
+        "active_ingredient": "Chlorothalonil",
+        "dosage_per_ha": "2-3 L",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 30,
+            "min_humidity": 65,
+            "no_rain_hours": 6
+        },
+        "resistance_management": "Rotasi dengan Mancozeb",
+        "safety_period": 7
+    },
+    
+    # ===== KENTANG =====
+    "Ulat Tanah": {
+        "type": "Hama",
+        "severity": "Medium",
+        "target_crops": ["Kentang", "Jagung", "Kedelai"],
+        "active_ingredient": "Klorpirifos",
+        "dosage_per_ha": "1-2 L",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 14,
+        "optimal_time": "Sore (16:00-18:00)",
+        "weather_conditions": {
+            "max_wind_speed": 8,
+            "max_temp": 28,
+            "min_humidity": 60,
+            "no_rain_hours": 4
+        },
+        "resistance_management": "Rotasi dengan Fipronil",
+        "safety_period": 14
+    },
+    "Busuk Daun Kentang": {
+        "type": "Penyakit",
+        "severity": "High",
+        "target_crops": ["Kentang"],
+        "active_ingredient": "Propineb",
+        "dosage_per_ha": "2-3 kg",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 5,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 25,
+            "min_humidity": 70,
+            "no_rain_hours": 8
+        },
+        "resistance_management": "Rotasi dengan Cymoxanil",
+        "safety_period": 7
+    },
+    
+    # ===== BAWANG MERAH =====
+    "Ulat Bawang": {
+        "type": "Hama",
+        "severity": "Medium",
+        "target_crops": ["Bawang Merah"],
+        "active_ingredient": "Profenofos",
+        "dosage_per_ha": "1-2 L",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Sore (16:00-18:00)",
+        "weather_conditions": {
+            "max_wind_speed": 8,
+            "max_temp": 30,
+            "min_humidity": 60,
+            "no_rain_hours": 4
+        },
+        "resistance_management": "Rotasi dengan Emamektin Benzoat",
+        "safety_period": 7
+    },
+    "Bercak Ungu Bawang": {
+        "type": "Penyakit",
+        "severity": "High",
+        "target_crops": ["Bawang Merah"],
+        "active_ingredient": "Mankozeb",
+        "dosage_per_ha": "2-3 kg",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 28,
+            "min_humidity": 70,
+            "no_rain_hours": 6
+        },
+        "resistance_management": "Rotasi dengan Difenoconazole",
+        "safety_period": 7
+    },
+    
+    # ===== KEDELAI =====
+    "Penggerek Polong Kedelai": {
+        "type": "Hama",
+        "severity": "High",
+        "target_crops": ["Kedelai"],
+        "active_ingredient": "Sipermetrin",
+        "dosage_per_ha": "250-500 ml",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Sore (16:00-18:00)",
+        "weather_conditions": {
+            "max_wind_speed": 8,
+            "max_temp": 30,
+            "min_humidity": 60,
+            "no_rain_hours": 4
+        },
+        "resistance_management": "Rotasi dengan Indoxacarb",
+        "safety_period": 7
+    },
+    "Karat Daun Kedelai": {
+        "type": "Penyakit",
+        "severity": "High",
+        "target_crops": ["Kedelai"],
+        "active_ingredient": "Azoxystrobin",
+        "dosage_per_ha": "500-750 ml",
+        "water_volume": "400-600 L/ha",
+        "spray_interval": 7,
+        "optimal_time": "Pagi (06:00-09:00)",
+        "weather_conditions": {
+            "max_wind_speed": 10,
+            "max_temp": 30,
+            "min_humidity": 65,
+            "no_rain_hours": 6
+        },
+        "resistance_management": "Rotasi dengan Trifloxystrobin",
+        "safety_period": 14
     }
 }
 
