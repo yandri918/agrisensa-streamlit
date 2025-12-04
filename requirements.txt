@@ -6,3 +6,4 @@ streamlit-folium
 requests
 scikit-learn
 numpy
+opencv-python

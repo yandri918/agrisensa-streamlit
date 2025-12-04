@@ -1,0 +1,482 @@
+# Rekomendasi Pupuk Terpadu
+# Unified fertilizer recommendation with 3 methods: Basic, AI Advanced, and BWD Leaf Analysis
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+from PIL import Image
+import cv2
+from datetime import datetime
+
+st.set_page_config(page_title="Rekomendasi Pupuk Terpadu", page_icon="🎯", layout="wide")
+
+# ========== HELPER FUNCTIONS ==========
+
+def calculate_basic_fertilizer(crop, area_ha):
+    """Basic fertilizer calculation"""
+    requirements = {
+        "Padi": {"N": 120, "P": 60, "K": 60},
+        "Jagung": {"N": 200, "P": 90, "K": 60},
+        "Cabai Merah": {"N": 180, "P": 120, "K": 150},
+        "Tomat": {"N": 150, "P": 100, "K": 120},
+    }
+    
+    req = requirements.get(crop, {"N": 120, "P": 60, "K": 60})
+    
+    return {
+        'N': req['N'] * area_ha,
+        'P': req['P'] * area_ha,
+        'K': req['K'] * area_ha
+    }
+
+def ai_advanced_recommendation(crop, n_ppm, p_ppm, k_ppm, ph, area_ha):
+    """AI-based advanced recommendation"""
+    # Optimal NPK levels
+    optimal = {
+        "Padi": {"N": 3500, "P": 20, "K": 3000},
+        "Jagung": {"N": 4000, "P": 25, "K": 3500},
+        "Cabai Merah": {"N": 4500, "P": 30, "K": 4000},
+        "Tomat": {"N": 4000, "P": 25, "K": 3500},
+    }
+    
+    opt = optimal.get(crop, {"N": 3500, "P": 20, "K": 3000})
+    
+    # Calculate deficiency (convert ppm to kg/ha, rough approximation)
+    n_deficit = max(0, (opt['N'] - n_ppm) * 2 / 1000) * area_ha
+    p_deficit = max(0, (opt['P'] - p_ppm) * 2 / 1000) * area_ha
+    k_deficit = max(0, (opt['K'] - k_ppm) * 2 / 1000) * area_ha
+    
+    # pH adjustment factor
+    if 6.0 <= ph <= 7.0:
+        ph_factor = 1.0
+    elif 5.5 <= ph < 6.0 or 7.0 < ph <= 7.5:
+        ph_factor = 1.2
+    else:
+        ph_factor = 1.5
+    
+    # Adjust for pH
+    n_needed = n_deficit * ph_factor
+    p_needed = p_deficit * ph_factor
+    k_needed = k_deficit * ph_factor
+    
+    # Calculate fertilizer amounts
+    urea = (n_needed / 0.46)  # Urea 46% N
+    sp36 = (p_needed / 0.36)  # SP-36 36% P
+    kcl = (k_needed / 0.60)   # KCl 60% K
+    
+    return {
+        'npk_needed': {'N': n_needed, 'P': p_needed, 'K': k_needed},
+        'fertilizers': {'Urea': urea, 'SP-36': sp36, 'KCl': kcl},
+        'soil_status': {
+            'N': 'Cukup' if n_ppm >= opt['N'] * 0.8 else 'Kurang',
+            'P': 'Cukup' if p_ppm >= opt['P'] * 0.8 else 'Kurang',
+            'K': 'Cukup' if k_ppm >= opt['K'] * 0.8 else 'Kurang',
+            'pH': 'Optimal' if 6.0 <= ph <= 7.0 else 'Perlu Penyesuaian'
+        }
+    }
+
+def analyze_bwd_leaf(image):
+    """
+    BWD (Brown-White-Disease) Leaf Analysis
+    Analyzes leaf image for brown spots, white spots, and overall health
+    """
+    # Convert PIL to CV2
+    img_array = np.array(image)
+    img_cv = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+    
+    # Convert to HSV for better color detection
+    hsv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2HSV)
+    
+    # Define color ranges
+    # Brown spots (disease)
+    brown_lower = np.array([10, 50, 20])
+    brown_upper = np.array([30, 255, 200])
+    brown_mask = cv2.inRange(hsv, brown_lower, brown_upper)
+    
+    # White spots (fungal/bacterial)
+    white_lower = np.array([0, 0, 200])
+    white_upper = np.array([180, 30, 255])
+    white_mask = cv2.inRange(hsv, white_lower, white_upper)
+    
+    # Green (healthy)
+    green_lower = np.array([35, 40, 40])
+    green_upper = np.array([85, 255, 255])
+    green_mask = cv2.inRange(hsv, green_lower, green_upper)
+    
+    # Calculate percentages
+    total_pixels = img_cv.shape[0] * img_cv.shape[1]
+    brown_percent = (cv2.countNonZero(brown_mask) / total_pixels) * 100
+    white_percent = (cv2.countNonZero(white_mask) / total_pixels) * 100
+    green_percent = (cv2.countNonZero(green_mask) / total_pixels) * 100
+    
+    # Calculate BWD score (0-100, higher is healthier)
+    bwd_score = max(0, 100 - (brown_percent * 3) - (white_percent * 2))
+    
+    # Determine health status
+    if bwd_score >= 80:
+        health_status = "Sehat"
+        severity = "None"
+    elif bwd_score >= 60:
+        health_status = "Sedikit Terinfeksi"
+        severity = "Low"
+    elif bwd_score >= 40:
+        health_status = "Terinfeksi Sedang"
+        severity = "Medium"
+    else:
+        health_status = "Terinfeksi Parah"
+        severity = "High"
+    
+    # Detect disease type
+    disease_detected = []
+    if brown_percent > 5:
+        disease_detected.append("Bercak Coklat (Brown Spot)")
+    if white_percent > 3:
+        disease_detected.append("Hawar Daun (Leaf Blight)")
+    if green_percent < 30:
+        disease_detected.append("Defisiensi Nutrisi")
+    
+    return {
+        'bwd_score': bwd_score,
+        'health_status': health_status,
+        'severity': severity,
+        'brown_percent': brown_percent,
+        'white_percent': white_percent,
+        'green_percent': green_percent,
+        'diseases': disease_detected if disease_detected else ["Tidak ada penyakit terdeteksi"],
+        'recommendation': get_bwd_recommendation(bwd_score, brown_percent, white_percent)
+    }
+
+def get_bwd_recommendation(score, brown, white):
+    """Get fertilizer recommendation based on BWD analysis"""
+    recommendations = {
+        'fertilizer_adjustment': [],
+        'treatment': [],
+        'prevention': []
+    }
+    
+    if score < 60:
+        # Stressed plant needs recovery
+        recommendations['fertilizer_adjustment'] = [
+            "Kurangi dosis nitrogen 20-30%",
+            "Tingkatkan kalium untuk ketahanan",
+            "Tambahkan pupuk organik untuk recovery"
+        ]
+    
+    if brown > 5:
+        recommendations['treatment'] = [
+            "Aplikasi fungisida berbahan Mancozeb",
+            "Semprot setiap 7 hari",
+            "Buang daun terinfeksi parah"
+        ]
+    
+    if white > 3:
+        recommendations['treatment'].append(
+            "Aplikasi bakterisida berbahan tembaga"
+        )
+    
+    recommendations['prevention'] = [
+        "Perbaiki drainase",
+        "Jarak tanam teratur",
+        "Pemupukan berimbang"
+    ]
+    
+    return recommendations
+
+# ========== MAIN APP ==========
+st.title("🎯 Rekomendasi Pupuk Terpadu")
+st.markdown("**Pilih metode rekomendasi yang sesuai dengan kebutuhan Anda**")
+
+# Method Selection
+st.subheader("📋 Pilih Metode Rekomendasi")
+
+method = st.radio(
+    "Pilih metode:",
+    [
+        "🧮 Kalkulator Dosis (Basic)",
+        "🧠 Rekomendasi Cerdas (Advanced AI)",
+        "📸 Analisis Kesehatan Daun (BWD)"
+    ],
+    help="Pilih metode sesuai data yang Anda miliki"
+)
+
+st.markdown("---")
+
+# ========== METHOD 1: BASIC CALCULATOR ==========
+if method == "🧮 Kalkulator Dosis (Basic)":
+    st.subheader("🧮 Kalkulator Dosis Pupuk (Basic)")
+    st.info("💡 Metode ini menggunakan rekomendasi standar berdasarkan jenis tanaman dan luas lahan")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        crop = st.selectbox(
+            "Jenis Tanaman",
+            ["Padi", "Jagung", "Cabai Merah", "Tomat"]
+        )
+    
+    with col2:
+        area_ha = st.number_input(
+            "Luas Lahan (ha)",
+            min_value=0.1,
+            max_value=100.0,
+            value=1.0,
+            step=0.1
+        )
+    
+    if st.button("🔍 Hitung Dosis", type="primary", use_container_width=True):
+        result = calculate_basic_fertilizer(crop, area_ha)
+        
+        st.markdown("---")
+        st.subheader("📊 Hasil Perhitungan")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Nitrogen (N)", f"{result['N']:.1f} kg")
+        with col2:
+            st.metric("Fosfor (P)", f"{result['P']:.1f} kg")
+        with col3:
+            st.metric("Kalium (K)", f"{result['K']:.1f} kg")
+        
+        # Fertilizer breakdown
+        st.markdown("---")
+        st.subheader("💊 Kebutuhan Pupuk")
+        
+        urea = result['N'] / 0.46
+        sp36 = result['P'] / 0.36
+        kcl = result['K'] / 0.60
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown(f"""
+            **Urea (46% N)**
+            - {urea:.1f} kg
+            - {urea/50:.1f} karung (50kg)
+            - Rp {urea * 2500:,.0f}
+            """)
+        
+        with col2:
+            st.markdown(f"""
+            **SP-36 (36% P)**
+            - {sp36:.1f} kg
+            - {sp36/50:.1f} karung (50kg)
+            - Rp {sp36 * 3000:,.0f}
+            """)
+        
+        with col3:
+            st.markdown(f"""
+            **KCl (60% K)**
+            - {kcl:.1f} kg
+            - {kcl/50:.1f} karung (50kg)
+            - Rp {kcl * 3500:,.0f}
+            """)
+        
+        total_cost = (urea * 2500) + (sp36 * 3000) + (kcl * 3500)
+        st.success(f"💰 **Total Biaya: Rp {total_cost:,.0f}**")
+
+# ========== METHOD 2: AI ADVANCED ==========
+elif method == "🧠 Rekomendasi Cerdas (Advanced AI)":
+    st.subheader("🧠 Rekomendasi Cerdas dengan AI")
+    st.info("💡 Analisis mendalam menggunakan AI berdasarkan kondisi tanah dan tanaman")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("**Data Tanaman & Lahan**")
+        crop = st.selectbox(
+            "Jenis Tanaman",
+            ["Padi", "Jagung", "Cabai Merah", "Tomat"]
+        )
+        area_ha = st.number_input(
+            "Luas Lahan (ha)",
+            min_value=0.1,
+            max_value=100.0,
+            value=1.0,
+            step=0.1
+        )
+    
+    with col2:
+        st.markdown("**Data Tanah (Hasil Uji Lab)**")
+        n_ppm = st.number_input("Nitrogen (ppm)", 0.0, 10000.0, 3000.0, 100.0)
+        p_ppm = st.number_input("Fosfor (ppm)", 0.0, 100.0, 20.0, 1.0)
+        k_ppm = st.number_input("Kalium (ppm)", 0.0, 10000.0, 2500.0, 100.0)
+        ph = st.number_input("pH Tanah", 0.0, 14.0, 6.5, 0.1)
+    
+    if st.button("🤖 Analisis dengan AI", type="primary", use_container_width=True):
+        result = ai_advanced_recommendation(crop, n_ppm, p_ppm, k_ppm, ph, area_ha)
+        
+        st.markdown("---")
+        st.subheader("📊 Hasil Analisis AI")
+        
+        # Soil status
+        st.markdown("**Status Tanah:**")
+        col1, col2, col3, col4 = st.columns(4)
+        
+        status_colors = {'Cukup': '🟢', 'Kurang': '🔴', 'Optimal': '🟢', 'Perlu Penyesuaian': '🟡'}
+        
+        with col1:
+            st.metric("Nitrogen", result['soil_status']['N'], 
+                     delta=status_colors[result['soil_status']['N']])
+        with col2:
+            st.metric("Fosfor", result['soil_status']['P'],
+                     delta=status_colors[result['soil_status']['P']])
+        with col3:
+            st.metric("Kalium", result['soil_status']['K'],
+                     delta=status_colors[result['soil_status']['K']])
+        with col4:
+            st.metric("pH", result['soil_status']['pH'],
+                     delta=status_colors[result['soil_status']['pH']])
+        
+        # NPK needed
+        st.markdown("---")
+        st.subheader("💊 Rekomendasi Pupuk AI")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown(f"""
+            **Urea**
+            - {result['fertilizers']['Urea']:.1f} kg
+            - {result['fertilizers']['Urea']/50:.1f} karung
+            - Rp {result['fertilizers']['Urea'] * 2500:,.0f}
+            """)
+        
+        with col2:
+            st.markdown(f"""
+            **SP-36**
+            - {result['fertilizers']['SP-36']:.1f} kg
+            - {result['fertilizers']['SP-36']/50:.1f} karung
+            - Rp {result['fertilizers']['SP-36'] * 3000:,.0f}
+            """)
+        
+        with col3:
+            st.markdown(f"""
+            **KCl**
+            - {result['fertilizers']['KCl']:.1f} kg
+            - {result['fertilizers']['KCl']/50:.1f} karung
+            - Rp {result['fertilizers']['KCl'] * 3500:,.0f}
+            """)
+        
+        # Visualization
+        fig = go.Figure(data=[
+            go.Bar(name='N', x=['NPK'], y=[result['npk_needed']['N']], marker_color='#3b82f6'),
+            go.Bar(name='P', x=['NPK'], y=[result['npk_needed']['P']], marker_color='#10b981'),
+            go.Bar(name='K', x=['NPK'], y=[result['npk_needed']['K']], marker_color='#f59e0b')
+        ])
+        
+        fig.update_layout(
+            title="Kebutuhan NPK Berdasarkan Analisis AI",
+            yaxis_title="Jumlah (kg)",
+            barmode='group',
+            height=400
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+# ========== METHOD 3: BWD LEAF ANALYSIS ==========
+else:  # BWD Analysis
+    st.subheader("📸 Analisis Kesehatan Daun (BWD)")
+    st.info("💡 Upload foto daun untuk mendapatkan skor BWD otomatis dan deteksi penyakit")
+    
+    with st.expander("ℹ️ Tentang Analisis BWD"):
+        st.markdown("""
+        **BWD (Brown-White-Disease) Analysis:**
+        - **Brown Spots:** Deteksi bercak coklat (penyakit jamur)
+        - **White Spots:** Deteksi bercak putih (bakteri/jamur)
+        - **Disease Detection:** Identifikasi jenis penyakit
+        - **Health Score:** Skor kesehatan 0-100
+        
+        **Tips Foto:**
+        - Ambil foto di siang hari
+        - Fokus pada daun yang bergejala
+        - Jarak 20-30 cm
+        - Hindari bayangan
+        """)
+    
+    uploaded_file = st.file_uploader(
+        "Upload foto daun (JPG, PNG)",
+        type=['jpg', 'jpeg', 'png']
+    )
+    
+    if uploaded_file:
+        image = Image.open(uploaded_file)
+        
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            st.image(image, caption="Foto Original", use_container_width=True)
+        
+        if st.button("🔍 Analisis BWD", type="primary", use_container_width=True):
+            with st.spinner("Menganalisis kesehatan daun..."):
+                result = analyze_bwd_leaf(image)
+            
+            with col2:
+                # BWD Score
+                score_color = "#10b981" if result['bwd_score'] >= 80 else "#f59e0b" if result['bwd_score'] >= 60 else "#ef4444"
+                
+                st.markdown(f"""
+                <div style="background: {score_color}20; padding: 2rem; border-radius: 12px; 
+                            border: 2px solid {score_color}; text-align: center;">
+                    <h2 style="color: {score_color}; margin: 0;">BWD Score</h2>
+                    <h1 style="font-size: 3rem; margin: 0.5rem 0; color: {score_color};">
+                        {result['bwd_score']:.1f}/100
+                    </h1>
+                    <p style="color: #6b7280; margin: 0;">{result['health_status']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Detailed Analysis
+            st.markdown("---")
+            st.subheader("📊 Analisis Detail")
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric("Bercak Coklat", f"{result['brown_percent']:.1f}%",
+                         delta="⚠️" if result['brown_percent'] > 5 else "✅")
+            with col2:
+                st.metric("Bercak Putih", f"{result['white_percent']:.1f}%",
+                         delta="⚠️" if result['white_percent'] > 3 else "✅")
+            with col3:
+                st.metric("Area Hijau Sehat", f"{result['green_percent']:.1f}%",
+                         delta="✅" if result['green_percent'] > 50 else "⚠️")
+            
+            # Disease Detection
+            st.markdown("---")
+            st.subheader("🦠 Penyakit Terdeteksi")
+            
+            for disease in result['diseases']:
+                if "Tidak ada" in disease:
+                    st.success(f"✅ {disease}")
+                else:
+                    st.error(f"⚠️ {disease}")
+            
+            # Recommendations
+            st.markdown("---")
+            st.subheader("💡 Rekomendasi")
+            
+            rec = result['recommendation']
+            
+            if rec['fertilizer_adjustment']:
+                st.markdown("**Penyesuaian Pemupukan:**")
+                for adj in rec['fertilizer_adjustment']:
+                    st.write(f"- {adj}")
+            
+            if rec['treatment']:
+                st.markdown("**Treatment:**")
+                for treat in rec['treatment']:
+                    st.write(f"- {treat}")
+            
+            if rec['prevention']:
+                st.markdown("**Pencegahan:**")
+                for prev in rec['prevention']:
+                    st.write(f"- {prev}")
+
+# Footer
+st.markdown("---")
+st.caption("""
+🎯 **Rekomendasi Pupuk Terpadu** - Pilih metode sesuai kebutuhan: Basic untuk cepat, 
+AI Advanced untuk presisi, atau BWD untuk diagnosis kesehatan daun.
+""")
