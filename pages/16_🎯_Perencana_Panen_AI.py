@@ -59,8 +59,9 @@ def reverse_engineer_conditions(model, target_yield, crop, current_conditions=No
     Uses optimization to find conditions that achieve target yield
     """
     
-    # Crop-specific optimal ranges
+    # Crop-specific optimal ranges (expanded to 12 crops)
     crop_optima = {
+        # Tanaman Pangan
         "Padi": {
             "N": (3000, 4000), "P": (18, 25), "K": (2500, 3500),
             "pH": (5.5, 7.0), "rainfall": (1500, 2000), "temp": (24, 30)
@@ -69,6 +70,12 @@ def reverse_engineer_conditions(model, target_yield, crop, current_conditions=No
             "N": (3500, 5000), "P": (20, 30), "K": (3000, 4000),
             "pH": (5.8, 7.0), "rainfall": (1200, 1800), "temp": (21, 30)
         },
+        "Kedelai": {
+            "N": (2000, 3000), "P": (25, 40), "K": (2000, 3000),
+            "pH": (6.0, 7.0), "rainfall": (1000, 1500), "temp": (23, 30)
+        },
+        
+        # Sayuran
         "Cabai Merah": {
             "N": (4000, 5000), "P": (25, 35), "K": (3500, 4500),
             "pH": (6.0, 7.0), "rainfall": (1500, 2500), "temp": (24, 28)
@@ -76,6 +83,38 @@ def reverse_engineer_conditions(model, target_yield, crop, current_conditions=No
         "Tomat": {
             "N": (3500, 4500), "P": (20, 30), "K": (3000, 4000),
             "pH": (6.0, 6.8), "rainfall": (1200, 2000), "temp": (20, 27)
+        },
+        "Kentang": {
+            "N": (3500, 5000), "P": (25, 35), "K": (3500, 5000),
+            "pH": (5.0, 6.5), "rainfall": (1500, 2000), "temp": (15, 20)
+        },
+        "Bawang Merah": {
+            "N": (2500, 4000), "P": (20, 30), "K": (2500, 3500),
+            "pH": (6.0, 7.0), "rainfall": (800, 1500), "temp": (25, 32)
+        },
+        "Kubis": {
+            "N": (3000, 4000), "P": (20, 30), "K": (2500, 3500),
+            "pH": (6.0, 7.0), "rainfall": (1000, 1500), "temp": (15, 25)
+        },
+        
+        # Buah-buahan
+        "Semangka": {
+            "N": (3000, 4000), "P": (20, 30), "K": (3000, 4000),
+            "pH": (6.0, 7.0), "rainfall": (1000, 1500), "temp": (24, 30)
+        },
+        "Melon": {
+            "N": (3000, 4000), "P": (20, 30), "K": (3000, 4000),
+            "pH": (6.0, 7.0), "rainfall": (1000, 1500), "temp": (25, 30)
+        },
+        
+        # Tanaman Perkebunan
+        "Tebu": {
+            "N": (4000, 6000), "P": (30, 40), "K": (4000, 5000),
+            "pH": (6.0, 7.5), "rainfall": (1500, 2500), "temp": (25, 30)
+        },
+        "Singkong": {
+            "N": (1500, 3000), "P": (10, 20), "K": (2000, 3000),
+            "pH": (5.5, 7.0), "rainfall": (1000, 1500), "temp": (25, 30)
         }
     }
     
@@ -317,7 +356,12 @@ with col1:
     
     crop = st.selectbox(
         "Jenis Tanaman",
-        ["Padi", "Jagung", "Cabai Merah", "Tomat"],
+        [
+            "Padi", "Jagung", "Kedelai",  # Tanaman Pangan
+            "Cabai Merah", "Tomat", "Kentang", "Bawang Merah", "Kubis",  # Sayuran
+            "Semangka", "Melon",  # Buah
+            "Tebu", "Singkong"  # Perkebunan
+        ],
         help="Pilih tanaman yang akan ditanam"
     )
     
@@ -531,12 +575,24 @@ if st.button("🤖 Buat Resep Kondisi Lahan", type="primary", use_container_widt
     st.markdown("---")
     st.subheader("💰 Proyeksi Finansial")
     
-    # Simple price estimation
+    # Price per kg for different crops
     prices = {
+        # Tanaman Pangan
         "Padi": 5000,
         "Jagung": 4500,
+        "Kedelai": 8000,
+        # Sayuran
         "Cabai Merah": 45000,
-        "Tomat": 8000
+        "Tomat": 8000,
+        "Kentang": 12000,
+        "Bawang Merah": 35000,
+        "Kubis": 5000,
+        # Buah
+        "Semangka": 3500,
+        "Melon": 8000,
+        # Perkebunan
+        "Tebu": 800,
+        "Singkong": 2000
     }
     
     price_per_kg = prices.get(crop, 5000)
