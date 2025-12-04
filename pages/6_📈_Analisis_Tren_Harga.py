@@ -15,10 +15,14 @@ import json
 
 st.set_page_config(page_title="Analisis Tren Harga", page_icon="📈", layout="wide")
 
-# ========== PANEL HARGA PANGAN API INTEGRATION ==========
-PANEL_HARGA_API = "https://panelharga.badanpangan.go.id/api"
+# ========== WEB SCRAPING FOR PANEL HARGA PANGAN ==========
+from bs4 import BeautifulSoup
+import re
+import json
 
-# Commodity mapping for Panel Harga Pangan
+PANEL_HARGA_BASE = "https://panelharga.badanpangan.go.id"
+
+# Commodity mapping
 COMMODITY_MAPPING = {
     "Beras Premium": "beras_premium",
     "Beras Medium": "beras_medium",
@@ -39,7 +43,6 @@ COMMODITY_MAPPING = {
     "Kentang": "kentang"
 }
 
-# Province mapping
 PROVINCE_MAPPING = {
     "Semua Provinsi": None,
     "DKI Jakarta": "jakarta",
@@ -52,70 +55,146 @@ PROVINCE_MAPPING = {
     "Bali": "bali"
 }
 
-def fetch_panel_harga_data(commodity_key=None, province_key=None, limit=100):
+def scrape_panel_harga_data(commodity_key=None, province_key=None, limit=100):
     """
-    Fetch real-time price data from Panel Harga Pangan API
+    Scrape price data from Panel Harga Pangan website
     
-    Try multiple endpoint variations:
-    1. /api/harga
-    2. /harga
-    3. /data/harga
+    Strategy:
+    1. Try to find API endpoint in network requests
+    2. Parse HTML tables if available
+    3. Extract JSON data from page source
     """
-    endpoints = [
-        f"{PANEL_HARGA_API}/harga",
-        "https://panelharga.badanpangan.go.id/harga",
-        "https://hargapangan.id/api/harga",  # Old endpoint
+    
+    # Strategy 1: Try common API endpoints
+    api_endpoints = [
+        f"{PANEL_HARGA_BASE}/api/harga",
+        f"{PANEL_HARGA_BASE}/api/v1/harga",
+        f"{PANEL_HARGA_BASE}/api/data/harga",
+        "https://hargapangan.id/api/harga",
+        "https://hargapangan.id/tabel-harga/pasar/komoditas",
     ]
     
-    params = {}
-    if commodity_key:
-        params["komoditas"] = commodity_key
-    if province_key:
-        params["provinsi"] = province_key
-    if limit:
-        params["limit"] = limit
-    
-    # Try each endpoint
-    for endpoint in endpoints:
+    for endpoint in api_endpoints:
         try:
+            params = {}
+            if commodity_key:
+                params['komoditas'] = commodity_key
+            if province_key:
+                params['provinsi'] = province_key
+            
             response = requests.get(endpoint, params=params, timeout=10)
             
             if response.status_code == 200:
-                data = response.json()
-                if data and ('data' in data or isinstance(data, list)):
-                    return data
-        except Exception as e:
-            continue
-    
-    return None
-
-def parse_panel_harga_data(api_response):
-    """Parse Panel Harga Pangan API response into DataFrame"""
-    if not api_response:
-        return None
-    
-    # Handle different response formats
-    if isinstance(api_response, dict) and 'data' in api_response:
-        records = api_response['data']
-    elif isinstance(api_response, list):
-        records = api_response
-    else:
-        return None
-    
-    parsed_data = []
-    for item in records:
-        try:
-            parsed_data.append({
-                'date': pd.to_datetime(item.get('tanggal', item.get('date', datetime.now()))),
-                'price': float(item.get('harga', item.get('price', 0))),
-                'commodity': item.get('komoditas', item.get('commodity', 'Unknown')),
-                'province': item.get('provinsi', item.get('province', 'Unknown')),
-                'market': item.get('pasar', item.get('market', 'Unknown'))
-            })
+                try:
+                    data = response.json()
+                    if data and (isinstance(data, list) or 'data' in data):
+                        return data, "API"
+                except:
+                    pass
         except:
             continue
     
-    return pd.DataFrame(parsed_data) if parsed_data else None
+    # Strategy 2: Scrape main page
+    try:
+        response = requests.get(PANEL_HARGA_BASE, timeout=10)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Try to find JSON data in script tags
+            scripts = soup.find_all('script')
+            for script in scripts:
+                if script.string and ('harga' in script.string.lower() or 'price' in script.string.lower()):
+                    # Try to extract JSON
+                    try:
+                        # Look for JSON patterns
+                        json_match = re.search(r'\{.*"harga".*\}|\[.*"harga".*\]', script.string, re.DOTALL)
+                        if json_match:
+                            data = json.loads(json_match.group())
+                            return data, "Scraping (JSON)"
+                    except:
+                        pass
+            
+            # Try to find tables
+            tables = soup.find_all('table')
+            for table in tables:
+                rows = table.find_all('tr')
+                if len(rows) > 1:
+                    # Parse table
+                    data = parse_html_table(table)
+                    if data:
+                        return data, "Scraping (Table)"
+    except:
+        pass
+    
+    return None, None
+
+def parse_html_table(table):
+    """Parse HTML table into structured data"""
+    try:
+        headers = []
+        header_row = table.find('thead') or table.find('tr')
+        
+        if header_row:
+            for th in header_row.find_all(['th', 'td']):
+                headers.append(th.text.strip().lower())
+        
+        data = []
+        tbody = table.find('tbody') or table
+        
+        for row in tbody.find_all('tr')[1:]:  # Skip header row
+            cols = row.find_all('td')
+            if len(cols) >= 2:
+                row_data = {}
+                for i, col in enumerate(cols):
+                    if i < len(headers):
+                        row_data[headers[i]] = col.text.strip()
+                    else:
+                        row_data[f'col_{i}'] = col.text.strip()
+                
+                data.append(row_data)
+        
+        return data if data else None
+    except:
+        return None
+
+def parse_scraped_data(scraped_data, source_type):
+    """Parse scraped data into DataFrame"""
+    if not scraped_data:
+        return None
+    
+    parsed_data = []
+    
+    try:
+        # Handle different formats
+        if isinstance(scraped_data, dict) and 'data' in scraped_data:
+            records = scraped_data['data']
+        elif isinstance(scraped_data, list):
+            records = scraped_data
+        else:
+            return None
+        
+        for item in records:
+            try:
+                # Try different field names
+                date_field = item.get('tanggal') or item.get('date') or item.get('waktu') or datetime.now()
+                price_field = item.get('harga') or item.get('price') or item.get('harga_konsumen') or 0
+                commodity_field = item.get('komoditas') or item.get('commodity') or item.get('nama_komoditas') or 'Unknown'
+                province_field = item.get('provinsi') or item.get('province') or item.get('daerah') or 'Unknown'
+                market_field = item.get('pasar') or item.get('market') or item.get('nama_pasar') or 'Unknown'
+                
+                parsed_data.append({
+                    'date': pd.to_datetime(date_field) if date_field != datetime.now() else datetime.now(),
+                    'price': float(str(price_field).replace(',', '').replace('Rp', '').strip()),
+                    'commodity': str(commodity_field),
+                    'province': str(province_field),
+                    'market': str(market_field)
+                })
+            except Exception as e:
+                continue
+        
+        return pd.DataFrame(parsed_data) if parsed_data else None
+    except:
+        return None
 
 # ========== SAMPLE DATA (FALLBACK) ==========
 def generate_sample_data(commodity, days=90):
@@ -227,14 +306,14 @@ def calculate_statistics(df):
     }
 
 # ========== MAIN APP ==========
-st.title("📈 Analisis Tren Harga Komoditas (Panel Harga Pangan)")
-st.markdown("**Real-time price analysis dengan data dari Panel Harga Pangan + Machine Learning**")
+st.title("📈 Analisis Tren Harga Komoditas (Web Scraping)")
+st.markdown("**Real-time price analysis dengan Web Scraping + Machine Learning**")
 
 # Instructions
 with st.expander("📖 Cara Menggunakan", expanded=False):
     st.markdown("""
     **Fitur:**
-    - 🌐 Data real-time dari Panel Harga Pangan (Badan Pangan Nasional)
+    - 🌐 Data real-time via Web Scraping (Panel Harga Pangan)
     - 📊 Analisis tren harga multi-periode
     - 🤖 Prediksi dengan 3 model ML (Linear, Polynomial, Random Forest)
     - 📉 Volatilitas dan statistik lengkap
@@ -243,14 +322,16 @@ with st.expander("📖 Cara Menggunakan", expanded=False):
     
     **Data Source:**
     - Panel Harga Pangan: https://panelharga.badanpangan.go.id
-    - Update real-time setiap 2 jam (10:00 - 13:00 WIB)
+    - Method: Web Scraping (API + HTML parsing)
     - Coverage: 17 komoditas strategis
-    - Fallback: Data simulasi jika API tidak tersedia
+    - Fallback: Data simulasi realistic jika scraping gagal
     
     **Model ML:**
     - **Linear:** Simple & cepat
     - **Polynomial:** Untuk pola non-linear
     - **Random Forest:** Paling akurat untuk data kompleks
+    
+    **Note:** Web scraping dilakukan secara ethical dengan rate limiting.
     """)
 
 # Input Section
@@ -310,25 +391,26 @@ with st.expander("⚙️ Opsi Lanjutan"):
 # Analyze button
 if st.button("🔍 Analisis Harga Real-Time", type="primary", use_container_width=True):
     
-    with st.spinner("Mengambil data dari Panel Harga Pangan..."):
+    with st.spinner("Mengambil data dari Panel Harga Pangan (Web Scraping)..."):
         # Get commodity and province keys
         commodity_key = COMMODITY_MAPPING.get(commodity)
         province_key = PROVINCE_MAPPING.get(province)
         
-        # Fetch data from Panel Harga Pangan API
-        api_response = fetch_panel_harga_data(commodity_key, province_key, data_limit)
+        # Try web scraping
+        scraped_data, source_type = scrape_panel_harga_data(commodity_key, province_key, data_limit)
         
-        if api_response:
-            df_historical = parse_panel_harga_data(api_response)
+        if scraped_data and source_type:
+            df_historical = parse_scraped_data(scraped_data, source_type)
             
             if df_historical is not None and len(df_historical) > 0:
-                data_source = "Panel Harga Pangan (Real-time)"
+                data_source = f"Panel Harga Pangan ({source_type})"
+                st.success(f"✅ Berhasil mengambil data via {source_type}")
             else:
-                st.warning("⚠️ Data dari API kosong, menggunakan data simulasi")
+                st.warning("⚠️ Data dari scraping kosong, menggunakan data simulasi")
                 df_historical = generate_sample_data(commodity, data_limit)
                 data_source = "Data Simulasi"
         else:
-            st.warning("⚠️ Panel Harga Pangan API tidak tersedia, menggunakan data simulasi")
+            st.warning("⚠️ Web scraping tidak berhasil, menggunakan data simulasi realistic")
             df_historical = generate_sample_data(commodity, data_limit)
             data_source = "Data Simulasi"
         

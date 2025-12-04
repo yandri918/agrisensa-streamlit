@@ -7,3 +7,5 @@ requests
 scikit-learn
 numpy
 opencv-python-headless
+beautifulsoup4
+lxml
