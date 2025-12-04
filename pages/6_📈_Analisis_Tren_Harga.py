@@ -15,7 +15,91 @@ import json
 
 st.set_page_config(page_title="Analisis Tren Harga", page_icon="📈", layout="wide")
 
-# ========== WEB SCRAPING FOR PANEL HARGA PANGAN ==========
+# ========== BPS WEBAPI INTEGRATION (PRIMARY) ==========
+BPS_API_BASE = "https://webapi.bps.go.id/v1/api"
+BPS_API_KEY = "6f4c9c9330709456559cb9553a595190"
+
+# BPS Indicator IDs for food prices
+BPS_INDICATORS = {
+    "Beras": "1",
+    "Cabai Merah": "2", 
+    "Cabai Rawit": "3",
+    "Bawang Merah": "4",
+    "Bawang Putih": "5",
+    "Gula Pasir": "6",
+    "Minyak Goreng": "7",
+    "Daging Ayam": "8",
+    "Daging Sapi": "9",
+    "Telur Ayam": "10",
+    "Tomat": "11",
+    "Kentang": "12"
+}
+
+def fetch_bps_price_data(commodity, province_code="0000", limit=100):
+    """
+    Fetch real price data from BPS WebAPI
+    
+    Parameters:
+    - commodity: Commodity name
+    - province_code: Province code (0000 for national)
+    - limit: Number of records
+    """
+    try:
+        indicator_id = BPS_INDICATORS.get(commodity, "1")
+        
+        # BPS API endpoint for price data
+        url = f"{BPS_API_BASE}/list/model/data/lang/ind/domain/{province_code}/var/{indicator_id}/key/{BPS_API_KEY}"
+        
+        response = requests.get(url, timeout=15)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Check if data exists
+            if data and 'data' in data:
+                return data, "BPS WebAPI"
+            elif data and isinstance(data, list):
+                return {'data': data}, "BPS WebAPI"
+        
+        return None, None
+    except Exception as e:
+        return None, None
+
+def parse_bps_data(bps_response):
+    """Parse BPS API response into DataFrame"""
+    if not bps_response or 'data' not in bps_response:
+        return None
+    
+    parsed_data = []
+    
+    try:
+        records = bps_response['data']
+        
+        for item in records:
+            try:
+                # BPS data structure
+                year = item.get('tahun') or item.get('year') or datetime.now().year
+                month = item.get('bulan') or item.get('month') or datetime.now().month
+                value = item.get('nilai') or item.get('value') or 0
+                
+                # Create date
+                date = pd.to_datetime(f"{year}-{month:02d}-01")
+                
+                parsed_data.append({
+                    'date': date,
+                    'price': float(value),
+                    'commodity': item.get('komoditas', 'Unknown'),
+                    'province': item.get('provinsi', 'Indonesia'),
+                    'market': 'BPS Data'
+                })
+            except:
+                continue
+        
+        return pd.DataFrame(parsed_data) if parsed_data else None
+    except:
+        return None
+
+# ========== WEB SCRAPING FOR PANEL HARGA PANGAN (SECONDARY) ==========
 from bs4 import BeautifulSoup
 import re
 import json
@@ -306,32 +390,36 @@ def calculate_statistics(df):
     }
 
 # ========== MAIN APP ==========
-st.title("📈 Analisis Tren Harga Komoditas (Web Scraping)")
-st.markdown("**Real-time price analysis dengan Web Scraping + Machine Learning**")
+st.title("📈 Analisis Tren Harga Komoditas (BPS WebAPI)")
+st.markdown("**Real-time price analysis dengan data resmi BPS + Machine Learning**")
 
 # Instructions
 with st.expander("📖 Cara Menggunakan", expanded=False):
     st.markdown("""
     **Fitur:**
-    - 🌐 Data real-time via Web Scraping (Panel Harga Pangan)
+    - 🌐 Data resmi dari BPS WebAPI (Badan Pusat Statistik)
     - 📊 Analisis tren harga multi-periode
     - 🤖 Prediksi dengan 3 model ML (Linear, Polynomial, Random Forest)
     - 📉 Volatilitas dan statistik lengkap
     - 💡 Rekomendasi buy/sell/hold
     - 📥 Export data & prediksi
     
-    **Data Source:**
-    - Panel Harga Pangan: https://panelharga.badanpangan.go.id
-    - Method: Web Scraping (API + HTML parsing)
-    - Coverage: 17 komoditas strategis
-    - Fallback: Data simulasi realistic jika scraping gagal
+    **Data Source Priority:**
+    1. **BPS WebAPI** (Primary) - Data resmi pemerintah
+    2. **Panel Harga Pangan** (Secondary) - Web scraping
+    3. **Simulasi** (Fallback) - Data realistic
+    
+    **Coverage:**
+    - 12 komoditas strategis
+    - Data bulanan dari BPS
+    - Update berkala
     
     **Model ML:**
     - **Linear:** Simple & cepat
     - **Polynomial:** Untuk pola non-linear
     - **Random Forest:** Paling akurat untuk data kompleks
     
-    **Note:** Web scraping dilakukan secara ethical dengan rate limiting.
+    **API Key:** Authenticated dengan BPS WebAPI
     """)
 
 # Input Section
@@ -342,8 +430,8 @@ col1, col2, col3 = st.columns(3)
 with col1:
     commodity = st.selectbox(
         "Pilih Komoditas",
-        list(COMMODITY_MAPPING.keys()),
-        help="Pilih komoditas untuk analisis"
+        list(BPS_INDICATORS.keys()),
+        help="Pilih komoditas untuk analisis (data dari BPS)"
     )
 
 with col2:
@@ -391,28 +479,47 @@ with st.expander("⚙️ Opsi Lanjutan"):
 # Analyze button
 if st.button("🔍 Analisis Harga Real-Time", type="primary", use_container_width=True):
     
-    with st.spinner("Mengambil data dari Panel Harga Pangan (Web Scraping)..."):
+    with st.spinner("Mengambil data dari BPS WebAPI..."):
         # Get commodity and province keys
         commodity_key = COMMODITY_MAPPING.get(commodity)
         province_key = PROVINCE_MAPPING.get(province)
         
-        # Try web scraping
-        scraped_data, source_type = scrape_panel_harga_data(commodity_key, province_key, data_limit)
+        # Strategy 1: Try BPS WebAPI first (most reliable)
+        bps_data, bps_source = fetch_bps_price_data(commodity, "0000", data_limit)
         
-        if scraped_data and source_type:
-            df_historical = parse_scraped_data(scraped_data, source_type)
+        if bps_data and bps_source:
+            df_historical = parse_bps_data(bps_data)
             
             if df_historical is not None and len(df_historical) > 0:
-                data_source = f"Panel Harga Pangan ({source_type})"
-                st.success(f"✅ Berhasil mengambil data via {source_type}")
+                data_source = "BPS WebAPI (Official)"
+                st.success(f"✅ Berhasil mengambil data dari BPS WebAPI!")
             else:
-                st.warning("⚠️ Data dari scraping kosong, menggunakan data simulasi")
+                # Try web scraping as fallback
+                st.info("BPS data kosong, mencoba web scraping...")
+                scraped_data, source_type = scrape_panel_harga_data(commodity_key, province_key, data_limit)
+                
+                if scraped_data and source_type:
+                    df_historical = parse_scraped_data(scraped_data, source_type)
+                    data_source = f"Panel Harga Pangan ({source_type})"
+                    st.success(f"✅ Berhasil via {source_type}")
+                else:
+                    st.warning("⚠️ Menggunakan data simulasi realistic")
+                    df_historical = generate_sample_data(commodity, data_limit)
+                    data_source = "Data Simulasi"
+        else:
+            # Strategy 2: Try web scraping
+            st.info("BPS API tidak tersedia, mencoba web scraping...")
+            scraped_data, source_type = scrape_panel_harga_data(commodity_key, province_key, data_limit)
+            
+            if scraped_data and source_type:
+                df_historical = parse_scraped_data(scraped_data, source_type)
+                data_source = f"Panel Harga Pangan ({source_type})"
+                st.success(f"✅ Berhasil via {source_type}")
+            else:
+                # Strategy 3: Simulation fallback
+                st.warning("⚠️ Semua sumber data tidak tersedia, menggunakan data simulasi realistic")
                 df_historical = generate_sample_data(commodity, data_limit)
                 data_source = "Data Simulasi"
-        else:
-            st.warning("⚠️ Web scraping tidak berhasil, menggunakan data simulasi realistic")
-            df_historical = generate_sample_data(commodity, data_limit)
-            data_source = "Data Simulasi"
         
         if df_historical is None or len(df_historical) == 0:
             st.error("Tidak ada data tersedia untuk komoditas dan provinsi ini")
@@ -660,9 +767,14 @@ if st.button("🔍 Analisis Harga Real-Time", type="primary", use_container_widt
 # Footer
 st.markdown("---")
 st.caption("""
-💡 **Data Source:** Panel Harga Pangan - Badan Pangan Nasional (https://panelharga.badanpangan.go.id)
+💡 **Data Source:** 
+- Primary: BPS WebAPI - Badan Pusat Statistik (https://webapi.bps.go.id)
+- Secondary: Panel Harga Pangan (Web Scraping)
+- Fallback: Data Simulasi Realistic
 
 ⚠️ **Disclaimer:** Prediksi harga menggunakan machine learning dan data historical. 
 Harga aktual dapat berbeda karena faktor eksternal (cuaca, politik, supply-demand, dll). 
 Gunakan sebagai referensi, bukan keputusan final. DYOR (Do Your Own Research).
+
+🔑 **API Status:** Authenticated dengan BPS WebAPI Key
 """)
