@@ -1,5 +1,6 @@
 # Pusat Pengetahuan Pertanian
 # Ensiklopedia lengkap nutrisi tanaman, pupuk, dan pengendalian hama alami
+# Version: 1.0.1 (Bug Fix)
 
 import streamlit as st
 import pandas as pd
@@ -442,8 +443,14 @@ with tab3:
                 for jenis, desc in data['jenis'].items():
                     st.markdown(f"- **{jenis}:** {desc}")
             
-            st.markdown(f"**Fungsi:** {data['fungsi']}")
-            st.markdown(f"**Dosis:** {data['dosis']}")
+            if "fungsi" in data:
+                st.markdown(f"**Fungsi:** {data['fungsi']}")
+            
+            if "tanaman" in data:
+                st.markdown(f"**Tanaman:** {', '.join(data['tanaman'])}")
+            
+            if "dosis" in data:
+                st.markdown(f"**Dosis:** {data['dosis']}")
             
             if "cara_buat" in data:
                 st.markdown("**Cara Membuat:**")
