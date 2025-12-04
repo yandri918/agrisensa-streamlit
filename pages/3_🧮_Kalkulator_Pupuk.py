@@ -1,11 +1,13 @@
-# Kalkulator Pupuk Holistik
-# Hitung kebutuhan pupuk NPK berdasarkan luas lahan dan jenis tanaman
+# Kalkulator Pupuk Holistik - Enhanced Version
+# Hitung kebutuhan pupuk presisi dengan jadwal pemupukan bertahap untuk hasil optimal
 
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+from datetime import datetime, timedelta
+import json
 
-st.set_page_config(page_title="Kalkulator Pupuk", page_icon="🧮", layout="wide")
+st.set_page_config(page_title="Kalkulator Pupuk Holistik", page_icon="🧮", layout="wide")
 
 # ========== DATA ==========
 # Kebutuhan NPK per hektar untuk berbagai tanaman (kg/ha)
@@ -23,12 +25,38 @@ CROP_NPK_REQUIREMENTS = {
 
 # Kandungan NPK pupuk (%)
 FERTILIZER_CONTENT = {
-    "Urea": {"N": 46, "P": 0, "K": 0, "price_per_kg": 2500},
-    "SP-36": {"N": 0, "P": 36, "K": 0, "price_per_kg": 3000},
-    "KCl": {"N": 0, "P": 0, "K": 60, "price_per_kg": 3500},
-    "NPK 15-15-15": {"N": 15, "P": 15, "K": 15, "price_per_kg": 4000},
-    "NPK 16-16-16": {"N": 16, "P": 16, "K": 16, "price_per_kg": 4200},
-    "ZA": {"N": 21, "P": 0, "K": 0, "price_per_kg": 2000},
+    # Anorganik
+    "Urea": {"N": 46, "P": 0, "K": 0, "price_per_kg": 2500, "type": "anorganik"},
+    "SP-36": {"N": 0, "P": 36, "K": 0, "price_per_kg": 3000, "type": "anorganik"},
+    "KCl": {"N": 0, "P": 0, "K": 60, "price_per_kg": 3500, "type": "anorganik"},
+    "NPK 15-15-15": {"N": 15, "P": 15, "K": 15, "price_per_kg": 4000, "type": "anorganik"},
+    "NPK 16-16-16": {"N": 16, "P": 16, "K": 16, "price_per_kg": 4200, "type": "anorganik"},
+    "ZA": {"N": 21, "P": 0, "K": 0, "price_per_kg": 2000, "type": "anorganik"},
+    # Organik
+    "Kompos": {"N": 1.5, "P": 1.0, "K": 1.5, "price_per_kg": 500, "type": "organik"},
+    "Pupuk Kandang": {"N": 2.0, "P": 1.5, "K": 2.0, "price_per_kg": 300, "type": "organik"},
+    "Guano": {"N": 10, "P": 12, "K": 2, "price_per_kg": 5000, "type": "organik"},
+    "Kascing": {"N": 2.5, "P": 2.0, "K": 1.5, "price_per_kg": 2000, "type": "organik"},
+}
+
+# Growth phases for different crops
+GROWTH_PHASES = {
+    "Padi": [
+        {"phase": "Vegetatif Awal", "days": "0-21", "N": 40, "P": 100, "K": 30},
+        {"phase": "Vegetatif Akhir", "days": "22-50", "N": 30, "P": 0, "K": 30},
+        {"phase": "Generatif", "days": "51-90", "N": 30, "P": 0, "K": 40},
+    ],
+    "Jagung": [
+        {"phase": "Vegetatif", "days": "0-30", "N": 50, "P": 100, "K": 40},
+        {"phase": "Pembungaan", "days": "31-60", "N": 30, "P": 0, "K": 30},
+        {"phase": "Pengisian Biji", "days": "61-90", "N": 20, "P": 0, "K": 30},
+    ],
+    "Cabai Merah": [
+        {"phase": "Vegetatif", "days": "0-30", "N": 30, "P": 50, "K": 20},
+        {"phase": "Pembungaan", "days": "31-60", "N": 25, "P": 30, "K": 30},
+        {"phase": "Pembuahan 1", "days": "61-90", "N": 20, "P": 10, "K": 25},
+        {"phase": "Pembuahan 2", "days": "91-120", "N": 25, "P": 10, "K": 25},
+    ],
 }
 
 # ========== FUNCTIONS ==========
@@ -164,7 +192,7 @@ if st.button("🔍 Hitung Kebutuhan Pupuk", type="primary", use_container_width=
     st.markdown("---")
     st.subheader("💊 Rekomendasi Pupuk")
     
-    tab1, tab2 = st.tabs(["Pupuk Tunggal (Ekonomis)", "Pupuk Majemuk (Praktis)"])
+    tab1, tab2, tab3 = st.tabs(["Pupuk Tunggal (Ekonomis)", "Pupuk Majemuk (Praktis)", "Mix Organik + Anorganik (Sehat)"])
     
     with tab1:
         st.markdown("**Menggunakan kombinasi Urea, SP-36, dan KCl**")
@@ -244,6 +272,67 @@ if st.button("🔍 Hitung Kebutuhan Pupuk", type="primary", use_container_width=
         
         st.info("💡 NPK majemuk lebih praktis tapi biasanya lebih mahal. Pilih sesuai budget dan kemudahan aplikasi.")
     
+    with tab3:
+        st.markdown("**Kombinasi Pupuk Organik + Anorganik untuk Kesehatan Tanah Jangka Panjang**")
+        
+        # 30% from organic, 70% from inorganic
+        organic_ratio = 0.3
+        inorganic_ratio = 0.7
+        
+        # Organic contribution (using Kompos)
+        kompos_for_n = (npk_needs['N'] * organic_ratio / FERTILIZER_CONTENT['Kompos']['N']) * 100
+        kompos_for_p = (npk_needs['P'] * organic_ratio / FERTILIZER_CONTENT['Kompos']['P']) * 100
+        kompos_for_k = (npk_needs['K'] * organic_ratio / FERTILIZER_CONTENT['Kompos']['K']) * 100
+        kompos_needed = max(kompos_for_n, kompos_for_p, kompos_for_k)
+        
+        # Inorganic contribution (reduced by organic)
+        reduced_n = npk_needs['N'] * inorganic_ratio
+        reduced_p = npk_needs['P'] * inorganic_ratio
+        reduced_k = npk_needs['K'] * inorganic_ratio
+        
+        urea_mix = (reduced_n / FERTILIZER_CONTENT['Urea']['N']) * 100
+        sp36_mix = (reduced_p / FERTILIZER_CONTENT['SP-36']['P']) * 100
+        kcl_mix = (reduced_k / FERTILIZER_CONTENT['KCl']['K']) * 100
+        
+        # Calculate costs
+        kompos_cost = kompos_needed * FERTILIZER_CONTENT['Kompos']['price_per_kg']
+        urea_mix_cost = urea_mix * FERTILIZER_CONTENT['Urea']['price_per_kg']
+        sp36_mix_cost = sp36_mix * FERTILIZER_CONTENT['SP-36']['price_per_kg']
+        kcl_mix_cost = kcl_mix * FERTILIZER_CONTENT['KCl']['price_per_kg']
+        total_mix_cost = kompos_cost + urea_mix_cost + sp36_mix_cost + kcl_mix_cost
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Pupuk Organik (30%):**")
+            st.markdown(f"""
+            **Kompos**
+            - Jumlah: **{kompos_needed:.2f} kg**
+            - Karung (50kg): **{kompos_needed/50:.1f} karung**
+            - Biaya: **Rp {kompos_cost:,.0f}**
+            
+            *Manfaat: Memperbaiki struktur tanah, meningkatkan mikroorganisme*
+            """)
+        
+        with col2:
+            st.markdown("**Pupuk Anorganik (70%):**")
+            st.markdown(f"""
+            - **Urea:** {urea_mix:.1f} kg (Rp {urea_mix_cost:,.0f})
+            - **SP-36:** {sp36_mix:.1f} kg (Rp {sp36_mix_cost:,.0f})
+            - **KCl:** {kcl_mix:.1f} kg (Rp {kcl_mix_cost:,.0f})
+            
+            *Manfaat: Nutrisi cepat tersedia untuk tanaman*
+            """)
+        
+        st.success(f"💰 **Total Biaya: Rp {total_mix_cost:,.0f}**")
+        st.info("""
+        ✅ **Keunggulan Mix Organik + Anorganik:**
+        - Kesehatan tanah jangka panjang
+        - Nutrisi slow-release + fast-release
+        - Meningkatkan kesuburan biologis tanah
+        - Lebih ramah lingkungan
+        """)
+    
     # Visualization
     st.markdown("---")
     st.subheader("📈 Visualisasi Kebutuhan NPK")
@@ -263,21 +352,62 @@ if st.button("🔍 Hitung Kebutuhan Pupuk", type="primary", use_container_width=
     
     st.plotly_chart(fig, use_container_width=True)
     
-    # Application schedule
+    # Enhanced Application schedule
     st.markdown("---")
-    st.subheader("📅 Jadwal Aplikasi Pupuk")
+    st.subheader("📅 Jadwal Pemupukan Detail")
     
-    st.markdown(f"""
-    **Rekomendasi waktu pemupukan untuk {crop}:**
-    
-    | Waktu | Jenis Pupuk | Dosis | Keterangan |
-    |-------|-------------|-------|------------|
-    | **Dasar (0 HST)** | Urea 50% + SP-36 100% + KCl 50% | {urea_needed*0.5:.1f} + {sp36_needed:.1f} + {kcl_needed*0.5:.1f} kg | Saat tanam/olah tanah |
-    | **Susulan 1 (21 HST)** | Urea 25% + KCl 25% | {urea_needed*0.25:.1f} + {kcl_needed*0.25:.1f} kg | Fase vegetatif |
-    | **Susulan 2 (42 HST)** | Urea 25% + KCl 25% | {urea_needed*0.25:.1f} + {kcl_needed*0.25:.1f} kg | Fase generatif |
-    
-    *HST = Hari Setelah Tanam
-    """)
+    # Check if crop has growth phases
+    if crop in GROWTH_PHASES:
+        st.markdown(f"**Jadwal Pemupukan Berdasarkan Fase Pertumbuhan {crop}:**")
+        
+        phases = GROWTH_PHASES[crop]
+        schedule_data = []
+        
+        for phase in phases:
+            n_amount = (npk_needs['N'] * phase['N'] / 100)
+            p_amount = (npk_needs['P'] * phase['P'] / 100)
+            k_amount = (npk_needs['K'] * phase['K'] / 100)
+            
+            urea_phase = (n_amount / FERTILIZER_CONTENT['Urea']['N']) * 100
+            sp36_phase = (p_amount / FERTILIZER_CONTENT['SP-36']['P']) * 100 if phase['P'] > 0 else 0
+            kcl_phase = (k_amount / FERTILIZER_CONTENT['KCl']['K']) * 100
+            
+            schedule_data.append({
+                'Fase': phase['phase'],
+                'Hari': phase['days'],
+                'Urea (kg)': f"{urea_phase:.1f}",
+                'SP-36 (kg)': f"{sp36_phase:.1f}" if sp36_phase > 0 else "-",
+                'KCl (kg)': f"{kcl_phase:.1f}",
+                'N (%)': f"{phase['N']}%",
+                'P (%)': f"{phase['P']}%",
+                'K (%)': f"{phase['K']}%"
+            })
+        
+        df_schedule = pd.DataFrame(schedule_data)
+        st.dataframe(df_schedule, use_container_width=True, hide_index=True)
+        
+        # Download schedule
+        csv = df_schedule.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download Jadwal Pemupukan (CSV)",
+            data=csv,
+            file_name=f"jadwal_pemupukan_{crop}_{datetime.now().strftime('%Y%m%d')}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+    else:
+        # Default schedule for crops without specific phases
+        st.markdown(f"""
+        **Rekomendasi waktu pemupukan untuk {crop}:**
+        
+        | Waktu | Jenis Pupuk | Dosis | Keterangan |
+        |-------|-------------|-------|------------|
+        | **Dasar (0 HST)** | Urea 50% + SP-36 100% + KCl 50% | {urea_needed*0.5:.1f} + {sp36_needed:.1f} + {kcl_needed*0.5:.1f} kg | Saat tanam/olah tanah |
+        | **Susulan 1 (21 HST)** | Urea 25% + KCl 25% | {urea_needed*0.25:.1f} + {kcl_needed*0.25:.1f} kg | Fase vegetatif |
+        | **Susulan 2 (42 HST)** | Urea 25% + KCl 25% | {urea_needed*0.25:.1f} + {kcl_needed*0.25:.1f} kg | Fase generatif |
+        
+        *HST = Hari Setelah Tanam
+        """)
     
     st.warning("⚠️ **Catatan:** Jadwal ini adalah rekomendasi umum. Sesuaikan dengan kondisi tanaman dan cuaca di lapangan.")
 
