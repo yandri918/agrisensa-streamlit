@@ -38,8 +38,8 @@ def get_weather_data(lat, lon):
             "latitude": lat,
             "longitude": lon,
             "current": "temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m,surface_pressure",
-            "hourly": "temperature_2m,relative_humidity_2m,rain,soil_temperature_0cm,soil_moisture_0_to_1cm",
-            "daily": "weather_code,temperature_2m_max,temperature_2m_min,rain_sum,precipitation_probability_max",
+            "hourly": "temperature_2m,relative_humidity_2m,rain,soil_temperature_0cm,soil_moisture_0_to_1cm,shortwave_radiation,vapor_pressure_deficit",
+            "daily": "weather_code,temperature_2m_max,temperature_2m_min,rain_sum,precipitation_probability_max,et0_fao_evapotranspiration",
             "timezone": "auto"
         }
         response = requests.get(url, params=params, timeout=10)
@@ -407,28 +407,95 @@ if 'weather_data' in st.session_state:
             </div>
             """, unsafe_allow_html=True)
             
-    # 4. Charts
+    # 4. Advanced Metrics (New Tab)
     st.markdown("---")
-    st.subheader("📈 Tren Cuaca")
+    tab_basic, tab_adv, tab_chart = st.tabs(["📊 Metrik Dasar", "🔬 Metrik Lanjutan (Agronomi)", "📈 Grafik Tren"])
     
-    chart_df = pd.DataFrame({
-        "Tanggal": dates,
-        "Suhu Max": t_max,
-        "Suhu Min": t_min,
-        "Curah Hujan (mm)": rain_sum
-    })
-    
-    tab_chart1, tab_chart2 = st.tabs(["🌡️ Grafik Suhu", "🌧️ Grafik Hujan"])
-    
-    with tab_chart1:
-        fig_temp = px.line(chart_df, x="Tanggal", y=["Suhu Max", "Suhu Min"], markers=True, 
-                          color_discrete_map={"Suhu Max": "#ef4444", "Suhu Min": "#3b82f6"})
-        st.plotly_chart(fig_temp, use_container_width=True)
+    with tab_basic:
+        st.info("Pilih tab 'Metrik Lanjutan' untuk data profesional (ET0, VPD, Radiasi).")
+
+    with tab_adv:
+        st.subheader("🔬 Metrik Agronomi Presisi")
+        st.markdown("Data tingkat lanjut untuk manajemen pertanian presisi.")
         
-    with tab_chart2:
-        fig_rain = px.bar(chart_df, x="Tanggal", y="Curah Hujan (mm)", 
-                         color_discrete_sequence=["#2563eb"])
-        st.plotly_chart(fig_rain, use_container_width=True)
+        # Get hourly data for current time approximation
+        hourly = data.get('hourly', {})
+        current_hour_idx = datetime.now().hour
+        
+        et0 = daily.get('et0_fao_evapotranspiration', [0])[0] # Daily ET0
+        solar_rad = hourly.get('shortwave_radiation', [0])[current_hour_idx] if hourly.get('shortwave_radiation') else 0
+        vpd = hourly.get('vapor_pressure_deficit', [0])[current_hour_idx] if hourly.get('vapor_pressure_deficit') else 0
+        
+        col_et, col_rad, col_vpd = st.columns(3)
+        
+        with col_et:
+            st.markdown(f"""
+            <div class="metric-card" style="border-left: 5px solid #3b82f6;">
+                <h3>💧 Evapotranspirasi (ET₀)</h3>
+                <h1>{et0} mm/hari</h1>
+                <p>Kebutuhan Air Tanaman Referensi</p>
+                <div style="font-size:0.8rem; color:gray; text-align:left;">
+                <b>Tips:</b> Gunakan nilai ini untuk menghitung kebutuhan irigasi harian.
+                (ETc = ET₀ × Kc Tanaman)
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with col_rad:
+            st.markdown(f"""
+            <div class="metric-card" style="border-left: 5px solid #f59e0b;">
+                <h3>☀️ Radiasi Matahari</h3>
+                <h1>{solar_rad} W/m²</h1>
+                <p>Intensitas Energi Matahari (Saat Ini)</p>
+                <div style="font-size:0.8rem; color:gray; text-align:left;">
+                <b>Info:</b> Penting untuk fotosintesis.
+                <br>> 500 W/m²: Radiasi tinggi (Siang cerah).
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with col_vpd:
+            vpd_status = "Optimal 🟢" if 0.4 <= vpd <= 1.6 else ("Rendah (Lembab) 🔵" if vpd < 0.4 else "Tinggi (Kering) 🔴")
+            st.markdown(f"""
+            <div class="metric-card" style="border-left: 5px solid #10b981;">
+                <h3>🍃 VPD (Stress Tanaman)</h3>
+                <h1>{vpd} kPa</h1>
+                <p>Status: <b>{vpd_status}</b></p>
+                <div style="font-size:0.8rem; color:gray; text-align:left;">
+                <b>Vapor Pressure Deficit:</b>
+                <br>Optimal (0.4-1.6 kPa): Stomata terbuka maksimal.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+    with tab_chart:
+        chart_df = pd.DataFrame({
+            "Tanggal": dates,
+            "Suhu Max": t_max,
+            "Suhu Min": t_min,
+            "Curah Hujan (mm)": rain_sum,
+            "ET0 (mm)": daily.get('et0_fao_evapotranspiration', [])
+        })
+        
+        subtab1, subtab2, subtab3 = st.tabs(["🌡️ Suhu", "🌧️ Hujan & ET0", "💧 Water Balance"])
+        
+        with subtab1:
+            fig_temp = px.line(chart_df, x="Tanggal", y=["Suhu Max", "Suhu Min"], markers=True, 
+                              color_discrete_map={"Suhu Max": "#ef4444", "Suhu Min": "#3b82f6"})
+            st.plotly_chart(fig_temp, use_container_width=True)
+            
+        with subtab2:
+            fig_rain = go.Figure()
+            fig_rain.add_trace(go.Bar(x=chart_df['Tanggal'], y=chart_df['Curah Hujan (mm)'], name='Curah Hujan (Input)', marker_color='#3b82f6'))
+            fig_rain.add_trace(go.Bar(x=chart_df['Tanggal'], y=chart_df['ET0 (mm)'], name='Evapotranspirasi (Output)', marker_color='#ef4444'))
+            fig_rain.update_layout(barmode='group', title="Input Air (Hujan) vs Output Air (ET0)")
+            st.plotly_chart(fig_rain, use_container_width=True)
+            
+        with subtab3:
+            chart_df['Water Balance'] = chart_df['Curah Hujan (mm)'] - chart_df['ET0 (mm)']
+            fig_bal = px.bar(chart_df, x="Tanggal", y="Water Balance", color="Water Balance",
+                            color_continuous_scale="RdBu", title="Neraca Air Harian (Hujan - ET0)")
+            st.plotly_chart(fig_bal, use_container_width=True)
 
 else:
     st.info("👆 Silakan pilih lokasi di peta lalu klik tombol 'Analisis Cuaca & Lahan'")
