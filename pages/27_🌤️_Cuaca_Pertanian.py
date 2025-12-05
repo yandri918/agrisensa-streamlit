@@ -497,6 +497,50 @@ if 'weather_data' in st.session_state:
                             color_continuous_scale="RdBu", title="Neraca Air Harian (Hujan - ET0)")
             st.plotly_chart(fig_bal, use_container_width=True)
 
+    # 5. Export & Report
+    st.markdown("---")
+    with st.expander("📥 Export Laporan & Data (CSV)", expanded=False):
+        st.subheader("Simpan Data Cuaca untuk Analisis")
+        
+        # Prepare Export DataFrame
+        export_df = pd.DataFrame({
+            "Tanggal": dates,
+            "Cuaca": [get_weather_icon(c)[1] for c in codes],
+            "Suhu Max (°C)": t_max,
+            "Suhu Min (°C)": t_min,
+            "Curah Hujan (mm)": rain_sum,
+            "ET0 (mm)": daily.get('et0_fao_evapotranspiration', []),
+            "Probabilitas Hujan (%)": daily.get('precipitation_probability_max', [])
+        })
+        
+        # Add Daily Insights Column
+        insights = []
+        for i, row in export_df.iterrows():
+            rain = row['Curah Hujan (mm)']
+            if rain > 10:
+                insights.append("⚠️ Hujan Lebat - Stop Aktivitas")
+            elif rain > 0:
+                insights.append("🌧️ Hujan Ringan - Waspada")
+            else:
+                insights.append("✅ Cerah - Aman untuk Semprot/Panen")
+        export_df['Rekomendasi Harian'] = insights
+        
+        st.dataframe(export_df, use_container_width=True)
+        
+        # CSV Conversion
+        csv = export_df.to_csv(index=False).encode('utf-8')
+        
+        col_dl1, col_dl2 = st.columns([1, 2])
+        with col_dl1:
+            st.download_button(
+                label="📥 Download CSV (Lengkap)",
+                data=csv,
+                file_name=f"agrisensa_weather_forecast_{datetime.now().strftime('%Y%m%d')}.csv",
+                mime="text/csv",
+            )
+        with col_dl2:
+            st.info("ℹ️ File CSV mencakup data 7 hari kedepan beserta kolom rekomendasi harian otomatis.")
+
 else:
     st.info("👆 Silakan pilih lokasi di peta lalu klik tombol 'Analisis Cuaca & Lahan'")
 
