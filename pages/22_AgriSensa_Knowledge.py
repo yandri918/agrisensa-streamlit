@@ -379,6 +379,311 @@ ILMU_TANAH = {
     }
 }
 
+# 3.5. PUPUK MAKRO SEKUNDER
+PUPUK_MAKRO_SEKUNDER = {
+    "kalsium": {
+        "title": "Kalsium (Ca) - Unsur Hara Sekunder Penting",
+        "content": """
+        ### 🧪 Fungsi Kalsium dalam Tanaman
+        
+        **Peran Struktural:**
+        - Komponen dinding sel (kalsium pektat)
+        - Memperkuat struktur tanaman
+        - Meningkatkan ketahanan terhadap penyakit
+        
+        **Peran Fisiologis:**
+        - Aktivasi enzim
+        - Permeabilitas membran sel
+        - Pembelahan dan pemanjangan sel
+        - Perkembangan akar
+        - Kualitas buah (mencegah blossom end rot)
+        
+        ### 🔍 Gejala Defisiensi Kalsium
+        
+        **Pada Daun Muda:**
+        - Daun muda keriput dan menggulung
+        - Tepi daun nekrosis (mati)
+        - Pertumbuhan terhambat
+        
+        **Pada Buah:**
+        - Blossom end rot (tomat, cabai)
+        - Bitter pit (apel)
+        - Tip burn (selada, kubis)
+        - Buah mudah busuk
+        
+        **Tanaman Rentan:**
+        - Tomat, cabai, melon
+        - Selada, kubis, sawi
+        - Apel, anggur
+        
+        ### 🌾 Jenis Pupuk Kalsium
+        
+        **1. Kapur Pertanian (CaCO₃)**
+        - **Kandungan Ca**: 32-40%
+        - **Fungsi**: Menaikkan pH + sumber Ca
+        - **Dosis**: 500-2000 kg/ha
+        - **Aplikasi**: 2-4 minggu sebelum tanam
+        - **Cocok untuk**: Tanah asam (pH <5.5)
+        
+        **2. Dolomit (CaMg(CO₃)₂)**
+        - **Kandungan**: Ca 20-22%, Mg 10-13%
+        - **Keunggulan**: Bonus magnesium
+        - **Dosis**: 1-2 ton/ha
+        - **Cocok untuk**: Tanah asam + defisiensi Mg
+        
+        **3. Gypsum (CaSO₄·2H₂O)**
+        - **Kandungan**: Ca 23%, S 18%
+        - **Keunggulan**: Tidak menaikkan pH
+        - **Dosis**: 200-500 kg/ha
+        - **Cocok untuk**: Tanah alkalis, tanah sodic
+        - **Bonus**: Sumber sulfur
+        
+        **4. Kalsium Nitrat (Ca(NO₃)₂)**
+        - **Kandungan**: Ca 19%, N 15.5%
+        - **Keunggulan**: Larut air, cepat tersedia
+        - **Dosis**: 100-200 kg/ha atau 1-2 g/L
+        - **Aplikasi**: Fertigasi, hidroponik
+        - **Cocok untuk**: Koreksi cepat, sayuran
+        
+        **5. Kalsium Klorida (CaCl₂)**
+        - **Kandungan**: Ca 36%
+        - **Aplikasi**: Semprot daun 2-5 g/L
+        - **Fungsi**: Mencegah blossom end rot
+        - **Frekuensi**: 7-10 hari sekali
+        
+        ### 📊 Kebutuhan Kalsium per Tanaman
+        - **Tomat**: 150-200 kg Ca/ha
+        - **Cabai**: 100-150 kg Ca/ha
+        - **Kubis**: 200-250 kg Ca/ha
+        - **Apel**: 80-120 kg Ca/ha
+        
+        ### 💡 Tips Aplikasi
+        1. Untuk tanah asam: Gunakan kapur/dolomit
+        2. Untuk tanah alkalis: Gunakan gypsum
+        3. Untuk koreksi cepat: Kalsium nitrat (kocor/fertigasi)
+        4. Untuk buah: Semprot kalsium klorida saat berbuah
+        5. Jangan campur dengan pupuk fosfat (mengendap)
+        """,
+        "tags": ["kalsium", "Ca", "pupuk", "sekunder"],
+        "difficulty": "intermediate",
+        "read_time": 8
+    },
+    "magnesium": {
+        "title": "Magnesium (Mg) - Jantung Klorofil",
+        "content": """
+        ### 🧪 Fungsi Magnesium dalam Tanaman
+        
+        **Peran Utama:**
+        - **Inti klorofil** (atom pusat molekul klorofil)
+        - Fotosintesis - tanpa Mg, tidak ada fotosintesis
+        - Aktivator 300+ enzim
+        - Metabolisme karbohidrat
+        - Sintesis protein dan lemak
+        - Transfer energi (ATP)
+        
+        ### 🔍 Gejala Defisiensi Magnesium
+        
+        **Karakteristik Khas:**
+        - **Klorosis interveinal** (tulang daun hijau, daging daun kuning)
+        - Dimulai dari **daun tua** (Mg mobile)
+        - Daun bawah kuning → oranye → merah → nekrosis
+        - Fotosintesis menurun drastis
+        - Hasil panen turun 30-50%
+        
+        **Tanaman Rentan:**
+        - Sawit, kakao, karet (perkebunan)
+        - Tomat, cabai, terong
+        - Kentang, ubi
+        - Tanaman di tanah asam atau berpasir
+        
+        **Kondisi Pemicu:**
+        - Tanah asam (pH <5.5)
+        - Tanah berpasir (pencucian tinggi)
+        - Kelebihan K (antagonis dengan Mg)
+        - Curah hujan tinggi
+        
+        ### 🌾 Jenis Pupuk Magnesium
+        
+        **1. Kieserite (MgSO₄·H₂O)**
+        - **Kandungan**: Mg 16%, S 22%
+        - **Kelarutan**: Sedang
+        - **Dosis**: 50-100 kg/ha
+        - **Keunggulan**: Bonus sulfur
+        - **Cocok untuk**: Sawit, kakao, karet
+        - **Harga**: Rp 4,500/kg
+        
+        **2. Magnesium Sulfat/Epsom Salt (MgSO₄·7H₂O)**
+        - **Kandungan**: Mg 9.8%, S 13%
+        - **Kelarutan**: Sangat tinggi
+        - **Dosis Tanah**: 20-50 kg/ha
+        - **Dosis Semprot**: 2-5 g/L
+        - **Keunggulan**: Cepat tersedia, bisa semprot daun
+        - **Cocok untuk**: Sayuran, buah, koreksi cepat
+        - **Harga**: Rp 8,000/kg
+        
+        **3. Dolomit (CaMg(CO₃)₂)**
+        - **Kandungan**: Mg 10-13%, Ca 20-22%
+        - **Fungsi**: Menaikkan pH + sumber Mg+Ca
+        - **Dosis**: 1-2 ton/ha
+        - **Cocok untuk**: Tanah asam
+        - **Harga**: Rp 600/kg
+        
+        ### 📊 Kebutuhan Magnesium
+        - **Sawit**: 40-60 kg Mg/ha/tahun
+        - **Kakao**: 30-50 kg Mg/ha/tahun
+        - **Tomat**: 20-30 kg Mg/ha
+        - **Cabai**: 15-25 kg Mg/ha
+        
+        ### 💡 Strategi Aplikasi
+        
+        **Untuk Tanah Asam:**
+        1. Dolomit 1-2 ton/ha (pengolahan tanah)
+        2. Kieserite 50-100 kg/ha (maintenance)
+        
+        **Untuk Koreksi Cepat:**
+        1. Epsom salt 20-30 kg/ha (kocor)
+        2. Atau semprot daun 3-5 g/L, 7-10 hari sekali
+        
+        **Untuk Perkebunan:**
+        1. Kieserite 100-200 kg/ha/tahun
+        2. Aplikasi 2-3 kali per tahun
+        3. Tabur di piringan pohon
+        
+        ### ⚠️ Perhatian
+        - Jangan over-aplikasi K (antagonis Mg)
+        - Rasio K:Mg ideal = 2:1 sampai 4:1
+        - Monitor warna daun secara rutin
+        """,
+        "tags": ["magnesium", "Mg", "pupuk", "sekunder", "klorofil"],
+        "difficulty": "intermediate",
+        "read_time": 8
+    },
+    "sulfur": {
+        "title": "Sulfur (S) - Unsur Pembentuk Protein",
+        "content": """
+        ### 🧪 Fungsi Sulfur dalam Tanaman
+        
+        **Peran Struktural:**
+        - Komponen asam amino (sistein, metionin)
+        - Pembentukan protein (15-20% protein mengandung S)
+        - Komponen vitamin (B1, biotin)
+        - Komponen koenzim A
+        
+        **Peran Fisiologis:**
+        - Sintesis klorofil (bukan komponen, tapi esensial)
+        - Fiksasi nitrogen (legum)
+        - Pembentukan minyak (biji-bijian)
+        - Aroma dan rasa (bawang, kubis)
+        - Ketahanan terhadap penyakit
+        
+        ### 🔍 Gejala Defisiensi Sulfur
+        
+        **Mirip Defisiensi Nitrogen, tapi:**
+        - Klorosis dimulai dari **daun muda** (S immobile)
+        - Daun muda kuning pucat, hijau muda
+        - Batang kurus dan kaku
+        - Pertumbuhan terhambat
+        - Pembungaan terlambat
+        - Kadar protein rendah
+        
+        **Tanaman Rentan:**
+        - Brassica (kubis, sawi, brokoli)
+        - Bawang, bawang putih
+        - Kedelai, kacang tanah
+        - Jagung, padi
+        - Tanaman di tanah berpasir
+        
+        **Kondisi Pemicu:**
+        - Tanah berpasir (pencucian tinggi)
+        - Tanah rendah bahan organik
+        - Curah hujan tinggi
+        - Penggunaan pupuk tanpa S (Urea vs ZA)
+        
+        ### 🌾 Jenis Pupuk Sulfur
+        
+        **1. Sulfur Elemental (S⁰)**
+        - **Kandungan**: S 90-99%
+        - **Bentuk**: Powder, bentonit
+        - **Dosis**: 50-200 kg/ha
+        - **Keunggulan**: Konsentrasi tinggi, slow-release
+        - **Fungsi tambahan**: Menurunkan pH tanah
+        - **Waktu efektif**: 3-6 bulan (perlu oksidasi)
+        - **Harga**: Rp 5,000/kg
+        
+        **2. Sulfur Bentonit**
+        - **Kandungan**: S 90% + bentonit
+        - **Keunggulan**: Slow-release, tidak mudah tercuci
+        - **Dosis**: 100-300 kg/ha
+        - **Cocok untuk**: Perkebunan (sawit, karet, teh)
+        - **Harga**: Rp 3,500/kg
+        
+        **3. ZA (Amonium Sulfat)**
+        - **Kandungan**: N 21%, S 24%
+        - **Keunggulan**: Cepat tersedia, bonus N
+        - **Dosis**: 200-300 kg/ha
+        - **Cocok untuk**: Padi, tebu, tembakau
+        - **Harga**: Rp 1,800/kg
+        
+        **4. Gypsum (CaSO₄·2H₂O)**
+        - **Kandungan**: S 18%, Ca 23%
+        - **Keunggulan**: Bonus Ca, tidak ubah pH
+        - **Dosis**: 200-500 kg/ha
+        - **Cocok untuk**: Kacang tanah, legum
+        - **Harga**: Rp 1,200/kg
+        
+        **5. Kieserite (MgSO₄·H₂O)**
+        - **Kandungan**: S 22%, Mg 16%
+        - **Keunggulan**: Bonus Mg
+        - **Dosis**: 50-100 kg/ha
+        - **Cocok untuk**: Sawit, kakao
+        - **Harga**: Rp 4,500/kg
+        
+        **6. Amonium Tiosulfat (ATS)**
+        - **Kandungan**: N 12%, S 26%
+        - **Bentuk**: Cair
+        - **Keunggulan**: Sangat larut, fertigasi
+        - **Dosis**: 50-100 L/ha
+        - **Cocok untuk**: Jagung, gandum, fertigasi
+        - **Harga**: Rp 15,000/kg
+        
+        ### 📊 Kebutuhan Sulfur
+        - **Padi**: 10-15 kg S/ha
+        - **Jagung**: 15-25 kg S/ha
+        - **Kedelai**: 20-30 kg S/ha
+        - **Kubis**: 30-50 kg S/ha
+        - **Bawang**: 40-60 kg S/ha
+        - **Sawit**: 20-40 kg S/ha/tahun
+        
+        ### 💡 Strategi Aplikasi
+        
+        **Untuk Tanah Asam:**
+        - Hindari sulfur elemental (makin asam)
+        - Gunakan gypsum atau ZA
+        
+        **Untuk Tanah Alkalis:**
+        - Sulfur elemental 100-300 kg/ha
+        - Efek: Menurunkan pH + sumber S
+        
+        **Untuk Tanaman Brassica:**
+        - S sangat penting untuk kualitas
+        - ZA 200-300 kg/ha atau
+        - Gypsum 300-500 kg/ha
+        
+        **Untuk Perkebunan:**
+        - Sulfur bentonit 100-200 kg/ha/tahun
+        - Aplikasi 1-2 kali per tahun
+        
+        ### ⚠️ Perhatian
+        - Sulfur elemental butuh waktu 3-6 bulan efektif
+        - Aplikasi berlebihan dapat menurunkan pH drastis
+        - Rasio N:S ideal = 7:1 sampai 15:1
+        """,
+        "tags": ["sulfur", "S", "pupuk", "sekunder", "protein"],
+        "difficulty": "intermediate",
+        "read_time": 9
+    }
+}
+
 # 4. MANAJEMEN AIR
 MANAJEMEN_AIR = {
     "sistem_irigasi": {
