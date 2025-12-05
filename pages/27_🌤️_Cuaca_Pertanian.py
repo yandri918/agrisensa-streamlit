@@ -37,7 +37,11 @@ def get_current_weather(lat, lon):
         
         if response.status_code == 200:
             return response.json()
+        elif response.status_code == 401:
+            st.error("❌ API Key Error: Key tidak valid atau belum aktif. (Code 401)")
+            return None
         else:
+            st.error(f"❌ Error API: {response.status_code} - {response.text}")
             return None
     except Exception as e:
         st.error(f"Error fetching weather data: {e}")
@@ -58,10 +62,13 @@ def get_forecast(lat, lon):
         
         if response.status_code == 200:
             return response.json()
+        elif response.status_code == 401:
+            # st.error("❌ API Key Error (Forecast): Key tidak valid atau belum aktif.") # Suppress duplicate error
+            return None
         else:
             return None
     except Exception as e:
-        st.error(f"Error fetching forecast: {e}")
+        # st.error(f"Error fetching forecast: {e}")
         return None
 
 def get_weather_icon(icon_code):
@@ -284,7 +291,15 @@ if st.button("🌤️ Dapatkan Data Cuaca", type="primary", use_container_width=
             st.session_state['selected_lon'] = selected_lon
             st.success("✅ Data cuaca berhasil diambil!")
         else:
-            st.error("❌ Gagal mengambil data cuaca. Periksa koneksi internet atau API key.")
+            st.warning("⚠️ **Gagal mengambil data cuaca.**")
+            st.info("""
+            **Kemungkinan penyebab:**
+            1. **API Key Belum Aktif**: Jika baru dibuat, API key butuh waktu 30-60 menit untuk aktif.
+            2. **API Key Salah**: Periksa kembali `secrets.toml`.
+            3. **Limit Tercapai**: Kuota harian habis.
+            
+            Silakan coba lagi dalam beberapa menit.
+            """)
 
 # ========== DISPLAY WEATHER DATA ==========
 if 'current_weather' in st.session_state:
