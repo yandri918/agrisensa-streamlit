@@ -570,17 +570,61 @@ st.markdown("**Referensi: M-48 Tumbuhan Bahan Pestisida Nabati dan Cara Pembuata
 st.metric("Total Spesies Terdata", f"{len(PESTISIDA_DATABASE)} Tanaman")
 
 # Tabs
-tab1, tab2, tab3 = st.tabs([
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🌱 Cari Berdasarkan Tanaman",
     "🔍 Cari Solusi Hama",
     "📚 Ensiklopedia M-48",
     "🧮 Kalkulator Dosis"
 ])
 
-# TAB 1: SEARCH BY PEST
+# TAB 1: SEARCH BY PLANT (NEW)
 with tab1:
+    st.header("🌱 Cari Solusi untuk Tanaman Anda")
+    st.info("Pilih jenis tanaman yang Anda tanam, kami akan carikan pestisida yang cocok.")
+    
+    # Logic: Collect all unique 'target_tanaman' from DB
+    all_plants = set()
+    for data in PESTISIDA_DATABASE.values():
+        for t in data['target_tanaman']:
+            # Normalize strings (remove spaces, etc if needed, but simple split is ok)
+            # Some entries might be "Padi (Sawah)". Let's just collect all strings.
+            t_clean = t.strip()
+            all_plants.add(t_clean)
+            
+    # Add common groupings manually if needed, or just let user search generic
+    # Let's clean up the list a bit (e.g. split comma separated if any remained, currently DB is list)
+    
+    selected_plant_filter = st.selectbox("Tanaman apa yang Anda budidayakan?", sorted(list(all_plants)))
+    
+    if selected_plant_filter:
+        st.subheader(f"Rekomendasi Pestisida Nabati untuk: **{selected_plant_filter}**")
+        
+        # Filter DB
+        found_count = 0
+        for nama, data in PESTISIDA_DATABASE.items():
+            # Check if selected plant matches any in the target list (substring match usually better for UX)
+            # e.g. "Sayuran" should match "Sayuran daun"
+            is_match = False
+            for t in data['target_tanaman']:
+                if selected_plant_filter.lower() in t.lower() or t.lower() in selected_plant_filter.lower():
+                    is_match = True
+                    break
+            
+            if is_match:
+                found_count += 1
+                with st.expander(f"**{nama}** - Target: {', '.join(data['target_hama'])}"):
+                    st.caption(f"Kategori: {data['kategori']}")
+                    st.write(f"**Bahan Aktif:** {data['bahan_aktif']}")
+                    st.write(f"**Cara Buat:** {data['cara_pembuatan'][0]}...")
+                    st.write(f"**Aplikasi:** {data['dosis_aplikasi']}")
+        
+        if found_count == 0:
+            st.warning(f"Belum ada data spesifik untuk {selected_plant_filter}. Coba cari berdasarkan hama di tab sebelah.")
+
+# TAB 2: SEARCH BY PEST
+with tab2:
     st.header("🎯 Solusi Berdasarkan Hama")
     
-    # Collect all unique pests
     all_pests = set()
     for data in PESTISIDA_DATABASE.values():
         all_pests.update(data['target_hama'])
@@ -592,10 +636,8 @@ with tab1:
     
     if selected_pest:
         st.subheader(f"Rekomendasi untuk Hama: **{selected_pest}**")
-        found = False
         for nama, data in PESTISIDA_DATABASE.items():
             if selected_pest in data['target_hama']:
-                found = True
                 with st.expander(f"**{nama}** ({data['kategori']})"):
                     c1, c2 = st.columns([1, 2])
                     with c1:
@@ -607,8 +649,8 @@ with tab1:
                         st.success("**Cara Buat:**\n" + "\n".join([f"{i+1}. {s}" for i, s in enumerate(data['cara_pembuatan'])]))
                         st.info(f"**Aplikasi:** {data['dosis_aplikasi']}")
 
-# TAB 2: FULL DATABASE
-with tab2:
+# TAB 3: FULL DATABASE
+with tab3:
     st.header("📚 Ensiklopedia Pestisida M-48")
     search = st.text_input("Cari nama tanaman (misal: Gadung, Mimba)...")
     
@@ -632,8 +674,8 @@ with tab2:
                             st.write(f"- {step}")
                         st.markdown(f"**Dosis:** {data['dosis_aplikasi']}")
 
-# TAB 3: CALCULATOR
-with tab3:
+# TAB 4: CALCULATOR
+with tab4:
     st.header("🧮 Kalkulator Aplikasi")
     lahan = st.number_input("Luas Lahan (m2)", 100, 10000, 1000)
     vol = st.number_input("Volume Semprot Biasa (L/ha)", 200, 600, 400)
