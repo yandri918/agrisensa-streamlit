@@ -1,6 +1,6 @@
 # 🎯 AgriSensa AI Harvest Planner (Global Standard Edition)
 # Advanced Decision Support System for Precision Agriculture
-# Features: Yield/Profit Optimization, Sustainability Scoring, Risk Analysis, Organic Farming, Pest Management
+# Features: Yield/Profit Optimization, Sustainability Scoring, Risk Analysis, Deep Integration (Modul 6, 18, 25, 26, 27)
 
 import streamlit as st
 import pandas as pd
@@ -54,15 +54,53 @@ PEST_STRATEGIES = {
 }
 
 # ==========================================
-# 🧠 1. AI ENGINE & LOGIC LAYER
+# 🔗 INTEGRATION MOCK API LAYER
+# ==========================================
+# Simulating internal APIs from other modules
+
+def mock_market_price_api(commodity):
+    """
+    Simulates fetching data from Modul 6 (Analisis Tren Harga).
+    Returns a predicted price based on commodity type.
+    """
+    base_prices = {
+        "Padi": 6000, "Jagung": 5000, "Kedelai": 10000,
+        "Cabai": 45000, "Bawang": 30000, "Tomat": 12000, "Kentang": 15000,
+        "Sawit": 2500, "Kopi": 40000
+    }
+    
+    # Simple fuzzy matching
+    price = 6000
+    for key, val in base_prices.items():
+        if key in commodity:
+            price = val
+            break
+            
+    # Add random fluctuation to simulate "Market Trend"
+    fluctuation = np.random.uniform(0.9, 1.2)
+    predicted_price = int(price * fluctuation)
+    
+    trend = "Naik 📈" if fluctuation > 1.05 else "Turun 📉" if fluctuation < 0.95 else "Stabil 📊"
+    return predicted_price, trend
+
+def mock_weather_api(lat, lon):
+    """
+    Simulates fetching data from Modul 27 (Cuaca Pertanian).
+    Returns rain and temp based on location.
+    """
+    # Mock logic based on lat/lon hash
+    np.random.seed(int(lat+lon))
+    rain = np.random.randint(1500, 3500)
+    temp = np.random.uniform(24.0, 31.0)
+    return rain, temp
+
+# ==========================================
+# 🧠 AI ENGINE & LOGIC LAYER
 # ==========================================
 
 @st.cache_resource
 def get_ai_model():
-    """
-    Train/Load the AI Model. 
-    Now includes Organic Fertilizer & Soil Texture parameters.
-    """
+    """Train/Load the AI Model."""
     np.random.seed(42)
     n_samples = 3000
     
@@ -125,13 +163,7 @@ def get_ai_model():
     return model
 
 def calculate_sustainability_score(n_input, p_input, k_input, org_input, yield_produced, pest_strategy):
-    """
-    Calculate Sustainability Score (0-100).
-    Factors: 
-    - Carbon Footprint (Fertilizers)
-    - Ecotoxicity (Pesticides)
-    - Soil Health (Organic Input)
-    """
+    """Calculate Sustainability Score (0-100)."""
     # 1. Carbon Logic
     cf_n = 5.0
     cf_p = 2.0
@@ -152,23 +184,13 @@ def calculate_sustainability_score(n_input, p_input, k_input, org_input, yield_p
     return int(np.clip(final_score, 0, 100)), total_carbon
 
 def run_monte_carlo_simulation(model, conditions, pest_strategy, n_simulations=500):
-    """
-    Simulate yield risks.
-    Pest Strategy affects the 'Risk Reduction' factor.
-    Aggressive strategy = Low variance (Safe), but high cost.
-    Organic strategy = Higher variance (Riskier), lower cost.
-    """
+    """Simulate yield risks with Monte Carlo."""
     base_rain = conditions[4]
     base_temp = conditions[5]
     
     risk_reduction = PEST_STRATEGIES[pest_strategy]['risk_reduction']
-    
-    # Volatility depends on Pest Protection
-    # High protection = low volatility due to pests, only weather remains
-    # Low protection = high volatility (pest outbreaks + weather)
-    pesticide_volatility = 0.3 * (1 - risk_reduction) # 0.3 base risk
-    weather_volatility = 0.15 # Base weather risk
-    total_volatility = weather_volatility + pesticide_volatility
+    pesticide_volatility = 0.3 * (1 - risk_reduction) 
+    weather_volatility = 0.15 
     
     final_predictions = []
     
@@ -177,17 +199,14 @@ def run_monte_carlo_simulation(model, conditions, pest_strategy, n_simulations=5
         rain_sim = np.random.normal(base_rain, base_rain * 0.2)
         temp_sim = np.random.normal(base_temp, 2.0)
         
-        # Pest Event randomization (Bernoulli trial)
-        # If pest outbreak happens and protection is low -> massive loss
-        pest_event = np.random.random() < 0.3 # 30% chance of pest pressure
+        # Pest Event
+        pest_event = np.random.random() < 0.3 
         pest_damage = 0
         if pest_event:
-             # Damage is mitigated by strategy
-             damage_potential = np.random.uniform(0.2, 0.6) # 20-60% yield loss potential
+             damage_potential = np.random.uniform(0.2, 0.6) 
              actual_damage = damage_potential * (1 - risk_reduction)
              pest_damage = actual_damage
              
-        # Create input vector
         sim_input = conditions.copy()
         sim_input[4] = rain_sim
         sim_input[5] = temp_sim
@@ -204,8 +223,7 @@ def run_monte_carlo_simulation(model, conditions, pest_strategy, n_simulations=5
     
     return p10, p50, p90, final_predictions
 
-def optimize_solution(model, target_yield, optimization_mode="Yield", fixed_params={}):
-    PRICE_PER_KG = 6000 
+def optimize_solution(model, target_yield, optimization_mode="Yield", fixed_params={}, price_per_kg=6000):
     COST_N = 15000 
     COST_P = 20000 
     COST_K = 18000
@@ -219,8 +237,12 @@ def optimize_solution(model, target_yield, optimization_mode="Yield", fixed_para
     best_conditions = None
     best_score = -float('inf')
     
+    # Starting point based on weather input or default
+    start_rain = fixed_params.get('rain', 2000.0)
+    start_temp = fixed_params.get('temp', 27.0)
+    
     current_cond = np.array([
-        200.0, 60.0, 120.0, 6.5, 2000.0, 27.0, 
+        200.0, 60.0, 120.0, 6.5, start_rain, start_temp, 
         fixed_params.get('org_start', 2.0), 
         fixed_params.get('texture', 0.7), 
         0.8 
@@ -236,6 +258,10 @@ def optimize_solution(model, target_yield, optimization_mode="Yield", fixed_para
                            [0,0,0,4,500,15,0,0,0], 
                            [400,150,300,8,4000,35,20,1,1]) # Org max 20 ton
         
+        # Enforce fixed weather if provided (don't optimize weather, it's a constraint)
+        test_cond[4] = start_rain
+        test_cond[5] = start_temp
+        
         if 'fixed_org' in fixed_params:
              test_cond[6] = fixed_params['fixed_org']
         test_cond[7] = fixed_params.get('texture', 0.7)
@@ -243,7 +269,7 @@ def optimize_solution(model, target_yield, optimization_mode="Yield", fixed_para
         pred_yield = model.predict(test_cond.reshape(1,-1))[0]
         
         # Economic Calculation
-        revenue = pred_yield * PRICE_PER_KG
+        revenue = pred_yield * price_per_kg
         chem_cost = (test_cond[0] * COST_N) + (test_cond[1] * COST_P) + (test_cond[2] * COST_K)
         org_cost = (test_cond[6] * 1000 * COST_ORG)
         total_variable_cost = chem_cost + org_cost + pest_cost_total
@@ -265,14 +291,21 @@ def optimize_solution(model, target_yield, optimization_mode="Yield", fixed_para
     return best_conditions, final_yield, pest_cost_total
 
 # ==========================================
-# 🎨 2. UI PRESENTATION LAYER
+# 🎨 UI PRESENTATION LAYER
 # ==========================================
 
 with st.sidebar:
     st.header("⚙️ Konfigurasi Lahan")
     
+    # INTEGRATION: Modul 6 (Market Price)
     category = st.selectbox("Kategori Tanaman", list(CROP_DATABASE.keys()))
     selected_crop = st.selectbox("Komoditas", CROP_DATABASE[category])
+    
+    # Fetch Dynamic Price
+    with st.spinner("Mengambil tren harga pasar..."):
+        market_price, market_trend = mock_market_price_api(selected_crop)
+    
+    st.caption(f"💰 Harga Pasar (Modul 6): **Rp {market_price:,} /kg** ({market_trend})")
     
     st.divider()
     
@@ -281,6 +314,22 @@ with st.sidebar:
         target_yield_input = st.number_input("Target (kg/ha)", 4000, 30000, 8000, step=500)
     with col_t2:
         land_area = st.number_input("Luas (Ha)", 0.1, 100.0, 1.0, step=0.1)
+    
+    st.divider()
+    
+    # INTEGRATION: Modul 27 (Weather)
+    st.subheader("🌦️ Kondisi Iklim")
+    use_location_data = st.checkbox("📍 Integrasi Modul 27 (Lokasi Saya)", value=False)
+    
+    if use_location_data:
+        # Simulate getting location
+        st.info("Mengambil data iklim mikroklimat dari Modul 27...")
+        curah_hujan_val, temp_val = mock_weather_api(-6.2, 106.8) # Mock Jakarta coords
+        st.success(f"Lokasi Terdeteksi: Rain {curah_hujan_val}mm, Temp {temp_val:.1f}°C")
+    else:
+        curah_hujan_val = 2000.0
+        temp_val = 27.0
+        st.caption("Gunakan checkbox di atas untuk data real-time.")
     
     st.divider()
     
@@ -299,26 +348,30 @@ with st.sidebar:
     optimization_strategy = st.radio("Strategi AI:", ["Max Yield", "Max Profit"])
     
     if st.button("🚀 Jalankan Analisis Lengkap", type="primary", use_container_width=True):
-        st.session_state['run_analysis_v3'] = True
+        st.session_state['run_analysis_v4'] = True
 
 # MAIN CONTENT
-st.title("🎯 AI Harvest Planner: Global Standard + IPM")
-st.markdown(f"**Komoditas:** {selected_crop} | **Mode:** {optimization_strategy} | **Hama:** {pest_strategy}")
+st.title("🎯 AI Harvest Planner: Command Center")
+st.markdown(f"**Komoditas:** {selected_crop} | **Harga:** Rp {market_price:,}/kg | **Mode:** {optimization_strategy}")
 
-if 'run_analysis_v3' not in st.session_state:
-     st.info("👈 Silakan atur parameter lahan, komoditas, dan strategi pestisida di sidebar kiri.")
+if 'run_analysis_v4' not in st.session_state:
+     st.info("👈 Silakan atur parameter lahan. Aktifkan 'Integrasi Modul' di sidebar untuk hasil lebih akurat.")
 else:
-    with st.spinner("AI mensimulasikan pertumbuhan & risiko serangan hama..."):
+    with st.spinner("AI mensimulasikan pertumbuhan, pasar, & risiko..."):
         model = get_ai_model()
         
         fixed_params = {
             'texture': SOIL_TEXTURES[soil_texture_name],
             'fixed_org': organic_dose,
-            'pest_strategy': pest_strategy
+            'pest_strategy': pest_strategy,
+            'rain': curah_hujan_val, # From Weather Module logic
+            'temp': temp_val
         }
         
         mode_str = "Yield" if "Yield" in optimization_strategy else "Profit"
-        opt_cond, pred_yield, pest_cost = optimize_solution(model, target_yield_input, mode_str, fixed_params)
+        
+        # Using dynamic market price from Integration
+        opt_cond, pred_yield, pest_cost = optimize_solution(model, target_yield_input, mode_str, fixed_params, price_per_kg=market_price)
         
         sus_score, co2 = calculate_sustainability_score(opt_cond[0], opt_cond[1], opt_cond[2], opt_cond[6], pred_yield, pest_strategy)
         p10, p50, p90, risk_dist = run_monte_carlo_simulation(model, opt_cond, pest_strategy)
@@ -328,13 +381,15 @@ else:
     k1.metric("Prediksi Hasil", f"{pred_yield:.0f} kg/ha", f"{(pred_yield/target_yield_input)*100:.0f}% Target")
     k2.metric("Sustainability Score", f"{sus_score}/100", f"{'🌱 Eco-Friendly' if sus_score>70 else '⚠️ Chemical Heavy'}")
     
-    profit_val = (pred_yield * 6000) - ((opt_cond[0]*15000) + (opt_cond[1]*20000) + (opt_cond[2]*18000) + (opt_cond[6]*1000*1000) + pest_cost)
-    k3.metric("Est. Profit", f"Rp {profit_val/1e6:.1f} Jt", "per Ha")
+    # Profit calculation with DYNAMIC Price
+    profit_val = (pred_yield * market_price) - ((opt_cond[0]*15000) + (opt_cond[1]*20000) + (opt_cond[2]*18000) + (opt_cond[6]*1000*1000) + pest_cost)
+    k3.metric("Est. Profit", f"Rp {profit_val/1e6:.1f} Jt", f"Harga: {market_price}/kg")
+    
     k4.metric("Keamanan Hasil (P10)", f"{p10:.0f} kg", "Worst Case Scenario")
     
     st.markdown("---")
     
-    t1, t2, t3, t4 = st.tabs(["📋 Resep", "🎮 Skenario", "🌍 Sustainability", "⚖️ Neraca Biaya"])
+    t1, t2, t3, t4 = st.tabs(["📋 Resep & Belanja", "🎮 Skenario", "🌍 Sustainability", "⚖️ Neraca Biaya"])
     
     with t1:
         c1, c2 = st.columns([1, 2])
@@ -346,6 +401,21 @@ else:
                 "Kategori": ["Kimia", "Kimia", "Kimia", "Alami", "Proteksi"]
             })
             st.dataframe(res_df, hide_index=True, use_container_width=True)
+            
+            st.divider()
+            st.markdown("#### 🛍️ Tindakan Lanjut (Integrasi)")
+            
+            # INTEGRATION: Modul 25 (Fertilizer Catalog)
+            if st.button("🛒 Beli Pupuk (Katalog Modul 25)", use_container_width=True):
+                st.switch_page("pages/25_🧪_Katalog_Pupuk_Harga.py")
+            
+            # INTEGRATION: Modul 18 & 26 (Pesticides)
+            if "Organic" in pest_strategy:
+                if st.button("🌿 Lihat Resep Nabati (Modul 18)", use_container_width=True):
+                    st.switch_page("pages/18_🌿_Pestisida_Nabati.py")
+            else:
+                if st.button("🔬 Cek Bahan Aktif Aman (Modul 26)", use_container_width=True):
+                    st.switch_page("pages/26_🔬_Direktori_Bahan_Aktif.py")
             
         with c2:
             radar_data = pd.DataFrame({
@@ -364,7 +434,7 @@ else:
 
     with t2:
         st.subheader("🎲 Analisis Risiko (Monte Carlo)")
-        st.info(f"Strategi **{pest_strategy}** memberikan perlindungan risiko sebesar **{PEST_STRATEGIES[pest_strategy]['risk_reduction']*100:.0f}%** terhadap gagal panen akibat hama.")
+        st.info(f"Strategi **{pest_strategy}** memberikan perlindungan risiko sebesar **{PEST_STRATEGIES[pest_strategy]['risk_reduction']*100:.0f}%** terhadap gagal panen.")
         
         hist_fig = px.histogram(risk_dist, nbins=40, title=f"Distribusi Peluang Hasil (N=500 Simulasi)", 
                                color_discrete_sequence=['#3b82f6'])
@@ -392,4 +462,4 @@ else:
         st.plotly_chart(fig_pie, use_container_width=True)
 
 st.markdown("---")
-st.caption("© 2025 AgriSensa Intelligence Systems | v2.2 with Pest Management Integration")
+st.caption("© 2025 AgriSensa Intelligence Systems | v3.0 Deep Integration (Modul 6, 16, 18, 25, 26, 27)")
