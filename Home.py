@@ -103,7 +103,7 @@ def main():
     with col1:
         st.markdown("""
         <div class="stat-card">
-            <div class="stat-value">25</div>
+            <div class="stat-value">27</div>
             <div class="stat-label">Modul Tersedia</div>
         </div>
         """, unsafe_allow_html=True)
@@ -199,6 +199,17 @@ def main():
             <div class="feature-desc">
                 Konversi kebutuhan pupuk dari kg ke jumlah karung.
                 Support berbagai jenis dan ukuran kemasan pupuk.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">🌤️</div>
+            <div class="feature-title">Cuaca Pertanian</div>
+            <div class="feature-desc">
+                Informasi cuaca real-time dengan peta interaktif, forecast 5 hari,
+                dan rekomendasi aktivitas pertanian berdasarkan kondisi cuaca.
             </div>
         </div>
         """, unsafe_allow_html=True)
