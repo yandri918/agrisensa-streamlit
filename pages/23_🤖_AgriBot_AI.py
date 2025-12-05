@@ -1,11 +1,22 @@
 # AgriBot - Asisten Pertanian Cerdas AI
 # Chatbot powered by Google Gemini API
-# Version: 1.0.0
+# Version: 1.0.1 - Fixed Streamlit Cloud secrets support
 
 import streamlit as st
 import os
 import sys
 from datetime import datetime
+
+# ========== API KEY SETUP ==========
+# Try to get API key from Streamlit secrets first, then fall back to environment variable
+try:
+    if "GEMINI_API_KEY" in st.secrets:
+        os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
+        st.sidebar.success("✅ API Key loaded from Streamlit secrets")
+except Exception as e:
+    # Fallback to environment variable (for local development)
+    if "GEMINI_API_KEY" not in os.environ:
+        st.sidebar.warning(f"⚠️ No API key found in secrets or environment")
 
 # Add parent directory to path to import chatbot_service
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
