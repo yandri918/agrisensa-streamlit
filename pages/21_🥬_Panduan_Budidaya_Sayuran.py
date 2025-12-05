@@ -731,10 +731,21 @@ with tab3:
         
         col1, col2 = st.columns(2)
         
+        # Helper function to extract price from string
+        def extract_price(price_str):
+            """Extract numeric price from string like 'Rp 15.000/kg (rata-rata)' or 'Rp 3.000/kg'"""
+            import re
+            # Remove 'Rp' and everything after '/kg'
+            cleaned = price_str.replace('Rp', '').split('/kg')[0].strip()
+            # Remove dots (thousand separator) and any remaining non-digits
+            cleaned = re.sub(r'[^\d]', '', cleaned)
+            return int(cleaned) if cleaned else 15000  # default fallback
+        
         with col1:
             luas_custom = st.number_input("Luas Lahan (ha)", min_value=0.1, max_value=100.0, value=1.0, step=0.1)
+            default_harga = extract_price(analisis['pendapatan']['Harga jual'])
             harga_custom = st.number_input("Harga Jual (Rp/kg)", min_value=1000, max_value=100000, 
-                                          value=int(analisis['pendapatan']['Harga jual'].split()[1].replace('.', '')), 
+                                          value=default_harga, 
                                           step=1000)
         
         with col2:
