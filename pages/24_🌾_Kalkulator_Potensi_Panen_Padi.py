@@ -86,28 +86,27 @@ def calculate_yield(population, plants_per_hill, tillers, grains, weight_1000, l
     # Total grains
     total_grains = total_tillers * grains
     
-    # Gross yield (GKP - Gabah Kering Panen)
-    gkp_kg = (total_grains * weight_1000) / 1_000_000
+    # GKP Net (Gabah Kering Panen Bersih)
+    gkp_gross_kg = (total_grains * weight_1000) / 1_000_000
+    gkp_net_kg = gkp_gross_kg * (1 - loss_pct / 100)
     
-    # Net yield after losses
-    gkp_net_kg = gkp_kg * (1 - loss_pct / 100)
+    # GKG (Gabah Kering Giling) - Standar BPS: Konversi GKP ke GKG sekitar 86.02%
+    gkg_kg = gkp_net_kg * 0.8602
     
-    # GKG (Gabah Kering Giling) - 85% milling recovery
-    gkg_kg = gkp_net_kg * 0.85
-    
-    # Beras - 65% final rice recovery
-    rice_kg = gkp_kg * 0.65
+    # Beras - Standar BPS: Rendemen Giling GKG ke Beras sekitar 62.74% - 64.02%
+    # Kita gunakan angka optimis moderat 64%
+    rice_kg = gkg_kg * 0.64
     
     return {
         "population": total_hills,
         "tillers_total": total_tillers,
         "grains_total": total_grains,
-        "gkp_gross_ton": gkp_kg / 1000,
+        "gkp_gross_ton": gkp_gross_kg / 1000,
         "gkp_net_ton": gkp_net_kg / 1000,
         "gkg_ton": gkg_kg / 1000,
         "rice_ton": rice_kg / 1000,
-        "loss_kg": (gkp_kg - gkp_net_kg),
-        "revenue_estimate": gkp_net_kg * 5000  # Asumsi Rp 5000/kg
+        "loss_kg": (gkp_gross_kg - gkp_net_kg),
+        "revenue_estimate": gkp_net_kg * 6000  # Update harga GKP Rp 6000/kg (Trend 2024/2025)
     }
 
 def get_recommendation(pattern, tillers, grains, weight, loss):
