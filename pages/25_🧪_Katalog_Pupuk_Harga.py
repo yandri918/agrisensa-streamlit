@@ -364,6 +364,168 @@ FERTILIZER_DATABASE = {
         "usage": "Hortikultura, tanaman hias",
         "dosage": "2-3 kg/ha (diencerkan)",
         "application": "Semprot daun/fertigasi"
+    },
+    
+    # PUPUK MAKRO SEKUNDER - MAGNESIUM (Mg)
+    "Kieserite (MgSO₄)": {
+        "category": "Makro Sekunder (Mg)",
+        "brand": "Import (Jerman)",
+        "formula": "MgSO₄·H₂O",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 4500,
+        "package_sizes": ["25 kg", "50 kg"],
+        "description": "Pupuk magnesium sulfat untuk sintesis klorofil dan fotosintesis",
+        "usage": "Sawit, kakao, karet, sayuran, buah",
+        "dosage": "50-100 kg/ha",
+        "application": "Tabur/kocor, aplikasi saat defisiensi Mg"
+    },
+    "Magnesium Sulfat (Epsom Salt)": {
+        "category": "Makro Sekunder (Mg)",
+        "brand": "Lokal/Import",
+        "formula": "MgSO₄·7H₂O",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 8000,
+        "package_sizes": ["1 kg", "5 kg", "25 kg"],
+        "description": "Magnesium sulfat heptahidrat untuk koreksi defisiensi Mg cepat",
+        "usage": "Sayuran, buah, tanaman hias",
+        "dosage": "20-50 kg/ha atau 2-5 g/L (semprot)",
+        "application": "Kocor/semprot daun"
+    },
+    
+    # PUPUK MAKRO SEKUNDER - KALSIUM (Ca)
+    "Dolomit": {
+        "category": "Makro Sekunder (Ca+Mg)",
+        "brand": "Lokal",
+        "formula": "CaMg(CO₃)₂",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 600,
+        "package_sizes": ["50 kg", "Curah"],
+        "description": "Kapur dolomit untuk menaikkan pH tanah dan sumber Ca+Mg",
+        "usage": "Semua tanaman di tanah masam",
+        "dosage": "500-2000 kg/ha (tergantung pH tanah)",
+        "application": "Tabur saat pengolahan tanah, 2-4 minggu sebelum tanam"
+    },
+    "Kapur Pertanian (CaCO₃)": {
+        "category": "Makro Sekunder (Ca)",
+        "brand": "Lokal",
+        "formula": "CaCO₃",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 500,
+        "package_sizes": ["50 kg", "Curah"],
+        "description": "Kalsium karbonat untuk menaikkan pH dan sumber kalsium",
+        "usage": "Semua tanaman di tanah masam (pH <5.5)",
+        "dosage": "500-2000 kg/ha",
+        "application": "Tabur saat pengolahan tanah"
+    },
+    "Gypsum (CaSO₄)": {
+        "category": "Makro Sekunder (Ca+S)",
+        "brand": "Lokal/Import",
+        "formula": "CaSO₄·2H₂O",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 1200,
+        "package_sizes": ["50 kg"],
+        "description": "Kalsium sulfat untuk tanah alkalis dan sumber Ca+S",
+        "usage": "Kacang tanah, sayuran, buah",
+        "dosage": "200-500 kg/ha",
+        "application": "Tabur, cocok untuk tanah pH tinggi atau tanah sodic"
+    },
+    "Kalsium Nitrat Ca(NO₃)₂": {
+        "category": "Makro Sekunder (Ca)",
+        "brand": "Yara/Import",
+        "formula": "Ca(NO₃)₂·4H₂O",
+        "n_content": 15.5,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 12000,
+        "package_sizes": ["25 kg"],
+        "description": "Kalsium nitrat larut air untuk fertigasi dan hidroponik",
+        "usage": "Sayuran, buah, hidroponik",
+        "dosage": "100-200 kg/ha atau 1-2 g/L (fertigasi)",
+        "application": "Kocor/fertigasi, sumber Ca dan N cepat tersedia"
+    },
+    "Kalsium Klorida CaCl₂": {
+        "category": "Makro Sekunder (Ca)",
+        "brand": "Import",
+        "formula": "CaCl₂",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 8000,
+        "package_sizes": ["25 kg"],
+        "description": "Kalsium klorida untuk koreksi defisiensi Ca cepat",
+        "usage": "Tomat, cabai, apel (bitter pit)",
+        "dosage": "2-5 g/L (semprot daun)",
+        "application": "Semprot daun, terutama untuk mencegah blossom end rot"
+    },
+    
+    # PUPUK MAKRO SEKUNDER - SULFUR (S)
+    "Sulfur Bentonit": {
+        "category": "Makro Sekunder (S)",
+        "brand": "Lokal/Import",
+        "formula": "S⁰ + Bentonit",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 3500,
+        "package_sizes": ["25 kg", "50 kg"],
+        "description": "Sulfur elemental slow-release untuk menurunkan pH tanah alkalis",
+        "usage": "Sawit, karet, teh, tanaman asam-loving",
+        "dosage": "100-300 kg/ha",
+        "application": "Tabur, efek bertahap 3-6 bulan"
+    },
+    "Sulfur Powder (Belerang)": {
+        "category": "Makro Sekunder (S)",
+        "brand": "Lokal",
+        "formula": "S⁰",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 5000,
+        "package_sizes": ["1 kg", "5 kg", "25 kg"],
+        "description": "Sulfur murni untuk menurunkan pH dan fungisida",
+        "usage": "Tanah alkalis, fungisida untuk embun tepung",
+        "dosage": "50-200 kg/ha (tanah) atau 3-5 g/L (semprot)",
+        "application": "Tabur/semprot"
+    },
+    "Amonium Tiosulfat (ATS)": {
+        "category": "Makro Sekunder (N+S)",
+        "brand": "Import",
+        "formula": "(NH₄)₂S₂O₃",
+        "n_content": 12,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 15000,
+        "package_sizes": ["20 L", "200 L"],
+        "description": "Pupuk cair N dan S untuk fertigasi",
+        "usage": "Jagung, gandum, sayuran (fertigasi)",
+        "dosage": "50-100 L/ha (diencerkan)",
+        "application": "Fertigasi, sumber N dan S cepat tersedia"
+    },
+    
+    # PUPUK MIKRO SEKUNDER KOMBINASI
+    "CalMag (Ca+Mg)": {
+        "category": "Makro Sekunder (Ca+Mg)",
+        "brand": "Berbagai merek",
+        "formula": "Ca+Mg kompleks",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 18000,
+        "package_sizes": ["1 kg", "5 kg"],
+        "description": "Pupuk kombinasi kalsium dan magnesium untuk hidroponik",
+        "usage": "Hidroponik, sayuran, buah",
+        "dosage": "1-3 g/L (fertigasi/hidroponik)",
+        "application": "Kocor/fertigasi"
     }
 }
 
