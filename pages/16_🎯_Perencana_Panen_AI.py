@@ -1,6 +1,6 @@
 # 🎯 AgriSensa AI Harvest Planner (Global Standard Edition)
 # Advanced Decision Support System for Precision Agriculture
-# Features: Yield/Profit Optimization, Sustainability Scoring, Risk Analysis
+# Features: Yield/Profit Optimization, Sustainability Scoring, Risk Analysis, Organic Farming Support
 
 import streamlit as st
 import pandas as pd
@@ -13,6 +13,40 @@ from datetime import datetime
 st.set_page_config(page_title="AI Harvest Planner Pro", page_icon="🎯", layout="wide")
 
 # ==========================================
+# 🌳 DATA DICTIONARY (CROP DATABASE)
+# ==========================================
+
+CROP_DATABASE = {
+    "Tanaman Pangan": [
+        "Padi (Inpari 32)", "Padi (Ciherang)", "Padi (IR64)", "Padi (Sidenuk)",
+        "Jagung Hibrida", "Jagung Manis", "Jagung Pakan",
+        "Kedelai (Grobogan)", "Kedelai (Anjasmoro)",
+        "Kacang Tanah", "Kacang Hijau", "Ubi Kayu (Singkong)", "Ubi Jalar"
+    ],
+    "Hortikultura (Sayur)": [
+        "Cabai Merah Besar", "Cabai Rawit", "Cabai Keriting",
+        "Tomat", "Kentang", "Bawang Merah", "Bawang Putih",
+        "Kubis/Kol", "Wortel", "Sawi/Caisim", "Bayam", "Kangkung",
+        "Terong", "Timun", "Kacang Panjang", "Brokoli"
+    ],
+    "Buah-buahan": [
+        "Semangka", "Melon", "Pepaya", "Nanas", "Pisang",
+        "Jeruk Siam", "Mangga", "Durian", "Alpukat", "Manggis"
+    ],
+    "Perkebunan": [
+        "Kelapa Sawit", "Kopi Arabika", "Kopi Robusta", 
+        "Kakao (Cokelat)", "Tebu", "Karet", "Lada", "Cengkeh", "Jambu Mete"
+    ]
+}
+
+SOIL_TEXTURES = {
+    "Lempung Berpasir (Sandy Loam)": 0.4, # Less water retention
+    "Lempung (Loam)": 0.7, # Good
+    "Lempung Berliat (Clay Loam)": 0.9, # High retention
+    "Liat (Clay)": 0.8 # Risk of waterlogging
+}
+
+# ==========================================
 # 🧠 1. AI ENGINE & LOGIC LAYER
 # ==========================================
 
@@ -20,51 +54,57 @@ st.set_page_config(page_title="AI Harvest Planner Pro", page_icon="🎯", layout
 def get_ai_model():
     """
     Train/Load the AI Model. 
-    In production, this would load a pre-trained .pkl file.
-    Here we generate high-quality synthetic data based on FAO standards.
+    Now includes Organic Fertilizer & Soil Texture parameters.
     """
     np.random.seed(42)
-    n_samples = 2000
+    n_samples = 3000
     
-    # Feature Engineering: N, P, K, pH, Rainfall, Temp, Soil_Organic_Matter (SOM), Water_Access
-    X = np.random.rand(n_samples, 8)
+    # Feature Engineering: 
+    # 0: N, 1: P, 2: K, 3: pH, 4: Rain, 5: Temp, 
+    # 6: Organic_Matter_Input (ton/ha), 7: Soil_Texture_Index (0-1), 8: Water_Access
+    X = np.random.rand(n_samples, 9)
     
     # Scale to realistic agronomic ranges
-    X[:, 0] = X[:, 0] * 300 + 50     # N: 50-350 kg/ha
-    X[:, 1] = X[:, 1] * 100 + 10     # P: 10-110 kg/ha
-    X[:, 2] = X[:, 2] * 200 + 30     # K: 30-230 kg/ha
-    X[:, 3] = X[:, 3] * 4 + 4       # pH: 4.0-8.0
-    X[:, 4] = X[:, 4] * 3000 + 500  # Rain: 500-3500 mm
+    X[:, 0] = X[:, 0] * 350 + 20     # N: 20-370 kg/ha
+    X[:, 1] = X[:, 1] * 120 + 10     # P: 10-130 kg/ha
+    X[:, 2] = X[:, 2] * 250 + 20     # K: 20-270 kg/ha
+    X[:, 3] = X[:, 3] * 4.5 + 4.0   # pH: 4.0-8.5
+    X[:, 4] = X[:, 4] * 3500 + 500  # Rain: 500-4000 mm
     X[:, 5] = X[:, 5] * 20 + 15     # Temp: 15-35 C
-    X[:, 6] = X[:, 6] * 4 + 1       # SOM: 1-5%
-    X[:, 7] = X[:, 7]               # Water Access: 0-1 (Index)
+    X[:, 6] = X[:, 6] * 20          # Organic Fert: 0-20 ton/ha
+    X[:, 7] = X[:, 7]               # Soil Texture: 0-1
+    X[:, 8] = X[:, 8]               # Water Access: 0-1
 
-    # Complex Non-Linear Yield Function (Simulating biological reponse)
-    # Liebig's Law of Minimum approximation
-    
-    def biological_yield_curve(n, p, k, ph, rain, temp, som, water):
-        # Optimal points (generic C3 crop like Rice/Wheat)
-        opt_n, opt_p, opt_k = 200, 60, 120
-        opt_ph, opt_rain, opt_temp = 6.5, 1500, 27
+    # Complex Biological Yield Function
+    def biological_yield_curve(n, p, k, ph, rain, temp, org, texture, water):
+        # Optimal points
+        opt_n, opt_p, opt_k = 200, 70, 150
+        opt_ph, opt_rain, opt_temp = 6.5, 1800, 27
         
-        # Stress factors (0.0 to 1.0)
-        stress_n = 1 - np.exp(-0.015 * n)
-        stress_p = 1 - np.exp(-0.05 * p)
-        stress_k = 1 - np.exp(-0.02 * k)
+        # Stress factors
+        stress_n = 1 - np.exp(-0.012 * n)
+        stress_p = 1 - np.exp(-0.04 * p)
+        stress_k = 1 - np.exp(-0.015 * k)
         
-        # Bell curves for environmental factors
-        stress_ph = np.exp(-0.5 * ((ph - opt_ph)/1.0)**2)
+        # Bell curves
+        stress_ph = np.exp(-0.5 * ((ph - opt_ph)/1.2)**2)
         stress_temp = np.exp(-0.5 * ((temp - opt_temp)/5.0)**2)
         
-        # Water stress (Rain + Irrigation Access)
-        effective_water = rain + (water * 1000)
-        stress_water = 1 - np.exp(-0.002 * (effective_water - 500))
+        # Water & Soil Interaction
+        # Texture affects how effective rain/irrigation is
+        # High texture index (Loam) retains water better
+        effective_water_retention = 0.5 + (0.5 * texture) 
+        total_water = (rain * 0.4) + (water * 1000) 
+        water_available = total_water * effective_water_retention
+        stress_water = 1 - np.exp(-0.0015 * (water_available - 300))
         stress_water = np.clip(stress_water, 0, 1)
 
-        # SOM Bonus
-        som_bonus = 1 + (som * 0.05) 
-
-        # Base Yield Potential (e.g., 10 tons/ha)
+        # Organic Fertilizer Bonus (The "Magic" of Organics)
+        # Improves nutrient uptake efficiency (CEC) + water holding
+        # 1 ton organic approx +0.02 yield efficiency
+        som_bonus = 1 + (org * 0.015) 
+        
+        # Base Yield
         base_yield = 12000 
         
         # Combined yield
@@ -75,311 +115,281 @@ def get_ai_model():
         
         return np.maximum(algo_yield, 0)
 
-    y = biological_yield_curve(X[:,0], X[:,1], X[:,2], X[:,3], X[:,4], X[:,5], X[:,6], X[:,7])
+    y = biological_yield_curve(X[:,0], X[:,1], X[:,2], X[:,3], X[:,4], X[:,5], X[:,6], X[:,7], X[:,8])
 
-    model = RandomForestRegressor(n_estimators=150, max_depth=12, random_state=42)
+    model = RandomForestRegressor(n_estimators=150, max_depth=14, random_state=42)
     model.fit(X, y)
     return model
 
-def calculate_sustainability_score(n_input, p_input, K_input, yield_produced):
+def calculate_sustainability_score(n_input, p_input, k_input, org_input, yield_produced):
     """
-    Calculate Sustainability Score (0-100) based on Carbon Footprint & Efficiency.
-    Factors (kg CO2e per kg nutrient): N=5.0, P=2.0, K=1.0 (Approx GlobalGAP)
+    Calculate Sustainability Score (0-100).
+    Organic inputs BOOST the score significantly.
+    Chemical inputs REDUCE the score (Carbon Footprint).
     """
-    carbon_footprint = (n_input * 5.0) + (p_input * 2.0) + (K_input * 1.0)
+    # Carbon emission factors (kg CO2e/kg)
+    cf_n = 5.0
+    cf_p = 2.0
+    cf_k = 1.0
+    cf_org = 0.1 # Very low emission for organic (mostly transport)
     
-    # Efficiency: kg Yield per kg CO2 emitted
-    efficiency = yield_produced / max(carbon_footprint, 1)
+    total_carbon = (n_input * cf_n) + (p_input * cf_p) + (k_input * cf_k) + (org_input * 1000 * cf_org)
     
-    # Score logic
-    # Benchmark: > 20 kg yield/kg CO2 is excellent (Score 100), < 5 is poor
-    score = min(100, (efficiency / 20) * 100)
+    # Efficiency Component (Yield per Carbon)
+    efficiency_score = min(50, (yield_produced / max(total_carbon, 1)) * 2)
     
-    return int(score), carbon_footprint
+    # Organic Bonus Component (Soil Health)
+    # Max bonus 50 points if using > 10 ton organic/ha
+    soil_health_score = min(50, org_input * 5)
+    
+    final_score = efficiency_score + soil_health_score
+    
+    return int(min(100, final_score)), total_carbon
 
 def run_monte_carlo_simulation(model, conditions, n_simulations=500):
-    """
-    Risk Analysis: Simulate yield distribution under weather uncertainty.
-    Variability: Rainfall (+- 30%), Temp (+- 2 C)
-    """
     base_rain = conditions[4]
     base_temp = conditions[5]
     
-    # Generate scenarios
-    rain_scenarios = np.random.normal(base_rain, base_rain * 0.2, n_simulations) # 20% volatility
-    temp_scenarios = np.random.normal(base_temp, 2.0, n_simulations) # 2 deg volatility
+    rain_scenarios = np.random.normal(base_rain, base_rain * 0.25, n_simulations) # Higher volatility
+    temp_scenarios = np.random.normal(base_temp, 2.0, n_simulations)
     
-    # Prepare batch input
     batch_input = np.tile(conditions, (n_simulations, 1))
     batch_input[:, 4] = rain_scenarios
     batch_input[:, 5] = temp_scenarios
     
-    # Predict
     predictions = model.predict(batch_input)
     
-    # Calculate Risk Metrics
-    prob_success = np.mean(predictions >= conditions[8]) * 100 if len(conditions) > 8 else 0 # simple check
-    p10 = np.percentile(predictions, 10) # Worst case (optimistic)
-    p50 = np.percentile(predictions, 50) # Expected
-    p90 = np.percentile(predictions, 90) # Best case
+    p10 = np.percentile(predictions, 10)
+    p50 = np.percentile(predictions, 50)
+    p90 = np.percentile(predictions, 90)
     
     return p10, p50, p90, predictions
 
-def optimize_solution(model, target_yield, optimization_mode="Yield"):
+def optimize_solution(model, target_yield, optimization_mode="Yield", fixed_params={}):
     """
-    Reverse Engineering / Optimization Engine.
-    Modes:
-    - 'Yield': Achieve target yield regardless of cost.
-    - 'Profit': Maximize (Yield * Price) - (Input * Cost).
+    Reverse Engineering Engine v2.
+    Includes Soil Texture (fixed) and Organic Fertilizer (variable or fixed).
     """
-    # Crop prices & Input costs (Hardcoded for demo, normally from DB)
-    PRICE_PER_KG = 6000 # selling price
-    COST_N = 15000 # per kg N
+    PRICE_PER_KG = 6000 
+    COST_N = 15000 
     COST_P = 20000 
     COST_K = 18000
+    COST_ORG = 1000000 / 1000 # Assume Rp 1000/kg (Rp 1jt/ton)
     
     best_conditions = None
     best_score = -float('inf')
     
-    # Grid Search + Random Walk (Simplified Optimization)
-    # Start with standard conditions
-    current_cond = np.array([200.0, 60.0, 120.0, 6.5, 2000.0, 27.0, 3.0, 0.8])
+    # Conditions: N, P, K, pH, Rain, Temp, Org, Texture, Water
+    # Default starter
+    current_cond = np.array([
+        200.0, 60.0, 120.0, 6.5, 2000.0, 27.0, 
+        fixed_params.get('org_start', 2.0), # Organic Start
+        fixed_params.get('texture', 0.7), # Texture Fixed
+        0.8 # Water Access
+    ])
     
-    iterations = 200
+    iterations = 300
     
     for i in range(iterations):
-        # Mutate conditions slightly
-        test_cond = current_cond + np.random.normal(0, [20, 5, 10, 0.1, 0, 0, 0, 0], 8)
-        test_cond = np.clip(test_cond, [0,0,0,4,500,15,1,0], [400,150,300,8,3500,35,5,1])
+        # Mutate (N, P, K, Org)
+        test_cond = current_cond.copy()
+        mutation = np.random.normal(0, [25, 10, 15, 0.1, 0, 0, 1.0, 0, 0], 9)
+        test_cond += mutation
         
+        # Constraints
+        test_cond = np.clip(test_cond, 
+                           [0,0,0,4,500,15,0,0,0], 
+                           [400,150,300,8,4000,35,20,1,1]) # Org max 20 ton
+        
+        # Lock fixed parameters if provided (e.g. User sets hard constraint on Organics)
+        if 'fixed_org' in fixed_params:
+             test_cond[6] = fixed_params['fixed_org']
+             
+        # Lock texture (Physical property, cannot change easily)
+        test_cond[7] = fixed_params.get('texture', 0.7)
+
         pred_yield = model.predict(test_cond.reshape(1,-1))[0]
         
-        # Calculate Objective Function
+        # Calculate Objective
         revenue = pred_yield * PRICE_PER_KG
-        cost = (test_cond[0] * COST_N) + (test_cond[1] * COST_P) + (test_cond[2] * COST_K)
-        profit = revenue - cost
+        chem_cost = (test_cond[0] * COST_N) + (test_cond[1] * COST_P) + (test_cond[2] * COST_K)
+        org_cost = (test_cond[6] * 1000 * COST_ORG) # ton -> kg
+        total_cost = chem_cost + org_cost
+        profit = revenue - total_cost
         
         if optimization_mode == "Profit":
             score = profit
-        else: # Yield mode: Minimize difference to target, strictly
+        else:
             diff = abs(pred_yield - target_yield)
-            score = -diff # maximize negative error
+            score = -diff 
             
-        # Accept if better
         if score > best_score:
             best_score = score
             best_conditions = test_cond
-            current_cond = test_cond # Move center of search
+            current_cond = test_cond 
             
-    # Final prediction on best
     final_yield = model.predict(best_conditions.reshape(1,-1))[0]
-    
     return best_conditions, final_yield
 
 # ==========================================
 # 🎨 2. UI PRESENTATION LAYER
 # ==========================================
 
-# Sidebar Configuration
 with st.sidebar:
-    st.header("⚙️ Konfigurasi Perencanaan")
+    st.header("⚙️ Konfigurasi Lahan")
     
-    # Crop Selection (FAO Data)
-    selected_crop = st.selectbox("Jenis Komoditas", 
-        ["Padi (Inpari 32)", "Jagung Hibrida", "Kedelai (Grobogan)", "Cabai Merah", "Bawang Merah"])
+    # 1. Commodity Selector (Expanded)
+    category = st.selectbox("Kategori Tanaman", list(CROP_DATABASE.keys()))
+    selected_crop = st.selectbox("Komoditas", CROP_DATABASE[category])
     
     st.divider()
     
-    # Input Constraints
+    # 2. Land Parameters
     col_t1, col_t2 = st.columns(2)
     with col_t1:
-        target_yield_input = st.number_input("Target (kg/ha)", 4000, 15000, 8000, step=500)
+        target_yield_input = st.number_input("Target (kg/ha)", 4000, 30000, 8000, step=500)
     with col_t2:
         land_area = st.number_input("Luas (Ha)", 0.1, 100.0, 1.0, step=0.1)
-        
-    optimization_strategy = st.radio("Strategi Optimasi AI:", 
-        ["Max Yield (Kejar Target)", "Max Profit (Ekonomis)"], 
-        help="Max Yield akan memaksimalkan hasil tanpa peduli biaya. Max Profit akan mencari keseimbangan biaya & hasil.")
-        
-    if st.button("🚀 Jalankan Analisis AI", type="primary", use_container_width=True):
-        st.session_state['run_analysis'] = True
     
     st.divider()
-    st.info("💡 **Tips:** Mode 'Max Profit' biasanya menyarankan dosis pupuk lebih rendah namun lebih efisien secara ROI.")
-
-# Main Dashboard
-st.title("🎯 AI Harvest Planner: Global Standard")
-st.markdown("Decision Support System (DSS) untuk perencanaan pertanian presisi berbasis data & risiko.")
-
-if 'run_analysis' not in st.session_state:
-    # Landing Page State
-    st.markdown("""
-    <div style='background-color: #f0f9ff; padding: 20px; border-radius: 10px; border-left: 5px solid #0ea5e9;'>
-        <h3>👋 Selamat Datang di Perencana Panen Agrikultur Cerdas</h3>
-        <p>Sistem ini menggunakan machine learning untuk melakukan <b>Reverse Engineering</b> kondisi lahan:</p>
-        <ol>
-            <li>Anda tentukan target hasil (ton/ha).</li>
-            <li>AI mencari kombinasi nutrisi & lingkungan yang paling optimal.</li>
-            <li>Sistem menganalisis profitabilitas & risiko iklim.</li>
-        </ol>
-    </div>
-    """, unsafe_allow_html=True)
     
-else:
-    # 🏃 EXECUTION STATE
-    mode_str = "Yield" if "Yield" in optimization_strategy else "Profit"
+    # 3. Soil & Fertilizers
+    st.subheader("🧪 Parameter Tanah")
+    soil_texture_name = st.selectbox("Tekstur Tanah", list(SOIL_TEXTURES.keys()), index=1)
+    soil_texture_val = SOIL_TEXTURES[soil_texture_name]
     
-    with st.spinner(f"AI sedang melakukan iterasi optimasi ({mode_str} Mode)..."):
-        model = get_ai_model()
-        opt_conditions, pred_yield = optimize_solution(model, target_yield_input, mode_str)
+    st.subheader("🌿 Pupuk Organik")
+    use_organic = st.checkbox("Gunakan Pupuk Organik", value=True)
+    if use_organic:
+        organic_dose = st.slider("Dosis Organik (Ton/ha)", 0.0, 20.0, 5.0, step=0.5, 
+            help="Kompos/Pupuk Kandang meningkatkan kesehatan tanah jangka panjang.")
+    else:
+        organic_dose = 0.0
         
-        # Calculate derived metrics
-        sus_score, co2_emission = calculate_sustainability_score(opt_conditions[0], opt_conditions[1], opt_conditions[2], pred_yield)
-        p10, p50, p90, risk_dist = run_monte_carlo_simulation(model, opt_conditions)
+    st.divider()
     
-    # --- RENDER RESULTS ---
+    # 4. Strategy
+    optimization_strategy = st.radio("Strategi AI:", ["Max Yield", "Max Profit"])
     
-    # 1. KPI Cards (Top Row)
-    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
-    
-    achievement_rate = (pred_yield / target_yield_input) * 100
-    ach_color = "green" if achievement_rate >= 95 else "orange"
-    
-    kpi1.metric("Prediksi Hasil Panen", f"{pred_yield:.0f} kg/ha", f"{achievement_rate-100:.1f}% vs Target")
-    kpi2.metric("Sustainability Score", f"{sus_score}/100", f"{'🌱 Excellent' if sus_score > 80 else '⚠️ Needs Improvement'}")
-    
-    profit_est = (pred_yield * 6000) - ((opt_conditions[0]*15000) + (opt_conditions[1]*20000) + (opt_conditions[2]*18000))
-    kpi3.metric("Estimasi Profit/Ha", f"Rp {profit_est/1000000:.1f} Jt", "Estimasi Kasar")
-    
-    risk_level = "Rendah" if (p90-p10)/p50 < 0.2 else "Tinggi"
-    kpi4.metric("Risiko Iklim", risk_level, "Volatilitas Hasil")
+    if st.button("🚀 Jalankan Analisis Lengkap", type="primary", use_container_width=True):
+        st.session_state['run_analysis_v2'] = True
 
+# MAIN CONTENT
+st.title("🎯 AI Harvest Planner: Global Standard")
+st.markdown(f"**Komoditas:** {selected_crop} | **Mode:** {optimization_strategy}")
+
+if 'run_analysis_v2' not in st.session_state:
+     st.info("👈 Silakan atur parameter lahan dan komoditas di sidebar kiri.")
+     st.markdown("""
+     ### Fitur Baru (v2.0):
+     - **50+ Komoditas Global:** Termasuk varietas FAO.
+     - **Integrasi Pupuk Organik:** Menghitung dampak kompos terhadap yield & sustainability.
+     - **Soil Texture Analysis:** Penyesuaian rekomendasi berdasarkan jenis tanah (Lempung/Pasir).
+     """)
+else:
+    # RUN ENGINE
+    with st.spinner("AI sedang mensimulasikan pertumbuhan tanaman..."):
+        model = get_ai_model()
+        
+        fixed_params = {
+            'texture': soil_texture_val,
+            'fixed_org': organic_dose if use_organic else 0.0
+        }
+        
+        mode_str = "Yield" if "Yield" in optimization_strategy else "Profit"
+        opt_cond, pred_yield = optimize_solution(model, target_yield_input, mode_str, fixed_params)
+        
+        # Calculate Metrics
+        sus_score, co2 = calculate_sustainability_score(opt_cond[0], opt_cond[1], opt_cond[2], opt_cond[6], pred_yield)
+        p10, p50, p90, risk_dist = run_monte_carlo_simulation(model, opt_cond)
+        
+    # --- RENDER DASHBOARD ---
+    
+    # TOP KPI
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Prediksi Hasil", f"{pred_yield:.0f} kg/ha", f"{(pred_yield/target_yield_input)*100:.0f}% Target")
+    k2.metric("Sustainability Score", f"{sus_score}/100", f"{'🌱 Eco-Friendly' if sus_score>70 else '⚠️ Chemical Heavy'}")
+    
+    profit_val = (pred_yield * 6000) - ((opt_cond[0]*15000) + (opt_cond[1]*20000) + (opt_cond[2]*18000) + (opt_cond[6]*1000*1000))
+    k3.metric("Est. Profit", f"Rp {profit_val/1e6:.1f} Jt", "per Ha")
+    k4.metric("C-Organik Input", f"{opt_cond[6]:.1f} Ton", "Kompos/Kandang")
+    
     st.markdown("---")
-
-    # 2. Tabs Interface for Deep Dive
-    tab_recipe, tab_sim, tab_risk, tab_financial = st.tabs([
-        "📋 Resep Agronomi (AI)", "🎮 Simulasi 'What-If'", "🎲 Analisis Risiko", "💰 Profibilitas"
-    ])
     
-    # TAB 1: AGRONOMIC RECIPE
-    with tab_recipe:
+    t1, t2, t3 = st.tabs(["📋 Resep Agronomi & Tanah", "🎮 Simulasi Interaktif", "🌍 Sustainability Report"])
+    
+    with t1:
         c1, c2 = st.columns([1, 2])
         with c1:
             st.markdown("### 💊 Resep Nutrisi")
-            st.dataframe(pd.DataFrame({
-                "Parameter": ["Nitrogen (N)", "Fosfor (P2O5)", "Kalium (K2O)", "Target pH"],
-                "Recomendasi": [f"{opt_conditions[0]:.1f} kg/ha", f"{opt_conditions[1]:.1f} kg/ha", f"{opt_conditions[2]:.1f} kg/ha", f"{opt_conditions[3]:.1f}"],
-                "Peran": ["Pertumbuhan Daun", "Akar & Bunga", "Kualitas Buah", "Ketersediaan Hara"]
-            }), hide_index=True, use_container_width=True)
-            
-            st.info(f"💡 Rekomendasi ini disesuaikan untuk strategi **{optimization_strategy}**.")
+            res_df = pd.DataFrame({
+                "Input": ["Nitrogen (Urea/ZA)", "Fosfor (SP36)", "Kalium (KCl)", "Pupuk Organik"],
+                "Dosis": [f"{opt_cond[0]:.1f} kg", f"{opt_cond[1]:.1f} kg", f"{opt_cond[2]:.1f} kg", f"{opt_cond[6]:.1f} Ton"],
+                "Sumber": ["Kimia", "Kimia", "Kimia", "Alami"]
+            })
+            st.dataframe(res_df, hide_index=True, use_container_width=True)
             
         with c2:
-            st.markdown("### 🕸️ Keseimbangan Hara (Radar Chart)")
-            # Radar chart normalization (0-100% of max reasonable dose)
+            st.markdown("### 🕸️ Radar Kesehatan Lahan")
+            # Radar with Organic component
             radar_data = pd.DataFrame({
-                'r': [opt_conditions[0]/350*100, opt_conditions[1]/120*100, opt_conditions[2]/250*100, (opt_conditions[3]-4)/4*100, opt_conditions[6]/5*100],
-                'theta': ['Nitrogen', 'Fosfor', 'Kalium', 'pH Tanah', 'Bahan Organik']
+                'r': [
+                    opt_cond[0]/350*100, 
+                    opt_cond[1]/130*100, 
+                    opt_cond[2]/250*100, 
+                    opt_cond[6]/20*100 if opt_cond[6] > 0 else 5, # Organic
+                    (opt_cond[3]-4)/4*100
+                ],
+                'theta': ['Nitrogen', 'Fosfor', 'Kalium', 'Bahan Organik (SOM)', 'pH Tanah']
             })
-            fig_radar = px.line_polar(radar_data, r='r', theta='theta', line_close=True, range_r=[0,100], 
-                                     title="Profil Nutrisi Lahan Optimal")
-            fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True,range=[0, 100])), showlegend=False)
-            fig_radar.update_traces(fill='toself')
-            st.plotly_chart(fig_radar, use_container_width=True)
-
-    # TAB 2: INTERACTIVE SIMULATION (The "What-If" Feature)
-    with tab_sim:
-        st.subheader("🎮 Laboratorium Lahan Virtual")
-        st.markdown("Geser slider untuk melihat bagaimana perubahan input mempengaruhi hasil secara **Real-Time**.")
-        
-        cols_slider = st.columns(3)
-        sim_n = cols_slider[0].slider("Nitrogen (kg)", 0, 400, int(opt_conditions[0]))
-        sim_p = cols_slider[1].slider("Fosfor (kg)", 0, 150, int(opt_conditions[1]))
-        sim_k = cols_slider[2].slider("Kalium (kg)", 0, 300, int(opt_conditions[2]))
-        
-        # Real-time inference
-        sim_conditions = opt_conditions.copy()
-        sim_conditions[0] = sim_n
-        sim_conditions[1] = sim_p
-        sim_conditions[2] = sim_k
-        
-        sim_yield = model.predict(sim_conditions.reshape(1,-1))[0]
-        sim_delta = sim_yield - pred_yield
-        
-        col_res1, col_res2 = st.columns(2)
-        with col_res1:
-            st.metric("Hasil Panen (Skenario)", f"{sim_yield:.0f} kg", f"{sim_delta:+.0f} kg vs AI Optimal")
-        with col_res2:
-            # Bar chart comparison
-            df_comp = pd.DataFrame({
-                "Skenario": ["AI Optimal", "Skenario Anda"],
-                "Yield": [pred_yield, sim_yield],
-                "Color": ["#3b82f6", "#f59e0b"]
-            })
-            fig_comp = px.bar(df_comp, x="Yield", y="Skenario", orientation='h', color="Skenario", text="Yield")
-            st.plotly_chart(fig_comp, use_container_width=True, key="sim_chart")
-
-    # TAB 3: RISK ANALYSIS
-    with tab_risk:
-        st.subheader("🎲 Simulasi Monte Carlo (500 Skenario Cuaca)")
-        st.markdown("Analisis ini memprediksi hasil panen jika cuaca **lebih kering/basah** atau **lebih panas/dingin** dari perkiraan.")
-        
-        fig_hist = px.histogram(risk_dist, nbins=30, title="Distribusi Probabilitas Hasil Panen",
-                               labels={"value": "Hasil Panen (kg/ha)"}, color_discrete_sequence=['#10b981'])
-        
-        # Add vertical lines for p10, p50, p90
-        fig_hist.add_vline(x=p10, line_dash="dash", line_color="red", annotation_text=f"Buruk (P10): {p10:.0f}")
-        fig_hist.add_vline(x=p50, line_dash="solid", line_color="blue", annotation_text=f"Ekspektasi: {p50:.0f}")
-        fig_hist.add_vline(x=p90, line_dash="dash", line_color="green", annotation_text=f"Terbaik (P90): {p90:.0f}")
-        
-        st.plotly_chart(fig_hist, use_container_width=True)
-        
-        st.warning(f"📊 **Interpretasi:** Ada 90% peluang hasil panen di atas **{p10:.0f} kg**, namun sangat kecil kemungkinan melebihi **{p90:.0f} kg**.")
-
-    # TAB 4: FINANCIAL
-    with tab_financial:
-        st.subheader("💰 Analisis Ekonomi & Ekologi")
-        
-        f1, f2 = st.columns(2)
-        
-        with f1:
-            # Waterfall chart for costs
-            cost_n = opt_conditions[0] * 15000
-            cost_p = opt_conditions[1] * 20000
-            cost_k = opt_conditions[2] * 18000
-            gross_rev = pred_yield * 6000
+            fig_rad = px.line_polar(radar_data, r='r', theta='theta', line_close=True, range_r=[0,100], title="Profil Keseimbangan Nutrisi")
+            fig_rad.update_traces(fill='toself', line_color='#10b981')
+            st.plotly_chart(fig_rad, use_container_width=True)
             
-            fig_waterfall = go.Figure(go.Waterfall(
-                name = "20", orientation = "v",
-                measure = ["relative", "relative", "relative", "total", "relative"],
-                x = ["Gross Revenue", "Biaya N", "Biaya P", "Operating Profit", "Biaya K"], # Logic correction for waterfall ordering needed normally, simplified here
-                textposition = "outside",
-                # Simplified representation for demo
-                text = [f"+{gross_rev/1e6:.1f}M", f"-{cost_n/1e6:.1f}M", f"-{cost_p/1e6:.1f}M", "...", f"-{cost_k/1e6:.1f}M"],
-                y = [gross_rev, -cost_n, -cost_p, 0, -cost_k], # Placeholder logic
-                connector = {"line":{"color":"rgb(63, 63, 63)"}},
+    with t2:
+        st.subheader("🎮 What-If Analysis")
+        sc1, sc2, sc3, sc4 = st.columns(4)
+        s_n = sc1.slider("Ubah Nitrogen", 0, 400, int(opt_cond[0]))
+        s_p = sc2.slider("Ubah Fosfor", 0, 150, int(opt_cond[1]))
+        s_k = sc3.slider("Ubah Kalium", 0, 300, int(opt_cond[2]))
+        s_org = sc4.slider("Ubah Organik (Ton)", 0.0, 20.0, float(opt_cond[6]))
+        
+        # Realtime calc
+        sim_cond = opt_cond.copy()
+        sim_cond[0], sim_cond[1], sim_cond[2], sim_cond[6] = s_n, s_p, s_k, s_org
+        sim_yield = model.predict(sim_cond.reshape(1,-1))[0]
+        
+        st.metric("Hasil Simulasi", f"{sim_yield:.0f} kg/ha", f"{sim_yield - pred_yield:+.0f} kg vs Rekomendasi AI")
+        
+    with t3:
+        st.subheader("🌍 Environmental Impact Report")
+        col_sus1, col_sus2 = st.columns(2)
+        
+        with col_sus1:
+             st.markdown(f"""
+             **Analisis Jejak Karbon:**
+             - Total Emisi: **{co2:.1f} kg CO2e/hektar**
+             - Efisiensi: **{co2/pred_yield:.3f} kg CO2 per kg Hasil Panen**
+             
+             **Rekomendasi:**
+             {'✅ Penggunaan Pupuk Organik sudah baik.' if opt_cond[6] >= 5 else '⚠️ Tingkatkan penggunaan pupuk organik (> 5 ton/ha) untuk memperbaiki struktur tanah dan mengurangi emisi karbon.'}
+             """)
+        
+        with col_sus2:
+            fig_gauge = go.Figure(go.Indicator(
+                mode = "gauge+number",
+                value = sus_score,
+                title = {'text': "Sustainability Score"},
+                gauge = {
+                    'axis': {'range': [0, 100]},
+                    'bar': {'color': "#10b981" if sus_score > 70 else "#f59e0b"},
+                    'steps': [
+                        {'range': [0, 50], 'color': "#fee2e2"},
+                        {'range': [50, 80], 'color': "#fef3c7"},
+                        {'range': [80, 100], 'color': "#d1fae5"}]
+                }
             ))
-            
-            # Simple Bar Stack instead for stablity
-            df_fin = pd.DataFrame({
-                "Komponen": ["Pendapatan Kotor", "Biaya Pupuk", "Profit Bersih"],
-                "Nilai (Rp)": [gross_rev, cost_n+cost_p+cost_k, profit_est],
-                "Type": ["In", "Out", "Net"]
-            })
-            fig_fin = px.bar(df_fin, x="Komponen", y="Nilai (Rp)", color="Type", text_auto='.2s', 
-                            title="Struktur Ekonomi")
-            st.plotly_chart(fig_fin, use_container_width=True)
-            
-        with f2:
-            st.markdown("#### 🌍 Jejak Karbon (Sustainability)")
-            st.success(f"**Total Emisi:** {co2_emission:.1f} kg CO2e/ha")
-            st.markdown(f"""
-            - Skor Efisiensi: **{sus_score}/100**
-            - Emisi per kg Produk: **{co2_emission/pred_yield:.3f} kg CO2/kg Padi**
-            
-            *Meningkatkan sustainability score akan membuka peluang pasar ekspor premium.*
-            """)
+            st.plotly_chart(fig_gauge, use_container_width=True)
 
-# Footer
 st.markdown("---")
-st.caption("© 2025 AgriSensa Intelligence Systems | Powered by Advanced Random Forest Regressor & Monte Carlo Engine")
+st.caption("© 2025 AgriSensa Intelligence Systems | Global Standard Module v2.1")
