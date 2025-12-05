@@ -30,7 +30,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Thiamethoxam",
-        "safety_period": 14
+        "safety_period": 14,
+        "irac_group": "4A"  # Neonicotinoid
     },
     "Wereng Hijau": {
         "type": "Hama",
@@ -48,7 +49,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Piridaben",
-        "safety_period": 14
+        "safety_period": 14,
+        "irac_group": "16"  # Inhibitor kitin
     },
     "Penggerek Batang Padi": {
         "type": "Hama",
@@ -66,13 +68,14 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Fipronil",
-        "safety_period": 21
+        "safety_period": 21,
+        "irac_group": "1A"  # Karbamat
     },
     "Blas Padi": {
         "type": "Penyakit",
         "severity": "High",
         "target_crops": ["Padi"],
-        "active_ingredient": "Triklorfosmethyl",
+        "active_ingredient": "Triklorfosmethyl", # Usually Isoprothiolane/Tricyclazole
         "dosage_per_ha": "500-750 g",
         "water_volume": "400-600 L/ha",
         "spray_interval": 7,
@@ -84,7 +87,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Azoxystrobin",
-        "safety_period": 14
+        "safety_period": 14,
+        "irac_group": "F2"  # Dicarboximides/Phosphoro-thiolates
     },
     "Hawar Daun Bakteri": {
         "type": "Penyakit",
@@ -102,7 +106,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 8
         },
         "resistance_management": "Rotasi dengan Streptomisin",
-        "safety_period": 10
+        "safety_period": 10,
+        "irac_group": "M1"  # Tembaga
     },
     "Busuk Pelepah Daun": {
         "type": "Penyakit",
@@ -120,7 +125,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Hexaconazole",
-        "safety_period": 14
+        "safety_period": 14,
+        "irac_group": "U"  # Unknown/Antibiotik
     },
     
     # ===== JAGUNG =====
@@ -140,7 +146,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 4
         },
         "resistance_management": "Rotasi dengan Emamektin Benzoat",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "1B"  # Organofosfat
     },
     "Penggerek Jagung": {
         "type": "Hama",
@@ -158,7 +165,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 4
         },
         "resistance_management": "Rotasi dengan Spinosad",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "3A"  # Piretroid
     },
     "Bulai Jagung": {
         "type": "Penyakit",
@@ -176,7 +184,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Dimethomorph",
-        "safety_period": 14
+        "safety_period": 14,
+        "irac_group": "4"  # Phenylamides
     },
     "Karat Daun Jagung": {
         "type": "Penyakit",
@@ -194,7 +203,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Propiconazole",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "M3"  # Dithiocarbamates
     },
     
     # ===== CABAI =====
@@ -214,7 +224,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 4
         },
         "resistance_management": "Rotasi dengan Spinosad",
-        "safety_period": 3
+        "safety_period": 3,
+        "irac_group": "6"  # Avermectins
     },
     "Kutu Daun (Aphids)": {
         "type": "Hama",
@@ -232,7 +243,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 4
         },
         "resistance_management": "Rotasi dengan Acetamiprid",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "4A"  # Neonicotinoid
     },
     "Lalat Buah": {
         "type": "Hama",
@@ -250,7 +262,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 4
         },
         "resistance_management": "Rotasi dengan Spinosad",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "1B"  # Organofosfat
     },
     "Antraknosa Cabai": {
         "type": "Penyakit",
@@ -268,7 +281,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Azoxystrobin",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "M3 + 1"  # Mix
     },
     "Layu Fusarium": {
         "type": "Penyakit",
@@ -286,7 +300,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Trichoderma",
-        "safety_period": 14
+        "safety_period": 14,
+        "irac_group": "1"  # Benzimidazoles
     },
     
     # ===== TOMAT =====
@@ -306,7 +321,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 4
         },
         "resistance_management": "Rotasi dengan Indoxacarb",
-        "safety_period": 1
+        "safety_period": 1,
+        "irac_group": "11A"  # Microbial
     },
     "Bercak Daun Tomat": {
         "type": "Penyakit",
@@ -324,7 +340,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Mancozeb",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "M5"  # Chloronitriles
     },
     
     # ===== KENTANG =====
@@ -344,7 +361,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 4
         },
         "resistance_management": "Rotasi dengan Fipronil",
-        "safety_period": 14
+        "safety_period": 14,
+        "irac_group": "1B"  # Organofosfat
     },
     "Busuk Daun Kentang": {
         "type": "Penyakit",
@@ -362,7 +380,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 8
         },
         "resistance_management": "Rotasi dengan Cymoxanil",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "M3"  # Dithiocarbamates
     },
     
     # ===== BAWANG MERAH =====
@@ -382,7 +401,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 4
         },
         "resistance_management": "Rotasi dengan Emamektin Benzoat",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "1B"  # Organofosfat
     },
     "Bercak Ungu Bawang": {
         "type": "Penyakit",
@@ -400,7 +420,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Difenoconazole",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "M3"  # Dithiocarbamates
     },
     
     # ===== KEDELAI =====
@@ -420,7 +441,8 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 4
         },
         "resistance_management": "Rotasi dengan Indoxacarb",
-        "safety_period": 7
+        "safety_period": 7,
+        "irac_group": "3A"  # Piretroid
     },
     "Karat Daun Kedelai": {
         "type": "Penyakit",
@@ -438,7 +460,9 @@ PEST_DISEASE_DB = {
             "no_rain_hours": 6
         },
         "resistance_management": "Rotasi dengan Trifloxystrobin",
-        "safety_period": 14
+        "safety_period": 14,
+        "irac_group": "11"  # Strobilurin
+
     }
 }
 
@@ -639,6 +663,15 @@ with col2:
         value=datetime.now() + timedelta(days=30),
         help="Untuk cek safety period"
     )
+    
+    # Rotation history (simulation)
+    st.markdown("**🛡️ Manajemen Resistensi**")
+    last_spray_group = st.selectbox(
+        "Grup Bahan Aktif Terakhir Dipakai",
+        options=["Belum ada", "1A", "1B", "3A", "4A", "6", "M3", "11", "M1"],
+        help="Pilih kode grup IRAC/FRAC dari kemasan pestisida sebelumnya"
+    )
+
 
 # Analyze button
 if st.button("🔍 Analisis & Buat Strategi", type="primary", use_container_width=True):
@@ -705,14 +738,40 @@ if st.button("🔍 Analisis & Buat Strategi", type="primary", use_container_widt
     
     with col2:
         st.markdown(f"""
-        **Manajemen Resistensi:**
-        {pest_info['resistance_management']}
+        **Manajemen Resistensi (IRAC/FRAC):**
+        - **Grup Saat Ini:** {pest_info.get('irac_group', 'N/A')}
+        - **Strategi:** {pest_info['resistance_management']}
         
         **Safety Period:** {pest_info['safety_period']} hari sebelum panen
         
         **Total Kebutuhan:**
         - Pestisida: {cost_info['pesticide_needed']:.2f} L/kg
         - Air: {cost_info['water_needed']:.0f} L
+        """)
+    
+    # Resistance Check
+    st.markdown("---")
+    st.subheader("🛡️ Analisis Risiko Kekebalan (Resistensi)")
+    
+    current_group = pest_info.get('irac_group', 'N/A')
+    
+    if last_spray_group != "Belum ada" and last_spray_group == current_group:
+        st.error(f"""
+        ⚠️ **RISIKO RESISTENSI TINGGI!**
+        
+        Anda berencana menggunakan pestisida **Grup {current_group}**, padahal sebelumnya juga menggunakan **Grup {last_spray_group}**.
+        Penggunaan grup yang sama berturut-turut akan membuat hama menjadi KEBAL.
+        
+        **Saran:** GANTI bahan aktif dengan Grup yang berbeda (misalnya Grup {pest_info['resistance_management'].split()[-1] if 'Grup' in pest_info['resistance_management'] else 'Lainnya'}).
+        """)
+    else:
+        st.success(f"""
+        ✅ **Strategi Rotasi Aman**
+        
+        Grup pestisida saat ini: **{current_group}**
+        Grup sebelumnya: **{last_spray_group}**
+        
+        Lanjutkan rotasi ini untuk mencegah hama menjadi kebal.
         """)
     
     # Safety period check

@@ -529,6 +529,198 @@ FERTILIZER_DATABASE = {
     }
 }
 
+# ========== COMMERCIAL PESTICIDE DATABASE ==========
+PESTICIDE_DATABASE_COMMERCIAL = {
+    # INSEKTISIDA
+    "Curacron 500EC": {
+        "category": "Insektisida",
+        "brand": "Syngenta",
+        "active_ingredient": "Profenofos 500 g/l",
+        "target_pests": ["Ulat Grayak", "Kutu Daun", "Thrips", "Penggerek Batang", "Lalat Buah"],
+        "price": 95000,
+        "unit": "500 ml",
+        "description": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan.",
+        "usage": "Cabai, Bawang Merah, Tomat, Kubis",
+        "dosage": "1-2 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/curacron.jpg"
+    },
+    "Regent 50SC": {
+        "category": "Insektisida",
+        "brand": "BASF",
+        "active_ingredient": "Fipronil 50 g/l",
+        "target_pests": ["Wereng Coklat", "Penggerek Batang", "Thrips", "Rayap", "Semut"],
+        "price": 65000,
+        "unit": "100 ml",
+        "description": "Insektisida sistemik racun kontak dan lambung + ZPT penumbuh akar.",
+        "usage": "Padi, Cabai, Jagung, Kelapa Sawit",
+        "dosage": "1-2 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/regent.jpg"
+    },
+    "Prevathon 50SC": {
+        "category": "Insektisida",
+        "brand": "FMC",
+        "active_ingredient": "Kloramtraniliprol 50 g/l",
+        "target_pests": ["Ulat Grayak", "Penggerek Batang", "Ulat Krop"],
+        "price": 185000,
+        "unit": "250 ml",
+        "description": "Insektisida sistemik translaminar, sangat efektif untuk ulat.",
+        "usage": "Padi, Bawang Merah, Kubis, Cabai",
+        "dosage": "3 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/prevathon.jpg"
+    },
+    "Alika 247ZC": {
+        "category": "Insektisida",
+        "brand": "Syngenta",
+        "active_ingredient": "Lambda cyhalothrin + Thiamethoxam",
+        "target_pests": ["Kutu Daun", "Kutu Kebul", "Ulat Grayak", "Wereng"],
+        "price": 75000,
+        "unit": "100 ml",
+        "description": "Insektisida spektrum luas teknologi ZC (Zeon Capsule) cepat dan tahan lama.",
+        "usage": "Cabai, Tomat, Kentang, Mangga",
+        "dosage": "0.5-1 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/alika.jpg"
+    },
+    "Decis 25EC": {
+        "category": "Insektisida",
+        "brand": "Bayer",
+        "active_ingredient": "Deltametrin 25 g/l",
+        "target_pests": ["Ulat", "Belalang", "Lalat Buah", "Kutu Daun"],
+        "price": 45000,
+        "unit": "100 ml",
+        "description": "Insektisida racun kontak dan lambung golongan piretroid.",
+        "usage": "Anggrek, Jagung, Kakao, Kedelai",
+        "dosage": "1 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/decis.jpg"
+    },
+    "Movento Energy": {
+        "category": "Insektisida",
+        "brand": "Bayer",
+        "active_ingredient": "Spirotetramat + Imidakloprid",
+        "target_pests": ["Kutu Kebul", "Kutu Daun", "Thrips", "Tungau"],
+        "price": 150000,
+        "unit": "100 ml",
+        "description": "Insektisida sistemik dua arah (xilem dan floem) untuk hama penghisap.",
+        "usage": "Cabai, Tomat, Terong, Bawang",
+        "dosage": "1-2 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/movento.jpg"
+    },
+    "Marshall 200EC": {
+        "category": "Insektisida/Akarisida",
+        "brand": "FMC",
+        "active_ingredient": "Karbosulfan 200 g/l",
+        "target_pests": ["Kutu Daun", "Tungau", "Lalat Bibit", "Wereng"],
+        "price": 85000,
+        "unit": "500 ml",
+        "description": "Insektisida dan akarisida sistemik racun kontak dan lambung.",
+        "usage": "Jeruk, Kapas, Kedelai, Padi",
+        "dosage": "1-2 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/marshall.jpg"
+    },
+
+    # FUNGISIDA
+    "Amistartop 325SC": {
+        "category": "Fungisida",
+        "brand": "Syngenta",
+        "active_ingredient": "Azoksistrobin + Difenokonazol",
+        "target_pests": ["Busuk Daun", "Antraknosa", "Blas Padi", "Bercak Daun"],
+        "price": 165000,
+        "unit": "100 ml",
+        "description": "Fungisida sistemik dengan ZPT, bikin daun hijau dan hasil meningkat.",
+        "usage": "Padi, Bawang Merah, Cabai, Jagung",
+        "dosage": "0.5-1 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/amistartop.jpg"
+    },
+    "Antracol 70WP": {
+        "category": "Fungisida",
+        "brand": "Bayer",
+        "active_ingredient": "Propineb 70%",
+        "target_pests": ["Busuk Daun", "Bercak Daun", "Embun Tepung"],
+        "price": 85000,
+        "unit": "1 kg",
+        "description": "Fungisida kontak berbentuk tepung untuk mengendalikan jamur.",
+        "usage": "Anggrek, Anggur, Cabai, Tomat",
+        "dosage": "1.5-2 g/liter air",
+        "image_url": "https://agrisensa.com/static/products/antracol.jpg"
+    },
+    "Score 250EC": {
+        "category": "Fungisida",
+        "brand": "Syngenta",
+        "active_ingredient": "Difenokonazol 250 g/l",
+        "target_pests": ["Busuk Buah", "Bercak Ungu", "Bercak Daun Alternaria"],
+        "price": 145000,
+        "unit": "250 ml",
+        "description": "Fungisida sistemik ZPT, spesialis bikin buah mulus dan bersih.",
+        "usage": "Padi, Semangka, Tomat, Cabai",
+        "dosage": "0.5-1 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/score.jpg"
+    },
+    "Dithane M-45": {
+        "category": "Fungisida",
+        "brand": "Corteva",
+        "active_ingredient": "Mankozeb 80%",
+        "target_pests": ["Busuk Daun", "Cacar Daun", "Karat Daun"],
+        "price": 95000,
+        "unit": "1 kg",
+        "description": "Fungisida protektif berbentuk tepung kuning.",
+        "usage": "Kentang, Bawang, Cabai, Tomat",
+        "dosage": "2-3 g/liter air",
+        "image_url": "https://agrisensa.com/static/products/dithane.jpg"
+    },
+     "Nativo 75WG": {
+        "category": "Fungisida",
+        "brand": "Bayer",
+        "active_ingredient": "Tebuconazole + Trifloxystrobin",
+        "target_pests": ["Blas Padi", "Gosong Palsu", "Antraknosa"],
+        "price": 45000,
+        "unit": "50 gr",
+        "description": "Fungisida sistemik untuk padi bening dan bobot maksimal.",
+        "usage": "Padi, Cabai, Bawang Merah",
+        "dosage": "150-200 g/hektar",
+        "image_url": "https://agrisensa.com/static/products/nativo.jpg"
+    },
+
+    # HERBISIDA (Limited)
+    "Gramoxone 276SL": {
+        "category": "Herbisida",
+        "brand": "Syngenta",
+        "active_ingredient": "Paraquat Diklorida",
+        "target_pests": ["Gulma Berdaun Lebar", "Rumput Liar"],
+        "price": 85000,
+        "unit": "1 Liter",
+        "description": "Herbisida kontak purna tumbuh untuk pengendalian gulma cepat (gosong).",
+        "usage": "Lahan tanpa tanaman, persiapan lahan",
+        "dosage": "5-10 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/gramoxone.jpg"
+    },
+    "Roundup 486SL": {
+        "category": "Herbisida",
+        "brand": "Bayer",
+        "active_ingredient": "Isopropil amina glifosat",
+        "target_pests": ["Alang-alang", "Gulma Umum"],
+        "price": 110000,
+        "unit": "1 Liter",
+        "description": "Herbisida sistemik purna tumbuh, mati sampai akar.",
+        "usage": "Perkebunan, persiapan lahan",
+        "dosage": "5-10 ml/liter air",
+        "image_url": "https://agrisensa.com/static/products/roundup.jpg"
+    },
+    
+    # MOLUSKISIDA
+    "Molluscicide 6GR": {
+        "category": "Moluskisida",
+        "brand": "Lokal/Import",
+        "active_ingredient": "Metaldehida 6%",
+        "target_pests": ["Keong Mas", "Siput"],
+        "price": 35000,
+        "unit": "500 gr",
+        "description": "Racun keong bentuk butiran.",
+        "usage": "Padi sawah",
+        "dosage": "5-10 kg/hektar",
+        "image_url": "https://agrisensa.com/static/products/moluskisida.jpg"
+    }
+
+}
+
 # ========== HELPER FUNCTIONS ==========
 
 def get_categories():
@@ -705,9 +897,9 @@ if len(filtered_fertilizers) == 0:
     st.warning("Tidak ada produk yang sesuai dengan filter Anda. Coba ubah kriteria pencarian.")
 else:
     # Tabs
-    tab1, tab2, tab3 = st.tabs(["📦 Katalog Produk", "📊 Perbandingan Harga", "📚 Panduan Pemupukan"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📦 Katalog Pupuk", "💊 Pestisida & Obat", "📊 Perbandingan Harga", "📚 Panduan Pemupukan"])
     
-    # TAB 1: PRODUCT CATALOG
+    # TAB 1: PRODUCT CATALOG (FERTILIZER)
     with tab1:
         # Display products in grid
         cols_per_row = 2
@@ -744,8 +936,57 @@ else:
                             st.markdown(f"**Aplikasi:** {data['application']}")
                             st.markdown(f"**Kemasan:** {', '.join(data['package_sizes'])}")
     
-    # TAB 2: PRICE COMPARISON
+    # TAB 2: PESTICIDE CATALOG (NEW)
     with tab2:
+        st.markdown("### 💊 Katalog Pestisida (Insektisida, Fungisida, dll)")
+        
+        # Grid layout for pesticides
+        pest_cols_per_row = 2
+        pesticide_list = list(PESTICIDE_DATABASE_COMMERCIAL.items())
+        
+        # Optional: Add filters specific to pesticides if needed, now showing all
+        
+        for i in range(0, len(pesticide_list), pest_cols_per_row):
+            cols = st.columns(pest_cols_per_row)
+            for j in range(pest_cols_per_row):
+                if i + j < len(pesticide_list):
+                    name, data = pesticide_list[i + j]
+                    
+                    with cols[j]:
+                         # Color code per category
+                        cat_color = "#ef4444" # red default
+                        cat_bg = "#fee2e2"
+                        if "Fungisida" in data['category']:
+                            cat_color = "#3b82f6" # blue
+                            cat_bg = "#dbeafe"
+                        elif "Herbisida" in data['category']:
+                             cat_color = "#854d0e" # brown
+                             cat_bg = "#fef9c3"
+                             
+                        st.markdown(f"""
+                        <div class="product-card">
+                            <div style="display:flex; justify-content:space-between; align-items:start;">
+                                <div class="product-name">{name}</div>
+                                <span style="background:{cat_bg}; color:{cat_color}; padding: 0.2rem 0.6rem; border-radius:10px; font-size:0.8rem; font-weight:bold;">{data['category']}</span>
+                            </div>
+                            <div class="product-brand">🏭 {data['brand']} | 🧪 {data['active_ingredient']}</div>
+                            <div class="product-desc" style="font-size:0.9rem; color:#4b5563; margin:0.5rem 0;" >{data['description']}</div>
+                            <hr style="margin:0.5rem 0;">
+                            <div>
+                                <div style="font-size:0.85rem;">🐛 <b>Target:</b> {', '.join(data['target_pests'][:4])}</div>
+                            </div>
+                            <div class="product-price">Rp {data['price']:,} <span style="font-size:0.9rem; color:#6b7280; font-weight:normal;">/ {data['unit']}</span></div>
+                             <button style="background-color:#10b981; color:white; border:none; padding:0.5rem 1rem; border-radius:5px; cursor:pointer; width:100%;">🛒 Cek Ketersediaan</button>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        with st.expander(f"📖 Dosis & Cara Pakai {name}"):
+                            st.info(f"**Dosis:** {data['dosage']}")
+                            st.write(f"**Tanaman:** {data['usage']}")
+                            st.caption("*Baca label kemasan sebelum menggunakan.*")
+                            
+    # TAB 3: PRICE COMPARISON
+    with tab3:
         st.markdown("### 💰 Perbandingan Harga")
         
         # Create comparison table
@@ -816,8 +1057,24 @@ else:
         
         st.plotly_chart(fig, use_container_width=True)
     
-    # TAB 3: FERTILIZATION GUIDE
-    with tab3:
+    # TAB 4: GUIDES
+    with tab4:
+        st.header("📚 Panduan Singkat")
+        col1, col2 = st.columns(2)
+        with col1:
+             st.markdown("""
+             **Tips Membeli Pupuk:**
+             1. **Cek Nomor Pendaftaran:** Pastikan pupuk memiliki nomor pendaftaran Kementan RI.
+             2. **Kemasan:** Cek kondisi kemasan, jahitan karung asli biasanya rapi dan ada logo produsen.
+             3. **Bentuk Fisik:** Kenali warna dan bentuk butiran pupuk asli. Urea biasanya prill/granul putih/pink (subsidi).
+             """)
+        with col2:
+             st.markdown("""
+             **Tips Membeli Pestisida:**
+             1. **Kenali Masalahnya:** Jangan beli insektisida untuk penyakit jamur!
+             2. **Rotasi Bahan Aktif:** Jangan gunakan produk yang sama terus menerus untuk menghindari resistensi.
+             3. **Perhatikan Warna Label:** Hijau (Aman), Biru (Cukup Aman), Kuning (Berbahaya), Merah (Sangat Berbahaya).
+             """)
         st.markdown("### 📚 Panduan Pemupukan")
         
         col1, col2 = st.columns(2)

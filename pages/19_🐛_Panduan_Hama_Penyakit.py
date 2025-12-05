@@ -284,6 +284,23 @@ HAMA_DATABASE = {
     }
 }
 
+
+
+# ========== AGRISHOP INTEGRATION (COMMERCIAL) ==========
+COMMERCIAL_SOLUTIONS = {
+    # HAMA
+    "Ulat Grayak (Spodoptera litura)": ["Curacron 500EC", "Prevathon 50SC", "Alika 247ZC"],
+    "Kutu Daun (Aphids)": ["Curacron 500EC", "Alika 247ZC", "Movento Energy", "Marshall 200EC"],
+    "Penggerek Batang (Stem Borer)": ["Regent 50SC", "Prevathon 50SC"],
+    "Wereng Coklat (Brown Planthopper)": ["Regent 50SC", "Alika 247ZC", "Marshall 200EC"],
+    "Keong Mas (Golden Snail)": ["Molluscicide 6GR"],
+    
+    # PENYAKIT
+    "Busuk Daun (Late Blight)": ["Amistartop 325SC", "Antracol 70WP", "Dithane M-45"],
+    "Layu Bakteri (Bacterial Wilt)": ["Agriycin (Bakterisida)"], # Generic
+    "Antraknosa (Anthracnose)": ["Amistartop 325SC", "Score 250EC", "Nativo 75WG"],
+}
+
 # ========== DATABASE PENYAKIT ==========
 
 PENYAKIT_DATABASE = {
@@ -619,6 +636,17 @@ with tab2:
                 if 'link_pestisida' in data:
                     st.success(f"🌿 **Pestisida Nabati yang Efektif:** {data['link_pestisida']}")
                     st.caption("Klik tab 'Pestisida Nabati' di sidebar untuk detail formula")
+                
+                # Commercial Recommendation
+                if nama in COMMERCIAL_SOLUTIONS:
+                    st.info(f"🛒 **Solusi Komersial (AgriShop):**")
+                    products = COMMERCIAL_SOLUTIONS[nama]
+                    cols = st.columns(len(products))
+                    for i, prod in enumerate(products):
+                        with cols[i]:
+                            st.markdown(f"**{prod}**")
+                            if st.button(f"Beli {prod.split()[0]}", key=f"btn_hama_{nama}_{i}"):
+                                st.switch_page("pages/25_🧪_Katalog_Pupuk_Harga.py")
 
 # TAB 3: DISEASE DATABASE
 with tab3:
@@ -663,6 +691,17 @@ with tab3:
                 if 'link_pestisida' in data:
                     st.success(f"🌿 **Pestisida Nabati yang Efektif:** {data['link_pestisida']}")
                     st.caption("Klik tab 'Pestisida Nabati' di sidebar untuk detail formula")
+
+                # Commercial Recommendation
+                if nama in COMMERCIAL_SOLUTIONS:
+                    st.info(f"🛒 **Solusi Komersial (AgriShop):**")
+                    products = COMMERCIAL_SOLUTIONS[nama]
+                    cols = st.columns(len(products))
+                    for i, prod in enumerate(products):
+                        with cols[i]:
+                            st.markdown(f"**{prod}**")
+                            if st.button(f"Beli {prod.split()[0]}", key=f"btn_penyakit_{nama}_{i}"):
+                                st.switch_page("pages/25_🧪_Katalog_Pupuk_Harga.py")
 
 # TAB 4: IPM STRATEGY
 with tab4:
