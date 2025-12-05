@@ -1,0 +1,721 @@
+# AgriSensa Knowledge - Ensiklopedia Pertanian Digital
+# Comprehensive agricultural knowledge base
+# Version: 1.0.0
+
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+from datetime import datetime
+
+st.set_page_config(page_title="AgriSensa Knowledge", page_icon="📖", layout="wide")
+
+# ========== SESSION STATE ==========
+if 'bookmarks' not in st.session_state:
+    st.session_state.bookmarks = []
+if 'read_articles' not in st.session_state:
+    st.session_state.read_articles = []
+
+# ========== KNOWLEDGE DATABASE ==========
+
+# 1. DASAR-DASAR PERTANIAN
+DASAR_PERTANIAN = {
+    "sistem_pertanian": {
+        "title": "Sistem-Sistem Pertanian Modern",
+        "content": """
+        ### 🌾 Sistem Pertanian Konvensional
+        - Menggunakan input kimia (pupuk, pestisida)
+        - Fokus pada produktivitas tinggi
+        - Mekanisasi pertanian
+        - **Kelebihan**: Produktivitas tinggi, efisien
+        - **Kekurangan**: Degradasi tanah, polusi
+        
+        ### 🌱 Pertanian Organik
+        - Tanpa input kimia sintetis
+        - Menggunakan pupuk organik dan pestisida nabati
+        - Fokus pada kesehatan tanah
+        - **Kelebihan**: Ramah lingkungan, produk sehat
+        - **Kekurangan**: Produktivitas lebih rendah, harga mahal
+        
+        ### 💧 Hidroponik
+        - Tanaman tumbuh di media air bernutrisi
+        - Tanpa tanah
+        - Sistem: NFT, DFT, Wick, Drip
+        - **Kelebihan**: Hemat air 90%, bebas hama tanah, produktivitas tinggi
+        - **Kekurangan**: Investasi awal tinggi, butuh keahlian
+        
+        ### 🐟 Aquaponik
+        - Kombinasi budidaya ikan dan tanaman
+        - Kotoran ikan = nutrisi tanaman
+        - Sistem sirkular
+        - **Kelebihan**: Dua produk sekaligus, efisien
+        - **Kekurangan**: Kompleks, butuh monitoring ketat
+        
+        ### 🏢 Vertical Farming
+        - Pertanian bertingkat dalam gedung
+        - Controlled environment
+        - LED grow lights
+        - **Kelebihan**: Hemat lahan, produksi sepanjang tahun
+        - **Kekurangan**: Biaya energi tinggi, investasi besar
+        """,
+        "tags": ["sistem", "dasar", "pemula"],
+        "difficulty": "beginner",
+        "read_time": 5
+    },
+    "siklus_tanaman": {
+        "title": "Siklus Pertumbuhan Tanaman",
+        "content": """
+        ### 📊 Fase Pertumbuhan Tanaman
+        
+        **1. Fase Perkecambahan (0-7 hari)**
+        - Benih menyerap air (imbibisi)
+        - Radikula muncul (akar primer)
+        - Kotiledon membuka
+        - **Kebutuhan**: Kelembaban tinggi, suhu hangat
+        
+        **2. Fase Vegetatif (7-40 hari)**
+        - Pertumbuhan daun, batang, akar
+        - Fotosintesis aktif
+        - Pembentukan biomassa
+        - **Kebutuhan**: N tinggi, cahaya penuh, air cukup
+        
+        **3. Fase Generatif (40-70 hari)**
+        - Pembentukan bunga
+        - Penyerbukan dan pembuahan
+        - Pembentukan buah/biji
+        - **Kebutuhan**: P dan K tinggi, suhu optimal
+        
+        **4. Fase Pematangan (70-90 hari)**
+        - Buah/biji matang
+        - Akumulasi gula/pati
+        - Perubahan warna
+        - **Kebutuhan**: Air dikurangi, K tinggi
+        
+        **5. Fase Penuaan**
+        - Daun menguning
+        - Fotosintesis menurun
+        - Siap panen
+        """,
+        "tags": ["siklus", "pertumbuhan", "dasar"],
+        "difficulty": "beginner",
+        "read_time": 4
+    },
+    "faktor_pertumbuhan": {
+        "title": "Faktor-Faktor Pertumbuhan Tanaman",
+        "content": """
+        ### ☀️ Cahaya
+        - **Intensitas**: 10,000-50,000 lux untuk sayuran
+        - **Durasi**: Tanaman hari panjang (>12 jam) vs hari pendek (<12 jam)
+        - **Kualitas**: Spektrum merah (pertumbuhan) vs biru (pembungaan)
+        
+        ### 💧 Air
+        - **Kebutuhan**: 400-800 L/kg biomassa
+        - **Fungsi**: Fotosintesis, transportasi nutrisi, turgiditas
+        - **Defisit**: Layu, pertumbuhan terhambat
+        - **Kelebihan**: Akar busuk, defisiensi oksigen
+        
+        ### 🌡️ Suhu
+        - **Optimal**: 20-30°C untuk kebanyakan tanaman
+        - **Minimum**: <10°C = dormansi
+        - **Maksimum**: >35°C = stress panas
+        - **DIF (Day-Night)**: Perbedaan suhu siang-malam penting untuk kualitas
+        
+        ### 💨 Kelembaban
+        - **Optimal**: 60-80% RH
+        - **Rendah**: Transpirasi berlebih, stress air
+        - **Tinggi**: Penyakit jamur, edema
+        
+        ### 🌬️ CO2
+        - **Atmosfer**: 400 ppm
+        - **Optimal**: 800-1200 ppm (greenhouse)
+        - **Fungsi**: Bahan baku fotosintesis
+        
+        ### 🧪 Nutrisi
+        - **Makro**: N, P, K, Ca, Mg, S
+        - **Mikro**: Fe, Mn, Zn, Cu, B, Mo, Cl
+        - **pH optimal**: 5.5-6.5 (hidroponik), 6.0-7.0 (tanah)
+        """,
+        "tags": ["faktor", "lingkungan", "dasar"],
+        "difficulty": "intermediate",
+        "read_time": 6
+    }
+}
+
+# 2. DATABASE TANAMAN
+DATABASE_TANAMAN = {
+    "padi": {
+        "title": "Padi (Oryza sativa)",
+        "latin": "Oryza sativa",
+        "family": "Poaceae",
+        "content": """
+        ### 📋 Profil Tanaman
+        - **Nama Latin**: Oryza sativa
+        - **Famili**: Poaceae (rumput-rumputan)
+        - **Asal**: Asia Tenggara
+        - **Umur**: 110-130 hari
+        
+        ### 🌍 Syarat Tumbuh
+        - **Iklim**: Tropis, curah hujan 1500-2000 mm/tahun
+        - **Ketinggian**: 0-1500 mdpl
+        - **Suhu**: 22-32°C
+        - **pH Tanah**: 5.5-7.0
+        - **Jenis Tanah**: Liat, lempung (sawah)
+        
+        ### 🌱 Panduan Budidaya
+        **Persiapan Lahan:**
+        1. Bajak dan garu sawah
+        2. Buat petakan dengan pematang
+        3. Genangi air 5-10 cm
+        
+        **Penanaman:**
+        - Bibit umur 18-25 hari
+        - Jarak tanam: 25x25 cm atau 20x20 cm
+        - 2-3 bibit per lubang
+        
+        **Pemupukan:**
+        - **Dasar**: 100 kg Phonska/ha
+        - **Susulan 1 (21 HST)**: 100 kg Urea + 50 kg Phonska/ha
+        - **Susulan 2 (35 HST)**: 100 kg Urea/ha
+        
+        **Pengairan:**
+        - Fase vegetatif: Genangan 5-10 cm
+        - Fase generatif: Genangan 3-5 cm
+        - 2 minggu sebelum panen: Dikeringkan
+        
+        ### 🐛 Hama & Penyakit
+        - **Hama**: Wereng, penggerek batang, tikus
+        - **Penyakit**: Blast, hawar daun, busuk batang
+        
+        ### 📊 Hasil Panen
+        - **Produktivitas**: 5-7 ton GKP/ha
+        - **Waktu Panen**: 110-130 HST (gabah kuning 80-90%)
+        - **Rendemen**: 62-65% (GKP → beras)
+        """,
+        "tags": ["padi", "pangan", "sawah"],
+        "difficulty": "intermediate",
+        "read_time": 8
+    },
+    "cabai": {
+        "title": "Cabai Merah (Capsicum annuum)",
+        "latin": "Capsicum annuum",
+        "family": "Solanaceae",
+        "content": """
+        ### 📋 Profil Tanaman
+        - **Nama Latin**: Capsicum annuum
+        - **Famili**: Solanaceae
+        - **Asal**: Amerika Tengah dan Selatan
+        - **Umur**: 90-120 hari
+        
+        ### 🌍 Syarat Tumbuh
+        - **Ketinggian**: 200-2000 mdpl
+        - **Suhu**: 20-30°C
+        - **pH Tanah**: 6.0-7.0
+        - **Curah Hujan**: 600-1250 mm/tahun
+        - **Jenis Tanah**: Gembur, drainase baik
+        
+        ### 🌱 Panduan Budidaya
+        **Persemaian:**
+        1. Rendam benih 6 jam
+        2. Semai di tray/polybag
+        3. Pindah tanam umur 25-30 hari (4-6 daun)
+        
+        **Penanaman:**
+        - Jarak tanam: 60x70 cm atau 50x70 cm
+        - Buat bedengan tinggi 30 cm, lebar 100 cm
+        - Mulsa plastik hitam perak
+        
+        **Pemupukan:**
+        - **Dasar**: 10 ton pupuk kandang + 200 kg Phonska/ha
+        - **Susulan**: 5 g NPK/tanaman setiap 2 minggu
+        - **Tambahan**: KNO3 2 g/L (semprot daun)
+        
+        **Perawatan:**
+        - Pasang ajir/turus
+        - Pemangkasan tunas air
+        - Penyiraman rutin (pagi/sore)
+        
+        ### 🐛 Hama & Penyakit
+        - **Hama**: Thrips, kutu daun, ulat grayak
+        - **Penyakit**: Antraknosa, layu fusarium, virus keriting
+        
+        ### 📊 Hasil Panen
+        - **Produktivitas**: 15-25 ton/ha
+        - **Panen**: Mulai 75 HST, interval 3-5 hari
+        - **Kriteria**: Warna merah 80-100%
+        - **Harga**: Rp 20,000-60,000/kg (fluktuatif)
+        """,
+        "tags": ["cabai", "hortikultura", "sayuran"],
+        "difficulty": "advanced",
+        "read_time": 8
+    },
+    "tomat": {
+        "title": "Tomat (Solanum lycopersicum)",
+        "latin": "Solanum lycopersicum",
+        "family": "Solanaceae",
+        "content": """
+        ### 📋 Profil Tanaman
+        - **Nama Latin**: Solanum lycopersicum
+        - **Famili**: Solanaceae
+        - **Umur**: 60-90 hari
+        - **Tipe**: Determinate (terbatas) vs Indeterminate (tidak terbatas)
+        
+        ### 🌍 Syarat Tumbuh
+        - **Ketinggian**: 700-1500 mdpl (dataran tinggi lebih baik)
+        - **Suhu**: 20-27°C
+        - **pH**: 6.0-6.8
+        - **Cahaya**: Full sun (8+ jam/hari)
+        
+        ### 🌱 Budidaya
+        **Persemaian**: 25-30 hari
+        **Jarak Tanam**: 60x60 cm (determinate), 75x75 cm (indeterminate)
+        
+        **Pemupukan:**
+        - NPK 16-16-16: 300 kg/ha (dasar)
+        - KNO3 + Ca: Semprot setiap minggu (cegah blossom end rot)
+        
+        **Perawatan Khusus:**
+        - Pruning (pemangkasan tunas samping)
+        - Staking (ajir setinggi 2 m)
+        - Pollination assistance (getar bunga)
+        
+        ### 📊 Hasil
+        - **Produktivitas**: 20-40 ton/ha
+        - **Harga**: Rp 8,000-15,000/kg
+        """,
+        "tags": ["tomat", "sayuran", "hortikultura"],
+        "difficulty": "intermediate",
+        "read_time": 6
+    }
+}
+
+# 3. ILMU TANAH
+ILMU_TANAH = {
+    "jenis_tanah": {
+        "title": "Jenis-Jenis Tanah di Indonesia",
+        "content": """
+        ### 🗺️ Klasifikasi Tanah Indonesia
+        
+        **1. Tanah Aluvial**
+        - **Lokasi**: Dataran rendah, delta sungai
+        - **Karakteristik**: Subur, tekstur liat-lempung
+        - **Cocok untuk**: Padi sawah, palawija
+        - **Contoh**: Pantura Jawa, Sumatera Timur
+        
+        **2. Tanah Andosol (Vulkanik)**
+        - **Lokasi**: Sekitar gunung berapi
+        - **Karakteristik**: Gembur, kaya mineral, pH asam
+        - **Cocok untuk**: Sayuran, kopi, teh
+        - **Contoh**: Jawa Barat, Jawa Tengah
+        
+        **3. Tanah Latosol**
+        - **Lokasi**: Dataran tinggi
+        - **Karakteristik**: Merah/kuning, miskin hara, pH asam
+        - **Cocok untuk**: Perkebunan (karet, kelapa sawit)
+        - **Perlakuan**: Perlu kapur dan pupuk organik
+        
+        **4. Tanah Podsolik**
+        - **Lokasi**: Daerah beriklim basah
+        - **Karakteristik**: Asam, miskin hara
+        - **Cocok untuk**: Karet, kelapa sawit
+        - **Perlakuan**: Pengapuran intensif
+        
+        **5. Tanah Gambut**
+        - **Lokasi**: Rawa-rawa (Kalimantan, Sumatera)
+        - **Karakteristik**: Organik tinggi, pH sangat asam (3-4)
+        - **Cocok untuk**: Kelapa sawit, sagu
+        - **Perlakuan**: Drainase, kapur dolomit
+        
+        **6. Tanah Regosol**
+        - **Lokasi**: Pantai, gunung
+        - **Karakteristik**: Pasir, miskin hara
+        - **Cocok untuk**: Kelapa, jambu mete
+        """,
+        "tags": ["tanah", "jenis", "klasifikasi"],
+        "difficulty": "intermediate",
+        "read_time": 7
+    },
+    "ph_tanah": {
+        "title": "pH Tanah dan Pengelolaannya",
+        "content": """
+        ### 🧪 Skala pH dan Pengaruhnya
+        
+        **pH < 5.5 (Sangat Asam)**
+        - **Masalah**: Keracunan Al, Fe, Mn; defisiensi P, Ca, Mg
+        - **Tanaman toleran**: Teh, kopi, nanas
+        - **Perbaikan**: Kapur dolomit 2-4 ton/ha
+        
+        **pH 5.5-6.5 (Sedikit Asam) ✅ OPTIMAL**
+        - **Ketersediaan nutrisi maksimal**
+        - **Cocok untuk**: Kebanyakan tanaman
+        
+        **pH 6.5-7.5 (Netral)**
+        - **Baik untuk**: Padi, jagung, kedelai
+        
+        **pH > 7.5 (Alkalin)**
+        - **Masalah**: Defisiensi Fe, Mn, Zn, Cu
+        - **Tanaman toleran**: Asparagus, bit
+        - **Perbaikan**: Sulfur 200-500 kg/ha, pupuk asam
+        
+        ### 📏 Cara Mengukur pH
+        1. **pH Meter Digital**: Akurat, cepat
+        2. **Kertas Lakmus**: Murah, kurang akurat
+        3. **Soil Test Kit**: Praktis, cukup akurat
+        
+        ### 🔧 Cara Memperbaiki pH
+        
+        **Menaikkan pH (Tanah Asam):**
+        - Kapur pertanian (CaCO3): 1-3 ton/ha
+        - Dolomit (CaMg(CO3)2): 1-2 ton/ha (bonus Mg)
+        - Aplikasi 2-3 bulan sebelum tanam
+        
+        **Menurunkan pH (Tanah Alkalin):**
+        - Sulfur: 200-500 kg/ha
+        - Pupuk asam (ZA, amonium sulfat)
+        - Bahan organik (kompos, gambut)
+        """,
+        "tags": ["pH", "tanah", "pengelolaan"],
+        "difficulty": "intermediate",
+        "read_time": 6
+    }
+}
+
+# 4. MANAJEMEN AIR
+MANAJEMEN_AIR = {
+    "sistem_irigasi": {
+        "title": "Sistem Irigasi Modern",
+        "content": """
+        ### 💧 Jenis-Jenis Sistem Irigasi
+        
+        **1. Irigasi Tetes (Drip Irrigation)**
+        - **Prinsip**: Air menetes langsung ke zona akar
+        - **Efisiensi**: 90-95%
+        - **Kelebihan**: Hemat air, presisi, minim gulma
+        - **Kekurangan**: Investasi tinggi, butuh filter
+        - **Cocok untuk**: Sayuran, buah, greenhouse
+        - **Biaya**: Rp 15-30 juta/ha
+        
+        **2. Irigasi Sprinkler**
+        - **Prinsip**: Air disemprotkan seperti hujan
+        - **Efisiensi**: 70-85%
+        - **Kelebihan**: Cocok untuk lahan luas, merata
+        - **Kekurangan**: Evaporasi tinggi, butuh tekanan
+        - **Cocok untuk**: Rumput, palawija
+        - **Biaya**: Rp 20-40 juta/ha
+        
+        **3. Irigasi Permukaan (Surface)**
+        - **Prinsip**: Air mengalir di permukaan tanah
+        - **Efisiensi**: 40-60%
+        - **Kelebihan**: Murah, sederhana
+        - **Kekurangan**: Boros air, tidak merata
+        - **Cocok untuk**: Padi sawah
+        
+        **4. Irigasi Bawah Permukaan (Subsurface)**
+        - **Prinsip**: Pipa tetes ditanam di bawah tanah
+        - **Efisiensi**: 95%+
+        - **Kelebihan**: Sangat efisien, tahan lama
+        - **Kekurangan**: Mahal, instalasi kompleks
+        - **Cocok untuk**: Perkebunan premium
+        
+        ### 📊 Kebutuhan Air Tanaman
+        - **Padi**: 1200-1500 mm/musim
+        - **Jagung**: 400-600 mm/musim
+        - **Cabai**: 600-800 mm/musim
+        - **Tomat**: 400-600 mm/musim
+        
+        ### ⏰ Jadwal Penyiraman
+        - **Pagi**: 06:00-08:00 (terbaik)
+        - **Sore**: 16:00-18:00
+        - **Hindari**: Siang hari (evaporasi tinggi)
+        """,
+        "tags": ["irigasi", "air", "sistem"],
+        "difficulty": "intermediate",
+        "read_time": 7
+    }
+}
+
+# 5. HAMA & PENYAKIT
+HAMA_PENYAKIT = {
+    "wereng_coklat": {
+        "title": "Wereng Coklat Padi",
+        "content": """
+        ### 🐛 Identifikasi
+        - **Nama Latin**: Nilaparvata lugens
+        - **Tanaman Inang**: Padi
+        - **Gejala**: 
+          - Daun menguning dari bawah
+          - Hopperburn (tanaman mengering seperti terbakar)
+          - Koloni di pangkal batang
+        
+        ### 🔬 Siklus Hidup
+        - Telur (5-7 hari) → Nimfa (14-21 hari) → Dewasa (20-30 hari)
+        - 1 generasi: 25-35 hari
+        - Betina bertelur 300-500 butir
+        
+        ### 🛡️ Pengendalian
+        
+        **Preventif:**
+        - Varietas tahan (Inpari 32, Inpari 42)
+        - Jarak tanam tidak terlalu rapat
+        - Hindari pemupukan N berlebihan
+        - Sanitasi: Bersihkan jerami
+        
+        **Mekanis:**
+        - Perangkap lampu
+        - Jaring serangga
+        
+        **Biologis:**
+        - Predator: Laba-laba, kepik
+        - Parasitoid: Anagrus nilaparvatae
+        
+        **Kimia (jika populasi tinggi):**
+        - Imidakloprid 200 SL: 0.5 ml/L
+        - Buprofezin 25 WP: 2 g/L
+        - Aplikasi sore hari, semprot pangkal batang
+        
+        ### 🚨 Ambang Pengendalian
+        - **Vegetatif**: 10 ekor/rumpun
+        - **Generatif**: 5 ekor/rumpun
+        """,
+        "tags": ["hama", "wereng", "padi"],
+        "difficulty": "intermediate",
+        "read_time": 5
+    }
+}
+
+# ========== HELPER FUNCTIONS ==========
+
+def search_knowledge(query):
+    """Search across all knowledge base"""
+    results = []
+    query = query.lower()
+    
+    all_categories = {
+        "Dasar Pertanian": DASAR_PERTANIAN,
+        "Database Tanaman": DATABASE_TANAMAN,
+        "Ilmu Tanah": ILMU_TANAH,
+        "Manajemen Air": MANAJEMEN_AIR,
+        "Hama & Penyakit": HAMA_PENYAKIT
+    }
+    
+    for cat_name, category in all_categories.items():
+        for article_id, article in category.items():
+            if (query in article['title'].lower() or 
+                query in article['content'].lower() or
+                any(query in tag for tag in article.get('tags', []))):
+                results.append({
+                    'category': cat_name,
+                    'id': article_id,
+                    'title': article['title'],
+                    'difficulty': article.get('difficulty', 'N/A'),
+                    'read_time': article.get('read_time', 'N/A')
+                })
+    
+    return results
+
+def display_article(article):
+    """Display article with metadata"""
+    st.markdown(f"# {article['title']}")
+    
+    # Metadata
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        difficulty_color = {
+            'beginner': '🟢',
+            'intermediate': '🟡',
+            'advanced': '🔴'
+        }
+        st.caption(f"{difficulty_color.get(article.get('difficulty', ''), '⚪')} {article.get('difficulty', 'N/A').title()}")
+    with col2:
+        st.caption(f"⏱️ {article.get('read_time', 'N/A')} menit")
+    with col3:
+        if article.get('tags'):
+            st.caption(f"🏷️ {', '.join(article['tags'][:3])}")
+    with col4:
+        article_id = st.session_state.get('current_article_id', '')
+        if article_id in st.session_state.bookmarks:
+            if st.button("⭐ Hapus Bookmark", key=f"unbookmark_{article_id}"):
+                st.session_state.bookmarks.remove(article_id)
+                st.rerun()
+        else:
+            if st.button("☆ Bookmark", key=f"bookmark_{article_id}"):
+                st.session_state.bookmarks.append(article_id)
+                st.rerun()
+    
+    st.markdown("---")
+    
+    # Content
+    st.markdown(article['content'])
+    
+    # Mark as read
+    if article_id and article_id not in st.session_state.read_articles:
+        st.session_state.read_articles.append(article_id)
+
+# ========== MAIN APP ==========
+
+st.title("📖 AgriSensa Knowledge")
+st.markdown("**Ensiklopedia Pertanian Digital - Panduan Lengkap dari Dasar hingga Mahir**")
+
+# Search bar
+st.markdown("---")
+search_query = st.text_input("🔍 Cari topik, tanaman, atau kata kunci...", placeholder="Contoh: padi, pH tanah, irigasi tetes")
+
+if search_query:
+    results = search_knowledge(search_query)
+    if results:
+        st.success(f"Ditemukan {len(results)} artikel")
+        for result in results:
+            with st.expander(f"📄 {result['title']} ({result['category']})"):
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.caption(f"Kategori: {result['category']} | Tingkat: {result['difficulty']} | {result['read_time']} menit")
+                with col2:
+                    if st.button("Baca", key=f"read_{result['id']}"):
+                        st.session_state.current_article_id = result['id']
+                        st.session_state.current_category = result['category']
+                        st.rerun()
+    else:
+        st.warning("Tidak ada hasil ditemukan. Coba kata kunci lain.")
+
+st.markdown("---")
+
+# Main tabs
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "🌱 Dasar Pertanian",
+    "🌾 Database Tanaman",
+    "🧪 Ilmu Tanah",
+    "💧 Manajemen Air",
+    "🐛 Hama & Penyakit",
+    "⭐ Bookmark Saya"
+])
+
+# TAB 1: DASAR PERTANIAN
+with tab1:
+    st.header("🌱 Dasar-Dasar Pertanian")
+    
+    article_choice = st.selectbox(
+        "Pilih Topik:",
+        options=list(DASAR_PERTANIAN.keys()),
+        format_func=lambda x: DASAR_PERTANIAN[x]['title']
+    )
+    
+    if article_choice:
+        st.session_state.current_article_id = f"dasar_{article_choice}"
+        display_article(DASAR_PERTANIAN[article_choice])
+
+# TAB 2: DATABASE TANAMAN
+with tab2:
+    st.header("🌾 Database Tanaman")
+    st.markdown("Panduan lengkap budidaya berbagai komoditas pertanian")
+    
+    # Filter
+    col1, col2 = st.columns(2)
+    with col1:
+        filter_type = st.multiselect(
+            "Filter berdasarkan jenis:",
+            ["pangan", "hortikultura", "sayuran", "perkebunan"],
+            default=[]
+        )
+    
+    # Display plants
+    for plant_id, plant in DATABASE_TANAMAN.items():
+        if not filter_type or any(t in plant.get('tags', []) for t in filter_type):
+            with st.expander(f"🌿 {plant['title']}", expanded=False):
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.caption(f"**{plant.get('latin', '')}** | {plant.get('family', '')}")
+                    st.caption(f"Tingkat: {plant.get('difficulty', 'N/A')} | ⏱️ {plant.get('read_time', 'N/A')} menit")
+                with col2:
+                    if st.button("Baca Lengkap", key=f"plant_{plant_id}"):
+                        st.session_state.current_article_id = f"plant_{plant_id}"
+                        display_article(plant)
+
+# TAB 3: ILMU TANAH
+with tab3:
+    st.header("🧪 Ilmu Tanah")
+    
+    article_choice = st.selectbox(
+        "Pilih Topik:",
+        options=list(ILMU_TANAH.keys()),
+        format_func=lambda x: ILMU_TANAH[x]['title'],
+        key="tanah_select"
+    )
+    
+    if article_choice:
+        st.session_state.current_article_id = f"tanah_{article_choice}"
+        display_article(ILMU_TANAH[article_choice])
+
+# TAB 4: MANAJEMEN AIR
+with tab4:
+    st.header("💧 Manajemen Air")
+    
+    article_choice = st.selectbox(
+        "Pilih Topik:",
+        options=list(MANAJEMEN_AIR.keys()),
+        format_func=lambda x: MANAJEMEN_AIR[x]['title'],
+        key="air_select"
+    )
+    
+    if article_choice:
+        st.session_state.current_article_id = f"air_{article_choice}"
+        display_article(MANAJEMEN_AIR[article_choice])
+
+# TAB 5: HAMA & PENYAKIT
+with tab5:
+    st.header("🐛 Hama & Penyakit")
+    
+    article_choice = st.selectbox(
+        "Pilih Hama/Penyakit:",
+        options=list(HAMA_PENYAKIT.keys()),
+        format_func=lambda x: HAMA_PENYAKIT[x]['title'],
+        key="hama_select"
+    )
+    
+    if article_choice:
+        st.session_state.current_article_id = f"hama_{article_choice}"
+        display_article(HAMA_PENYAKIT[article_choice])
+
+# TAB 6: BOOKMARKS
+with tab6:
+    st.header("⭐ Artikel yang Saya Bookmark")
+    
+    if st.session_state.bookmarks:
+        st.success(f"Anda memiliki {len(st.session_state.bookmarks)} bookmark")
+        
+        for bookmark_id in st.session_state.bookmarks:
+            # Find article
+            # (Simplified - in production, implement proper lookup)
+            st.info(f"📌 {bookmark_id}")
+    else:
+        st.info("Belum ada bookmark. Klik tombol ☆ pada artikel untuk menambahkan bookmark.")
+
+# Sidebar - Statistics
+with st.sidebar:
+    st.markdown("### 📊 Statistik Anda")
+    st.metric("Artikel Dibaca", len(st.session_state.read_articles))
+    st.metric("Bookmark", len(st.session_state.bookmarks))
+    
+    st.markdown("---")
+    st.markdown("### 📚 Kategori")
+    st.markdown("""
+    - 🌱 Dasar Pertanian (3 artikel)
+    - 🌾 Database Tanaman (3 artikel)
+    - 🧪 Ilmu Tanah (2 artikel)
+    - 💧 Manajemen Air (1 artikel)
+    - 🐛 Hama & Penyakit (1 artikel)
+    
+    **Total: 10 artikel** (akan terus bertambah!)
+    """)
+    
+    st.markdown("---")
+    st.markdown("### 💡 Tips")
+    st.info("Gunakan fitur search untuk menemukan topik dengan cepat!")
+
+# Footer
+st.markdown("---")
+st.caption("""
+📖 **AgriSensa Knowledge v1.0** - Ensiklopedia Pertanian Digital
+
+💡 **Catatan**: Informasi ini bersifat edukatif dan umum. Sesuaikan dengan kondisi lokal Anda dan konsultasikan dengan penyuluh pertanian untuk kasus spesifik.
+
+🌱 **Coming Soon**: Lebih banyak tanaman, video tutorial, kalkulator interaktif, dan fitur AI Q&A!
+""")
