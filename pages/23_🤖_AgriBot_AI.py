@@ -9,14 +9,17 @@ from datetime import datetime
 
 # ========== API KEY SETUP ==========
 # Try to get API key from Streamlit secrets first, then fall back to environment variable
+API_KEY_STATUS = "❌ Not loaded"
 try:
     if "GEMINI_API_KEY" in st.secrets:
         os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
-        st.sidebar.success("✅ API Key loaded from Streamlit secrets")
+        API_KEY_STATUS = "✅ Loaded from Streamlit secrets"
+    elif "GEMINI_API_KEY" in os.environ:
+        API_KEY_STATUS = "✅ Loaded from environment variable"
+    else:
+        API_KEY_STATUS = "❌ Not found in secrets or environment"
 except Exception as e:
-    # Fallback to environment variable (for local development)
-    if "GEMINI_API_KEY" not in os.environ:
-        st.sidebar.warning(f"⚠️ No API key found in secrets or environment")
+    API_KEY_STATUS = f"❌ Error: {str(e)}"
 
 # Add parent directory to path to import chatbot_service
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -112,6 +115,13 @@ st.markdown('<p style="text-align: center; color: #6b7280; margin-bottom: 2rem;"
 
 # Sidebar
 with st.sidebar:
+    st.markdown("### 🔑 API Key Status")
+    if "✅" in API_KEY_STATUS:
+        st.success(API_KEY_STATUS)
+    else:
+        st.error(API_KEY_STATUS)
+    
+    st.markdown("---")
     st.markdown("### 📊 Statistik Chat")
     st.metric("Total Pesan", len(st.session_state.messages))
     st.metric("Pesan Anda", len([m for m in st.session_state.messages if m["role"] == "user"]))
