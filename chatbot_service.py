@@ -1,14 +1,11 @@
 import google.generativeai as genai
-from flask import current_app
 import os
 
 class ChatbotService:
     """
     Service for interacting with Google Gemini API.
+    Streamlit-compatible version (no Flask dependency).
     """
-    
-    # API Key from environment variable or parameter
-    API_KEY = os.environ.get("GEMINI_API_KEY")
     
     def __init__(self, api_key=None):
         """
@@ -20,7 +17,13 @@ class ChatbotService:
         self.init_error = None
         
         # Use provided API key or fall back to environment variable
-        key_to_use = api_key or self.API_KEY or os.environ.get("GEMINI_API_KEY")
+        key_to_use = api_key or os.environ.get("GEMINI_API_KEY")
+        
+        if not key_to_use:
+            self.init_error = "No API key provided"
+            self.model = None
+            self.chat = None
+            return
         
         try:
             genai.configure(api_key=key_to_use)
@@ -47,12 +50,12 @@ class ChatbotService:
             Dorong praktik pertanian berkelanjutan dan organik ketika memungkinkan.
             """
             
-            # Initialize with system prompt (workaround as system prompt is not directly supported in start_chat for all versions)
+            # Initialize with system prompt
             try:
                 self.chat.send_message(self.system_prompt)
             except Exception as e:
                 print(f"Warning: Failed to send system prompt: {e}")
-                # Continue even if system prompt fails, just log it
+                # Continue even if system prompt fails
             
         except Exception as e:
             print(f"Error initializing ChatbotService: {e}")
@@ -71,6 +74,5 @@ class ChatbotService:
             response = self.chat.send_message(message)
             return response.text
         except Exception as e:
-            current_app.logger.error(f"Error getting response from Gemini: {e}")
-            # Return the actual error for debugging purposes
+            print(f"Error getting response from Gemini: {e}")
             return f"Error: {str(e)}"
