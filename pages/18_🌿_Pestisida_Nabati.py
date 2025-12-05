@@ -639,7 +639,7 @@ with tab3:
     vol = st.number_input("Volume Semprot Biasa (L/ha)", 200, 600, 400)
     ratio = st.slider("Rasio Pengenceran (1 bagian pestisida : X bagian air)", 1, 20, 5)
     
-    if st.button("Hitung Kebuuhan"):
+    if st.button("Hitung Kebutuhan"):
         tot, pest, air = calculate_dosage(lahan, vol, ratio)
         st.success(f"Anda butuh **{pest:.1f} Liter** ekstrak pestisida nabati dicampur dengan **{air:.1f} Liter** air.")
 
