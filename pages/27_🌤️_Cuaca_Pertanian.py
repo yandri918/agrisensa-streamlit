@@ -66,8 +66,98 @@ def get_weather_icon(code):
     if code in [95, 96, 99]: return "⛈️", "Badai Petir"
     return "🌤️", "Cerah Berawan"
 
-def get_agricultural_recommendations(weather_data, elevation):
-    """Generate agricultural recommendations based on weather & elevation"""
+def get_climate_season(lat):
+    """Detect climate zone and current season based on latitude and month"""
+    month = datetime.now().month
+    
+    # 1. Tentukan Zona Iklim
+    if abs(lat) <= 23.5:
+        zone = "Tropis"
+    elif 23.5 < abs(lat) <= 40:
+        zone = "Sub-Tropis"
+    elif 40 < abs(lat) <= 60:
+        zone = "Sedang (Temperate)"
+    else:
+        zone = "Kutub/Dingin"
+        
+    # 2. Tentukan Musim (Season)
+    season = ""
+    icon = ""
+    
+    if zone == "Tropis":
+        # Pendekatan sederhana untuk tropis (ID)
+        if 4 <= month <= 9:
+            season = "Musim Kemarau"
+            icon = "☀️"
+        else:
+            season = "Musim Hujan"
+            icon = "🌧️"
+    else:
+        # Negara 4 Musim (Utara vs Selatan)
+        is_north = lat > 0
+        
+        if is_north: # Jepang, Eropa, US
+            if 3 <= month <= 5: 
+                season = "Musim Semi (Spring)"
+                icon = "🌸"
+            elif 6 <= month <= 8: 
+                season = "Musim Panas (Summer)"
+                icon = "☀️"
+            elif 9 <= month <= 11: 
+                season = "Musim Gugur (Autumn)"
+                icon = "🍂"
+            else: 
+                season = "Musim Dingin (Winter)"
+                icon = "❄️"
+        else: # Australia, NZ
+            if 3 <= month <= 5: 
+                season = "Musim Gugur (Autumn)"
+                icon = "🍂"
+            elif 6 <= month <= 8: 
+                season = "Musim Dingin (Winter)"
+                icon = "❄️"
+            elif 9 <= month <= 11: 
+                season = "Musim Semi (Spring)"
+                icon = "🌸"
+            else: 
+                season = "Musim Panas (Summer)"
+                icon = "☀️"
+                
+    return zone, season, icon
+
+def get_seasonal_insight(season, temp):
+    """Get specific insights based on season"""
+    insights = []
+    
+    if "Winter" in season or "Dingin" in season:
+        insights.append("❄️ **Winter Strategy:** Fokus pada tanaman root vegetables (lobak, wortel) atau leafy greens tahan dingin (bayam, kale).")
+        if temp < 5:
+            insights.append("⚠️ **Frost Warning:** Suhu mendekati beku! Gunakan greenhouse, tunnel, atau mulsa jerami tebal.")
+            insights.append("🏠 **Indoor Farming:** Pertimbangkan menanam microgreens atau hidroponik indoor.")
+    
+    elif "Spring" in season or "Semi" in season:
+        insights.append("🌸 **Spring Planting:** Waktu terbaik untuk menyemai benih. Tanah mulai menghangat.")
+        insights.append("🌱 **Soil Prep:** Lakukan pengolahan tanah dan penambahan kompos setelah musim dingin.")
+    
+    elif "Summer" in season or "Panas" in season:
+        insights.append("☀️ **Heat Mgmt:** Waspada stress panas. Pastikan irigasi cukup, terutama di siang hari.")
+        if temp > 30:
+            insights.append("🌡️ **High Temp:** Gunakan naungan (shade net) untuk tanaman sensitif (selada, pakchoy).")
+    
+    elif "Autumn" in season or "Gugur" in season:
+        insights.append("🍂 **Harvest Time:** Periode panen raya untuk tanaman musim panas.")
+        insights.append("🌾 **Cover Crops:** Tanam penutup tanah (cover crops) untuk melindungi tanah selama winter.")
+    
+    elif "Kemarau" in season:
+        insights.append("☀️ **Musim Kemarau:** Fokus pada efisiensi air. Gunakan irigasi tetes atau mulsa.")
+    
+    elif "Hujan" in season:
+        insights.append("🌧️ **Musim Hujan:** Waspada serangan jamur dan pembusukan akar. Perbaiki drainase.")
+
+    return insights
+
+def get_agricultural_recommendations(weather_data, elevation, lat):
+    """Generate agricultural recommendations based on weather, elevation, and season"""
     recommendations = []
     
     if not weather_data:
@@ -81,27 +171,31 @@ def get_agricultural_recommendations(weather_data, elevation):
     rain = current.get('rain', 0)
     wind = current.get('wind_speed_10m', 0)
     
-    # Elevation recommendations
-    if elevation < 100:
-        recommendations.append("🏔️ **Dataran Rendah**: Cocok untuk Padi, Jagung, Kelapa, Tebu.")
-    elif 100 <= elevation <= 700:
-        recommendations.append("🏔️ **Dataran Menengah**: Cocok untuk Karet, Kopi Robusta, Cokelat.")
-    else:
-        recommendations.append("🏔️ **Dataran Tinggi**: Cocok untuk Teh, Kopi Arabika, Sayuran (Wortel, Kentang).")
-
-    # Rain & Irrigation
-    if rain > 0 or daily.get('rain_sum', [0])[0] > 5:
-        recommendations.append("🌧️ **Hujan Terdeteksi**: Tunda penyemprotan pestisida/pupuk cair. Perbaiki drainase.")
-    else:
-        recommendations.append("💧 **Tidak Ada Hujan**: Periksa kelembaban tanah. Lakukan penyiraman jika perlu.")
-        
-    # Temperature
-    if temp > 32:
-        recommendations.append("🌡️ **Suhu Tinggi**: Waspada stress panas pada tanaman muda. Siram pagi/sore hari.")
+    # Get Seasonal Data
+    zone, season, season_icon = get_climate_season(lat)
     
-    # Wind
+    # 1. Seasonal Insights (PRIORITY)
+    recommendations.append(f"🌍 **Zona Iklim:** {zone} | {season_icon} **{season}**")
+    seasonal_tips = get_seasonal_insight(season, temp)
+    recommendations.extend(seasonal_tips)
+
+    # 2. Elevation Recommendations
+    if elevation < 100:
+        recommendations.append("🏔️ **Dataran Rendah:** Cocok untuk Padi, Jagung, Kelapa (Tropis) atau Gandum (Sub-tropis).")
+    elif 100 <= elevation <= 700:
+        recommendations.append("🏔️ **Dataran Menengah:** Cocok untuk Karet, Kopi Robusta, Buah-buahan.")
+    else:
+        recommendations.append("🏔️ **Dataran Tinggi (>700m):** Cocok untuk Teh, Kopi Arabika, Apel, Strawberry, Wasabi.")
+
+    # 3. Rain & Irrigation
+    if rain > 0 or daily.get('rain_sum', [0])[0] > 5:
+        recommendations.append("🌧️ **Hujan Terdeteksi:** Tunda penyemprotan. Risiko pencucian pupuk tinggi.")
+    else:
+        recommendations.append("💧 **Tidak Ada Hujan:** Cek kelembaban tanah. Aman untuk pemupukan dan penyemprotan.")
+        
+    # 4. Wind
     if wind > 15:
-        recommendations.append("💨 **Angin Kencang**: Tunda penyemprotan pestisida (drift hazard).")
+        recommendations.append("💨 **Angin Kencang (>15 km/h):** Hindari penyemprotan pestisida (drift hazard).")
 
     return recommendations
 
@@ -193,10 +287,28 @@ with tabs[0]:
         lat, lon = default_lat, default_lon
 
 with tabs[1]:
+    # Initialize session state for manual inputs if not exists
+    if 'manual_lat' not in st.session_state: st.session_state['manual_lat'] = lat
+    if 'manual_lon' not in st.session_state: st.session_state['manual_lon'] = lon
+
+    col_preset1, col_preset2 = st.columns(2)
+    with col_preset1:
+        if st.button("📍 Set Lokasi: Tokyo, Jepang (4 Musim)"):
+            st.session_state['manual_lat'] = 35.6762
+            st.session_state['manual_lon'] = 139.6503
+            
+    with col_preset2:
+        if st.button("📍 Set Lokasi: Jakarta, ID (Tropis)"):
+            st.session_state['manual_lat'] = -6.2088
+            st.session_state['manual_lon'] = 106.8456
+
     col1, col2 = st.columns(2)
-    with col1: lat_input = st.number_input("Latitude", value=lat, format="%.5f")
-    with col2: lon_input = st.number_input("Longitude", value=lon, format="%.5f")
-    if st.button("Update Lokasi Manual"):
+    with col1: 
+        lat_input = st.number_input("Latitude", value=st.session_state['manual_lat'], format="%.5f", key="input_lat")
+    with col2: 
+        lon_input = st.number_input("Longitude", value=st.session_state['manual_lon'], format="%.5f", key="input_lon")
+            
+    if st.button("Update Lokasi Manual", type="primary"):
         lat, lon = lat_input, lon_input
 
 # ========== GET DATA ==========
@@ -258,7 +370,7 @@ if 'weather_data' in st.session_state:
     
     with col_rec:
         st.subheader("🌾 Rekomendasi Agronomi")
-        recs = get_agricultural_recommendations(data, elev)
+        recs = get_agricultural_recommendations(data, elev, st.session_state['data_lat'])
         for rec in recs:
             st.markdown(f'<div class="rec-box">{rec}</div>', unsafe_allow_html=True)
             

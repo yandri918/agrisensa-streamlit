@@ -1,62 +1,51 @@
 # 🌤️ Modul Cuaca Pertanian (Open-Meteo Version)
 
-Modul cuaca pertanian yang **gratis** dan **powerful** menggunakan data **Open-Meteo**, tanpa memerlukan API key.
+Modul cuaca pertanian yang **gratis**, **powerful**, dan **cerdas** menggunakan data **Open-Meteo**. Dilengkapi dengan deteksi musim otomatis untuk mendukung pengguna di seluruh dunia.
 
-## ✨ Fitur Baru (v2.0)
+## ✨ Fitur Baru (v2.1 - Seasonal Update)
 
-### 1. ⛰️ Altimeter & Elevasi
+### 1. 🌍 Deteksi Musim & Iklim Otomatis
+- Otomatis mendeteksi **Zona Iklim**:
+  - Tropis (Indonesia, dll)
+  - Sub-Tropis / 4 Musim (Jepang, Eropa, USA)
+- Otomatis mendeteksi **Musim Saat Ini**:
+  - 🌸 Spring (Semi)
+  - ☀️ Summer (Panas)
+  - 🍂 Autumn (Gugur)
+  - ❄️ Winter (Dingin)
+  - 🌧️ Musim Hujan / Kemarau (Tropis)
+
+### 2. 🌾 Insight Pertanian Musiman
+Memberikan rekomendasi spesifik berdasarkan musim, contoh:
+- **Winter:** Peringatan Frost (beku), saran greenhouse, perlindungan akar.
+- **Spring:** Waktu tanam optimal, persiapan tanah.
+- **Summer:** Manajemen stress panas, irigasi.
+- **Autumn:** Panen raya, planting cover crops.
+
+### 3. ⛰️ Altimeter & Elevasi
 - Otomatis mendeteksi ketinggian lahan (mdpl)
-- Menggunakan database topografi global
-- **Manfaat:** Menentukan kesesuaian tanaman (contoh: Kopi Arabika > 1000 mdpl)
+- Menentukan kesesuaian tanaman (misal: Kopi Arabika > 1000 mdpl)
 
-### 2. 🌱 Data Tanah (Soil Data)
-- **Suhu Tanah (°C):** Penting untuk perkecambahan benih
-- **Kelembaban Tanah (m³/m³):** Indikator kebutuhan irigasi
-- Data diambil dari kedalaman 0-1 cm (topsoil)
+### 4. 🌱 Data Tanah & Hujan
+- **Suhu & Kelembaban Tanah:** Indikator irigasi presisi.
+- **Curah Hujan:** Real-time & forecast harian.
 
-### 3. 🌧️ Curah Hujan Presisi
-- Curah hujan real-time (mm)
-- Forecast akumulasi hujan harian
-- Grafik tren hujan 7 hari
+## 🔧 Setup
+Tidak butuh API key! 
 
-### 4. 🌤️ Cuaca Standar
-- Suhu, Kelembaban Udara, Kecepatan Angin, Tekanan Udara
-- Forecast 7 hari lengkap
+```bash
+pip install streamlit pandas plotly folium streamlit-folium requests
+streamlit run pages/27_🌤️_Cuaca_Pertanian.py
+```
 
-### 5. 🌾 Rekomendasi Agronomi Cerdas
-Rekomendasi disesuaikan dengan:
-- **Ketinggian Lahan:** (Dataran Rendah vs Tinggi)
-- **Kondisi Hujan:** (Saran penyemprotan & pemupukan)
-- **Suhu & Angin:** (Stress tanaman & drift hazard)
+## 🎯 Cara Penggunaan untuk User di Jepang (4 Musim)
 
-## 🔧 Setup (Zero Config)
-
-Tidak perlu setup API key!
-
-1. Install dependencies:
-   ```bash
-   pip install streamlit pandas plotly folium streamlit-folium requests
-   ```
-2. Jalankan aplikasi:
-   ```bash
-   streamlit run pages/27_🌤️_Cuaca_Pertanian.py
-   ```
-
-## 📊 Data Source
-
-Powered by **[Open-Meteo API](https://open-meteo.com/)**:
-- ✅ Gratis (Non-commercial use)
-- ✅ Tidak perlu API Key
-- ✅ Data historis & forecast presisi
-- ✅ Endpoint khusus Soil & Elevation
-
-## 🎯 Panduan Penggunaan
-
-1. **Pilih Lokasi:** Klik peta atau input manual.
-2. **Lihat Elevasi:** Cek ketinggian untuk kesesuaian tanaman.
-3. **Cek Data Tanah:** Lihat kelembaban tanah sebelum menyiram.
-4. **Cek Hujan:** Lihat grafik hujan sebelum memupuk.
-5. **Ikuti Rekomendasi:** Baca saran agronomi di dashboard.
+1. **Pilih Lokasi:**
+   - Gunakan Preset: Klik tombol **"📍 Set Lokasi: Tokyo, Jepang"**.
+   - Atau pilih lokasi manual di peta.
+2. **Lihat Insight Musim:**
+   - Dashboard akan menampilkan icon musim (misal: ❄️ Winter).
+   - Baca bagian "Rekomendasi Agronomi" untuk tips spesifik musim tersebut.
 
 ---
 **AgriSensa** - Smart Farming Solutions 🌾
