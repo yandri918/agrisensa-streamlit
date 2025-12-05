@@ -86,7 +86,15 @@ def get_chatbot():
     if not CHATBOT_AVAILABLE:
         return None
     try:
-        return ChatbotService()
+        # Get API key from Streamlit secrets or environment
+        api_key = None
+        if "GEMINI_API_KEY" in st.secrets:
+            api_key = st.secrets["GEMINI_API_KEY"]
+        elif "GEMINI_API_KEY" in os.environ:
+            api_key = os.environ["GEMINI_API_KEY"]
+        
+        # Pass API key directly to ChatbotService
+        return ChatbotService(api_key=api_key)
     except Exception as e:
         st.error(f"Error initializing chatbot: {e}")
         return None
