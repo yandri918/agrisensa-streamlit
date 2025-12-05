@@ -103,7 +103,7 @@ def main():
     with col1:
         st.markdown("""
         <div class="stat-card">
-            <div class="stat-value">7</div>
+            <div class="stat-value">25</div>
             <div class="stat-label">Modul Tersedia</div>
         </div>
         """, unsafe_allow_html=True)

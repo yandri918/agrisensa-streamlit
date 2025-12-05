@@ -884,12 +884,13 @@ if search_query:
 st.markdown("---")
 
 # Main tabs
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "🌱 Dasar Pertanian",
     "🌾 Database Tanaman",
     "🧪 Ilmu Tanah",
     "💧 Manajemen Air",
     "🐛 Hama & Penyakit",
+    "🧬 Pupuk Makro Sekunder",
     "⭐ Bookmark Saya"
 ])
 
@@ -979,8 +980,24 @@ with tab5:
         st.session_state.current_article_id = f"hama_{article_choice}"
         display_article(HAMA_PENYAKIT[article_choice])
 
-# TAB 6: BOOKMARKS
+# TAB 6: PUPUK MAKRO SEKUNDER
 with tab6:
+    st.header("🧬 Pupuk Makro Sekunder")
+    st.markdown("**Panduan Lengkap Unsur Hara Makro Sekunder: Kalsium, Magnesium, dan Sulfur**")
+    
+    article_choice = st.selectbox(
+        "Pilih Unsur Hara:",
+        options=list(PUPUK_MAKRO_SEKUNDER.keys()),
+        format_func=lambda x: PUPUK_MAKRO_SEKUNDER[x]['title'],
+        key="pupuk_sekunder_select"
+    )
+    
+    if article_choice:
+        st.session_state.current_article_id = f"pupuk_sekunder_{article_choice}"
+        display_article(PUPUK_MAKRO_SEKUNDER[article_choice])
+
+# TAB 7: BOOKMARKS
+with tab7:
     st.header("⭐ Artikel yang Saya Bookmark")
     
     if st.session_state.bookmarks:
@@ -1007,8 +1024,9 @@ with st.sidebar:
     - 🧪 Ilmu Tanah (2 artikel)
     - 💧 Manajemen Air (1 artikel)
     - 🐛 Hama & Penyakit (1 artikel)
+    - 🧬 Pupuk Makro Sekunder (3 artikel)
     
-    **Total: 10 artikel** (akan terus bertambah!)
+    **Total: 13 artikel** (akan terus bertambah!)
     """)
     
     st.markdown("---")

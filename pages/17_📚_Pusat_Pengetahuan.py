@@ -85,6 +85,149 @@ PUPUK_MAKRO = {
     }
 }
 
+# PUPUK MAKRO SEKUNDER (Ca, Mg, S)
+PUPUK_MAKRO_SEKUNDER = {
+    # MAGNESIUM (Mg)
+    "Kieserite (MgSO₄)": {
+        "kandungan": {"Mg": 27, "S": 22},
+        "fungsi": "Sintesis klorofil, fotosintesis, aktivasi enzim",
+        "defisiensi": "Klorosis interveinal pada daun tua, daun kemerahan/keunguan",
+        "dosis": "50-100 kg/ha",
+        "cara_aplikasi": "Tabur/kocor saat defisiensi Mg terdeteksi",
+        "waktu_aplikasi": "Fase vegetatif atau saat gejala defisiensi muncul",
+        "tanaman_peka": ["Sawit", "Kakao", "Karet", "Sayuran", "Buah"],
+        "kelebihan": ["Kandungan Mg tinggi", "Bonus Sulfur", "Efek cepat"],
+        "kekurangan": ["Harga relatif mahal", "Perlu import"],
+        "tips": "Sangat penting untuk tanaman perkebunan di tanah masam"
+    },
+    "Magnesium Sulfat (Epsom Salt)": {
+        "kandungan": {"Mg": 10, "S": 13},
+        "fungsi": "Koreksi defisiensi Mg cepat, pembentukan klorofil",
+        "defisiensi": "Daun kuning, pertumbuhan terhambat",
+        "dosis": "20-50 kg/ha atau 2-5 g/L (semprot daun)",
+        "cara_aplikasi": "Kocor/semprot daun",
+        "waktu_aplikasi": "Saat gejala defisiensi muncul",
+        "tanaman_peka": ["Sayuran", "Buah", "Tanaman hias", "Tomat", "Cabai"],
+        "kelebihan": ["Larut air sempurna", "Efek sangat cepat", "Bisa semprot daun"],
+        "kekurangan": ["Harga lebih mahal", "Efek tidak tahan lama"],
+        "tips": "Ideal untuk koreksi cepat defisiensi Mg via semprot daun"
+    },
+    
+    # KALSIUM (Ca)
+    "Dolomit [CaMg(CO₃)₂]": {
+        "kandungan": {"Ca": "18-22", "Mg": "10-13"},
+        "fungsi": "Menaikkan pH tanah, sumber Ca dan Mg, memperbaiki struktur tanah",
+        "defisiensi": "Ujung daun mati (tip burn), buah busuk ujung (blossom end rot)",
+        "dosis": "500-2000 kg/ha (tergantung pH tanah)",
+        "cara_aplikasi": "Tabur saat pengolahan tanah, 2-4 minggu sebelum tanam",
+        "waktu_aplikasi": "Saat olah tanah, sebelum musim tanam",
+        "tanaman_peka": ["Semua tanaman di tanah masam (pH <5.5)"],
+        "kelebihan": ["Murah", "Bonus Ca+Mg", "Efek jangka panjang", "Memperbaiki struktur"],
+        "kekurangan": ["Efek lambat (2-3 bulan)", "Perlu aplikasi rutin"],
+        "tips": "Wajib untuk tanah masam! Aplikasi 2-4 minggu sebelum tanam"
+    },
+    "Kapur Pertanian (CaCO₃)": {
+        "kandungan": {"Ca": "32-40"},
+        "fungsi": "Menaikkan pH tanah, sumber kalsium",
+        "defisiensi": "Pertumbuhan akar lemah, buah mudah busuk",
+        "dosis": "500-2000 kg/ha",
+        "cara_aplikasi": "Tabur saat pengolahan tanah",
+        "waktu_aplikasi": "2-4 minggu sebelum tanam",
+        "tanaman_peka": ["Semua tanaman di tanah masam (pH <5.5)"],
+        "kelebihan": ["Sangat murah", "Mudah didapat", "Efek jangka panjang"],
+        "kekurangan": ["Tidak mengandung Mg", "Efek lambat"],
+        "tips": "Pilihan ekonomis untuk menaikkan pH tanah masam"
+    },
+    "Gypsum (CaSO₄·2H₂O)": {
+        "kandungan": {"Ca": 23, "S": 18},
+        "fungsi": "Sumber Ca+S untuk tanah alkalin, memperbaiki tanah sodic",
+        "defisiensi": "Buah busuk ujung, akar lemah",
+        "dosis": "200-500 kg/ha",
+        "cara_aplikasi": "Tabur, cocok untuk tanah pH tinggi atau tanah sodic",
+        "waktu_aplikasi": "Saat olah tanah",
+        "tanaman_peka": ["Kacang tanah", "Sayuran", "Buah"],
+        "kelebihan": ["Tidak menaikkan pH", "Cocok tanah alkalin", "Bonus Sulfur"],
+        "kekurangan": ["Lebih mahal dari kapur", "Efek lebih lambat"],
+        "tips": "Pilihan terbaik untuk tanah alkalin (pH >7) atau tanah sodic"
+    },
+    "Kalsium Nitrat [Ca(NO₃)₂]": {
+        "kandungan": {"Ca": 19, "N": 15.5},
+        "fungsi": "Sumber Ca dan N cepat tersedia, untuk fertigasi/hidroponik",
+        "defisiensi": "Blossom end rot pada tomat, tip burn pada selada",
+        "dosis": "100-200 kg/ha atau 1-2 g/L (fertigasi)",
+        "cara_aplikasi": "Kocor/fertigasi, larut air sempurna",
+        "waktu_aplikasi": "Sepanjang musim tanam (fertigasi)",
+        "tanaman_peka": ["Tomat", "Cabai", "Selada", "Sayuran hidroponik"],
+        "kelebihan": ["Larut air sempurna", "Efek sangat cepat", "Bonus N", "Ideal hidroponik"],
+        "kekurangan": ["Harga mahal", "Perlu aplikasi rutin"],
+        "tips": "Wajib untuk hidroponik dan mencegah blossom end rot!"
+    },
+    "Kalsium Klorida (CaCl₂)": {
+        "kandungan": {"Ca": 36},
+        "fungsi": "Koreksi defisiensi Ca cepat via semprot daun",
+        "defisiensi": "Blossom end rot, bitter pit pada apel",
+        "dosis": "2-5 g/L (semprot daun)",
+        "cara_aplikasi": "Semprot daun, terutama saat pembentukan buah",
+        "waktu_aplikasi": "Fase generatif, saat buah berkembang",
+        "tanaman_peka": ["Tomat", "Cabai", "Apel", "Sayuran buah"],
+        "kelebihan": ["Efek sangat cepat", "Semprot daun efektif", "Mencegah blossom end rot"],
+        "kekurangan": ["Mengandung Cl (tidak untuk semua tanaman)", "Harga mahal"],
+        "tips": "Semprot rutin saat pembentukan buah untuk cegah blossom end rot"
+    },
+    
+    # SULFUR (S)
+    "Sulfur Bentonit": {
+        "kandungan": {"S": 90},
+        "fungsi": "Menurunkan pH tanah alkalin (slow-release), sumber Sulfur",
+        "defisiensi": "Daun muda kuning, pertumbuhan terhambat",
+        "dosis": "100-300 kg/ha",
+        "cara_aplikasi": "Tabur, efek bertahap 3-6 bulan",
+        "waktu_aplikasi": "Saat olah tanah, 2-3 bulan sebelum tanam",
+        "tanaman_peka": ["Sawit", "Karet", "Teh", "Tanaman asam-loving"],
+        "kelebihan": ["Efek jangka panjang", "Menurunkan pH bertahap", "Aman"],
+        "kekurangan": ["Efek lambat", "Perlu waktu 3-6 bulan"],
+        "tips": "Ideal untuk menurunkan pH tanah alkalin secara bertahap"
+    },
+    "Sulfur Powder (Belerang)": {
+        "kandungan": {"S": 99},
+        "fungsi": "Menurunkan pH tanah, fungisida untuk embun tepung",
+        "defisiensi": "Daun pucat, pertumbuhan lambat",
+        "dosis": "50-200 kg/ha (tanah) atau 3-5 g/L (semprot)",
+        "cara_aplikasi": "Tabur/semprot",
+        "waktu_aplikasi": "Saat olah tanah atau saat serangan jamur",
+        "tanaman_peka": ["Tanah alkalin", "Tanaman dengan embun tepung"],
+        "kelebihan": ["Murni", "Fungisida alami", "Menurunkan pH"],
+        "kekurangan": ["Efek lambat untuk pH", "Bisa fitotoksik jika berlebihan"],
+        "tips": "Dosis 3-5 g/L efektif untuk embun tepung (powdery mildew)"
+    },
+    "Amonium Tiosulfat (ATS)": {
+        "kandungan": {"N": 12, "S": 26},
+        "fungsi": "Sumber N dan S cepat tersedia untuk fertigasi",
+        "defisiensi": "Daun kuning, pertumbuhan terhambat",
+        "dosis": "50-100 L/ha (diencerkan)",
+        "cara_aplikasi": "Fertigasi, larut air sempurna",
+        "waktu_aplikasi": "Sepanjang musim tanam (fertigasi)",
+        "tanaman_peka": ["Jagung", "Gandum", "Sayuran (fertigasi)"],
+        "kelebihan": ["Cair, mudah aplikasi", "Bonus N", "Efek cepat"],
+        "kekurangan": ["Harga mahal", "Perlu sistem fertigasi"],
+        "tips": "Ideal untuk sistem fertigasi modern"
+    },
+    
+    # KOMBINASI Ca+Mg
+    "CalMag (Ca+Mg kompleks)": {
+        "kandungan": {"Ca": 15, "Mg": 3},
+        "fungsi": "Sumber Ca dan Mg untuk hidroponik dan fertigasi",
+        "defisiensi": "Blossom end rot, klorosis interveinal",
+        "dosis": "1-3 g/L (fertigasi/hidroponik)",
+        "cara_aplikasi": "Kocor/fertigasi, larut air sempurna",
+        "waktu_aplikasi": "Sepanjang musim tanam",
+        "tanaman_peka": ["Hidroponik", "Sayuran", "Buah"],
+        "kelebihan": ["Larut sempurna", "Kombinasi ideal Ca+Mg", "Cocok hidroponik"],
+        "kekurangan": ["Harga mahal", "Perlu aplikasi rutin"],
+        "tips": "Wajib untuk sistem hidroponik! Cegah defisiensi Ca dan Mg"
+    }
+}
+
 # PUPUK MIKRO
 PUPUK_MIKRO = {
     "Boron (B)": {
@@ -354,8 +497,9 @@ st.title("📚 Pusat Pengetahuan Pertanian")
 st.markdown("**Ensiklopedia lengkap nutrisi tanaman, pupuk, dan pengendalian hama alami**")
 
 # Category tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🌾 Pupuk Makro",
+    "⚛️ Pupuk Makro Sekunder (Ca, Mg, S)",
     "⚗️ Pupuk Mikro",
     "🌱 Pupuk Organik & Hayati",
     "💧 POC, MOL & ZPT",
@@ -399,8 +543,101 @@ with tab1:
                 st.warning("**Kekurangan:**\n" + "\n".join([f"⚠️ {k}" for k in data['kekurangan']]))
                 st.info(f"💡 **Tips:** {data['tips']}")
 
-# TAB 2: PUPUK MIKRO
+# TAB 2: PUPUK MAKRO SEKUNDER
 with tab2:
+    st.header("⚛️ Pupuk Makro Sekunder (Ca, Mg, S)")
+    st.markdown("""
+    Unsur hara makro sekunder sangat penting untuk:
+    - **Kalsium (Ca)**: Struktur dinding sel, pertumbuhan akar, kualitas buah
+    - **Magnesium (Mg)**: Pusat molekul klorofil, fotosintesis, aktivasi enzim
+    - **Sulfur (S)**: Pembentukan protein, vitamin, enzim
+    """)
+    
+    # Search
+    search_sekunder = st.text_input("🔍 Cari pupuk makro sekunder...", key="search_sekunder")
+    
+    # Category filter
+    kategori_sekunder = st.radio(
+        "Filter berdasarkan unsur:",
+        ["Semua", "Magnesium (Mg)", "Kalsium (Ca)", "Sulfur (S)", "Kombinasi"],
+        horizontal=True
+    )
+    
+    # Filter logic
+    filtered_sekunder = {}
+    for nama, data in PUPUK_MAKRO_SEKUNDER.items():
+        # Search filter
+        if search_sekunder and search_sekunder.lower() not in nama.lower():
+            continue
+        
+        # Category filter
+        if kategori_sekunder != "Semua":
+            if kategori_sekunder == "Magnesium (Mg)" and "Mg" not in data['kandungan']:
+                continue
+            elif kategori_sekunder == "Kalsium (Ca)" and "Ca" not in data['kandungan']:
+                continue
+            elif kategori_sekunder == "Sulfur (S)" and "S" not in data['kandungan'] and "Mg" in data['kandungan']:
+                continue
+            elif kategori_sekunder == "Kombinasi" and len(data['kandungan']) < 2:
+                continue
+        
+        filtered_sekunder[nama] = data
+    
+    st.write(f"**Menampilkan {len(filtered_sekunder)} produk**")
+    
+    for nama, data in filtered_sekunder.items():
+        with st.expander(f"**{nama}**", expanded=False):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**Kandungan:**")
+                for unsur, persen in data['kandungan'].items():
+                    st.markdown(f"- {unsur}: {persen}%")
+                
+                st.markdown(f"\n**Fungsi:** {data['fungsi']}")
+                
+                st.markdown(f"\n**Gejala Defisiensi:**")
+                st.markdown(f"⚠️ {data['defisiensi']}")
+                
+                st.markdown(f"\n**Dosis:** {data['dosis']}")
+                
+                st.markdown(f"\n**Cara Aplikasi:** {data['cara_aplikasi']}")
+                
+                st.markdown(f"\n**Waktu Aplikasi:** {data['waktu_aplikasi']}")
+            
+            with col2:
+                st.markdown("**Tanaman Peka:**")
+                for tanaman in data['tanaman_peka']:
+                    st.markdown(f"🌱 {tanaman}")
+                
+                st.success("**Kelebihan:**\n" + "\n".join([f"✅ {k}" for k in data['kelebihan']]))
+                st.warning("**Kekurangan:**\n" + "\n".join([f"⚠️ {k}" for k in data['kekurangan']]))
+                st.info(f"💡 **Tips:** {data['tips']}")
+    
+    # Info box
+    st.markdown("---")
+    st.info("""
+    **📌 Catatan Penting:**
+    
+    **Kalsium (Ca):**
+    - Tanah masam (pH <5.5): Gunakan Dolomit atau Kapur Pertanian
+    - Tanah alkalin (pH >7): Gunakan Gypsum
+    - Hidroponik/Fertigasi: Gunakan Kalsium Nitrat atau CalMag
+    - Mencegah Blossom End Rot: Semprot Kalsium Klorida saat pembentukan buah
+    
+    **Magnesium (Mg):**
+    - Defisiensi umum pada tanah masam dan berpasir
+    - Gejala: Klorosis interveinal pada daun tua
+    - Koreksi cepat: Semprot Magnesium Sulfat (Epsom Salt) 2-5 g/L
+    
+    **Sulfur (S):**
+    - Penting untuk tanaman Brassica (kubis, brokoli) dan Allium (bawang)
+    - Menurunkan pH tanah: Gunakan Sulfur Bentonit atau Sulfur Powder
+    - Fungisida alami: Sulfur Powder efektif untuk embun tepung
+    """)
+
+# TAB 3: PUPUK MIKRO
+with tab3:
     st.header("⚗️ Pupuk Mikro")
     st.markdown("Unsur hara mikro penting untuk pertumbuhan optimal")
     
@@ -428,8 +665,8 @@ with tab2:
                 
                 st.info(f"💡 {data['tips']}")
 
-# TAB 3: PUPUK ORGANIK
-with tab3:
+# TAB 4: PUPUK ORGANIK
+with tab4:
     st.header("🌱 Pupuk Organik & Hayati")
     st.markdown("Pupuk alami untuk kesehatan tanah jangka panjang")
     
@@ -465,8 +702,8 @@ with tab3:
             
             st.info(f"💡 **Tips:** {data['tips']}")
 
-# TAB 4: POC, MOL & ZPT
-with tab4:
+# TAB 5: POC, MOL & ZPT
+with tab5:
     st.header("💧 POC, MOL & ZPT Alami")
     st.markdown("Pupuk cair dan zat pengatur tumbuh alami")
     
@@ -505,8 +742,8 @@ with tab4:
                 st.success("**Kelebihan:**\n" + "\n".join([f"✅ {k}" for k in items['kelebihan']]))
                 st.info(f"💡 {items['tips']}")
 
-# TAB 5: PESTISIDA NABATI
-with tab5:
+# TAB 6: PESTISIDA NABATI
+with tab6:
     st.header("🌿 Pestisida Nabati")
     st.markdown("Pengendalian hama & penyakit dengan bahan alami")
     
