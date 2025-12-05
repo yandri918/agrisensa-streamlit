@@ -84,7 +84,7 @@ st.markdown("""
 def get_chatbot():
     """Initialize chatbot service (cached)"""
     if not CHATBOT_AVAILABLE:
-        return None
+        return None, "ChatbotService not available (import failed)"
     try:
         # Get API key from Streamlit secrets or environment
         api_key = None
@@ -92,12 +92,22 @@ def get_chatbot():
             api_key = st.secrets["GEMINI_API_KEY"]
         elif "GEMINI_API_KEY" in os.environ:
             api_key = os.environ["GEMINI_API_KEY"]
+        else:
+            return None, "API key not found in secrets or environment"
         
         # Pass API key directly to ChatbotService
-        return ChatbotService(api_key=api_key)
+        chatbot = ChatbotService(api_key=api_key)
+        
+        # Check if initialization was successful
+        if chatbot.init_error:
+            return None, f"Initialization error: {chatbot.init_error}"
+        
+        if not chatbot.chat:
+            return None, "Chat session not initialized"
+        
+        return chatbot, None
     except Exception as e:
-        st.error(f"Error initializing chatbot: {e}")
-        return None
+        return None, f"Exception: {str(e)}"
 
 # ========== SESSION STATE ==========
 if 'messages' not in st.session_state:
@@ -109,10 +119,13 @@ if 'messages' not in st.session_state:
     ]
 
 if 'chat_session' not in st.session_state:
-    chatbot = get_chatbot()
+    chatbot, error = get_chatbot()
     if chatbot and chatbot.chat:
         st.session_state.chat_session = chatbot.chat
+        st.session_state.chatbot_error = None
     else:
+        st.session_state.chat_session = None
+        st.session_state.chatbot_error = error or "Unknown error"
         st.session_state.chat_session = None
 
 # ========== MAIN APP ==========
@@ -170,6 +183,11 @@ with st.sidebar:
 # Check if chatbot is available
 if not CHATBOT_AVAILABLE or st.session_state.chat_session is None:
     st.error("⚠️ **Chatbot tidak tersedia**")
+    
+    # Show specific error if available
+    if hasattr(st.session_state, 'chatbot_error') and st.session_state.chatbot_error:
+        st.error(f"**Error Detail:** {st.session_state.chatbot_error}")
+    
     st.warning("""
     Chatbot memerlukan:
     1. **Google Gemini API Key** di environment variable `GEMINI_API_KEY`
