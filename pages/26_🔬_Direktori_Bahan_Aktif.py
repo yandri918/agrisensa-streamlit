@@ -1,6 +1,6 @@
 # Direktori Bahan Aktif Pestisida
 # Module 26 - Comprehensive Pesticide Active Ingredient Directory
-# Version: 1.0.0
+# Version: 1.1.0 (Updated with Botanical Ingredients)
 # Based on: WHO, FAO, EPA, and peer-reviewed scientific journals
 
 import streamlit as st
@@ -10,10 +10,158 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="Direktori Bahan Aktif Pestisida", page_icon="🔬", layout="wide")
 
-# ========== ACTIVE INGREDIENT DATABASE ==========
+# ==========================================
+# ACTIVE INGREDIENT DATABASE
+# ==========================================
 # Data compiled from WHO Pesticide Specifications, FAO guidelines, and scientific literature
 
 ACTIVE_INGREDIENTS = {
+    # --- BOTANICALS (NEW) ---
+    "Azadirachtin": {
+        "category": "Botanical",
+        "chemical_class": "Limonoid (Tetranortriterpenoid)",
+        "cas_number": "11141-17-6",
+        "mode_of_action": "Antifeedant, IGR (Insect Growth Regulator), Repellent",
+        "moa_detail": "Mengganggu sistem hormonal (ecdysone) serangga, menghambat pergantian kulit (molting), dan mengurangi nafsu makan.",
+        "target_pests": "Ulat, wereng, kutu daun, lalat putih, thrips",
+        "crops": "Padi, sayuran, palawija, tanaman hias",
+        "toxicity_class": "WHO Class U (Unlikely to present acute hazard)",
+        "ld50_oral": ">5000 mg/kg (tikus)",
+        "ld50_dermal": ">2000 mg/kg",
+        "phi": "0-3 hari",
+        "environmental_fate": "Biodegradable, cepat terurai oleh sinar UV (waktu paruh < 4 hari). Aman untuk cacing tanah.",
+        "safety_precautions": "Relatif aman, namun hindari kontak mata langsung. Aman bagi musuh alami.",
+        "resistance_risk": "Sangat Rendah (mekanisme kompleks menyulitkan resistensi)",
+        "references": "Mordue (Luntz) & Blackwell (1993), Schmutterer (1990)"
+    },
+    
+    "Rotenon": {
+        "category": "Botanical",
+        "chemical_class": "Isoflavonoid",
+        "cas_number": "83-79-4",
+        "mode_of_action": "Respiration inhibitor (Mitochondrial Complex I)",
+        "moa_detail": "Menghambat transport elektron pada mitokondria, menyebabkan kegagalan produksi energi (ATP) dan kelumpuhan saraf.",
+        "target_pests": "Ikan liar (piscicide), ulat, kutu, kumbang",
+        "crops": "Sayuran, tambak (persiapan lahan)",
+        "toxicity_class": "WHO Class II (Moderately Hazardous)",
+        "ld50_oral": "132-1500 mg/kg (tikus)",
+        "ld50_dermal": ">5000 mg/kg",
+        "phi": "1-3 hari (cepat terurai)",
+        "environmental_fate": "Sangat toksik bagi ikan dan kehidupan air. Cepat terurai oleh cahaya dan udara.",
+        "safety_precautions": "Sangat berbahaya bagi ikan! Jangan gunakan dekat perairan alami. Gunakan masker.",
+        "resistance_risk": "Rendah",
+        "references": "O'Brien (2014), EPA (2007)"
+    },
+
+    "Eugenol": {
+        "category": "Botanical",
+        "chemical_class": "Phenylpropene (Minyak Atsiri)",
+        "cas_number": "97-53-0",
+        "mode_of_action": "Neurotoxin (Octopamine blocker), Membrane disruptor",
+        "moa_detail": "Merusak membran sel jamur/bakteri dan memblokir reseptor octopamine pada serangga.",
+        "target_pests": "Jamur (fungisida), bakteri, serangga gudang, nyamuk",
+        "crops": "Cengkeh, penyimpanan benih, sayuran",
+        "toxicity_class": "WHO Class U (Unlikely to present acute hazard)",
+        "ld50_oral": "2680 mg/kg (tikus)",
+        "ld50_dermal": "Aman (iritasi ringan)",
+        "phi": "0-1 hari",
+        "environmental_fate": "Volatil (mudah menguap), residu sangat rendah.",
+        "safety_precautions": "Dapat menyebabkan iritasi kulit/mata pada konsentrasi tinggi.",
+        "resistance_risk": "Rendah",
+        "references": "Rani et al. (2018)"
+    },
+
+    "Pyrethrin": {
+        "category": "Botanical",
+        "chemical_class": "Pyrethroid (Alami)",
+        "cas_number": "8003-34-7",
+        "mode_of_action": "Sodium channel modulator (Knock-down effect)",
+        "moa_detail": "Menjaga saluran natrium tetap terbuka, menyebabkan eksitasi saraf berulang dan kelumpuhan instan.",
+        "target_pests": "Nyamuk, lalat, semut, kutu daun, ulat (semua serangga lunak)",
+        "crops": "Hortikultura, tanaman hias, rumah tangga",
+        "toxicity_class": "WHO Class II (Moderately Hazardous)",
+        "ld50_oral": "1030 mg/kg (tikus)",
+        "ld50_dermal": ">1500 mg/kg",
+        "phi": "0-1 hari",
+        "environmental_fate": "Sangat cepat terurai oleh sinar matahari (photodegradable). Toksik bagi ikan.",
+        "safety_precautions": "Aplikasi sore hari. Bahaya bagi ikan dan lebah (kontak langsung).",
+        "resistance_risk": "Sedang (jika digunakan berlebihan tanpa rotasi)",
+        "references": "Casida (1980)"
+    },
+
+    "Nicotine": {
+        "category": "Botanical",
+        "chemical_class": "Alkaloid",
+        "cas_number": "54-11-5",
+        "mode_of_action": "Nicotinic acetylcholine receptor agonist",
+        "moa_detail": "Meniru acetylcholine di sinaps saraf, menyebabkan kejang hebat lalu kelumpuhan.",
+        "target_pests": "Thrips, kutu daun, ulat, serangga penghisap",
+        "crops": "Tembakau, sayuran (hati-hati residu)",
+        "toxicity_class": "WHO Class Ib (Highly Hazardous)",
+        "ld50_oral": "50 mg/kg (tikus) - Sangat Toksik!",
+        "ld50_dermal": "50 mg/kg (mudah terserap kulit)",
+        "phi": "7-14 hari (persisten)",
+        "environmental_fate": "Cukup stabil. Berbahaya bagi mamalia dan burung.",
+        "safety_precautions": "SANGAT BERBAHAYA. Wajib APD lengkap (masker, sarung tangan). Jangan kena kulit.",
+        "resistance_risk": "Sedang",
+        "references": "Tomizawa & Casida (2003)"
+    },
+
+    "Capsaicin": {
+        "category": "Botanical",
+        "chemical_class": "Capsaicinoid",
+        "cas_number": "404-86-4",
+        "mode_of_action": "Repellent, Metabolic disrupter",
+        "moa_detail": "Iritasi kuat pada jaringan lunak dan saraf sensorik. Mengganggu metabolisme serangga.",
+        "target_pests": "Hama vertebrata (tikus, tupai), serangga umum",
+        "crops": "Semua tanaman",
+        "toxicity_class": "WHO Class U (Tapi iritan kuat)",
+        "ld50_oral": "118 mg/kg (tikus)",
+        "ld50_dermal": ">512 mg/kg",
+        "phi": "0-1 hari",
+        "environmental_fate": "Biodegradable.",
+        "safety_precautions": "Hindari kontak mata/kulit. Menyebabkan rasa panas terbakar.",
+        "resistance_risk": "Rendah",
+        "references": "Cater (2009)"
+    },
+
+    "Citronellal": {
+        "category": "Botanical",
+        "chemical_class": "Monoterpenoid (Minyak Atsiri)",
+        "cas_number": "106-23-0",
+        "mode_of_action": "Repellent",
+        "moa_detail": "Mengganggu reseptor penciuman serangga, mencegah mereka menemukan inang.",
+        "target_pests": "Nyamuk, lalat, kutu",
+        "crops": "Hias, pekarangan",
+        "toxicity_class": "WHO Class U",
+        "ld50_oral": "2420 mg/kg",
+        "ld50_dermal": ">2500 mg/kg",
+        "phi": "0 hari",
+        "environmental_fate": "Sangat volatil.",
+        "safety_precautions": "Aman. Bisa menyebabkan iritasi mata.",
+        "resistance_risk": "Rendah",
+        "references": "Trongtokit et al. (2005)"
+    },
+    
+    "Andrographolide": {
+        "category": "Botanical",
+        "chemical_class": "Diterpenoid Lactone",
+        "cas_number": "5508-58-7",
+        "mode_of_action": "Antifeedant, Chemosterilant",
+        "moa_detail": "Sangat pahit, mencegah serangga makan. Dapat mengganggu kesuburan serangga.",
+        "target_pests": "Ulat pemakan daun, penggerek",
+        "crops": "Sayuran",
+        "toxicity_class": "WHO Class U",
+        "ld50_oral": ">1000 mg/kg",
+        "ld50_dermal": "Aman",
+        "phi": "1-3 hari",
+        "environmental_fate": "Cepat terurai.",
+        "safety_precautions": "Rasa sangat pahit.",
+        "resistance_risk": "Rendah",
+        "references": "Hermawan et al. (1997)"
+    },
+
+    # --- SYNTHETICS (EXISTING) ---
     # INSECTICIDES - ORGANOPHOSPHATES
     "Klorpirifos": {
         "category": "Insektisida",
@@ -346,6 +494,7 @@ st.markdown("""
     .tox-class-2 { background: #fed7aa; color: #9a3412; }
     .tox-class-3 { background: #fef3c7; color: #92400e; }
     .tox-class-u { background: #d1fae5; color: #065f46; }
+    .botanical-badge { background: #dcfce7; color: #166534; border: 1px solid #166534; }
     .moa-box {
         background: #f3e8ff;
         padding: 1rem;
@@ -365,7 +514,7 @@ st.markdown("""
 
 # ========== HEADER ==========
 st.markdown('<h1 class="main-header">🔬 Direktori Bahan Aktif Pestisida</h1>', unsafe_allow_html=True)
-st.markdown('<p style="text-align: center; color: #6b7280; margin-bottom: 2rem;">Panduan lengkap bahan aktif pestisida berdasarkan WHO, FAO, EPA, dan jurnal ilmiah terpercaya</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #6b7280; margin-bottom: 2rem;">Panduan lengkap bahan aktif pestisida (Kimia & Nabati) berdasarkan WHO, FAO, EPA, dan jurnal ilmiah terpercaya</p>', unsafe_allow_html=True)
 
 # ========== SIDEBAR ==========
 with st.sidebar:
@@ -415,9 +564,11 @@ else:
     # TAB 1: DIRECTORY
     with tabs[0]:
         for name, data in filtered.items():
+            
+            # Custom styling for card
             st.markdown(f"""
             <div class="ingredient-card">
-                <div class="ingredient-name">{name}</div>
+                <div class="ingredient-name">{name} {"🌿" if data['category'] == "Botanical" else "🧪"}</div>
                 <div class="cas-number">CAS: {data['cas_number']}</div>
             </div>
             """, unsafe_allow_html=True)
@@ -617,15 +768,15 @@ else:
         
         #### Buku Referensi
         
-        1. Hayes' Handbook of Pesticide Toxicology (3rd Ed, 2010)
-        2. The Pesticide Manual (18th Ed, 2020)
-        3. Crop Protection Compendium (CABI)
+        1. **Hayes' Handbook of Pesticide Toxicology** (3rd Ed, 2010)
+        2. **The Pesticide Manual** (18th Ed, 2020)
+        3. **Crop Protection Compendium** (CABI)
         """)
 
 # ========== FOOTER ==========
 st.markdown("---")
 st.caption("""
-🔬 **Direktori Bahan Aktif Pestisida v1.0**
+🔬 **Direktori Bahan Aktif Pestisida v1.1** (Updated)
 
 📊 **Sumber Data:** WHO, FAO, EPA, FRAC, IRAC, HRAC, dan jurnal peer-reviewed
 

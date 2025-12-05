@@ -554,6 +554,12 @@ PESTISIDA_DATABASE["Pinang (Areca catechu)"] = {
     "dosis_aplikasi": "Siramkan ke sawah yang ada keong"
 }
 
+# ========== SIDEBAR INFO ==========
+with st.sidebar:
+    st.info("ℹ️ **Info Ilmiah:** Ingin tahu lebih dalam tentang bahan aktif seperti *Azadirachtin* atau *Rotenon*?")
+    if st.button("🔬 Buka Direktori Bahan Aktif"):
+        st.switch_page("pages/26_🔬_Direktori_Bahan_Aktif.py")
+
 # ========== HELPER FUNCTIONS ==========
 def calculate_dosage(luas_lahan, volume_per_ha, konsentrasi):
     """Kalkulator dosis pestisida"""
