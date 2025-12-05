@@ -22,10 +22,10 @@ except Exception as e:
     API_KEY_STATUS = f"❌ Error: {str(e)}"
 
 # Add parent directory to path to import chatbot_service
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 try:
-    from app.services.chatbot_service import ChatbotService
+    from chatbot_service import ChatbotService
     CHATBOT_AVAILABLE = True
 except ImportError:
     CHATBOT_AVAILABLE = False
