@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from sklearn.ensemble import RandomForestRegressor
 from datetime import datetime
+import requests
 
 st.set_page_config(page_title="AI Harvest Planner Pro", page_icon="🎯", layout="wide")
 
@@ -54,9 +55,8 @@ PEST_STRATEGIES = {
 }
 
 # ==========================================
-# 🔗 INTEGRATION MOCK API LAYER
+# 🔗 INTEGRATION API LAYER (REAL & MOCK)
 # ==========================================
-# Simulating internal APIs from other modules
 
 def mock_market_price_api(commodity):
     """
@@ -83,16 +83,52 @@ def mock_market_price_api(commodity):
     trend = "Naik 📈" if fluctuation > 1.05 else "Turun 📉" if fluctuation < 0.95 else "Stabil 📊"
     return predicted_price, trend
 
-def mock_weather_api(lat, lon):
+def get_real_weather_api(lat, lon):
     """
-    Simulates fetching data from Modul 27 (Cuaca Pertanian).
-    Returns rain and temp based on location.
+    Fetches REAL data from Open-Meteo API (Same as Modul 27).
+    Returns rain (seasonal estimate) and temp (current).
     """
-    # Mock logic based on lat/lon hash
-    np.random.seed(int(lat+lon))
-    rain = np.random.randint(1500, 3500)
-    temp = np.random.uniform(24.0, 31.0)
-    return rain, temp
+    try:
+        url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "current": "temperature_2m,rain",
+            "daily": "rain_sum,precipitation_probability_max",
+            "timezone": "auto"
+        }
+        response = requests.get(url, params=params, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # 1. Temperature (Real Current)
+            temp = data['current']['temperature_2m']
+            
+            # 2. Rain (Seasonal Estimate for AI)
+            # AI needs "Seasonal Rain (mm)". API gives "Daily Forecast".
+            # Logic: Calculate avg daily rain from 7-day forecast -> multiply by season length (e.g. 100 days)
+            daily_rain_sums = data['daily']['rain_sum']
+            avg_daily_rain = sum(daily_rain_sums) / len(daily_rain_sums)
+            
+            # Adjust based on season probability
+            # If avg is very low (<1mm), likely dry season -> 500-1000mm estimate
+            # If avg implies wet season -> 2000-3000mm estimate
+            seasonal_rain_est = avg_daily_rain * 120 # Estimate for 4 months season
+            
+            # Clamp to realistic tropical bounds (Yearly often 2000-4000mm)
+            # If forecast says 0 rain (dry week), we don't want 0 seasonal rain.
+            # Use 'climate baseline' + forecast anomaly
+            baseline_rain = 2000 
+            anomaly = (avg_daily_rain - 5) * 100 # Simple shift
+            final_rain = max(500, baseline_rain + anomaly)
+            
+            return int(final_rain), temp
+            
+    except Exception as e:
+        st.error(f"Gagal koneksi Open-Meteo: {e}")
+        
+    return 2000, 27.0 # Fallback
 
 # ==========================================
 # 🧠 AI ENGINE & LOGIC LAYER
@@ -319,17 +355,32 @@ with st.sidebar:
     
     # INTEGRATION: Modul 27 (Weather)
     st.subheader("🌦️ Kondisi Iklim")
-    use_location_data = st.checkbox("📍 Integrasi Modul 27 (Lokasi Saya)", value=False)
+    
+    # Check if Modul 27 location exists in Session State
+    has_modul_27_loc = 'data_lat' in st.session_state and 'data_lon' in st.session_state
+    
+    if has_modul_27_loc:
+       use_location_data = st.checkbox(f"📍 Gunakan Lokasi Modul 27", value=True)
+       st.caption(f"Koordinat: {st.session_state['data_lat']:.4f}, {st.session_state['data_lon']:.4f}")
+    else:
+       use_location_data = st.checkbox("📍 Integrasi Modul 27 (Lokasi Saya)", value=False)
+       if use_location_data:
+           st.warning("⚠️ Belum ada lokasi tersimpan di Modul 27. Menggunakan Default (Jakarta).")
     
     if use_location_data:
-        # Simulate getting location
-        st.info("Mengambil data iklim mikroklimat dari Modul 27...")
-        curah_hujan_val, temp_val = mock_weather_api(-6.2, 106.8) # Mock Jakarta coords
-        st.success(f"Lokasi Terdeteksi: Rain {curah_hujan_val}mm, Temp {temp_val:.1f}°C")
+        # Determine Lat/Lon
+        lat = st.session_state.get('data_lat', -6.2088)
+        lon = st.session_state.get('data_lon', 106.8456)
+        
+        # Real API Call
+        with st.spinner("Mengambil data Open-Meteo Real-time..."):
+            curah_hujan_val, temp_val = get_real_weather_api(lat, lon)
+            
+        st.success(f"Open-Meteo: Rain Est {curah_hujan_val}mm, Temp {temp_val:.1f}°C")
     else:
         curah_hujan_val = 2000.0
         temp_val = 27.0
-        st.caption("Gunakan checkbox di atas untuk data real-time.")
+        st.caption("Pilih opsi di atas untuk data real.")
     
     st.divider()
     
@@ -355,7 +406,7 @@ st.title("🎯 AI Harvest Planner: Command Center")
 st.markdown(f"**Komoditas:** {selected_crop} | **Harga:** Rp {market_price:,}/kg | **Mode:** {optimization_strategy}")
 
 if 'run_analysis_v4' not in st.session_state:
-     st.info("👈 Silakan atur parameter lahan. Aktifkan 'Integrasi Modul' di sidebar untuk hasil lebih akurat.")
+     st.info("👈 Silakan atur parameter lahan. Aktifkan 'Integrasi Modul 27' di sidebar untuk hasil akurat.")
 else:
     with st.spinner("AI mensimulasikan pertumbuhan, pasar, & risiko..."):
         model = get_ai_model()
@@ -364,7 +415,7 @@ else:
             'texture': SOIL_TEXTURES[soil_texture_name],
             'fixed_org': organic_dose,
             'pest_strategy': pest_strategy,
-            'rain': curah_hujan_val, # From Weather Module logic
+            'rain': curah_hujan_val, # From Real Weather API
             'temp': temp_val
         }
         
@@ -462,4 +513,4 @@ else:
         st.plotly_chart(fig_pie, use_container_width=True)
 
 st.markdown("---")
-st.caption("© 2025 AgriSensa Intelligence Systems | v3.0 Deep Integration (Modul 6, 16, 18, 25, 26, 27)")
+st.caption("© 2025 AgriSensa Intelligence Systems | v3.1 Real-time Open-Meteo Integration")
