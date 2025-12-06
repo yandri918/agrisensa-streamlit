@@ -35,25 +35,67 @@ def get_weather(lat, lon):
         return None
     return None
 
-def analyze_suitability(elevation, temp):
-    """Simple Rule-Based Suitability Engine"""
+def analyze_suitability(elevation, temp, lat):
+    """Advanced Rule-Based Suitability Engine with Climate Zones"""
     recommendations = []
     warnings = []
+    zone_info = ""
     
-    # Kategori Dataran
-    if elevation < 400:
-        zone = "Dataran Rendah"
-        suitable = ["Bawang Merah", "Cabai", "Padi", "Mangga", "Jagung", "Semangka"]
-        if temp > 33: warnings.append("Suhu cukup ekstrem, perhatikan irigasi.")
-    elif 400 <= elevation <= 800:
-        zone = "Dataran Menengah"
-        suitable = ["Durian", "Alpukat", "Kopi Robusta", "Tomat", "Terong"]
+    # 1. TENTUKAN ZONA IKLIM (Berdasarkan Latitude)
+    abs_lat = abs(lat)
+    if abs_lat < 23.5:
+        climate_zone = "Tropis"
+        season = "Sepanjang Tahun (Cek Hujan)"
+    elif 23.5 <= abs_lat < 40:
+        climate_zone = "Sub-Tropis"
+        # Simple season logic
+        month = time.localtime().tm_mon
+        is_north = lat > 0
+        if (month >= 4 and month <= 9):
+            season = "Musim Panas" if is_north else "Musim Dingin"
+        else:
+            season = "Musim Dingin" if is_north else "Musim Panas"
     else:
-        zone = "Dataran Tinggi"
-        suitable = ["Kubis", "Kentang", "Wortel", "Kopi Arabika", "Teh", "Stroberi"]
-        if temp > 28: warnings.append("Anomali suhu panas untuk dataran tinggi.")
+        climate_zone = "Iklim Sedang/Dingin"
+        season = "Variatif (4 Musim)"
 
-    return zone, suitable, warnings
+    # 2. LOGIKA REKOMENDASI BERDASARKAN ZONA
+    if climate_zone == "Tropis":
+        # Logika Elevasi (Indonesia Style)
+        if elevation < 400:
+            zone_info = "Dataran Rendah Tropis"
+            suitable = ["Bawang Merah", "Cabai", "Padi Sawah", "Mangga", "Jagung", "Semangka", "Melon", "Pisang"]
+            if temp > 33: warnings.append("⚠️ Suhu tinggi ekstrem. Perhatikan stres air.")
+        elif 400 <= elevation <= 800:
+            zone_info = "Dataran Menengah Tropis"
+            suitable = ["Durian", "Alpukat", "Kopi Robusta", "Tomat", "Terong", "Salak", "Lada"]
+        else: # > 800
+            zone_info = "Dataran Tinggi Tropis"
+            suitable = ["Kubis", "Kentang", "Wortel", "Kopi Arabika", "Teh", "Stroberi", "Brokoli"]
+    
+    elif climate_zone == "Sub-Tropis":
+        # Logika Musiman (Jepang, China, Mediterania)
+        zone_info = f"Sub-Tropis ({season})"
+        
+        if "Panas" in season:
+            suitable = ["Padi Japonica", "Kedelai", "Teh Hijau", "Jeruk Satsuma", "Sayuran Daun", "Apel (Fase Buah)"]
+        else: # Musim Dingin/Sejuk
+            suitable = ["Gandum (Winter Wheat)", "Barley", "Bawang Putih", "Bayam", "Komatsuna", "Lobak"]
+            if temp < 5: warnings.append("❄️ Risiko beku (frost). Butuh Greenhouse untuk sayuran lunak.")
+            
+        if elevation > 1000:
+            warnings.append("🏔️ Area pegunungan tinggi sub-tropis. Musim tanam sangat pendek.")
+
+    else: # Iklim Sedang/Dingin
+        zone_info = "Iklim Sedang (Temperate)"
+        suitable = ["Gandum", "Kentang", "Apel", "Anggur", "Bit Gula"]
+        if temp < 10: warnings.append("❄️ Suhu terlalu rendah untuk sebagian besar tanaman pangan terbuka.")
+
+    # 3. ANALISIS SUHU LOKAL (Cross-check)
+    if temp > 35: warnings.append("🔥 Heat Stress Alert: Bahaya bagi serbuk sari (polinasi).")
+    if temp < 15 and climate_zone == "Tropis": warnings.append("❄️ Chilling Injury: Tanaman tropis mungkin melambat pertumbuhannya.")
+
+    return climate_zone, zone_info, suitable, warnings
 
 # ==========================================
 # 🖥️ UI LAYOUT
@@ -113,7 +155,7 @@ with col_analysis:
                 is_day = weather_data['current_weather']['is_day']
 
             # 2. RUN ENGINE
-            zone, rec_crops, warnings = analyze_suitability(elevation, temp)
+            climate_zone, zone, rec_crops, warnings = analyze_suitability(elevation, temp, lat)
             
             # 3. DISPLAY RESULTS
             
@@ -125,7 +167,8 @@ with col_analysis:
             c_w3.metric("Status", "Siang" if is_day else "Malam")
             
             # --- LAND CARD ---
-            st.success(f"**⛰️ Profil Lahan: {zone}**")
+            st.success(f"**⛰️ Profil Lahan: {climate_zone}**")
+            st.caption(f"Zona: {zone}")
             st.metric("Estimasi Ketinggian", f"{elevation} mdpl")
             
             # --- CROP RECOMMENDATION ---
