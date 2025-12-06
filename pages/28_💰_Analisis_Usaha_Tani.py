@@ -187,6 +187,16 @@ with st.sidebar:
 
     st.divider()
     
+    # D. Metode Bibit (Restored)
+    pilih_metode_bibit = "semai"
+    if "Cabai" in selected_crop or "Tomat" in selected_crop:
+        st.divider()
+        st.subheader("🌱 Metode Bibit")
+        metode_bibit_ui = st.radio("Sumber Bibit:", ["Semai Sendiri", "Beli Bibit Jadi"], index=0)
+        pilih_metode_bibit = "semai" if "Semai" in metode_bibit_ui else "bibit"
+
+    st.divider()
+
     # F. Pesticide Calculator (New Request)
     st.subheader("🚿 Kalkulator Penyemprotan")
     cap_tangki = st.number_input("Kapasitas Tangki (Liter)", 10, 20, 16, help="Standar Knapsack Sprayer 16L")
