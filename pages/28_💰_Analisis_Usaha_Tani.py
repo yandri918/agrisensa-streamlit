@@ -6,10 +6,10 @@ import numpy as np
 import sys
 import os
 
-# Add root to path to allow importing app.services
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+# Add updated path logic if needed, but for same-repo deployment:
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.services.ai_farm_service import get_ai_model, optimize_solution
+from services.ai_farm_service import get_ai_model, optimize_solution
 
 # ==========================================
 # 📊 DATABASE STANDARD OPERATIONAL (RAB)
