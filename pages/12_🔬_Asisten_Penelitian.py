@@ -452,7 +452,8 @@ with tab_stat:
         c_perlakuan = col_design1.selectbox("Kolom Perlakuan", df_stat.columns)
         
         if design_type == "RAK (Rancangan Acak Kelompok)":
-            c_kelompok = col_design1.selectbox("Kolom Kelompok/Blok", [c for c in df_stat.columns if c != c_perlakuan])
+            kelompok_options = [c for c in df_stat.columns if c != c_perlakuan]
+            c_kelompok = col_design1.selectbox("Kolom Kelompok/Blok", kelompok_options, index=0 if kelompok_options else None)
         else:
             c_kelompok = None
             
