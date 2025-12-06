@@ -343,51 +343,33 @@ for item in template_items:
     if ai_suggestion:
         # Map AI outputs to RAB Items
         if "Urea" in item['item'] and "Pupuk" in item['kategori']:
-            vol = ai_suggestion['n_kg'] * luas_lahan_ha # Simplification: Assume N source is Urea
-            item_name_override = f"{item['item']} (Saran AI: {ai_suggestion['n_kg']:.0f} kg/ha)"
-            ai_override_active = True
-        elif "SP-36" in item['item'] or ("kocor" in item['item'].lower() and "kompleks" not in item['item'].lower()):
-             # Crude mapping logic for example sake
-             pass
-        elif "Kapur" in item['item'] or "Dolomit" in item['item']:
-            vol = kebutuhan_kapur # From pH logic
-            item_name_override = f"{item['item']} (pH {real_ph} -> Butuh {kebutuhan_kapur:.0f} kg)"
-            ai_override_active = True
+    # Merge with User Edits (Persist manual changes)
+    # logic: If user edited this specific row in previous run, keep their value
+    # We use 'Uraian' as a simple key (assuming unique enough within crop context)
     
-    if not ai_override_active:
-        # Case 1: Benih/Bibit (Use Calculated Population)
-        if "Bibit Siap Tanam" in item['item']:
-            vol = populasi_tanaman
-        elif "Benih Biji" in item['item']:
-            vol = np.ceil(populasi_tanaman / 1750)
-        elif "Benih" in item['item'] and "Kg" in item['satuan']: 
-             vol = item['volume'] * luas_lahan_ha
-             
-        # Case 2: Mulsa (Use Calculated Rolls)
-        elif "Mulsa" in item['item']:
-            vol = kebutuhan_mulsa_roll
-            
-        # Case 3: Ajir (Matches Population)
-        elif "Ajir" in item['item']:
-            vol = populasi_tanaman 
-            
-        # Case 4: Pesticide (New Logic)
-        elif "Insektisida & Fungisida" in item['item']:
-            vol = total_tangki_musim
-            item['satuan'] = "Tangki" # Override unit
-            price_override = biaya_per_tangki
-            item_name_override = f"Pestisida ({freq_semprot}x Aplikasi, @{biaya_per_tangki/1000:.0f}k/tangki)"
-            
-        # Case 5: Default Scaling by Area
-        else:
-            if item['item'] == "Pupuk Kandang/Organik":
-                vol = item['volume'] * luas_lahan_ha
-            else:
-                vol = item['volume'] * luas_lahan_ha
+    unique_key = item_name_override if item_name_override else item['item']
+    
+    if "rab_editor" in st.session_state and "edited_rows" in st.session_state["rab_editor"]:
+        # Streamlit data_editor state structure: {edited_rows: {row_index: {col_name: new_value}}}
+        # This is tricky because indices might shift if items change. 
+        # Better approach: Use the DATAFRAME returned by data_editor in previous run if possible?
+        # Actually, simpler: Let data_editor manage state, but we force recalculate the "Total" column 
+        # by passing a dataframe where Total is already updated based on *previous* output if it matches.
+        pass
+
+    # Simplified Approach for Stability:
+    # 1. Std Generate (as above)
+    # 2. If 'edited_df_state' exists in session, use its Volume/Price for matching rows
+    # But complexity is high.
+    
+    # NEW FIX: Trust the loop logic for defaults, but allow override if we have a "saved state" 
+    # OR -> Just use the standard behaviour but ensure we use the 'edited_df' result for calculations below.
+    # The user complaint is visual: "Total" column in table doesn't change.
+    # We can fix this by enabling the "Total" column to be calculated implicitly? No.
     
     rab_data.append({
         "Kategori": item['kategori'],
-        "Uraian": item_name_override if item_name_override else item['item'],
+        "Uraian": unique_key,
         "Satuan": item['satuan'],
         "Volume": float(vol),
         "Harga Satuan (Rp)": int(price_override if price_override is not None else item['harga']),
@@ -395,30 +377,74 @@ for item in template_items:
         "Catatan": item.get('catatan', '-')
     })
 
+# --- FIX: PERSIST EDITS AND RECALC TOTALS ---
+if "rab_editor" in st.session_state:
+    # Verify if it's the same crop context to avoid garbage mapping
+    pass
+
 df_rab = pd.DataFrame(rab_data)
-cols_config = {
-    "Kategori": st.column_config.TextColumn("Kategori", disabled=True),
-    "Uraian": st.column_config.TextColumn("Uraian Pekerjaan/Barang", width="large"),
-    "Satuan": st.column_config.TextColumn("Satuan", width="small"),
-    "Volume": st.column_config.NumberColumn("Volume", format="%.1f"),
-    "Harga Satuan (Rp)": st.column_config.NumberColumn("Harga Satuan", format="Rp %d"),
-    "Total (Rp)": st.column_config.NumberColumn("Total Biaya", format="Rp %d", disabled=True),
-}
 
 # 3. MAIN TABLE EDITOR
 st.subheader(f"📝 Tabel RAB: {selected_crop} ({luas_lahan_ha} Ha)")
-st.info("💡 Klik pada sel tabel untuk mengubah Volume atau Harga Satuan sesuai kondisi daerah Anda.")
+st.info("💡 Klik pada sel tabel untuk mengubah Volume atau Harga. Tekan Enter untuk update Total.")
 
+# Session State for Dataframe to support "Reactive" updates
+if 'df_rab_current' not in st.session_state or st.session_state.get('last_crop') != selected_crop:
+    st.session_state['df_rab_current'] = df_rab
+    st.session_state['last_crop'] = selected_crop
+    # If we just switched crops, we disregard old edits
+else:
+    # If we are in same crop, we want to respect the LATEST edits from the user
+    # But we also want to respect the "defaults" if param changed? 
+    # Complexity: balancing "Auto-calc" vs "User Edit".
+    # User said: "Perkalian tidak berubah". 
+    # Best fix: Always use the *output* of the previous run as the *input* of the next, 
+    # BUT re-run the multiplication logic on it.
+    
+    # Check if there's an edited DF from the widget
+    pass
+
+# We use a callback pattern effectively by just processing the previous `edited_df` if it exists in the variable scope from the last run? 
+# No, streamlit reruns the whole script. 
+# We just need to capture the `data_editor` return value, recalculate Total, and use THAT as the input for the NEXT render?
+# No, that creates a lag.
+
+# CORRECT PATTERN:
+# 1. Create base `df_rab` from template (fresh).
+# 2. Render data_editor with `df_rab`.
+# 3. Capture `edited_df`.
+# 4. Display `edited_df` metrics. 
+# PROBLEM: The Table Widget itself shows (1), not (3).
+# SOLUTION: We must use `st.data_editor` on a state-backed dataframe.
+
+if "rab_state_df" not in st.session_state:
+    st.session_state.rab_state_df = df_rab
+elif st.session_state.get("last_crop_check") != selected_crop:
+    # Reset if crop changed
+    st.session_state.rab_state_df = df_rab
+    st.session_state.last_crop_check = selected_crop
+
+# Display Editor
 edited_df = st.data_editor(
-    df_rab,
+    st.session_state.rab_state_df, # Use persistence
     column_config=cols_config,
     use_container_width=True,
     num_rows="dynamic",
     key="rab_editor"
 )
 
-# Recalculate Total based on edits
-edited_df["Total (Rp)"] = edited_df["Volume"] * edited_df["Harga Satuan (Rp)"]
+# RECALC LOGIC
+# Whenever 'edited_df' changes (user edit), we update the state AND the total column
+if not edited_df.equals(st.session_state.rab_state_df):
+    # User made an edit!
+    # Update totals
+    edited_df["Total (Rp)"] = edited_df["Volume"] * edited_df["Harga Satuan (Rp)"]
+    # Save back to state so it renders correctly NEXT time? 
+    # Actually, saving it to state allows the NEXT RERUN to show the correct values.
+    # But we need to trigger that rerun or the user won't see it until they act again.
+    st.session_state.rab_state_df = edited_df
+    st.rerun() # Force rerun to update the table UI with new totals immediately
+
 total_biaya = edited_df["Total (Rp)"].sum()
 
 estimasi_omzet = target_panen * luas_lahan_ha * target_harga
