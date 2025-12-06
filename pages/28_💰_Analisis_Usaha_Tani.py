@@ -447,12 +447,18 @@ else:
 # PROBLEM: The Table Widget itself shows (1), not (3).
 # SOLUTION: We must use `st.data_editor` on a state-backed dataframe.
 
+# Composite Context Key to detect upstream changes
+current_input_context = f"{selected_crop}_{luas_lahan_ha}_{target_panen}_{target_harga}_{use_ai_opt}_{ai_override_active}"
+
 if "rab_state_df" not in st.session_state:
     st.session_state.rab_state_df = df_rab
-elif st.session_state.get("last_crop_check") != selected_crop:
-    # Reset if crop changed
+    st.session_state.last_input_context = current_input_context
+elif st.session_state.get("last_input_context") != current_input_context:
+    # Inputs changed! Reset the dataframe to reflect new params (Area scaling, etc)
     st.session_state.rab_state_df = df_rab
-    st.session_state.last_crop_check = selected_crop
+    st.session_state.last_input_context = current_input_context
+    # Optional: We could try to migrate manual edits here, but it's risky if structure changes.
+    # For now, safer to reset to "Correct Logical Defaults" when inputs change.
 
 # Display Editor
 edited_df = st.data_editor(
