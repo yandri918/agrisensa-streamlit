@@ -422,7 +422,11 @@ with tab_stat:
             st.divider()
             st.subheader("📝 Ringkasan Eksekutif (Batch Report)")
             df_sums = pd.DataFrame(summary_results)
-            st.dataframe(
-                df_sums.style.applymap(lambda v: 'color: green; font-weight: bold' if v == 'SIGNIFIKAN (Nyata)' else 'color: gray', subset=['Kesimpulan']),
-                use_container_width=True
-            )
+            
+            if not df_sums.empty:
+                st.dataframe(
+                    df_sums.style.applymap(lambda v: 'color: green; font-weight: bold' if v == 'SIGNIFIKAN (Nyata)' else 'color: gray', subset=['Kesimpulan']),
+                    use_container_width=True
+                )
+            else:
+                st.warning("⚠️ Tidak ada hasil analisis yang berhasil dihitung. Periksa visualisasi error di atas.")
