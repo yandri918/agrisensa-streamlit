@@ -476,6 +476,14 @@ with tab_stat:
                 
             st.divider()
             
+            # DEBUG OUTPUT
+            with st.expander("🔧 Debug: Configuration Values", expanded=False):
+                st.write(f"**Design Type:** {design_type}")
+                st.write(f"**c_perlakuan:** {c_perlakuan}")
+                st.write(f"**c_kelompok:** {c_kelompok}")
+                st.write(f"**c_hasil_list:** {c_hasil_list}")
+                st.write(f"**Available columns:** {list(df_stat.columns)}")
+            
             summary_results = []
             
             # 🔄 LOOP OVER TARGETS
