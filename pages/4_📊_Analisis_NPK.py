@@ -257,16 +257,17 @@ if st.button("🔍 Analisis NPK", type="primary", use_container_width=True):
         
         st.success(f"💰 **Total Estimasi Biaya: Rp {total_cost:,.0f}**")
 
-        # Integration Button
-        if st.button("🚀 Lanjut ke RAB (Analisis Usaha Tani)", type="primary"):
-            st.session_state['rab_context'] = {
-                'source': 'Analisis NPK Manual',
-                'ph': float(ph_value),
-                'texture': soil_type,
-                'fertilizer_needs': fertilizer_needs, # {'Urea': 150, ...}
-                'area_ha': float(area_ha)
-            }
-            st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
+    # Integration Button (Always visible after analysis)
+    st.markdown("---")
+    if st.button("🚀 Lanjut ke RAB (Analisis Usaha Tani)", type="primary"):
+        st.session_state['rab_context'] = {
+            'source': 'Analisis NPK Manual',
+            'ph': float(ph_value),
+            'texture': soil_type,
+            'fertilizer_needs': fertilizer_needs if 'fertilizer_needs' in locals() else {}, 
+            'area_ha': float(area_ha)
+        }
+        st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
     
     # Visualization
     st.markdown("---")

@@ -314,6 +314,19 @@ def main():
                     st.session_state['add_marker_lat'] = clicked['lat']
                     st.session_state['add_marker_lon'] = clicked['lng']
                     st.info("Scroll ke bawah untuk input marker")
+            
+            # Quick RAB Simulation
+            st.markdown("---")
+            if st.button("🚀 Simulasi RAB di Titik Ini", use_container_width=True):
+                 # Try to find existing data near this point (simple distance check could be added later)
+                 # For now, just pass the location context
+                 st.session_state['rab_context'] = {
+                    'source': f'Peta (Lat: {clicked["lat"]:.4f})',
+                    'ph': 6.0, # Default assumption if no specific data loaded
+                    'texture': 'Lempung',
+                     # In future: query `npk_data` for nearest point
+                 }
+                 st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
         
         # Add NPK Data Form
         if 'add_npk_lat' in st.session_state:
