@@ -10,3 +10,5 @@ opencv-python-headless
 beautifulsoup4
 lxml
 google-generativeai
+matplotlib
+scipy
