@@ -10,6 +10,13 @@ import plotly.express as px
 from sklearn.ensemble import RandomForestRegressor
 from datetime import datetime
 import requests
+import sys
+import os
+
+# Add root to path to allow importing app.services
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
+from app.services.ai_farm_service import get_ai_model, optimize_solution
 
 st.set_page_config(page_title="AI Harvest Planner Pro", page_icon="🎯", layout="wide")
 
@@ -134,69 +141,7 @@ def get_real_weather_api(lat, lon):
 # 🧠 AI ENGINE & LOGIC LAYER
 # ==========================================
 
-@st.cache_resource
-def get_ai_model():
-    """Train/Load the AI Model."""
-    np.random.seed(42)
-    n_samples = 3000
-    
-    # Feature Engineering: 
-    # 0: N, 1: P, 2: K, 3: pH, 4: Rain, 5: Temp, 
-    # 6: Organic_Matter_Input (ton/ha), 7: Soil_Texture_Index (0-1), 8: Water_Access
-    X = np.random.rand(n_samples, 9)
-    
-    # Scale to realistic agronomic ranges
-    X[:, 0] = X[:, 0] * 350 + 20     # N: 20-370 kg/ha
-    X[:, 1] = X[:, 1] * 120 + 10     # P: 10-130 kg/ha
-    X[:, 2] = X[:, 2] * 250 + 20     # K: 20-270 kg/ha
-    X[:, 3] = X[:, 3] * 4.5 + 4.0   # pH: 4.0-8.5
-    X[:, 4] = X[:, 4] * 3500 + 500  # Rain: 500-4000 mm
-    X[:, 5] = X[:, 5] * 20 + 15     # Temp: 15-35 C
-    X[:, 6] = X[:, 6] * 20          # Organic Fert: 0-20 ton/ha
-    X[:, 7] = X[:, 7]               # Soil Texture: 0-1
-    X[:, 8] = X[:, 8]               # Water Access: 0-1
-
-    # Complex Biological Yield Function
-    def biological_yield_curve(n, p, k, ph, rain, temp, org, texture, water):
-        # Optimal points
-        opt_n, opt_p, opt_k = 200, 70, 150
-        opt_ph, opt_rain, opt_temp = 6.5, 1800, 27
-        
-        # Stress factors
-        stress_n = 1 - np.exp(-0.012 * n)
-        stress_p = 1 - np.exp(-0.04 * p)
-        stress_k = 1 - np.exp(-0.015 * k)
-        
-        # Bell curves
-        stress_ph = np.exp(-0.5 * ((ph - opt_ph)/1.2)**2)
-        stress_temp = np.exp(-0.5 * ((temp - opt_temp)/5.0)**2)
-        
-        # Water & Soil Interaction
-        effective_water_retention = 0.5 + (0.5 * texture) 
-        total_water = (rain * 0.4) + (water * 1000) 
-        water_available = total_water * effective_water_retention
-        stress_water = 1 - np.exp(-0.0015 * (water_available - 300))
-        stress_water = np.clip(stress_water, 0, 1)
-
-        # Organic Fertilizer Bonus
-        som_bonus = 1 + (org * 0.015) 
-        
-        # Base Yield
-        base_yield = 12000 
-        
-        # Combined yield
-        algo_yield = base_yield * (stress_n * stress_p * stress_k * stress_ph * stress_temp * stress_water) * som_bonus
-        
-        # Add random biological variability
-        algo_yield += np.random.normal(0, 500, len(n) if isinstance(n, np.ndarray) else 1)
-        
-        return np.maximum(algo_yield, 0)
-
-    y = biological_yield_curve(X[:,0], X[:,1], X[:,2], X[:,3], X[:,4], X[:,5], X[:,6], X[:,7], X[:,8])
-
-    model = RandomForestRegressor(n_estimators=150, max_depth=14, random_state=42)
-    model.fit(X, y)
-    return model
+# AI Model & Logic now imported from app.services.ai_farm_service
 
 def calculate_sustainability_score(n_input, p_input, k_input, org_input, yield_produced, pest_strategy):
     """Calculate Sustainability Score (0-100)."""
@@ -259,72 +204,7 @@ def run_monte_carlo_simulation(model, conditions, pest_strategy, n_simulations=5
     
     return p10, p50, p90, final_predictions
 
-def optimize_solution(model, target_yield, optimization_mode="Yield", fixed_params={}, price_per_kg=6000):
-    COST_N = 15000 
-    COST_P = 20000 
-    COST_K = 18000
-    COST_ORG = 1000 # Rp 1000/kg
-    
-    # Pest Cost Logic
-    p_strat = fixed_params.get('pest_strategy', "IPM (Terpadu)")
-    pest_cost_base = 2000000 # 2 Juta per ha base
-    pest_cost_total = pest_cost_base * PEST_STRATEGIES[p_strat]['cost_factor']
-
-    best_conditions = None
-    best_score = -float('inf')
-    
-    # Starting point based on weather input or default
-    start_rain = fixed_params.get('rain', 2000.0)
-    start_temp = fixed_params.get('temp', 27.0)
-    
-    current_cond = np.array([
-        200.0, 60.0, 120.0, 6.5, start_rain, start_temp, 
-        fixed_params.get('org_start', 2.0), 
-        fixed_params.get('texture', 0.7), 
-        0.8 
-    ])
-    
-    iterations = 250
-    
-    for i in range(iterations):
-        test_cond = current_cond.copy()
-        mutation = np.random.normal(0, [25, 10, 15, 0.1, 0, 0, 1.0, 0, 0], 9)
-        test_cond += mutation
-        test_cond = np.clip(test_cond, 
-                           [0,0,0,4,500,15,0,0,0], 
-                           [400,150,300,8,4000,35,20,1,1]) # Org max 20 ton
-        
-        # Enforce fixed weather if provided (don't optimize weather, it's a constraint)
-        test_cond[4] = start_rain
-        test_cond[5] = start_temp
-        
-        if 'fixed_org' in fixed_params:
-             test_cond[6] = fixed_params['fixed_org']
-        test_cond[7] = fixed_params.get('texture', 0.7)
-
-        pred_yield = model.predict(test_cond.reshape(1,-1))[0]
-        
-        # Economic Calculation
-        revenue = pred_yield * price_per_kg
-        chem_cost = (test_cond[0] * COST_N) + (test_cond[1] * COST_P) + (test_cond[2] * COST_K)
-        org_cost = (test_cond[6] * 1000 * COST_ORG)
-        total_variable_cost = chem_cost + org_cost + pest_cost_total
-        
-        profit = revenue - total_variable_cost
-        
-        if optimization_mode == "Profit":
-            score = profit
-        else:
-            diff = abs(pred_yield - target_yield)
-            score = -diff 
-            
-        if score > best_score:
-            best_score = score
-            best_conditions = test_cond
-            current_cond = test_cond 
-            
-    final_yield = model.predict(best_conditions.reshape(1,-1))[0]
-    return best_conditions, final_yield, pest_cost_total
+# optimize_solution now imported from app.services.ai_farm_service
 
 # ==========================================
 # 🎨 UI PRESENTATION LAYER
@@ -422,7 +302,17 @@ else:
         mode_str = "Yield" if "Yield" in optimization_strategy else "Profit"
         
         # Using dynamic market price from Integration
-        opt_cond, pred_yield, pest_cost = optimize_solution(model, target_yield_input, mode_str, fixed_params, price_per_kg=market_price)
+        # optimize_solution returns a DICTIONARY from shared service now
+        opt_result = optimize_solution(model, target_yield_input, mode_str, fixed_params, price_per_kg=market_price)
+        
+        # Legacy mapping for this file visualization
+        opt_cond = [
+            opt_result['n_kg'], opt_result['p_kg'], opt_result['k_kg'], 
+            0, 0, 0, # Placeholders for pH, Rain, Temp (not needed for visualization array index)
+            opt_result['organic_ton']
+        ]
+        pred_yield = opt_result['predicted_yield']
+        pest_cost = opt_result['pest_cost']
         
         sus_score, co2 = calculate_sustainability_score(opt_cond[0], opt_cond[1], opt_cond[2], opt_cond[6], pred_yield, pest_strategy)
         p10, p50, p90, risk_dist = run_monte_carlo_simulation(model, opt_cond, pest_strategy)
