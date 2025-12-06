@@ -199,7 +199,7 @@ CROP_TEMPLATES = {
             {"kategori": "Pupuk", "item": "Pupuk Kandang (Awal)", "satuan": "Truk", "volume": 5, "harga": 1500000, "wajib": True},
             {"kategori": "Tenaga Kerja", "item": "Lubang Tanam & Pasang Tiang", "satuan": "Borongan", "volume": 1, "harga": 6000000, "wajib": True},
         ]
-    }
+    },
     # --- STEP 5: GREENHOUSE MODERN (COMPARISON) ---
     "Cabai Merah (Greenhouse Hydroponic)": {
         "params": {"populasi_ha": 30000, "estimasi_panen_kg": 25000, "harga_jual": 30000, "lama_tanam_bulan": 6},
