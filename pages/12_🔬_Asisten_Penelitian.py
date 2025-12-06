@@ -458,10 +458,14 @@ with tab_stat:
             c_kelompok = None
             
         # MULTI-SELECT TARGET
+        available_targets = [c for c in df_stat.columns if c not in [c_perlakuan, c_kelompok]]
+        # Filter default_target to only include columns that exist in available_targets
+        valid_defaults = [t for t in default_target if t in available_targets] if default_target else []
+        
         c_hasil_list = col_design2.multiselect(
             "Pilih Variabel Target (Y) - Bisa Lebih dari 1:",
-            [c for c in df_stat.columns if c not in [c_perlakuan, c_kelompok]],
-            default=default_target if default_target else None
+            available_targets,
+            default=valid_defaults if valid_defaults else None
         )
             
         if st.button("📊 Hitung Batch Analysis (Semua Variabel)", type="primary"):
