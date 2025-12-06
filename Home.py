@@ -1,293 +1,230 @@
-# AgriSensa Streamlit - Multipage App
-# Main entry point
+# AgriSensa Command Center - Professional Dashboard
+# Modern UI with Glassmorphism and Advanced Navigation
 
 import streamlit as st
+from datetime import datetime
 
 # ========== PAGE CONFIG ==========
 st.set_page_config(
-    page_title="AgriSensa - Platform Pertanian Cerdas",
-    page_icon="🌾",
+    page_title="AgriSensa Command Center",
+    page_icon="🛰️",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
         'Get Help': 'https://github.com/agrisensa',
-        'Report a bug': "https://github.com/agrisensa/issues",
-        'About': "# AgriSensa\nPlatform Pertanian Cerdas berbasis AI & Data Science"
+        'About': "© 2025 AgriSensa Intelligence Systems"
     }
 )
 
-# ========== CUSTOM CSS ==========
+# ========== MODERN UI STYLING ==========
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 3rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    /* GLOBAL THEME */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* BACKGROUND ANIMATION */
+    .stApp {
+        background: radial-gradient(circle at 10% 20%, rgb(16, 185, 129, 0.1) 0%, rgb(0, 0, 0, 0) 40%),
+                    radial-gradient(circle at 90% 80%, rgb(5, 150, 105, 0.1) 0%, rgb(0, 0, 0, 0) 40%);
+    }
+
+    /* HERO SECTION */
+    .hero-container {
+        padding: 4rem 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(236, 253, 245, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        margin-bottom: 3rem;
+    }
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-align: center;
         margin-bottom: 1rem;
     }
-    .subtitle {
-        text-align: center;
-        color: #6b7280;
+    .hero-subtitle {
         font-size: 1.2rem;
-        margin-bottom: 2rem;
+        color: #4b5563;
+        max-width: 600px;
+        margin: 0 auto 2rem auto;
     }
-    .feature-card {
-        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-        padding: 2rem;
-        border-radius: 16px;
-        border: 2px solid #10b981;
-        margin: 1rem 0;
-        transition: transform 0.3s ease;
+
+    /* GLASS CARDS */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        padding: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+        cursor: default;
     }
-    .feature-card:hover {
+    .glass-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(5, 150, 105, 0.2);
+        box-shadow: 0 15px 30px rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.3);
     }
-    .feature-icon {
-        font-size: 3rem;
+    .card-icon {
+        font-size: 2.5rem;
         margin-bottom: 1rem;
+        background: #ecfdf5;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
     }
-    .feature-title {
-        font-size: 1.5rem;
+    .card-title {
+        font-size: 1.25rem;
         font-weight: 700;
-        color: #059669;
+        color: #065f46;
         margin-bottom: 0.5rem;
     }
-    .feature-desc {
-        color: #6b7280;
-        line-height: 1.6;
-    }
-    .stats-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin: 2rem 0;
-    }
-    .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        text-align: center;
-    }
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #059669;
-    }
-    .stat-label {
-        color: #6b7280;
+    .card-desc {
         font-size: 0.9rem;
-        margin-top: 0.5rem;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+    
+    /* METRICS BADGE */
+    .metric-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: #ecfdf5;
+        border-radius: 50px;
+        color: #059669;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ========== MAIN PAGE ==========
 def main():
-    # Header
-    st.markdown('<h1 class="main-header">🌾 AgriSensa</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="subtitle">Platform Pertanian Cerdas - Kalkulator, Analisis & Visualisasi Data</p>', unsafe_allow_html=True)
-    
-    # Welcome message
-    st.info("👋 **Selamat datang di AgriSensa Streamlit!** Pilih modul di sidebar untuk memulai.")
-    
-    # Statistics
-    st.markdown("---")
-    st.subheader("📊 Statistik Platform")
+    # === HERO SECTION ===
+    st.markdown("""
+        <div class="hero-container">
+            <div style="margin-bottom: 1rem;">
+                <span class="metric-badge">🚀 v4.0.0 (Dec 2025)</span>
+                <span class="metric-badge">⚡ AI Powered</span>
+                <span class="metric-badge">🌍 Enterprise Grade</span>
+            </div>
+            <h1 class="hero-title">AgriSensa Intelligence</h1>
+            <p class="hero-subtitle">
+                Superapp Pertanian Modern yang mengintegrasikan IoT, Analisis Satelit, 
+                dan Kecerdasan Buatan untuk revolusi ketahanan pangan.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # === QUICK ACTIONS GRID ===
+    st.subheader("🛠️ Modul Operasional Utama")
     
     col1, col2, col3, col4 = st.columns(4)
+    
     with col1:
         st.markdown("""
-        <div class="stat-card">
-            <div class="stat-value">27</div>
-            <div class="stat-label">Modul Tersedia</div>
+        <div class="glass-card">
+            <div class="card-icon">🎯</div>
+            <div class="card-title">Harvest Planner</div>
+            <div class="card-desc">Perencanaan panen berbasis AI, cuaca, dan target profitabilitas presisi.</div>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("Buka Planner", key="btn_planner", use_container_width=True):
+            st.switch_page("pages/16_🎯_Perencana_Panen_AI.py")
+
     with col2:
         st.markdown("""
-        <div class="stat-card">
-            <div class="stat-value">100%</div>
-            <div class="stat-label">Gratis</div>
+        <div class="glass-card">
+            <div class="card-icon">🛸</div>
+            <div class="card-title">AgriSensa Vision</div>
+            <div class="card-desc">Diagnosis hama & penyakit tanaman instan menggunakan kamera HP/Drone.</div>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("Mulai Scan", key="btn_vision", use_container_width=True):
+            st.switch_page("pages/31_🛸_AgriSensa_Vision.py")
+
     with col3:
         st.markdown("""
-        <div class="stat-card">
-            <div class="stat-value">24/7</div>
-            <div class="stat-label">Akses</div>
+        <div class="glass-card">
+            <div class="card-icon">🗺️</div>
+            <div class="card-title">GIS Intelligence</div>
+            <div class="card-desc">Pemetaan lahan interaktif, kesesuaian tanah, dan analisis topografi.</div>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("Buka Peta", key="btn_gis", use_container_width=True):
+            st.switch_page("pages/29_🛰️_AgriSensa_GIS.py")
+            
     with col4:
         st.markdown("""
-        <div class="stat-card">
-            <div class="stat-value">∞</div>
-            <div class="stat-label">Data Storage</div>
+        <div class="glass-card">
+            <div class="card-icon">🌤️</div>
+            <div class="card-title">Smart Climate</div>
+            <div class="card-desc">Prediksi cuaca mikro real-time untuk penjadwalan pertanian yang akurat.</div>
         </div>
         """, unsafe_allow_html=True)
-    
-    # Features
-    st.markdown("---")
-    st.subheader("🎯 Fitur Utama")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🌾</div>
-            <div class="feature-title">Database Panen</div>
-            <div class="feature-desc">
-                Catat dan analisis data hasil panen dengan visualisasi interaktif.
-                Tracking profitabilitas, ROI, dan tren bulanan.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🧮</div>
-            <div class="feature-title">Kalkulator Pupuk</div>
-            <div class="feature-desc">
-                Hitung kebutuhan pupuk NPK berdasarkan luas lahan, jenis tanaman,
-                dan kondisi tanah. Rekomendasi dosis yang tepat.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">📈</div>
-            <div class="feature-title">Analisis Tren Harga</div>
-            <div class="feature-desc">
-                Prediksi harga komoditas dengan machine learning.
-                Visualisasi tren dan forecasting 30 hari ke depan.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🗺️</div>
-            <div class="feature-title">Peta Data Tanah</div>
-            <div class="feature-desc">
-                Pemetaan lahan interaktif dengan data NPK, cuaca real-time,
-                dan analisis kesesuaian tanaman.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <div class="feature-title">Analisis NPK</div>
-            <div class="feature-desc">
-                Input dan analisis data NPK tanah. Rekomendasi pupuk otomatis
-                berdasarkan kekurangan nutrisi.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🔄</div>
-            <div class="feature-title">Konversi Pupuk</div>
-            <div class="feature-desc">
-                Konversi kebutuhan pupuk dari kg ke jumlah karung.
-                Support berbagai jenis dan ukuran kemasan pupuk.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🌤️</div>
-            <div class="feature-title">Cuaca Pertanian</div>
-            <div class="feature-desc">
-                Informasi cuaca real-time dengan peta interaktif, forecast 5 hari,
-                dan rekomendasi aktivitas pertanian berdasarkan kondisi cuaca.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        if st.button("Cek Cuaca", key="btn_weather", use_container_width=True):
+             st.switch_page("pages/27_🌤️_Cuaca_Pertanian.py")
 
-    # NEW FEATURES 2024
+    # === SECONDARY FEATURES ===
     st.markdown("---")
-    st.subheader("🚀 Modul Terbaru (Desember 2024)")
-    col_new1, col_new2, col_new3 = st.columns(3)
+    st.subheader("📚 Pusat Pengetahuan & Analisis")
     
-    with col_new1:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🔬</div>
-            <div class="feature-title">Asisten Penelitian</div>
-            <div class="feature-desc">
-                Analisis Statistik (ANOVA, RAK/RAL) otomatis dan Machine Learning,
-                lengkap dengan interpretasi AI.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with col_new2:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🍎</div>
-            <div class="feature-title">Panduan Buah</div>
-            <div class="feature-desc">
-                Ensiklopedia Durian, Mangga, Alpukat dll. Lengkap dengan 
-                kalkulator pupuk dan analisis ekonomi.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+    c1, c2, c3 = st.columns(3)
+    
+    with c1:
+        with st.container(border=True):
+            st.markdown("### 💊 Manajemen Nutrisi")
+            st.caption("Kalkulator Pupuk, Analisis NPK, Katalog Harga")
+            if st.button("Akses Modul Pupuk", use_container_width=True):
+                 st.switch_page("pages/3_🧮_Kalkulator_Pupuk.py")
+            st.markdown("- [Katalog Pupuk & Harga](pages/25_🧪_Katalog_Pupuk_Harga.py)")
+            st.markdown("- [Rekomendasi Terpadu](pages/14_🎯_Rekomendasi_Terpadu.py)")
 
-    with col_new3:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🛰️</div>
-            <div class="feature-title">GIS Intelligence</div>
-            <div class="feature-desc">
-                Klik Peta -> Dapat Analisis. Integrasi Cuaca & Elevasi real-time
-                untuk rekomendasi lahan presisi.
-            </div>
+    with c2:
+        with st.container(border=True):
+            st.markdown("### 🛡️ Proteksi Tanaman")
+            st.caption("Pestisida Nabati, Bahan Aktif, Dokter Tanaman")
+            if st.button("Cek Hama & Penyakit", use_container_width=True):
+                 st.switch_page("pages/19_🐛_Panduan_Hama_Penyakit.py")
+            st.markdown("- [Direktori Bahan Aktif](pages/26_🔬_Direktori_Bahan_Aktif.py)")
+            st.markdown("- [Resep Pestisida Nabati](pages/18_🌿_Pestisida_Nabati.py)")
+
+    with c3:
+        with st.container(border=True):
+            st.markdown("### 📈 Bisnis & Riset")
+            st.caption("Analisis Usaha Tani, Statistik Penelitian")
+            if st.button("Analisis Profit (RAB)", use_container_width=True):
+                 st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
+            st.markdown("- [Asisten Penelitian AI](pages/12_🔬_Asisten_Penelitian.py)")
+            st.markdown("- [Prediksi Tren Harga](pages/6_📈_Analisis_Tren_Harga.py)")
+
+    # === SYSTEM STATUS ===
+    st.markdown("---")
+    col_stat1, col_stat2 = st.columns([3, 1])
+    
+    with col_stat1:
+        st.info("💡 **Tip Hari Ini:** Gunakan fitur *AgriSensa Vision* di pagi hari untuk pencahayaan terbaik saat mendiagnosa penyakit pada daun.")
+        
+    with col_stat2:
+        st.markdown(f"""
+        <div style="text-align: right; color: #9ca3af; font-size: 0.8rem;">
+            System Status: 🟢 Online<br>
+            Server Time: {datetime.now().strftime('%H:%M WIB')}
         </div>
         """, unsafe_allow_html=True)
-    
-    # How to use
-    st.markdown("---")
-    st.subheader("📖 Cara Menggunakan")
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown("""
-        **1️⃣ Pilih Modul**
-        
-        Gunakan sidebar di kiri untuk memilih modul yang ingin digunakan.
-        """)
-    with col2:
-        st.markdown("""
-        **2️⃣ Input Data**
-        
-        Isi form dengan data yang diperlukan. Semua field memiliki panduan.
-        """)
-    with col3:
-        st.markdown("""
-        **3️⃣ Lihat Hasil**
-        
-        Hasil akan ditampilkan secara real-time dengan visualisasi interaktif.
-        """)
-    
-    # Footer
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align: center; color: #6b7280; padding: 2rem 0;">
-        <p><strong>AgriSensa Streamlit v1.0</strong></p>
-        <p>Platform Pertanian Cerdas berbasis AI & Data Science</p>
-        <p>© 2024 AgriSensa. All rights reserved.</p>
-    </div>
-    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
