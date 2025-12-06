@@ -43,54 +43,76 @@ def detect_plants(image_array, sensitivity, min_area):
                 cv2.circle(output_img, (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"])), 5, (255, 255, 0), -1)
     return len(valid_contours), output_img, mask
 
-def analyze_bwd(image_array):
+def analyze_bwd(image_array, crop_type="Padi"):
     """
     BWD / LCC (Leaf Color Chart) Analysis for Nitrogen Estimation.
-    Based on IRRI & PhilRice methodologies using Digital Image Processing.
+    Supports Padi (Standard IRRI), Jagung, and General Horticulture (Cabai).
     """
-    # 1. Focus on Center Area (Region of Interest) to avoid background noise
+    # 1. Focus on Center Area (Region of Interest)
     h, w, _ = image_array.shape
     center_img = image_array[int(h*0.3):int(h*0.7), int(w*0.3):int(w*0.7)]
     
-    # 2. Average Greenness Calculation (Simple approach for robustness)
+    # 2. Average Greenness Calculation
     avg_color_per_row = np.average(center_img, axis=0)
     avg_color = np.average(avg_color_per_row, axis=0)
     R, G, B = avg_color
-    
-    # 3. Determine LCC Scale (1-5) based on Green intensity relative to others
-    # Heuristic mapping based on standard BWD colors
-    # Calculate "Greenness Index" typically G/(R+G+B) or just raw Green in controlled light
-    
-    # Using G/R ratio as a proxy for Chlorophyll vs Carotenoid/Senescence
-    # And G_mean for intensity
     
     lcc_score = 0
     status = ""
     recommendation = ""
     
-    # Simple thresholds (calibrated logic)
-    if G < 60: # Too dark/black or dead
-        lcc_score = 1
-        status = "BWD 1 (Kuning/Kering)"
-        recommendation = "Kritis Nitrogen. Segera pupuk Urea 100 kg/ha."
-    elif G < 100:
-        lcc_score = 2
-        status = "BWD 2 (Hijau Kekuningan)"
-        recommendation = "Defisiensi Nitrogen. Tambahkan Urea 75 kg/ha."
-    elif G < 140:
-        lcc_score = 3
-        status = "BWD 3 (Hijau Muda - Optimal Rendah)"
-        recommendation = "Cukup untuk pemeliharaan. Tambah Urea 25-50 kg/ha jika fase bunting."
-    elif G < 180:
-        lcc_score = 4
-        status = "BWD 4 (Hijau Mantap - Optimal)"
-        recommendation = "Nitrogen Optimal. TIDAK PERLU pemupukan tambahan."
-    else:
-        lcc_score = 5
-        status = "BWD 5 (Hijau Gelap - Berlebih)"
-        recommendation = "Kelebihan Nitrogen (Risiko Rebah/Hama). STOP Urea."
+    # 3. LOGIC BY CROP TYPE
+    
+    if crop_type == "Padi (Rice)":
+        # Standard IRRI LCC Logic
+        if G < 60:
+            lcc_score = 1; status = "BWD 1 (Kuning/Kering)"
+            recommendation = "Kritis. Segera pupuk Urea 100 kg/ha."
+        elif G < 100:
+            lcc_score = 2; status = "BWD 2 (Hijau Kekuningan)"
+            recommendation = "Defisiensi. Tambahkan Urea 75 kg/ha."
+        elif G < 140:
+            lcc_score = 3; status = "BWD 3 (Hijau Muda)"
+            recommendation = "Perlu Urea 50 kg/ha (Fase Aktif)."
+        elif G < 180:
+            lcc_score = 4; status = "BWD 4 (Hijau Mantap)"
+            recommendation = "Optimal. TIDAK PERLU pupuk."
+        else:
+            lcc_score = 5; status = "BWD 5 (Hijau Gelap)"
+            recommendation = "Berlebih. Stop pemupukan."
+            
+    elif crop_type == "Jagung (Maize)":
+        # CIMMYT LCC Logic (Slightly darker needs)
+        if G < 80:
+            status = "Kritis (Kuning)"
+            recommendation = "Kekurangan N parah. Kocor Urea+ZA segera."
+        elif G < 130:
+            status = "Kurang (Hijau Muda)"
+            recommendation = "Berikan NPK da Urea susulan."
+        elif G < 170:
+            status = "Optimal (Hijau)"
+            recommendation = "Pertahankan kondisi."
+        else:
+            status = "Excess (Hijau Kebiruan)"
+            recommendation = "Kurangi dosis N periode berikutnya."
+            
+    elif crop_type == "Cabai & Sayuran":
+        # Horticulture Logic (General N-Index)
+        # Cabai is sensitive to excess N (leaves become curly/dark)
+        if G < 90:
+            status = "Defisiensi Berat (Kuning)"
+            recommendation = "Tanaman kerdil/klorosis. Kocor NPK Seimbang + Magnesium (Epsom)."
+        elif G < 130:
+            status = "Defisiensi Ringan (Hijau Pucat)"
+            recommendation = "Tambahkan Pupuk Daun (Foliar) atau KNO3 Merah."
+        elif G < 160:
+            status = "Optimal (Hijau Segar)"
+            recommendation = "Lanjutkan pemupukan rutin mingguan."
+        else:
+            status = "Kelebihan N (Hijau Gelap/Hitam)"
+            recommendation = "Bahaya! Rentan serangan Thrips/Tungau. Stop pupuk N, ganti MKP/Kalium."
         
-    return lcc_score, status, recommendation, center_img
+    return status, recommendation, center_img
 
 # ==========================================
 # 🖥️ UI LAYOUT
@@ -100,9 +122,10 @@ st.title("🛸 AgriSensa Vision")
 st.markdown("**Platform Analisis Citra Pertanian Cerdas**")
 
 # MODE SELECTION
-mode = st.radio("Pilih Mode Analisis:", ["📸 Analisis Daun (BWD/LCC)", "🚁 Analisis Drone (Aerial)"], horizontal=True)
+mode = st.radio("Pilih Mode Analisis:", ["📸 Analisis Daun (BWD/LCC/Visual)", "🚁 Analisis Drone (Aerial)"], horizontal=True)
 
 if mode == "🚁 Analisis Drone (Aerial)":
+    # ... (Aerial Logic remains same) ...
     st.info("Upload foto udara/drone untuk menghitung populasi dan cek kesehatan lahan (VARI).")
     
     # SIDEBAR CONFIG AERIAL
@@ -131,8 +154,10 @@ if mode == "🚁 Analisis Drone (Aerial)":
             fig.update_traces(opacity=heatmap_opacity)
             st.plotly_chart(fig, use_container_width=True)
 
-elif mode == "📸 Analisis Daun (BWD/LCC)":
-    st.info("Upload foto close-up daun padi untuk mengukur kadar Nitrogen (BWD/LCC) dan kebutuhan Urea.")
+elif mode == "📸 Analisis Daun (BWD/LCC/Visual)":
+    st.info("Diagnosa visual status Nitrogen berdasarkan warna daun.")
+    
+    crop_type = st.selectbox("Pilih Jenis Tanaman:", ["Padi (Rice)", "Jagung (Maize)", "Cabai & Sayuran"])
     
     uploaded_leaf = st.file_uploader("Upload Foto Daun (Close Up)", type=['jpg', 'jpeg', 'png'], key="leaf")
     
@@ -146,22 +171,21 @@ elif mode == "📸 Analisis Daun (BWD/LCC)":
             st.image(image, caption="Foto Asli", use_column_width=True)
             
         with st.spinner("Menganalisa warna daun..."):
-            score, status, rec, roi_img = analyze_bwd(img_array)
+            status, rec, roi_img = analyze_bwd(img_array, crop_type)
             
         with col_res2:
             st.image(roi_img, caption="Area Analisis (ROI)", width=150)
-            st.metric("Skor BWD", f"{score}/5", delta_color="normal" if score==4 else "inverse")
             st.subheader(status)
             
-            if score < 4:
+            if "Kritis" in status or "Defisiensi" in status:
                 st.warning(f"💡 **Rekomendasi:** {rec}")
+            elif "Kelebihan" in status or "Excess" in status:
+                st.error(f"⚠️ **Peringatan:** {rec}")
             else:
                 st.success(f"✅ **Rekomendasi:** {rec}")
                 
             st.markdown("---")
-            st.caption("""
-            **Referensi Ilmiah:**
-            - **IRRI (Intl Rice Research Inst):** Standar Bagan Warna Daun (Leaf Color Chart).
-            - **Ali et al. (2014):** *Smartphone-based LCC for Nitrogen Status.*
-            - **Metode:** Analisis intensitas hijau rata-rata pada area tengah daun (ROI) untuk mengestimasi klorofil.
-            """)
+            if crop_type == "Padi (Rice)":
+                st.caption("Referensi: IRRI Leaf Color Chart Standard (Skala 1-5)")
+            else:
+                st.caption("Catatan: Analisis ini adalah estimasi visual (Digital Diagnosis). Untuk hasil presisi tinggi, gunakan uji laboratorium jaringan.")
