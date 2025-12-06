@@ -236,14 +236,28 @@ with st.sidebar:
     # G. AI Integration (ENTERPRISE FEATURE)
     st.divider()
     st.markdown("### 🔮 Integrasi AI Smart Farming")
-    use_ai_opt = st.checkbox("Optimasi Hasil dengan AI", value=False)
-    
-    ai_suggestion = None
     
     # Check for Integration Context (from Map or NPK Module)
     ctx = st.session_state.get('rab_context', {})
-    if ctx:
-        st.info(f"🔗 **Data Terintegrasi dari {ctx.get('source')}**: Menggunakan pH {ctx.get('ph')} & Tekstur {ctx.get('texture')}")
+    
+    # Auto-enable AI if context exists
+    default_ai_check = True if ctx else False
+    use_ai_opt = st.checkbox("Optimasi Hasil dengan AI", value=default_ai_check)
+    
+    if ctx and use_ai_opt:
+        with st.container():
+            st.info(f"📋 **Inisiasi Data dari: {ctx.get('source')}**")
+            k1, k2, k3, k4 = st.columns(4)
+            k1.metric("pH Tanah", f"{ctx.get('ph')}", delta="Aktual")
+            k2.metric("Tekstur", ctx.get('texture', '-'))
+            k3.metric("N-P-K (ppm)", f"{int(ctx.get('n_ppm',0))}-{int(ctx.get('p_ppm',0))}-{int(ctx.get('k_ppm',0))}")
+            
+            if st.button("🔄 Reset Data Integrasi"):
+                del st.session_state['rab_context']
+                st.rerun()
+        st.divider()
+
+    ai_suggestion = None
         
     if use_ai_opt:
         st.markdown("##### 🧪 Input Data Tanah (Real-Time)")
