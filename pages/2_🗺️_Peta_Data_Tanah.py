@@ -331,39 +331,57 @@ def main():
                     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
                     return R * c
 
-                 # 2. Search nearest Point within 100m
+                 # 2. Search nearest Point within generous radius (10km) to ensure debugging works
                  nearest_dist = float('inf')
                  nearest_data = None
+                 count_checked = 0
                  
                  for record in npk_data:
                      # Check if lat/lon exists and valid
-                     if record.get('latitude') and record.get('longitude'):
-                         dist = haversine(clicked['lat'], clicked['lng'], record['latitude'], record['longitude'])
-                         if dist < 100 and dist < nearest_dist: # 100m radius
-                             nearest_dist = dist
-                             nearest_data = record
+                     lat_rec = record.get('latitude')
+                     lon_rec = record.get('longitude')
+                     
+                     if lat_rec is not None and lon_rec is not None:
+                         try:
+                             dist = haversine(float(clicked['lat']), float(clicked['lng']), float(lat_rec), float(lon_rec))
+                             count_checked += 1
+                             if dist < nearest_dist: 
+                                 nearest_dist = dist
+                                 if dist < 10000: # 10km radius
+                                     nearest_data = record
+                         except Exception as e:
+                             continue
+                 
+                 # Debug info
+                 st.info(f"🔍 Peta Debug: Cek {count_checked} titik. Terdekat: {nearest_dist:.0f} meter.")
                  
                  # 3. Construct Context
+                 # Default context if nothing found
                  context = {
                     'source': f'Peta (Lat: {clicked["lat"]:.4f})',
-                    'ph': 6.0, # Default
+                    'ph': 6.0, 
                     'texture': 'Lempung'
                  }
                  
                  if nearest_data:
                      context = {
-                        'source': f"Peta (Data Aktual {nearest_dist:.0f}m dari Titik)",
+                        'source': f"Peta ({nearest_dist:.0f}m dari titik)",
                         'ph': float(nearest_data.get('ph', 6.0)),
                         'texture': nearest_data.get('soil_type', 'Lempung'),
                         'n_ppm': float(nearest_data.get('n_value', 0)),
                         'p_ppm': float(nearest_data.get('p_value', 0)),
                         'k_ppm': float(nearest_data.get('k_value', 0))
                      }
+                     st.success(f"✅ Data Ditemukan! Menggunakan pH {context['ph']} dari jarak {nearest_dist:.0f}m")
                  else:
-                     st.toast("⚠️ Tidak ada data NPK tersimpan di dekat titik ini. Menggunakan asumsi standar.", icon="⚠️")
+                     st.warning("⚠️ Tidak ada data NPK dalam radius 10km. Menggunakan asumsi standar.")
                      
                  st.session_state['rab_context'] = context
-                 st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
+                 # Force delay to let user see the message before switching
+                 if st.button("👉 Lanjut ke RAB sekarang"):
+                     st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
+                 else:
+                     st.stop() # Wait for user validation
         
         # Add NPK Data Form
         if 'add_npk_lat' in st.session_state:
