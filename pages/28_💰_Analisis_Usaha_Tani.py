@@ -405,6 +405,15 @@ if "rab_editor" in st.session_state:
 
 df_rab = pd.DataFrame(rab_data)
 
+cols_config = {
+    "Kategori": st.column_config.TextColumn("Kategori", disabled=True),
+    "Uraian": st.column_config.TextColumn("Uraian Pekerjaan/Barang", width="large"),
+    "Satuan": st.column_config.TextColumn("Satuan", width="small"),
+    "Volume": st.column_config.NumberColumn("Volume", format="%.1f"),
+    "Harga Satuan (Rp)": st.column_config.NumberColumn("Harga Satuan", format="Rp %d"),
+    "Total (Rp)": st.column_config.NumberColumn("Total Biaya", format="Rp %d", disabled=True),
+}
+
 # 3. MAIN TABLE EDITOR
 st.subheader(f"📝 Tabel RAB: {selected_crop} ({luas_lahan_ha} Ha)")
 st.info("💡 Klik pada sel tabel untuk mengubah Volume atau Harga. Tekan Enter untuk update Total.")
