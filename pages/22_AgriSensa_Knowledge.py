@@ -787,7 +787,85 @@ HAMA_PENYAKIT = {
     }
 }
 
-# 5.5. GREENHOUSE FLORIKULTURA (NEW)
+# 6. MIKROBIOLOGI PERTANIAN & BIOTEKNOLOGI (HIPOCI CIANJUR)
+MIKROBIOLOGI_PERTANIAN = {
+    "mikroba_pangan": {
+        "title": "Mikrobia Pangan & Fermentasi",
+        "content": """
+        ### 🧀 Produk Susu & Keju
+        1. **Lactobacillus bulgaricus & Streptococcus thermophillus**: Pembuatan **Yogurt**. Mengubah laktosa menjadi asam laktat.
+        2. **Lactobacillus lactis**: Pembuatan **Keju** (penggumpalan susu).
+        3. **Lactobacillus citrovorum**: Memberi **aroma khas** pada mentega dan keju.
+        4. **Lactobacillus casei / Streptococcus cremoris**: Pematangan Keju.
+        5. **Leuconostoc mesenteroides**: Penghasil sukrosa (dextran) untuk tekstur.
+        6. **Penicillium camemberti & P. roqueforti**: Jamur untuk meningkatkan kualitas/aroma keju (Blue Cheese).
+        
+        ### 🍞 Roti, Tape & Alkohol
+        7. **Saccharomyces cerevisiae**: Pembuatan **Roti** (pengembang) dan **Tape**.
+        8. **Saccharomyces fibulegera**: Fermentasi tape dan pakan ternak.
+        9. **Saccharomyces ellipsoideus**: Fermentasi anggur menjadi **Wine**.
+        
+        ### 🥢 Produk Kedelai & Tradisional
+        10. **Rhizopus oryzae**: Pembuatan **Tempe**.
+        11. **Aspergillus oryzae & A. sojae**: Pembuatan **Kecap** & Tauco.
+        12. **Aspergillus wentii**: Pembuatan Kecap.
+        13. **Neurospora sithopila**: Pembuatan **Oncom** (warna merah/oranye).
+        14. **Acetobacter xylinum**: Pembuatan **Nata de Coco** (selulosa bakteri).
+        15. **Acetobacter aceti**: Pembuatan **Asam Cuka**.
+        16. **Lactobacillus sp.**: Pembuatan **Terasi**.
+        17. **Pediococcus cerevisiae**: Pembuatan **Sosis** (fermentasi daging).
+        18. **Lactobacillus plantarum**: Asinan Kubis (Sauerkraut).
+        19. **Pseudomonas sp. & Propionibacterium sp.**: Penghasil Vitamin B12.
+        """,
+        "tags": ["mikroba", "pangan", "fermentasi"],
+        "difficulty": "beginner",
+        "read_time": 5
+    },
+    "mikroba_pertanian_lingkungan": {
+        "title": "Mikrobia Pupuk Hayati & Lingkungan",
+        "content": """
+        ### 🌱 Penyubur Tanah & Biofertilizer
+        1. **Nitrosomonas & Nitrosococcus**: Mengubah Amonia (NH3) menjadi Nitrit (NO2).
+        2. **Nitrobacter**: Mengubah Nitrit (NO2) menjadi Nitrat (NO3) yang siap diserap tanaman.
+        3. **Rhizobium sp.**: Menambat Nitrogen bebas dari udara (simbiosis kacang-kacangan).
+        4. **Pseudomonas sp.**: Melindungi tanaman dari kematian akibat suhu dingin (Ice-nucleation bacteria).
+        
+        ### 🛡️ Biopestisida (Pengendali Hama)
+        5. **Bacillus thuringiensis (Bt)**: Menghasilkan kristal protein (indotoksin) yang meracuni pencernaan **ulat hama**.
+        6. **Amanita muscaria**: Jamur penghasil toksin muskarin untuk membunuh lalat (berasal dari kotoran ternak).
+        
+        ### 🏭 Industri & Tambang
+        7. **Thiobacillus ferrooxidans**: **Bioleaching**. Memisahkan tembaga (Cu) dan emas dari bijih logam kadar rendah.
+        8. **Methanobacterium omelianskii & M. ruminatum**: Menguraikan limbah organik (asam cuka) menjadi **Biogas (Metana & CO2)**.
+        9. **E. coli**: Indikator kualitas air dan makanan (pencemaran tinja).
+        """,
+        "tags": ["mikroba", "pupuk hayati", "lingkungan"],
+        "difficulty": "intermediate",
+        "read_time": 6
+    },
+    "mikroba_medis_industri": {
+        "title": "Mikrobia Medis & Industri Antibiotik",
+        "content": """
+        ### 💊 Penghasil Antibiotik
+        1. **Penicillium notatum & P. chrysogenum**: Penghasil **Penisilin** (antibiotik pertama).
+        2. **Cephalosporium**: Penghasil Penisilin N.
+        3. **Streptomyces griseus**: Penghasil **Streptomisin** (untuk TBC, efektif lawan bakteri kebal penisilin).
+        4. **Bacillus brevis**: Penghasil Tirotrisin.
+        5. **Bacillus subtilis**: Penghasil Basitrasin.
+        6. **Bacillus polymyxa**: Penghasil Polimixin.
+        
+        ### 🧪 Industri Kimia
+        7. **Corynebacterium glutamicum**: Memproduksi **Asam Glutamat** (bahan baku Vetsin/MSG).
+        8. **Aspergillus niger**: Penghasil **Asam Sitrat** (pengawet/rasa asam) dan fermentasi pakan.
+        9. **Spirulina & Chlorella**: Mikroalga sumber **Protein Sel Tunggal (PST)** / Superfood.
+        """,
+        "tags": ["mikroba", "antibiotik", "industri"],
+        "difficulty": "advanced",
+        "read_time": 7
+    }
+}
+
+# 6. GREENHOUSE FLORIKULTURA (NEW)
 GREENHOUSE_FLORIKULTURA = {
     "bunga_potong_jepang": {
         "title": "Bunga Potong Jepang (Japanese Cut Flowers)",
@@ -942,7 +1020,7 @@ if search_query:
 st.markdown("---")
 
 # Main tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "🌱 Dasar Pertanian",
     "🌾 Database Tanaman",
     "🧪 Ilmu Tanah",
@@ -950,6 +1028,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "🐛 Hama & Penyakit",
     "🧬 Pupuk Makro Sekunder",
     "🌸 Greenhouse",
+    "🦠 Mikrobiologi",
     "⭐ Bookmark Saya"
 ])
 
@@ -1071,8 +1150,28 @@ with tab7:
         st.session_state.current_article_id = f"greenhouse_{article_choice}"
         display_article(GREENHOUSE_FLORIKULTURA[article_choice])
 
-# TAB 8: BOOKMARKS
+# TAB 8: MIKROBIOLOGI (NEW)
 with tab8:
+    st.header("🦠 Mikrobiologi Pertanian & Bioteknologi")
+    st.info("Referensi: 'Aneka Mikrobia dan Peranannya' - Hipoci Cianjur (Om Mukhlis, 2014)")
+    
+    c1, c2 = st.columns(2)
+    
+    with c1:
+        with st.expander("🌱 Pertanian & Lingkungan (Biofertilizer)"):
+            st.markdown(MIKROBIOLOGI_PERTANIAN['mikroba_pertanian_lingkungan']['content'])
+            
+        with st.expander("💊 Medis & Industri (Antibiotik)"):
+            st.markdown(MIKROBIOLOGI_PERTANIAN['mikroba_medis_industri']['content'])
+            
+    with c2:
+        with st.expander("🧀 Pangan & Fermentasi (Food Tech)"):
+            st.markdown(MIKROBIOLOGI_PERTANIAN['mikroba_pangan']['content'])
+            
+    st.warning("💡 **Insight:** Mikroba seperti *Rhizobium* dan *Bacillus thuringiensis* adalah kunci pertanian organik modern.")
+
+# TAB 9: BOOKMARKS
+with tab9:
     st.header("⭐ Artikel yang Saya Bookmark")
     
     if st.session_state.bookmarks:
