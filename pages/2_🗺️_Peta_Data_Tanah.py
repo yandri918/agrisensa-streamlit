@@ -405,6 +405,19 @@ def main():
                         recs = get_fertilizer_recommendation(npk['n_value'], npk['p_value'], npk['k_value'])
                         for rec in recs:
                             st.write(rec)
+                            
+                        # Integration Button
+                        st.markdown("---")
+                        if st.button("🚀 Kirim ke RAB", key=f"send_rab_{npk['id']}"):
+                            st.session_state['rab_context'] = {
+                                'source': 'Peta Data Tanah',
+                                'ph': float(npk.get('ph', 6.0)),
+                                'texture': npk.get('soil_type', 'Lempung'),
+                                'n_ppm': float(npk.get('n_value', 0)),
+                                'p_ppm': float(npk.get('p_value', 0)),
+                                'k_ppm': float(npk.get('k_value', 0))
+                            }
+                            st.success("✅ Data terkirim! Buka menu 'Analisis Usaha Tani' sekarang.")
                     
                     # Delete button
                     if st.button(f"🗑️ Hapus", key=f"del_npk_{npk['id']}"):

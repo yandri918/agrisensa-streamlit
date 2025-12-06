@@ -240,12 +240,27 @@ with st.sidebar:
     
     ai_suggestion = None
     
+    # Check for Integration Context (from Map or NPK Module)
+    ctx = st.session_state.get('rab_context', {})
+    if ctx:
+        st.info(f"🔗 **Data Terintegrasi dari {ctx.get('source')}**: Menggunakan pH {ctx.get('ph')} & Tekstur {ctx.get('texture')}")
+        
     if use_ai_opt:
         st.markdown("##### 🧪 Input Data Tanah (Real-Time)")
         col_ai1, col_ai2 = st.columns(2)
         with col_ai1:
-            real_ph = st.number_input("pH Tanah Aktual", 3.0, 8.0, 6.0, step=0.1, help="Dari hasil tes tanah / Modul Peta Data Tanah")
-            real_texture = st.selectbox("Tekstur Tanah", ["Lempung (Ideal)", "Pasir (Boros Air)", "Liat (Padat)"], index=0)
+            # Auto-fill from Context if available
+            def_ph = ctx.get('ph', 6.0)
+            real_ph = st.number_input("pH Tanah Aktual", 3.0, 8.0, float(def_ph), step=0.1, help="Dari hasil tes tanah / Modul Peta Data Tanah")
+            
+            # Map Texture Strings
+            def_tex_idx = 0
+            if ctx.get('texture'):
+                tex_str = ctx.get('texture').lower()
+                if "pasir" in tex_str: def_tex_idx = 1
+                elif "liat" in tex_str: def_tex_idx = 2
+                
+            real_texture = st.selectbox("Tekstur Tanah", ["Lempung (Ideal)", "Pasir (Boros Air)", "Liat (Padat)"], index=def_tex_idx)
             
         # Map Texture to Float (0-1 Index for AI)
         tex_map = {"Lempung (Ideal)": 0.7, "Pasir (Boros Air)": 0.2, "Liat (Padat)": 0.5}
