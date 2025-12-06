@@ -213,6 +213,47 @@ def main():
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+    # NEW FEATURES 2024
+    st.markdown("---")
+    st.subheader("🚀 Modul Terbaru (Desember 2024)")
+    col_new1, col_new2, col_new3 = st.columns(3)
+    
+    with col_new1:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">🔬</div>
+            <div class="feature-title">Asisten Penelitian</div>
+            <div class="feature-desc">
+                Analisis Statistik (ANOVA, RAK/RAL) otomatis dan Machine Learning,
+                lengkap dengan interpretasi AI.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_new2:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">🍎</div>
+            <div class="feature-title">Panduan Buah</div>
+            <div class="feature-desc">
+                Ensiklopedia Durian, Mangga, Alpukat dll. Lengkap dengan 
+                kalkulator pupuk dan analisis ekonomi.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_new3:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-icon">🛰️</div>
+            <div class="feature-title">GIS Intelligence</div>
+            <div class="feature-desc">
+                Klik Peta -> Dapat Analisis. Integrasi Cuaca & Elevasi real-time
+                untuk rekomendasi lahan presisi.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # How to use
     st.markdown("---")
