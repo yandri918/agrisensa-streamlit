@@ -858,7 +858,7 @@ def search_knowledge(query):
         "Hama & Penyakit": HAMA_PENYAKIT,
         "Greenhouse Florikultura": GREENHOUSE_FLORIKULTURA
     }
-    }
+
     
     for cat_name, category in all_categories.items():
         for article_id, article in category.items():
