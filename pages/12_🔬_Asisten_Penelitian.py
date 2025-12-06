@@ -1,23 +1,189 @@
 # Asisten Penelitian Agronomi
-# Advanced research assistant with multiple ML models and statistical analysis
+# Advanced research assistant with multiple ML models and statistical analysis (ANOVA/RAK/RAL)
+# Version: 2.0.0 (Integrated Stats)
 
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+from datetime import datetime
+
+# ML Imports
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
-from datetime import datetime
-import json
+
+# Stats Imports
+from scipy import stats
 
 st.set_page_config(page_title="Asisten Penelitian", page_icon="🔬", layout="wide")
 
-# ========== ML MODELS ==========
+# ==========================================
+# 📐 STATISTICAL ENGINE (ANOVA & POST-HOC)
+# ==========================================
+def calculate_anova_ral(df, col_perlakuan, col_hasil):
+    """
+    Hitung ANOVA Rancangan Acak Lengkap (CRD)
+    Sumber Keragaman: Perlakuan, Galat, Total
+    """
+    # 1. Prepare Data
+    groups = df.groupby(col_perlakuan)[col_hasil]
+    grand_mean = df[col_hasil].mean()
+    n_total = len(df)
+    n_treatments = df[col_perlakuan].nunique()
+    
+    # 2. Sum of Squares (JK)
+    # FK (Faktor Koreksi)
+    fk = (df[col_hasil].sum()**2) / n_total
+    
+    # JK Total
+    jk_total = (df[col_hasil]**2).sum() - fk
+    
+    # JK Perlakuan
+    jk_perlakuan = (groups.sum()**2 / groups.count()).sum() - fk
+    
+    # JK Galat
+    jk_galat = jk_total - jk_perlakuan
+    
+    # 3. Degrees of Freedom (DB)
+    db_perlakuan = n_treatments - 1
+    db_total = n_total - 1
+    db_galat = db_total - db_perlakuan
+    
+    # 4. Mean Square (KT)
+    kt_perlakuan = jk_perlakuan / db_perlakuan
+    kt_galat = jk_galat / db_galat
+    
+    # 5. F-Hitung
+    f_hitung = kt_perlakuan / kt_galat
+    
+    # 6. P-Value (1 - CDF)
+    p_value = 1 - stats.f.cdf(f_hitung, db_perlakuan, db_galat)
+    
+    # 7. CV (Koefisien Keragaman)
+    cv = (np.sqrt(kt_galat) / grand_mean) * 100
+    
+    summary = {
+        "SK": ["Perlakuan", "Galat", "Total"],
+        "DB": [db_perlakuan, db_galat, db_total],
+        "JK": [jk_perlakuan, jk_galat, jk_total],
+        "KT": [kt_perlakuan, kt_galat, np.nan],
+        "F-Hitung": [f_hitung, np.nan, np.nan],
+        "P-Value": [p_value, np.nan, np.nan],
+        "Signifikan": [p_value < 0.05, np.nan, np.nan]
+    }
+    
+    return pd.DataFrame(summary), kt_galat, db_galat, cv
+
+def calculate_anova_rak(df, col_perlakuan, col_kelompok, col_hasil):
+    """
+    Hitung ANOVA Rancangan Acak Kelompok (RCBD)
+    Sumber Keragaman: Kelompok, Perlakuan, Galat, Total
+    """
+    # 1. Prereq
+    n_total = len(df)
+    n_kelompok = df[col_kelompok].nunique()
+    n_perlakuan = df[col_perlakuan].nunique()
+    grand_mean = df[col_hasil].mean()
+    
+    # FK
+    fk = (df[col_hasil].sum()**2) / n_total
+    
+    # JK Total
+    jk_total = (df[col_hasil]**2).sum() - fk
+    
+    # JK Kelompok
+    jk_kelompok = (df.groupby(col_kelompok)[col_hasil].sum()**2 / n_perlakuan).sum() - fk
+    
+    # JK Perlakuan
+    jk_perlakuan = (df.groupby(col_perlakuan)[col_hasil].sum()**2 / n_kelompok).sum() - fk
+    
+    # JK Galat
+    jk_galat = jk_total - jk_kelompok - jk_perlakuan
+    
+    # DB
+    db_kelompok = n_kelompok - 1
+    db_perlakuan = n_perlakuan - 1
+    db_total = n_total - 1
+    db_galat = db_total - db_kelompok - db_perlakuan
+    
+    # KT
+    kt_kelompok = jk_kelompok / db_kelompok
+    kt_perlakuan = jk_perlakuan / db_perlakuan
+    kt_galat = jk_galat / db_galat
+    
+    # F-Hitung
+    f_kelompok = kt_kelompok / kt_galat
+    f_perlakuan = kt_perlakuan / kt_galat
+    
+    # P-Value
+    p_kelompok = 1 - stats.f.cdf(f_kelompok, db_kelompok, db_galat)
+    p_perlakuan = 1 - stats.f.cdf(f_perlakuan, db_perlakuan, db_galat)
+    
+    # CV
+    cv = (np.sqrt(kt_galat) / grand_mean) * 100
+    
+    summary = {
+        "SK": ["Kelompok", "Perlakuan", "Galat", "Total"],
+        "DB": [db_kelompok, db_perlakuan, db_galat, db_total],
+        "JK": [jk_kelompok, jk_perlakuan, jk_galat, jk_total],
+        "KT": [kt_kelompok, kt_perlakuan, kt_galat, np.nan],
+        "F-Hitung": [f_kelompok, f_perlakuan, np.nan, np.nan],
+        "P-Value": [p_kelompok, p_perlakuan, np.nan, np.nan],
+        "Signifikan": [p_kelompok < 0.05, p_perlakuan < 0.05, np.nan, np.nan]
+    }
+    
+    return pd.DataFrame(summary), kt_galat, db_galat, cv
+
+def calculate_bnt(df, col_perlakuan, col_hasil, kt_galat, db_galat, alpha=0.05):
+    """
+    Uji Beda Nyata Terkecil (LSD/BNT)
+    """
+    mean_perlakuan = df.groupby(col_perlakuan)[col_hasil].mean().sort_values(ascending=False)
+    n_ulangan = len(df) / df[col_perlakuan].nunique() # Asumsi ulangan sama (seimbang)
+    
+    # T-Table value
+    t_val = stats.t.ppf(1 - alpha/2, db_galat)
+    
+    # BNT Value
+    bnt_val = t_val * np.sqrt((2 * kt_galat) / n_ulangan)
+    
+    # Notasi Huruf logic
+    means = mean_perlakuan.values
+    labels = mean_perlakuan.index
+    notasi = [''] * len(means)
+    
+    # Simple algorithm for notation (Greedy approach)
+    # Note: Full recursive algorithm is complex, using simplified "significant diff check"
+    
+    # Init with 'a' for highest
+    curr_char = 97 # 'a'
+    
+    # This is a simplified logic placeholder. 
+    # Real BNJ grouping requires matrix overlap check.
+    # For MVP: Just comparing each to the best.
+    
+    # Let's do a Pairwise Comparison Matrix instead, simpler and more informative
+    matrix = []
+    for i in range(len(means)):
+        row = []
+        for j in range(len(means)):
+            diff = abs(means[i] - means[j])
+            sig = "*" if diff > bnt_val else "ns"
+            row.append(sig)
+        matrix.append(row)
+            
+    df_matrix = pd.DataFrame(matrix, index=labels, columns=labels)
+    
+    return mean_perlakuan, bnt_val, df_matrix
+
+# ==========================================
+# 🤖 ML ENGINE (EXISTING)
+# ==========================================
 AVAILABLE_MODELS = {
     "Linear Regression": LinearRegression(),
     "Ridge Regression": Ridge(alpha=1.0),
@@ -28,574 +194,235 @@ AVAILABLE_MODELS = {
     "Gradient Boosting": GradientBoostingRegressor(n_estimators=100, max_depth=3, random_state=42)
 }
 
-# ========== SAMPLE DATASETS ==========
-def generate_sample_data(dataset_type):
-    """Generate sample agricultural research data"""
-    np.random.seed(42)
-    n_samples = 100
-    
-    if dataset_type == "Yield vs NPK":
-        # Yield as function of NPK
-        N = np.random.uniform(50, 200, n_samples)
-        P = np.random.uniform(20, 100, n_samples)
-        K = np.random.uniform(30, 150, n_samples)
-        
-        # Yield with some noise
-        yield_val = (
-            2000 + 
-            15 * N + 
-            10 * P + 
-            8 * K + 
-            0.05 * N * P +
-            np.random.normal(0, 300, n_samples)
-        )
-        
-        return pd.DataFrame({
-            'Nitrogen (kg/ha)': N,
-            'Phosphorus (kg/ha)': P,
-            'Potassium (kg/ha)': K,
-            'Yield (kg/ha)': yield_val
-        })
-    
-    elif dataset_type == "Growth vs Time":
-        # Plant growth over time
-        days = np.arange(0, 100, 1)
-        
-        # Logistic growth curve with noise
-        growth = 100 / (1 + np.exp(-0.1 * (days - 50))) + np.random.normal(0, 3, len(days))
-        
-        return pd.DataFrame({
-            'Days After Planting': days,
-            'Plant Height (cm)': growth
-        })
-    
-    elif dataset_type == "Yield vs Weather":
-        # Yield as function of weather
-        rainfall = np.random.uniform(800, 2500, n_samples)
-        temp = np.random.uniform(20, 35, n_samples)
-        humidity = np.random.uniform(50, 90, n_samples)
-        
-        # Optimal ranges
-        optimal_rain = 1500
-        optimal_temp = 27
-        optimal_humidity = 70
-        
-        # Yield decreases with distance from optimal
-        yield_val = (
-            5000 -
-            0.5 * abs(rainfall - optimal_rain) -
-            100 * abs(temp - optimal_temp) -
-            10 * abs(humidity - optimal_humidity) +
-            np.random.normal(0, 200, n_samples)
-        )
-        
-        return pd.DataFrame({
-            'Rainfall (mm)': rainfall,
-            'Temperature (°C)': temp,
-            'Humidity (%)': humidity,
-            'Yield (kg/ha)': yield_val
-        })
-
-# ========== STATISTICAL ANALYSIS ==========
-def perform_statistical_analysis(df, target_col):
-    """Perform comprehensive statistical analysis"""
-    stats = {}
-    
-    # Descriptive statistics
-    stats['descriptive'] = df.describe()
-    
-    # Correlation matrix
-    stats['correlation'] = df.corr()
-    
-    # Target variable stats
-    if target_col in df.columns:
-        stats['target_mean'] = df[target_col].mean()
-        stats['target_std'] = df[target_col].std()
-        stats['target_min'] = df[target_col].min()
-        stats['target_max'] = df[target_col].max()
-    
-    return stats
-
 def train_and_evaluate_models(X, y, model_names):
-    """Train multiple models and compare performance"""
     results = []
-    
-    # Standardize features
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     
     for model_name in model_names:
         if model_name == "Polynomial Regression (deg=2)":
-            # Polynomial features
             poly = PolynomialFeatures(degree=2)
             X_poly = poly.fit_transform(X)
             model = LinearRegression()
             model.fit(X_poly, y)
-            
-            # Predictions
             y_pred = model.predict(X_poly)
-            
-            # Metrics
-            r2 = r2_score(y, y_pred)
-            rmse = np.sqrt(mean_squared_error(y, y_pred))
-            mae = mean_absolute_error(y, y_pred)
-            
-            # Cross-validation
             cv_scores = cross_val_score(model, X_poly, y, cv=5, scoring='r2')
-            
         else:
             model = AVAILABLE_MODELS[model_name]
-            
-            # Train
             model.fit(X_scaled, y)
-            
-            # Predictions
             y_pred = model.predict(X_scaled)
-            
-            # Metrics
-            r2 = r2_score(y, y_pred)
-            rmse = np.sqrt(mean_squared_error(y, y_pred))
-            mae = mean_absolute_error(y, y_pred)
-            
-            # Cross-validation
             cv_scores = cross_val_score(model, X_scaled, y, cv=5, scoring='r2')
         
         results.append({
             'Model': model_name,
-            'R² Score': r2,
-            'RMSE': rmse,
-            'MAE': mae,
-            'CV Mean R²': cv_scores.mean(),
-            'CV Std R²': cv_scores.std()
+            'R² Score': r2_score(y, y_pred),
+            'RMSE': np.sqrt(mean_squared_error(y, y_pred)),
+            'CV Mean R²': cv_scores.mean()
         })
-    
     return pd.DataFrame(results)
 
-# ========== MAIN APP ==========
+# ==========================================
+# 🏗️ UI LAYOUT
+# ==========================================
 st.title("🔬 Asisten Penelitian Agronomi")
-st.markdown("**Advanced research assistant dengan multiple ML models dan analisis statistik**")
+st.markdown("**Platform Analisis Data Pertanian Terpadu: Machine Learning & Statistika**")
 
-# Instructions
-with st.expander("📖 Cara Menggunakan", expanded=False):
-    st.markdown("""
-    **Fitur:**
-    - 📊 7 model ML berbeda (Linear, Ridge, Lasso, Polynomial, Decision Tree, Random Forest, Gradient Boosting)
-    - 📈 Analisis statistik komprehensif
-    - 🔍 Model comparison & evaluation
-    - 📉 Visualisasi interaktif
-    - 💾 Export hasil penelitian
-    
-    **Workflow:**
-    1. Pilih atau upload dataset
-    2. Pilih variabel target (Y)
-    3. Pilih features (X)
-    4. Pilih model ML untuk dibandingkan
-    5. Analisis hasil & visualisasi
-    6. Export laporan
-    
-    **Use Cases:**
-    - Analisis pengaruh NPK terhadap hasil panen
-    - Prediksi pertumbuhan tanaman
-    - Optimasi kondisi lingkungan
-    - Penelitian agronomi lainnya
-    """)
+# MAIN TABS
+tab_ml, tab_stat = st.tabs(["🤖 Mode Machine Learning (Prediksi)", "📊 Mode Statistika (RAL/RAK)"])
 
-# Data Source Selection
-st.subheader("📁 Sumber Data")
-
-data_source = st.radio(
-    "Pilih sumber data:",
-    ["Sample Dataset", "Upload CSV"],
-    horizontal=True
-)
-
-if data_source == "Sample Dataset":
-    dataset_type = st.selectbox(
-        "Pilih sample dataset:",
-        ["Yield vs NPK", "Growth vs Time", "Yield vs Weather"]
-    )
+# -----------------
+# TAB 1: MACHINE LEARNING
+# -----------------
+with tab_ml:
+    st.header("Prediksi & Pemodelan (ML)")
+    st.info("Gunakan mode ini untuk memprediksi hasil panen berdasarkan variabel input (NPK, Cuaca, dll).")
     
-    df = generate_sample_data(dataset_type)
-    st.success(f"✅ Loaded sample dataset: {dataset_type}")
+    ml_data_source = st.radio("Sumber Data ML:", ["Sample (Yield vs NPK)", "Upload CSV"], horizontal=True)
     
-else:
-    uploaded_file = st.file_uploader("Upload CSV file", type=['csv'])
-    
-    if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-        st.success(f"✅ Loaded {len(df)} rows from uploaded file")
+    if ml_data_source == "Sample (Yield vs NPK)":
+        # Generate dummy
+        np.random.seed(42)
+        N = np.random.uniform(50, 200, 100)
+        P = np.random.uniform(20, 100, 100)
+        K = np.random.uniform(30, 150, 100)
+        yield_val = 2000 + 15*N + 10*P + 8*K + np.random.normal(0, 300, 100)
+        df_ml = pd.DataFrame({'N': N, 'P': P, 'K': K, 'Yield': yield_val})
     else:
-        st.info("👆 Upload CSV file untuk mulai analisis")
-        st.stop()
-
-# Display data
-with st.expander("👀 Preview Data", expanded=False):
-    st.dataframe(df.head(10), use_container_width=True)
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Rows", len(df))
-    with col2:
-        st.metric("Columns", len(df.columns))
-    with col3:
-        st.metric("Missing Values", df.isnull().sum().sum())
-
-# Variable Selection
-st.markdown("---")
-st.subheader("🎯 Konfigurasi Analisis")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    target_col = st.selectbox(
-        "Variabel Target (Y) - yang ingin diprediksi:",
-        options=df.columns.tolist(),
-        help="Pilih kolom yang ingin diprediksi"
-    )
-
-with col2:
-    feature_cols = st.multiselect(
-        "Variabel Features (X) - yang mempengaruhi:",
-        options=[col for col in df.columns if col != target_col],
-        default=[col for col in df.columns if col != target_col][:3],
-        help="Pilih kolom yang digunakan untuk prediksi"
-    )
-
-if not feature_cols:
-    st.warning("⚠️ Pilih minimal 1 feature untuk analisis")
-    st.stop()
-
-# Model Selection
-st.markdown("---")
-st.subheader("🤖 Pilih Model ML")
-
-selected_models = st.multiselect(
-    "Pilih model untuk dibandingkan:",
-    options=list(AVAILABLE_MODELS.keys()),
-    default=["Linear Regression", "Random Forest", "Gradient Boosting"],
-    help="Pilih minimal 1 model"
-)
-
-if not selected_models:
-    st.warning("⚠️ Pilih minimal 1 model")
-    st.stop()
-
-# Analysis Button
-if st.button("🔍 Mulai Analisis", type="primary", use_container_width=True):
-    
-    with st.spinner("Melakukan analisis..."):
-        # Prepare data
-        X = df[feature_cols].values
-        y = df[target_col].values
+        uploaded = st.file_uploader("Upload CSV (ML)", type='csv', key='ml_upload')
+        if uploaded:
+            df_ml = pd.read_csv(uploaded)
+        else:
+            df_ml = None
+            
+    if df_ml is not None:
+        st.dataframe(df_ml.head(5), use_container_width=True)
+        col1, col2 = st.columns(2)
+        target = col1.selectbox("Target (Y)", df_ml.columns)
+        feats = col2.multiselect("Features (X)", [c for c in df_ml.columns if c!=target], default=[c for c in df_ml.columns if c!=target])
         
-        # Statistical Analysis
-        stats = perform_statistical_analysis(df, target_col)
+        if st.button("Jalankan Model ML"):
+            with st.spinner("Training models..."):
+                res = train_and_evaluate_models(df_ml[feats].values, df_ml[target].values, AVAILABLE_MODELS.keys())
+                st.dataframe(res.sort_values('R² Score', ascending=False), use_container_width=True)
+                
+                # Chart
+                fig = px.bar(res, x='Model', y='R² Score', title="Akurasi Model", color='R² Score')
+                st.plotly_chart(fig, use_container_width=True)
+
+# -----------------
+# TAB 2: STATISTIKA
+# -----------------
+with tab_stat:
+    st.header("Rancangan Percobaan (Experimental Design)")
+    st.info("Gunakan mode ini untuk analisis ANOVA (Sidik Ragam) pada eksperimen RAL atau RAK.")
+    
+    stat_source = st.radio("Sumber Data Statistik:", ["Sample RAL (Sederhana)", "Sample RAK (Kompleks Multi-Var)", "Upload CSV"], horizontal=True, key='stat_src')
+    
+    if stat_source == "Sample RAL (Sederhana)":
+        data_stat = {
+            'Perlakuan': ['P0', 'P0', 'P0', 'P1', 'P1', 'P1', 'P2', 'P2', 'P2', 'P3', 'P3', 'P3'],
+            'Ulangan': [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3],
+            'Hasil_Tan': [12.5, 13.0, 12.8, 15.2, 15.5, 15.0, 18.5, 18.2, 18.8, 16.0, 16.2, 16.5]
+        }
+        df_stat = pd.DataFrame(data_stat)
+        default_target = ['Hasil_Tan']
         
-        # Train models
-        model_results = train_and_evaluate_models(X, y, selected_models)
-    
-    # Display Results
-    st.markdown("---")
-    st.subheader("📊 Hasil Analisis")
-    
-    # Statistical Summary
-    with st.expander("📈 Statistik Deskriptif", expanded=True):
-        st.dataframe(stats['descriptive'], use_container_width=True)
+    elif stat_source == "Sample RAK (Kompleks Multi-Var)":
+        # Generate Complex Dataset: Uji Efektivitas NPK pada Cabai
+        # 5 Perlakuan, 4 Kelompok
+        treatments = ['K0 (Kontrol)', 'K1 (NPK A)', 'K2 (NPK B)', 'K3 (NPK C)', 'K4 (NPK Premium)']
+        blocks = [1, 2, 3, 4]
         
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Mean", f"{stats['target_mean']:.2f}")
-        with col2:
-            st.metric("Std Dev", f"{stats['target_std']:.2f}")
-        with col3:
-            st.metric("Min", f"{stats['target_min']:.2f}")
-        with col4:
-            st.metric("Max", f"{stats['target_max']:.2f}")
-    
-    # Correlation Matrix
-    with st.expander("🔗 Matriks Korelasi"):
-        fig = px.imshow(
-            stats['correlation'],
-            labels=dict(color="Correlation"),
-            x=stats['correlation'].columns,
-            y=stats['correlation'].columns,
-            color_continuous_scale='RdBu_r',
-            aspect="auto"
+        rows = []
+        np.random.seed(42)
+        
+        for t_idx, treat in enumerate(treatments):
+            # Base effect for treatment (increasing logic)
+            base_effect = t_idx * 2 
+            
+            for bird in blocks:
+                # Block effect (soil fertility gradient)
+                block_effect = bird * 0.5
+                noise = np.random.normal(0, 1)
+                
+                rows.append({
+                    'Perlakuan': treat,
+                    'Kelompok': bird,
+                    # Variable 1: Vegetative (Height) - Sig
+                    'Tinggi_Tanaman_cm': 40 + (base_effect * 3) + block_effect + np.random.normal(0, 2),
+                    # Variable 2: Generative (Fruit Count) - Sig
+                    'Jml_Buah_per_Tan': 15 + (base_effect * 1.5) + np.random.normal(0, 3),
+                    # Variable 3: Weight (Yield) - Very Sig
+                    'Bobot_Buah_g': 10 + (base_effect * 0.8) + block_effect + np.random.normal(0, 1),
+                    # Variable 4: Quality (Brix) - Not Sig (Treatment doesn't affect sweetness much)
+                    'Kadar_Gula_Brix': 5 + np.random.normal(0, 0.5), # Flat base
+                    # Variable 5: Disease Index - Sig (Negative correlation)
+                    'Intensitas_Penyakit_%': max(0, 20 - (base_effect * 2) + np.random.normal(0, 2))
+                })
+        
+        df_stat = pd.DataFrame(rows)
+        default_target = ['Tinggi_Tanaman_cm', 'Bobot_Buah_g', 'Kadar_Gula_Brix']
+        
+    else:
+        uploaded_stat = st.file_uploader("Upload CSV (Format: Perlakuan, Kelompok/Ulangan, Hasil)", type='csv', key='stat_upload')
+        if uploaded_stat:
+            df_stat = pd.read_csv(uploaded_stat)
+            default_target = []
+        else:
+            df_stat = None
+            default_target = []
+            
+    if df_stat is not None:
+        st.write("Preview Data:")
+        st.dataframe(df_stat.head(), use_container_width=True)
+        
+        # Config
+        st.subheader("⚙️ Konfigurasi Desain")
+        col_design1, col_design2 = st.columns(2)
+        
+        design_type = col_design1.selectbox("Tipe Rancangan", ["RAL (Rancangan Acak Lengkap)", "RAK (Rancangan Acak Kelompok)"])
+        
+        c_perlakuan = col_design1.selectbox("Kolom Perlakuan", df_stat.columns)
+        
+        if design_type == "RAK":
+            c_kelompok = col_design1.selectbox("Kolom Kelompok/Blok", [c for c in df_stat.columns if c != c_perlakuan])
+        else:
+            c_kelompok = None
+            
+        # MULTI-SELECT TARGET
+        c_hasil_list = col_design2.multiselect(
+            "Pilih Variabel Target (Y) - Bisa Lebih dari 1:",
+            [c for c in df_stat.columns if c not in [c_perlakuan, c_kelompok]],
+            default=default_target if default_target else None
         )
-        fig.update_layout(title="Correlation Matrix", height=500)
-        st.plotly_chart(fig, use_container_width=True)
-    
-    # Model Comparison
-    st.markdown("---")
-    st.subheader("🏆 Perbandingan Model")
-    
-    # Sort by R² score
-    model_results_sorted = model_results.sort_values('R² Score', ascending=False)
-    
-    # Display table
-    st.dataframe(
-        model_results_sorted.style.highlight_max(
-            subset=['R² Score', 'CV Mean R²'],
-            color='lightgreen'
-        ).highlight_min(
-            subset=['RMSE', 'MAE'],
-            color='lightgreen'
-        ),
-        use_container_width=True,
-        hide_index=True
-    )
-    
-    # Best model
-    best_model = model_results_sorted.iloc[0]
-    st.success(f"""
-    🥇 **Model Terbaik: {best_model['Model']}**
-    - R² Score: {best_model['R² Score']:.4f}
-    - RMSE: {best_model['RMSE']:.2f}
-    - MAE: {best_model['MAE']:.2f}
-    - Cross-Validation R²: {best_model['CV Mean R²']:.4f} ± {best_model['CV Std R²']:.4f}
-    """)
-    
-    # Visualization
-    st.markdown("---")
-    st.subheader("📊 Visualisasi")
-    
-    tab1, tab2, tab3 = st.tabs(["Model Performance", "Feature Importance", "Predictions"])
-    
-    with tab1:
-        # Bar chart of R² scores
-        fig = go.Figure()
-        
-        fig.add_trace(go.Bar(
-            x=model_results_sorted['Model'],
-            y=model_results_sorted['R² Score'],
-            name='R² Score',
-            marker_color='#3b82f6',
-            text=model_results_sorted['R² Score'].round(4),
-            textposition='auto'
-        ))
-        
-        fig.add_trace(go.Bar(
-            x=model_results_sorted['Model'],
-            y=model_results_sorted['CV Mean R²'],
-            name='CV Mean R²',
-            marker_color='#10b981',
-            text=model_results_sorted['CV Mean R²'].round(4),
-            textposition='auto'
-        ))
-        
-        fig.update_layout(
-            title="Model Performance Comparison",
-            xaxis_title="Model",
-            yaxis_title="R² Score",
-            barmode='group',
-            height=400
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # RMSE comparison
-        fig2 = go.Figure()
-        
-        fig2.add_trace(go.Bar(
-            x=model_results_sorted['Model'],
-            y=model_results_sorted['RMSE'],
-            marker_color='#f59e0b',
-            text=model_results_sorted['RMSE'].round(2),
-            textposition='auto'
-        ))
-        
-        fig2.update_layout(
-            title="RMSE Comparison (Lower is Better)",
-            xaxis_title="Model",
-            yaxis_title="RMSE",
-            height=400
-        )
-        
-        st.plotly_chart(fig2, use_container_width=True)
-    
-    with tab2:
-        # Feature importance (for tree-based models)
-        st.markdown("**Feature Importance Analysis**")
-        
-        if "Random Forest" in selected_models:
-            # Train Random Forest to get feature importance
-            from sklearn.ensemble import RandomForestRegressor
-            rf = RandomForestRegressor(n_estimators=100, random_state=42)
             
-            scaler = StandardScaler()
-            X_scaled = scaler.fit_transform(X)
-            rf.fit(X_scaled, y)
+        if st.button("📊 Hitung Batch Analysis (Semua Variabel)", type="primary"):
+            if not c_hasil_list:
+                st.error("Pilih setidaknya satu variabel target.")
+                st.stop()
+                
+            st.divider()
             
-            importance_df = pd.DataFrame({
-                'Feature': feature_cols,
-                'Importance': rf.feature_importances_
-            }).sort_values('Importance', ascending=False)
+            summary_results = []
             
-            fig = go.Figure()
-            
-            fig.add_trace(go.Bar(
-                x=importance_df['Importance'],
-                y=importance_df['Feature'],
-                orientation='h',
-                marker_color='#8b5cf6',
-                text=importance_df['Importance'].round(4),
-                textposition='auto'
-            ))
-            
-            fig.update_layout(
-                title="Feature Importance (Random Forest)",
-                xaxis_title="Importance",
-                yaxis_title="Feature",
-                height=400
+            # 🔄 LOOP OVER TARGETS
+            for idx, c_hasil in enumerate(c_hasil_list):
+                st.markdown(f"### 📌 Analisis Variabel {idx+1}: {c_hasil}")
+                
+                with st.expander(f"Detail Hasil: {c_hasil}", expanded=(idx==0)):
+                    try:
+                        # 1. ANOVA Analysis
+                        if design_type == "RAL":
+                            df_anova, kt_galat, db_galat, cv = calculate_anova_ral(df_stat, c_perlakuan, c_hasil)
+                            p_val = df_anova.loc[0, 'P-Value']
+                        else:
+                            df_anova, kt_galat, db_galat, cv = calculate_anova_rak(df_stat, c_perlakuan, c_kelompok, c_hasil)
+                            p_val = df_anova.loc[1, 'P-Value']
+                        
+                        is_sig = p_val < 0.05
+                        sig_label = "SIGNIFIKAN (Nyata)" if is_sig else "NON-SIGNIFIKAN (Tidak Nyata)"
+                        
+                        # Add to summary list
+                        summary_results.append({
+                            "Variabel": c_hasil,
+                            "F-Hitung": df_anova.loc[0 if design_type=="RAL" else 1, 'F-Hitung'],
+                            "P-Value": p_val,
+                            "Kesimpulan": sig_label,
+                            "CV (%)": cv
+                        })
+                        
+                        col_a1, col_a2 = st.columns([2, 1])
+                        with col_a1:
+                            st.write("**Tabel ANOVA:**")
+                            st.dataframe(df_anova.style.highlight_between(subset='P-Value', left=0, right=0.05, color='#d4edda'), use_container_width=True)
+                        with col_a2:
+                            st.metric("Status Hipotesis", sig_label, delta="Tolak H0" if is_sig else "Terima H0", delta_color="normal" if is_sig else "off")
+                            st.caption(f"CV: {cv:.2f}%")
+
+                        # 2. Post-Hoc (If Sig) or Just Plot
+                        col_viz1, col_viz2 = st.columns(2)
+                        
+                        # Barplot mean
+                        mean_df = df_stat.groupby(c_perlakuan)[c_hasil].agg(['mean', 'std']).reset_index()
+                        fig_bar = px.bar(mean_df, x=c_perlakuan, y='mean', error_y='std', title=f"Rata-rata {c_hasil}", color=c_perlakuan)
+                        col_viz1.plotly_chart(fig_bar, use_container_width=True)
+                        
+                        if is_sig:
+                            col_viz2.success("✅ Uji Lanjut BNT 5% (Post-Hoc)")
+                            means, bnt_val, matrix = calculate_bnt(df_stat, c_perlakuan, c_hasil, kt_galat, db_galat)
+                            col_viz2.write(f"**Nilai Beda Nyata (BNT): {bnt_val:.3f}**")
+                            col_viz2.dataframe(means.to_frame(name="Rata-rata").style.background_gradient(cmap="Greens"), use_container_width=True)
+                        else:
+                            col_viz2.info("ℹ️ Tidak ada uji lanjut karena P-Value > 0.05")
+                            
+                    except Exception as e:
+                        st.error(f"Error pada variabel {c_hasil}: {str(e)}")
+
+            # 🏁 FINAL SUMMARY TABLE
+            st.divider()
+            st.subheader("📝 Ringkasan Eksekutif (Batch Report)")
+            df_sums = pd.DataFrame(summary_results)
+            st.dataframe(
+                df_sums.style.applymap(lambda v: 'color: green; font-weight: bold' if v == 'SIGNIFIKAN (Nyata)' else 'color: gray', subset=['Kesimpulan']),
+                use_container_width=True
             )
-            
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("Feature importance hanya tersedia untuk tree-based models (Random Forest, Gradient Boosting)")
-    
-    with tab3:
-        # Actual vs Predicted
-        st.markdown("**Actual vs Predicted Values**")
-        
-        # Use best model for predictions
-        best_model_name = best_model['Model']
-        
-        if best_model_name == "Polynomial Regression (deg=2)":
-            poly = PolynomialFeatures(degree=2)
-            X_poly = poly.fit_transform(X)
-            model = LinearRegression()
-            model.fit(X_poly, y)
-            y_pred = model.predict(X_poly)
-        else:
-            model = AVAILABLE_MODELS[best_model_name]
-            scaler = StandardScaler()
-            X_scaled = scaler.fit_transform(X)
-            model.fit(X_scaled, y)
-            y_pred = model.predict(X_scaled)
-        
-        # Scatter plot
-        fig = go.Figure()
-        
-        fig.add_trace(go.Scatter(
-            x=y,
-            y=y_pred,
-            mode='markers',
-            name='Predictions',
-            marker=dict(size=8, color='#3b82f6', opacity=0.6)
-        ))
-        
-        # Perfect prediction line
-        min_val = min(y.min(), y_pred.min())
-        max_val = max(y.max(), y_pred.max())
-        
-        fig.add_trace(go.Scatter(
-            x=[min_val, max_val],
-            y=[min_val, max_val],
-            mode='lines',
-            name='Perfect Prediction',
-            line=dict(color='red', dash='dash')
-        ))
-        
-        fig.update_layout(
-            title=f"Actual vs Predicted ({best_model_name})",
-            xaxis_title=f"Actual {target_col}",
-            yaxis_title=f"Predicted {target_col}",
-            height=500
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Residuals
-        residuals = y - y_pred
-        
-        fig2 = go.Figure()
-        
-        fig2.add_trace(go.Scatter(
-            x=y_pred,
-            y=residuals,
-            mode='markers',
-            marker=dict(size=8, color='#10b981', opacity=0.6)
-        ))
-        
-        fig2.add_hline(y=0, line_dash="dash", line_color="red")
-        
-        fig2.update_layout(
-            title="Residual Plot",
-            xaxis_title=f"Predicted {target_col}",
-            yaxis_title="Residuals",
-            height=400
-        )
-        
-        st.plotly_chart(fig2, use_container_width=True)
-    
-    # Export Results
-    st.markdown("---")
-    st.subheader("💾 Export Hasil Penelitian")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        # Export model comparison
-        csv_models = model_results.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 Download Model Comparison (CSV)",
-            data=csv_models,
-            file_name=f"model_comparison_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
-    
-    with col2:
-        # Export predictions
-        predictions_df = pd.DataFrame({
-            'Actual': y,
-            'Predicted': y_pred,
-            'Residual': residuals
-        })
-        
-        csv_predictions = predictions_df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 Download Predictions (CSV)",
-            data=csv_predictions,
-            file_name=f"predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
-    
-    # Research Summary
-    st.markdown("---")
-    st.subheader("📝 Ringkasan Penelitian")
-    
-    summary = f"""
-    **Dataset:** {len(df)} samples, {len(df.columns)} variables
-    
-    **Target Variable:** {target_col}
-    - Mean: {stats['target_mean']:.2f}
-    - Std Dev: {stats['target_std']:.2f}
-    - Range: [{stats['target_min']:.2f}, {stats['target_max']:.2f}]
-    
-    **Features:** {', '.join(feature_cols)}
-    
-    **Models Tested:** {len(selected_models)}
-    
-    **Best Model:** {best_model['Model']}
-    - R² Score: {best_model['R² Score']:.4f}
-    - RMSE: {best_model['RMSE']:.2f}
-    - MAE: {best_model['MAE']:.2f}
-    - Cross-Validation R²: {best_model['CV Mean R²']:.4f} ± {best_model['CV Std R²']:.4f}
-    
-    **Interpretation:**
-    - R² Score menunjukkan bahwa model dapat menjelaskan {best_model['R² Score']*100:.1f}% variasi dalam data
-    - RMSE rata-rata error prediksi adalah {best_model['RMSE']:.2f} unit
-    - Cross-validation menunjukkan model konsisten dengan R² {best_model['CV Mean R²']:.4f}
-    """
-    
-    st.text_area("Copy summary ini untuk laporan penelitian:", summary, height=400)
-
-# Footer
-st.markdown("---")
-st.caption("""
-🔬 **Asisten Penelitian Agronomi** - Advanced ML toolkit untuk penelitian pertanian.
-Gunakan hasil analisis ini sebagai dasar penelitian, bukan kesimpulan final.
-Validasi hasil dengan data lapangan dan konsultasi dengan ahli statistik.
-""")
