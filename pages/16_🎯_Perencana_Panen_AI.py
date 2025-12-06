@@ -306,11 +306,19 @@ else:
         opt_result = optimize_solution(model, target_yield_input, mode_str, fixed_params, price_per_kg=market_price)
         
         # Legacy mapping for this file visualization
-        opt_cond = [
-            opt_result['n_kg'], opt_result['p_kg'], opt_result['k_kg'], 
-            0, 0, 0, # Placeholders for pH, Rain, Temp (not needed for visualization array index)
-            opt_result['organic_ton']
-        ]
+        # Reconstruct full condition array for Monte Carlo
+        # Order: N, P, K, pH, Rain, Temp, Org, Texture, Water
+        opt_cond = np.array([
+            opt_result['n_kg'], 
+            opt_result['p_kg'], 
+            opt_result['k_kg'], 
+            6.5,                     # pH (Assume optimal/neutral)
+            fixed_params['rain'],    # Rain from Weather API
+            fixed_params['temp'],    # Temp from Weather API
+            opt_result['organic_ton'],
+            fixed_params['texture'], # Texture
+            0.8                      # Water Access (Standard irrigation)
+        ])
         pred_yield = opt_result['predicted_yield']
         pest_cost = opt_result['pest_cost']
         
