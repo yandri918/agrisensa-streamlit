@@ -239,7 +239,12 @@ with st.sidebar:
     
     # C. Mulch Specs
     st.divider()
-    if "Padi" not in selected_crop and "Jagung" not in selected_crop:
+    # C. Mulch Specs (Dynamic Check)
+    template_items = CROP_TEMPLATES[selected_crop]['items']
+    needs_mulsa = any("Mulsa" in i['item'] for i in template_items)
+    
+    st.divider()
+    if needs_mulsa:
         st.subheader("⚫ Spesifikasi Mulsa")
         panjang_roll = st.number_input("Panjang per Roll (m)", 100, 1000, 250, step=50, help="Biasanya 250m atau 500m")
     else:
