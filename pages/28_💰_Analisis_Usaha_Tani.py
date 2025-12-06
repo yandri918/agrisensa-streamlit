@@ -343,30 +343,51 @@ for item in template_items:
     if ai_suggestion:
         # Map AI outputs to RAB Items
         if "Urea" in item['item'] and "Pupuk" in item['kategori']:
-    # Merge with User Edits (Persist manual changes)
-    # logic: If user edited this specific row in previous run, keep their value
-    # We use 'Uraian' as a simple key (assuming unique enough within crop context)
+            vol = ai_suggestion['n_kg'] * luas_lahan_ha
+            item_name_override = f"{item['item']} (Saran AI: {ai_suggestion['n_kg']:.0f} kg/ha)"
+            ai_override_active = True
+        elif "SP-36" in item['item'] or ("kocor" in item['item'].lower() and "kompleks" not in item['item'].lower()):
+             pass
+        elif "Kapur" in item['item'] or "Dolomit" in item['item']:
+            vol = kebutuhan_kapur # From pH logic
+            item_name_override = f"{item['item']} (pH {real_ph} -> Butuh {kebutuhan_kapur:.0f} kg)"
+            ai_override_active = True
     
+    if not ai_override_active:
+        # Case 1: Benih/Bibit (Use Calculated Population)
+        if "Bibit Siap Tanam" in item['item']:
+            vol = populasi_tanaman
+        elif "Benih Biji" in item['item']:
+            vol = np.ceil(populasi_tanaman / 1750)
+        elif "Benih" in item['item'] and "Kg" in item['satuan']: 
+             vol = item['volume'] * luas_lahan_ha
+             
+        # Case 2: Mulsa (Use Calculated Rolls)
+        elif "Mulsa" in item['item']:
+            vol = kebutuhan_mulsa_roll
+            
+        # Case 3: Ajir (Matches Population)
+        elif "Ajir" in item['item']:
+            vol = populasi_tanaman 
+            
+        # Case 4: Pesticide (New Logic)
+        elif "Insektisida & Fungisida" in item['item']:
+            vol = total_tangki_musim
+            item['satuan'] = "Tangki" # Override unit
+            price_override = biaya_per_tangki
+            item_name_override = f"Pestisida ({freq_semprot}x Aplikasi, @{biaya_per_tangki/1000:.0f}k/tangki)"
+            
+        # Case 5: Default Scaling by Area
+        else:
+            if item['item'] == "Pupuk Kandang/Organik":
+                vol = item['volume'] * luas_lahan_ha
+            else:
+                vol = item['volume'] * luas_lahan_ha
+
+    # Merge with User Edits (Persist manual changes)
     unique_key = item_name_override if item_name_override else item['item']
     
-    if "rab_editor" in st.session_state and "edited_rows" in st.session_state["rab_editor"]:
-        # Streamlit data_editor state structure: {edited_rows: {row_index: {col_name: new_value}}}
-        # This is tricky because indices might shift if items change. 
-        # Better approach: Use the DATAFRAME returned by data_editor in previous run if possible?
-        # Actually, simpler: Let data_editor manage state, but we force recalculate the "Total" column 
-        # by passing a dataframe where Total is already updated based on *previous* output if it matches.
-        pass
-
-    # Simplified Approach for Stability:
-    # 1. Std Generate (as above)
-    # 2. If 'edited_df_state' exists in session, use its Volume/Price for matching rows
-    # But complexity is high.
-    
-    # NEW FIX: Trust the loop logic for defaults, but allow override if we have a "saved state" 
-    # OR -> Just use the standard behaviour but ensure we use the 'edited_df' result for calculations below.
-    # The user complaint is visual: "Total" column in table doesn't change.
-    # We can fix this by enabling the "Total" column to be calculated implicitly? No.
-    
+    # Final Append
     rab_data.append({
         "Kategori": item['kategori'],
         "Uraian": unique_key,
