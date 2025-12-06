@@ -318,14 +318,51 @@ def main():
             # Quick RAB Simulation
             st.markdown("---")
             if st.button("🚀 Simulasi RAB di Titik Ini", use_container_width=True):
-                 # Try to find existing data near this point (simple distance check could be added later)
-                 # For now, just pass the location context
-                 st.session_state['rab_context'] = {
+                 
+                 # 1. Helper: Haversine Distance (m)
+                 def haversine(lat1, lon1, lat2, lon2):
+                    import math
+                    R = 6371000 # Radius of Earth in meters
+                    phi1 = math.radians(lat1)
+                    phi2 = math.radians(lat2)
+                    delta_phi = math.radians(lat2 - lat1)
+                    delta_lambda = math.radians(lon2 - lon1)
+                    a = math.sin(delta_phi / 2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2)**2
+                    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+                    return R * c
+
+                 # 2. Search nearest Point within 100m
+                 nearest_dist = float('inf')
+                 nearest_data = None
+                 
+                 for record in npk_data:
+                     # Check if lat/lon exists and valid
+                     if record.get('latitude') and record.get('longitude'):
+                         dist = haversine(clicked['lat'], clicked['lng'], record['latitude'], record['longitude'])
+                         if dist < 100 and dist < nearest_dist: # 100m radius
+                             nearest_dist = dist
+                             nearest_data = record
+                 
+                 # 3. Construct Context
+                 context = {
                     'source': f'Peta (Lat: {clicked["lat"]:.4f})',
-                    'ph': 6.0, # Default assumption if no specific data loaded
-                    'texture': 'Lempung',
-                     # In future: query `npk_data` for nearest point
+                    'ph': 6.0, # Default
+                    'texture': 'Lempung'
                  }
+                 
+                 if nearest_data:
+                     context = {
+                        'source': f"Peta (Data Aktual {nearest_dist:.0f}m dari Titik)",
+                        'ph': float(nearest_data.get('ph', 6.0)),
+                        'texture': nearest_data.get('soil_type', 'Lempung'),
+                        'n_ppm': float(nearest_data.get('n_value', 0)),
+                        'p_ppm': float(nearest_data.get('p_value', 0)),
+                        'k_ppm': float(nearest_data.get('k_value', 0))
+                     }
+                 else:
+                     st.toast("⚠️ Tidak ada data NPK tersimpan di dekat titik ini. Menggunakan asumsi standar.", icon="⚠️")
+                     
+                 st.session_state['rab_context'] = context
                  st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
         
         # Add NPK Data Form
