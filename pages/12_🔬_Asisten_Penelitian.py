@@ -1,6 +1,6 @@
 # Asisten Penelitian Agronomi
 # Advanced research assistant with multiple ML models and statistical analysis (ANOVA/RAK/RAL)
-# Version: 2.0.0 (Integrated Stats)
+# Version: 2.1.0 (Fixed RAK Kelompok Selection - 2024-12-06)
 
 import streamlit as st
 import pandas as pd
@@ -20,7 +20,7 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 # Stats Imports
 from scipy import stats
 
-st.set_page_config(page_title="Asisten Penelitian", page_icon="🔬", layout="wide")
+st.set_page_config(page_title="Asisten Penelitian v2.1", page_icon="🔬", layout="wide")
 
 # ==========================================
 # 📐 STATISTICAL ENGINE (ANOVA & POST-HOC)
