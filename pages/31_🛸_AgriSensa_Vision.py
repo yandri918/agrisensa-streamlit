@@ -159,7 +159,13 @@ elif mode == "📸 Analisis Daun (BWD/LCC/Visual)":
     
     crop_type = st.selectbox("Pilih Jenis Tanaman:", ["Padi (Rice)", "Jagung (Maize)", "Cabai & Sayuran"])
     
-    uploaded_leaf = st.file_uploader("Upload Foto Daun (Close Up)", type=['jpg', 'jpeg', 'png'], key="leaf")
+    input_method = st.radio("Sumber Citra:", ["📂 Upload Galeri", "📸 Kamera Langsung"], horizontal=True)
+    
+    uploaded_leaf = None
+    if input_method == "📂 Upload Galeri":
+        uploaded_leaf = st.file_uploader("Upload Foto Daun (Close Up)", type=['jpg', 'jpeg', 'png'], key="leaf_upload")
+    else:
+        uploaded_leaf = st.camera_input("Ambil Foto Presisi (Pastikan Cahaya Cukup)")
     
     if uploaded_leaf:
         image = Image.open(uploaded_leaf)
