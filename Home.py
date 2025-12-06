@@ -117,15 +117,16 @@ st.markdown("""
 
 def main():
     # === HERO SECTION ===
+    # === HERO SECTION ===
     st.markdown("""
-        <div class="hero-container">
-            <div style="margin-bottom: 1rem;">
+        <div class="hero-container" style="display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center;">
+            <div style="margin-bottom: 1rem; display: flex; justify-content: center; gap: 10px;">
                 <span class="metric-badge">🚀 v4.0.0 (Dec 2025)</span>
                 <span class="metric-badge">⚡ AI Powered</span>
                 <span class="metric-badge">🌍 Enterprise Grade</span>
             </div>
-            <h1 class="hero-title">AgriSensa Intelligence</h1>
-            <p class="hero-subtitle">
+            <h1 class="hero-title" style="text-align: center; margin: 0 auto; width: 100%;">AgriSensa Intelligence</h1>
+            <p class="hero-subtitle" style="text-align: center; margin: 10px auto; width: 80%; display: block;">
                 Superapp Pertanian Modern yang mengintegrasikan IoT, Analisis Satelit, 
                 dan Kecerdasan Buatan untuk revolusi ketahanan pangan.
             </p>
