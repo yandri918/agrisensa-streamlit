@@ -263,11 +263,118 @@ with tab_ml:
         if st.button("Jalankan Model ML"):
             with st.spinner("Training models..."):
                 res = train_and_evaluate_models(df_ml[feats].values, df_ml[target].values, AVAILABLE_MODELS.keys())
-                st.dataframe(res.sort_values('R² Score', ascending=False), use_container_width=True)
+                res_sorted = res.sort_values('R² Score', ascending=False)
+                
+                # Best model info
+                best_model = res_sorted.iloc[0]
+                best_r2 = best_model['R² Score']
+                best_name = best_model['Model']
+                
+                # Display results
+                st.subheader("📊 Hasil Analisis ML")
+                
+                col_res1, col_res2 = st.columns([2, 1])
+                
+                with col_res1:
+                    st.dataframe(res_sorted, use_container_width=True)
+                    
+                with col_res2:
+                    st.metric("Model Terbaik", best_name)
+                    st.metric("Akurasi (R²)", f"{best_r2:.3f}")
+                    
+                    # Interpretation
+                    if best_r2 >= 0.9:
+                        st.success("🎯 Excellent! Model sangat akurat")
+                    elif best_r2 >= 0.7:
+                        st.info("✅ Good! Model cukup reliable")
+                    elif best_r2 >= 0.5:
+                        st.warning("⚠️ Fair. Perlu improvement")
+                    else:
+                        st.error("❌ Poor. Data mungkin tidak linear")
                 
                 # Chart
-                fig = px.bar(res, x='Model', y='R² Score', title="Akurasi Model", color='R² Score')
+                fig = px.bar(res_sorted, x='Model', y='R² Score', title="Perbandingan Akurasi Model", 
+                            color='R² Score', color_continuous_scale='Viridis')
                 st.plotly_chart(fig, use_container_width=True)
+                
+                # 💡 INSIGHTS SECTION
+                st.divider()
+                st.subheader("💡 Insight & Rekomendasi")
+                
+                # Feature Importance (for tree-based models)
+                if "Random Forest" in res_sorted['Model'].values:
+                    from sklearn.ensemble import RandomForestRegressor
+                    rf = RandomForestRegressor(n_estimators=100, random_state=42)
+                    rf.fit(df_ml[feats].values, df_ml[target].values)
+                    
+                    importance_df = pd.DataFrame({
+                        'Feature': feats,
+                        'Importance': rf.feature_importances_
+                    }).sort_values('Importance', ascending=False)
+                    
+                    col_ins1, col_ins2 = st.columns(2)
+                    
+                    with col_ins1:
+                        st.markdown("**🔍 Faktor Paling Berpengaruh:**")
+                        fig_imp = px.bar(importance_df, x='Importance', y='Feature', orientation='h',
+                                        title="Feature Importance (Random Forest)", color='Importance')
+                        st.plotly_chart(fig_imp, use_container_width=True)
+                        
+                    with col_ins2:
+                        st.markdown("**📈 Interpretasi:**")
+                        top_feature = importance_df.iloc[0]['Feature']
+                        top_importance = importance_df.iloc[0]['Importance']
+                        
+                        st.write(f"• **{top_feature}** adalah faktor paling dominan ({top_importance*100:.1f}%)")
+                        
+                        if len(importance_df) > 1:
+                            second_feature = importance_df.iloc[1]['Feature']
+                            st.write(f"• **{second_feature}** juga berpengaruh signifikan")
+                        
+                        # Recommendations
+                        st.markdown("**🎯 Rekomendasi:**")
+                        st.write(f"1. Fokus optimasi pada **{top_feature}**")
+                        st.write(f"2. Monitor perubahan **{top_feature}** secara berkala")
+                        if best_r2 < 0.8:
+                            st.write("3. Pertimbangkan tambah data atau fitur baru")
+                
+                # Model Selection Advice
+                st.divider()
+                st.markdown("**🤖 Pemilihan Model:**")
+                
+                if best_name in ["Random Forest", "Gradient Boosting"]:
+                    st.info("✅ Model ensemble (RF/GB) cocok untuk data kompleks dengan interaksi non-linear")
+                elif best_name in ["Linear Regression", "Ridge", "Lasso"]:
+                    st.info("✅ Model linear cocok untuk hubungan sederhana dan interpretasi mudah")
+                elif best_name == "Polynomial Regression (deg=2)":
+                    st.info("✅ Polynomial cocok untuk hubungan kuadratik (parabola)")
+                
+                # Data Quality Check
+                st.markdown("**📊 Kualitas Data:**")
+                col_qual1, col_qual2, col_qual3 = st.columns(3)
+                
+                with col_qual1:
+                    n_samples = len(df_ml)
+                    st.metric("Jumlah Data", n_samples)
+                    if n_samples < 50:
+                        st.caption("⚠️ Data terlalu sedikit")
+                    else:
+                        st.caption("✅ Cukup untuk training")
+                        
+                with col_qual2:
+                    n_features = len(feats)
+                    st.metric("Jumlah Features", n_features)
+                    if n_features > n_samples / 10:
+                        st.caption("⚠️ Terlalu banyak fitur")
+                    else:
+                        st.caption("✅ Rasio baik")
+                        
+                with col_qual3:
+                    cv_std = res_sorted.iloc[0].get('CV Std R²', 0)
+                    if cv_std > 0.1:
+                        st.metric("Konsistensi", "Low", delta="Perlu validasi")
+                    else:
+                        st.metric("Konsistensi", "High", delta="Model stabil")
 
 # -----------------
 # TAB 2: STATISTIKA
@@ -416,7 +523,11 @@ with tab_stat:
                             col_viz2.info("ℹ️ Tidak ada uji lanjut karena P-Value > 0.05")
                             
                     except Exception as e:
-                        st.error(f"Error pada variabel {c_hasil}: {str(e)}")
+                        import traceback
+                        error_detail = str(e) if str(e) else traceback.format_exc()
+                        st.error(f"Error pada variabel {c_hasil}: {error_detail}")
+                        with st.expander("Debug Info"):
+                            st.code(traceback.format_exc())
 
             # 🏁 FINAL SUMMARY TABLE
             st.divider()
