@@ -467,6 +467,11 @@ with tab_stat:
             if not c_hasil_list:
                 st.error("Pilih setidaknya satu variabel target.")
                 st.stop()
+            
+            # Validation for RAK design
+            if design_type == "RAK (Rancangan Acak Kelompok)" and c_kelompok is None:
+                st.error("⚠️ Untuk desain RAK, Anda harus memilih Kolom Kelompok/Blok!")
+                st.stop()
                 
             st.divider()
             
