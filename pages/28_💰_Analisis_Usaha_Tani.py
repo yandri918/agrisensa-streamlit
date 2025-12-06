@@ -200,6 +200,50 @@ CROP_TEMPLATES = {
             {"kategori": "Tenaga Kerja", "item": "Lubang Tanam & Pasang Tiang", "satuan": "Borongan", "volume": 1, "harga": 6000000, "wajib": True},
         ]
     }
+    # --- STEP 5: GREENHOUSE MODERN (COMPARISON) ---
+    "Cabai Merah (Greenhouse Hydroponic)": {
+        "params": {"populasi_ha": 30000, "estimasi_panen_kg": 25000, "harga_jual": 30000, "lama_tanam_bulan": 6},
+        "items": [
+            # Investasi & Fixed Cost
+            {"kategori": "Biaya Tetap", "item": "Amortisasi Green house (Sewa/Penyusutan)", "satuan": "Musim", "volume": 1, "harga": 75000000, "wajib": True, "catatan": "Asumsi GH 1 Ha @1.5M, umur 10 thn"},
+            {"kategori": "Biaya Tetap", "item": "Listrik & Air (Pompa)", "satuan": "Bulan", "volume": 6, "harga": 500000, "wajib": True},
+            
+            # Nutrisi AB Mix (Mahal tapi Efisien)
+            {"kategori": "Nutrisi (AB Mix)", "item": "Paket AB Mix Cabai (Pekat)", "satuan": "Paket (5L)", "volume": 100, "harga": 85000, "wajib": True, "catatan": "Kebutuhan Fertigasi Harian"},
+            
+            # Media Tanam
+            {"kategori": "Media Tanam", "item": "Cocopeat & Polybag", "satuan": "Paket", "volume": 1, "harga": 15000000, "wajib": True, "catatan": "Dipakai 2-3 musim"},
+            
+            # Benih
+            {"kategori": "Benih", "item": "Benih F1 Import", "satuan": "Sachet", "volume": 20, "harga": 180000, "wajib": True},
+
+            # Pestisida (Sangat Rendah)
+            {"kategori": "Pestisida", "item": "Bio-Pesticide (Preventif)", "satuan": "Paket", "volume": 1, "harga": 1500000, "wajib": True, "catatan": "Hanya 30% dibanding Open Field"},
+            
+            # Tenaga Kerja (Efisien)
+            {"kategori": "Tenaga Kerja", "item": "Operator Fertigasi & Pruning", "satuan": "HOK", "volume": 120, "harga": 100000, "wajib": True, "catatan": "Manajemen Intensif"},
+             {"kategori": "Tenaga Kerja", "item": "Panen (Sortir Grade A)", "satuan": "HOK", "volume": 150, "harga": 90000, "wajib": True},
+        ]
+    },
+    "Melon (Greenhouse Premium)": {
+        "params": {"populasi_ha": 22000, "estimasi_panen_kg": 35000, "harga_jual": 25000, "lama_tanam_bulan": 3},
+        "items": [
+            # Investasi
+             {"kategori": "Biaya Tetap", "item": "Amortisasi Green house", "satuan": "Musim", "volume": 1, "harga": 75000000, "wajib": True},
+             {"kategori": "Biaya Tetap", "item": "Talianjir & Klip Gantung", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
+
+            # Benih Mahal
+            {"kategori": "Benih", "item": "Benih Melon Premium (Intanon/Fujisawa)", "satuan": "Biji", "volume": 22000, "harga": 2500, "wajib": True, "catatan": "Harga per biji!"},
+            
+            # Nutrisi
+             {"kategori": "Nutrisi (AB Mix)", "item": "Nutrisi Buah Premium", "satuan": "Paket", "volume": 150, "harga": 90000, "wajib": True},
+             {"kategori": "Pestisida", "item": "Fungisida Powdery Mildew", "satuan": "Paket", "volume": 1, "harga": 1000000, "wajib": True},
+
+             # Tenaga Kerja
+             {"kategori": "Tenaga Kerja", "item": "Polinasi & Gantung Buah", "satuan": "HOK", "volume": 80, "harga": 100000, "wajib": True, "catatan": "Kritis & Rumit"},
+             {"kategori": "Tenaga Kerja", "item": "Panen & Packaging", "satuan": "HOK", "volume": 60, "harga": 90000, "wajib": True},
+        ]
+    }
 }
 
 # ==========================================
@@ -225,8 +269,22 @@ with st.sidebar:
     st.subheader("📐 Jarak Tanam & Bedengan")
     
     # Defaults based on crop
-    def_jarak = 50 if "Cabai" in selected_crop else 40 if "Tomat" in selected_crop else 25
-    def_bedengan = 100 if "Cabai" in selected_crop else 100
+    if "Bawang" in selected_crop:
+        def_jarak = 15
+        def_bedengan = 120
+    elif "Melon" in selected_crop or "Greenhouse" in selected_crop:
+        def_jarak = 40
+        def_bedengan = 100
+    elif "Cabai" in selected_crop:
+        def_jarak = 50
+        def_bedengan = 100
+    elif "Tomat" in selected_crop:
+        def_jarak = 40
+        def_bedengan = 100
+    else:
+        def_jarak = 25
+        def_bedengan = 100
+        
     def_parit = 50
     
     col_p1, col_p2 = st.columns(2)
