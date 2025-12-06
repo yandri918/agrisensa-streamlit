@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import streamlit as st
-import pandas as pd
 import numpy as np
 import sys
 import os
@@ -48,7 +46,7 @@ CROP_TEMPLATES = {
             {"kategori": "Tenaga Kerja", "item": "Pemasangan Mulsa", "satuan": "HOK", "volume": 15, "harga": 90000, "wajib": True},
             {"kategori": "Tenaga Kerja", "item": "Persemaian (Jika Biji)", "satuan": "HOK", "volume": 10, "harga": 90000, "opsi": "semai"},
             {"kategori": "Tenaga Kerja", "item": "Penanaman", "satuan": "HOK", "volume": 25, "harga": 90000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Pemasangan Ajir & Tali", "satuan": "HOK", "volume": 25, "harga": 90000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Pemasangan Ajir & Tali", "satuan": "HOK", "volume": 20, "harga": 90000, "wajib": True},
             {"kategori": "Tenaga Kerja", "item": "Pemeliharaan (Kocor, Semprot, Siang)", "satuan": "HOK", "volume": 80, "harga": 90000, "wajib": True},
             {"kategori": "Tenaga Kerja", "item": "Pemanenan (Petik)", "satuan": "HOK", "volume": 120, "harga": 80000, "wajib": True},
         ]
@@ -155,7 +153,6 @@ with st.sidebar:
     # --- CALCULATION ENGINE ---
     # 1. Efficiency Metric
     total_lebar_segmen = (lebar_bedengan + lebar_parit) / 100 # meter
-    jumlah_bedengan_estimasi = (np.sqrt(luas_lahan_m2) / total_lebar_segmen) * (np.sqrt(luas_lahan_m2)) # Simplified grid approx
     # More accurate: Effective Bed Area = Area * (Bed / (Bed + Ditch))
     efisiensi_lahan = lebar_bedengan / (lebar_bedengan + lebar_parit)
     luas_bedengan_netto = luas_lahan_m2 * efisiensi_lahan
@@ -184,8 +181,6 @@ with st.sidebar:
     - Tot. Panjang Bedengan: **{total_panjang_bedengan:,.0f}** m
     - Kebutuhan Mulsa: **{kebutuhan_mulsa_roll:.0f}** Roll
     """)
-
-    st.divider()
     
     # D. Metode Bibit (Restored)
     pilih_metode_bibit = "semai"
@@ -209,12 +204,16 @@ with st.sidebar:
     # Calc Pesticide Needs
     jumlah_tangki_per_aplikasi = np.ceil(luas_lahan_m2 / luas_per_tangki)
     total_tangki_musim = jumlah_tangki_per_aplikasi * freq_semprot
+    estimasi_biaya_pestisida = total_tangki_musim * biaya_per_tangki
     
     st.info(f"""
     **🔍 Data Penyemprotan:**
     - Kebutuhan: **{jumlah_tangki_per_aplikasi:.0f}** Tangki / aplikasi
     - Total: **{total_tangki_musim:.0f}** Tangki / musim
+    - Est. Biaya: **Rp {estimasi_biaya_pestisida:,.0f}**
     """)
+    if estimasi_biaya_pestisida > 100000000:
+        st.error("⚠️ Biaya Pestisida > 100 Juta! Cek input 'Luas per Tangki' atau 'Harga per Tangki'.")
 
     # G. AI Integration (ENTERPRISE FEATURE)
     st.divider()
@@ -391,12 +390,18 @@ with col_advice:
     labor_cost = edited_df[edited_df['Kategori'].str.contains("Tenaga", case=False)]["Total (Rp)"].sum()
     labor_pct = (labor_cost / total_biaya * 100) if total_biaya > 0 else 0
     
+    # 2. Top Cost Drivers (New Debugging Aid)
+    st.markdown("**🏆 3 Pengeluaran Terbesar:**")
+    top_costs = edited_df.sort_values("Total (Rp)", ascending=False).head(3)
+    for index, row in top_costs.iterrows():
+        st.write(f"- **{row['Uraian']}**: Rp {row['Total (Rp)']:,.0f} ({row['Total (Rp)']/total_biaya*100:.1f}%)")
+    
     if labor_pct > 40:
         st.warning(f"⚠️ **Biaya Tenaga Kerja Tinggi ({labor_pct:.1f}%)**: HOK Anda cukup besar. Pertimbangkan mekanisasi (traktor/kultivator) atau penggunaan herbisida untuk mengurangi penyiangan manual.")
     else:
         st.success(f"✅ **Efisiensi Tenaga Kerja Baik ({labor_pct:.1f}%)**: Masih dalam batas wajar (<40%).")
 
-    # 2. Cek BEP
+    # 3. Cek BEP
     margin_aman = 0.7 * crop_data['harga_jual'] # Asumsi aman jika BEP < 70% harga pasar
     if bep_harga > margin_aman:
         st.error(f"⚠️ **Risiko Tinggi!** BEP Harga Anda (Rp {bep_harga:,.0f}) terlalu dekat dengan harga pasar. Coba kurangi biaya input atau targetkan hasil panen lebih tinggi.")
