@@ -50,12 +50,15 @@ st.markdown("""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 1rem;
+        text-align: center !important;
     }
     .hero-subtitle {
         font-size: 1.2rem;
         color: #4b5563;
-        max-width: 600px;
+        max-width: 700px;
         margin: 0 auto 2rem auto;
+        text-align: center !important;
+        line-height: 1.6;
     }
 
     /* GLASS CARDS */
