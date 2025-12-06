@@ -501,40 +501,45 @@ st.markdown("### 🍰 Struktur Biaya")
 col_chart, col_advice = st.columns([1, 1])
 
 with col_chart:
-    cost_breakdown = edited_df.groupby("Kategori")["Total (Rp)"].sum().reset_index()
-    # Pie Chart
-    import plotly.express as px
-    fig = px.pie(cost_breakdown, values="Total (Rp)", names="Kategori", hole=0.4, 
-                 title="Proporsi Pengeluaran")
-    st.plotly_chart(fig, use_container_width=True)
+    try:
+        cost_breakdown = edited_df.groupby("Kategori")["Total (Rp)"].sum().reset_index()
+        # Pie Chart
+        import plotly.express as px
+        fig = px.pie(cost_breakdown, values="Total (Rp)", names="Kategori", hole=0.4, 
+                     title="Proporsi Pengeluaran")
+        st.plotly_chart(fig, use_container_width=True)
+    except Exception:
+        st.warning("Data belum cukup untuk visualisasi.")
 
 with col_advice:
     st.markdown("### 💡 Saran & Rekomendasi")
     
     # 1. Cek Biaya Tenaga Kerja (Labor Cost)
-    labor_cost = edited_df[edited_df['Kategori'].str.contains("Tenaga", case=False)]["Total (Rp)"].sum()
+    # Fix: Handle NA to avoid bool index error
+    labor_cost = edited_df[edited_df['Kategori'].str.contains("Tenaga", case=False, na=False)]["Total (Rp)"].sum()
     labor_pct = (labor_cost / total_biaya * 100) if total_biaya > 0 else 0
     
-    # 2. Top Cost Drivers (New Debugging Aid)
+    # 2. Top Cost Drivers
     st.markdown("**🏆 3 Pengeluaran Terbesar:**")
     top_costs = edited_df.sort_values("Total (Rp)", ascending=False).head(3)
     for index, row in top_costs.iterrows():
         st.write(f"- **{row['Uraian']}**: Rp {row['Total (Rp)']:,.0f} ({row['Total (Rp)']/total_biaya*100:.1f}%)")
-    
+
+    # 3. Analisis Labor Check
     if labor_pct > 40:
         st.warning(f"⚠️ **Biaya Tenaga Kerja Tinggi ({labor_pct:.1f}%)**: HOK Anda cukup besar. Pertimbangkan mekanisasi (traktor/kultivator) atau penggunaan herbisida untuk mengurangi penyiangan manual.")
     else:
         st.success(f"✅ **Efisiensi Tenaga Kerja Baik ({labor_pct:.1f}%)**: Masih dalam batas wajar (<40%).")
 
-    # 3. Cek BEP
+    # 4. Cek Margin/BEP
     margin_aman = 0.7 * crop_data['harga_jual'] # Asumsi aman jika BEP < 70% harga pasar
     if bep_harga > margin_aman:
         st.error(f"⚠️ **Risiko Tinggi!** BEP Harga Anda (Rp {bep_harga:,.0f}) terlalu dekat dengan harga pasar. Coba kurangi biaya input atau targetkan hasil panen lebih tinggi.")
     else:
         st.success(f"✅ **Potensi Aman**: BEP Harga (Rp {bep_harga:,.0f}) masih jauh di bawah harga pasar. Usaha ini layak dijalankan.")
 
-    # 3. Mulsa Check
-    has_mulsa = not edited_df[edited_df['Uraian'].str.contains("Mulsa", case=False)].empty
+    # 5. Mulsa Check (Safe)
+    has_mulsa = not edited_df[edited_df['Uraian'].str.contains("Mulsa", case=False, na=False)].empty
     if "Cabai" in selected_crop and not has_mulsa:
         st.warning("ℹ️ **Saran Teknis**: Budidaya Cabai tanpa Mulsa berisiko tinggi serangan penyakit dan gulma. Disarankan tetap menggunakan mulsa meski biaya awal tinggi.")
 
