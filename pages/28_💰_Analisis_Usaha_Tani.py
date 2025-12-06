@@ -31,7 +31,9 @@ CROP_TEMPLATES = {
             # 2. SAPRODI - PUPUK & OBAT
             {"kategori": "Pupuk", "item": "Pupuk Kandang/Organik", "satuan": "Karung (50kg)", "volume": 400, "harga": 25000, "wajib": True},
             {"kategori": "Pupuk", "item": "Kapur Pertanian (Dolomit)", "satuan": "Karung (50kg)", "volume": 20, "harga": 35000, "wajib": True},
-            {"kategori": "Pupuk", "item": "NPK 16-16-16 (Dasar & Kocor)", "satuan": "Kg", "volume": 400, "harga": 18000, "wajib": True},
+            {"kategori": "Pupuk", "item": "NPK 16-16-16 (Pupuk Dasar)", "satuan": "Kg", "volume": 150, "harga": 18000, "wajib": True},
+            {"kategori": "Pupuk", "item": "NPK Mutiara/Grower (Susulan Kocor)", "satuan": "Kg", "volume": 200, "harga": 22000, "wajib": True, "catatan": "Kocor interval 7-10 hari (Perpaduan Terbaik)"},
+            {"kategori": "Pupuk", "item": "KNO3 Merah/Putih (Booster)", "satuan": "Kg", "volume": 50, "harga": 35000, "opsi": "premium", "catatan": "Tambahan untuk buah lebat (Opsional)"},
              {"kategori": "Pupuk", "item": "Pupuk Daun & Mikro", "satuan": "Paket", "volume": 1, "harga": 2000000, "wajib": True},
             {"kategori": "Pestisida", "item": "Insektisida & Fungisida (1 Musim)", "satuan": "Paket", "volume": 1, "harga": 4500000, "wajib": True},
             
@@ -89,20 +91,33 @@ CROP_TEMPLATES = {
      "Tomat": {
         "params": {"populasi_ha": 20000, "estimasi_panen_kg": 30000, "harga_jual": 5000, "lama_tanam_bulan": 4},
         "items": [
-            {"kategori": "Biaya Tetap", "item": "Sewa Lahan", "satuan": "Musim", "volume": 1, "harga": 5000000, "wajib": True},
+            {"kategori": "Biaya Tetap", "item": "Sewa Lahan (per musim)", "satuan": "Musim", "volume": 1, "harga": 5000000, "wajib": True},
+            {"kategori": "Biaya Tetap", "item": "Penyusutan Alat", "satuan": "Paket", "volume": 1, "harga": 1000000, "wajib": True},
             
             # Benih
-            {"kategori": "Benih (Opsi A)", "item": "Benih Biji (Sachet)", "satuan": "Sachet", "volume": 12, "harga": 150000, "opsi": "semai"},
-            {"kategori": "Benih (Opsi B)", "item": "Bibit Siap Tanam", "satuan": "Tanaman", "volume": 21000, "harga": 400, "opsi": "bibit"},
+            {"kategori": "Benih (Opsi A)", "item": "Benih Biji (Sachet)", "satuan": "Sachet", "volume": 12, "harga": 150000, "opsi": "semai", "catatan": "Perlu disemai dulu"},
+            {"kategori": "Benih (Opsi B)", "item": "Bibit Siap Tanam", "satuan": "Tanaman", "volume": 21000, "harga": 400, "opsi": "bibit", "catatan": "Lebih praktis, mahal"},
 
-            {"kategori": "Pupuk", "item": "Pupuk Kandang", "satuan": "Karung", "volume": 400, "harga": 25000, "wajib": True},
-            {"kategori": "Pupuk", "item": "NPK", "satuan": "Kg", "volume": 400, "harga": 18000, "wajib": True},
+            # Pupuk
+            {"kategori": "Pupuk", "item": "Pupuk Kandang/Organik", "satuan": "Karung", "volume": 400, "harga": 25000, "wajib": True},
+            {"kategori": "Pupuk", "item": "Kapur Pertanian (Dolomit)", "satuan": "Karung", "volume": 15, "harga": 35000, "wajib": True, "catatan": "Penting untuk pH stabil"},
+            {"kategori": "Pupuk", "item": "NPK 16-16-16 (Pupuk Dasar)", "satuan": "Kg", "volume": 150, "harga": 18000, "wajib": True},
+            {"kategori": "Pupuk", "item": "NPK Grower (Susulan Kocor)", "satuan": "Kg", "volume": 200, "harga": 22000, "wajib": True},
+            {"kategori": "Pupuk", "item": "KNO3/Kalsium (Booster)", "satuan": "Kg", "volume": 40, "harga": 35000, "opsi": "premium", "catatan": "Agar buah lebat & keras"},
+            
+            # Obat
+             {"kategori": "Pestisida", "item": "Insektisida & Fungisida (1 Musim)", "satuan": "Paket", "volume": 1, "harga": 3500000, "wajib": True, "catatan": "Termasuk Perekat"},
+
+             # Penunjang
              {"kategori": "Penunjang", "item": "Mulsa Plastik", "satuan": "Roll", "volume": 10, "harga": 650000, "wajib": True},
             {"kategori": "Penunjang", "item": "Ajir / Turus", "satuan": "Batang", "volume": 20000, "harga": 350, "wajib": True},
+             {"kategori": "Penunjang", "item": "Tali Salaran", "satuan": "Roll", "volume": 8, "harga": 45000, "wajib": True},
 
+            # Tenaga Kerja
             {"kategori": "Tenaga Kerja", "item": "Olah Tanah & Bedengan", "satuan": "HOK", "volume": 60, "harga": 100000, "wajib": True},
             {"kategori": "Tenaga Kerja", "item": "Pasang Mulsa & Ajir", "satuan": "HOK", "volume": 30, "harga": 90000, "wajib": True},
-             {"kategori": "Tenaga Kerja", "item": "Rawat & Panen (Intensif)", "satuan": "HOK", "volume": 150, "harga": 85000, "wajib": True},
+             {"kategori": "Tenaga Kerja", "item": "Rawat (Kocor/Semprot)", "satuan": "HOK", "volume": 60, "harga": 90000, "wajib": True},
+             {"kategori": "Tenaga Kerja", "item": "Panen (Petik Berkala)", "satuan": "HOK", "volume": 80, "harga": 80000, "wajib": True},
         ]
     }
 }
@@ -189,6 +204,9 @@ with st.sidebar:
         st.subheader("🌱 Metode Bibit")
         metode_bibit_ui = st.radio("Sumber Bibit:", ["Semai Sendiri", "Beli Bibit Jadi"], index=0)
         pilih_metode_bibit = "semai" if "Semai" in metode_bibit_ui else "bibit"
+        
+        st.caption("💎 **Opsi Pupuk**")
+        pakai_booster = st.checkbox("Pakai Booster (KNO3/Kalsium)?", value=True, help="Centang untuk hasil panen premium (Perpaduan Terbaik)")
 
     st.divider()
 
@@ -223,25 +241,41 @@ with st.sidebar:
     ai_suggestion = None
     
     if use_ai_opt:
-        with st.spinner("AI sedang menghitung SOP optimal..."):
+        st.markdown("##### 🧪 Input Data Tanah (Real-Time)")
+        col_ai1, col_ai2 = st.columns(2)
+        with col_ai1:
+            real_ph = st.number_input("pH Tanah Aktual", 3.0, 8.0, 6.0, step=0.1, help="Dari hasil tes tanah / Modul Peta Data Tanah")
+            real_texture = st.selectbox("Tekstur Tanah", ["Lempung (Ideal)", "Pasir (Boros Air)", "Liat (Padat)"], index=0)
+            
+        # Map Texture to Float (0-1 Index for AI)
+        tex_map = {"Lempung (Ideal)": 0.7, "Pasir (Boros Air)": 0.2, "Liat (Padat)": 0.5}
+        
+        with st.spinner("AI sedang menghitung SOP optimal berdasarkan kondisi tanah..."):
             model = get_ai_model()
-            # Simple assumption mappings
+            # Advanced assumption mappings
             ai_params = {
-                'rain': 2000, # Default, in advanced version this comes from Map
+                'rain': 2000, 
                 'temp': 27,
-                'texture': 0.7,
+                'texture': tex_map[real_texture],
                 'pest_strategy': "IPM (Terpadu)"
             }
             # Optimize for Yield
             ai_suggestion = optimize_solution(model, 10000, "Yield", ai_params, price_per_kg=6000)
             
-            st.success(f"✅ AI menemukan resep SOP untuk potensi panen maksimal!")
+            st.success(f"✅ AI menyesuaikan resep dengan tanah {real_texture} & pH {real_ph}!")
+            
+            # Simple Dolomite Logic override based on pH Gap
+            kebutuhan_kapur = 0
+            if real_ph < 6.0:
+                kebutuhan_kapur = (6.5 - real_ph) * 2000 # Rule of thumb: 1 ton per 0.5 pH delta? Simplified: 2 ton/ha per 1.0 delta
+                kebutuhan_kapur = max(kebutuhan_kapur, 500) # Min 500kg if acidic
+                
             st.markdown(f"""
-            **Saran AI:**
+            **Saran AI (Disesuaikan Kondisi Lapangan):**
             - Urea (N): {ai_suggestion['n_kg']:.0f} kg/ha
             - SP-36 (P): {ai_suggestion['p_kg']:.0f} kg/ha
             - KCl (K): {ai_suggestion['k_kg']:.0f} kg/ha
-            - Organik: {ai_suggestion['organic_ton']:.1f} Ton/ha
+            - Kapur (Dolomit): {kebutuhan_kapur:.0f} kg/ha (utk netralisir pH {real_ph})
             """)
 
     # H. Market Assumptions
@@ -264,7 +298,9 @@ rab_data = []
 for item in template_items:
     # Filter based on options
     if 'opsi' in item:
-        if item['opsi'] != pilih_metode_bibit:
+        if item['opsi'] in ['semai', 'bibit'] and item['opsi'] != pilih_metode_bibit:
+            continue
+        if item['opsi'] == 'premium' and not pakai_booster:
             continue
             
     # --- DYNAMIC VOLUME ASSIGNMENT ---
@@ -284,6 +320,10 @@ for item in template_items:
         elif "SP-36" in item['item'] or ("kocor" in item['item'].lower() and "kompleks" not in item['item'].lower()):
              # Crude mapping logic for example sake
              pass
+        elif "Kapur" in item['item'] or "Dolomit" in item['item']:
+            vol = kebutuhan_kapur # From pH logic
+            item_name_override = f"{item['item']} (pH {real_ph} -> Butuh {kebutuhan_kapur:.0f} kg)"
+            ai_override_active = True
     
     if not ai_override_active:
         # Case 1: Benih/Bibit (Use Calculated Population)
