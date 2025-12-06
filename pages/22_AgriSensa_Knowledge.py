@@ -787,6 +787,61 @@ HAMA_PENYAKIT = {
     }
 }
 
+# 5.5. GREENHOUSE FLORIKULTURA (NEW)
+GREENHOUSE_FLORIKULTURA = {
+    "bunga_potong_jepang": {
+        "title": "Bunga Potong Jepang (Japanese Cut Flowers)",
+        "content": """
+        ### 🌸 Pengantar
+        Bunga potong Jepang (seperti Eustoma/Lisianthus, Krisan, dan Lili) dikenal karena kualitas premium, kelopak tebal, dan daya simpan vas (vase life) yang lama. 
+        Budidaya di greenhouse memerlukan kontrol iklim mikro yang presisi.
+
+        ### 🎨 Varietas Populer
+        
+        **1. Varietas Putih (White - Shiro)**
+        - **Karakter**: Simbol kesucian, sering untuk pernikahan & upacara.
+        - **Contoh**: *Eustoma 'Voyage White'*, *Chrysanthemum 'Sei White'*.
+        - **Pasar**: Sangat stabil tinggi.
+        
+        **2. Varietas Pink (Pink - Pinku)**
+        - **Karakter**: Simbol kelembutan & cinta.
+        - **Contoh**: *Eustoma 'Celeb Pink'*, *Gerbera 'Prestige'*.
+        - **Pasar**: Valentine, Hari Ibu, Hadiah.
+        
+        **3. Varietas Kuning (Yellow - Kiiro)**
+        - **Karakter**: Simbol keceriaan, persahabatan, atau penghormatan (tergantung budaya).
+        - **Contoh**: *Chrysanthemum 'Sei Yellow'*, *Oncidium*.
+        - **Pasar**: Dekorasi musim panas, festival.
+
+        ### 🌤️ Manajemen Musim (Summer vs Winter)
+        
+        **A. Musim Panas (Summer / Natsu)**
+        - **Tantangan**: Suhu tinggi (>30°C) menyebabkan tangkai pendek, petal burn, dan hama Thrips.
+        - **Strategi Greenhouse**:
+            1. **Shading Net (Paranet)**: Gunakan kerapatan 50-70% aluminet (memantulkan panas).
+            2. **Exhaust Fan + Pad**: Wajib menyala untuk menurunkan suhu 5-7°C.
+            3. **Irrigation**: Pulse irrigation (sedikit tapi sering), pagi & siang. Meningkatkan kelembaban.
+            4. **Hama**: Waspada Thrips & Tungau. Gunakan *predatory mites* (kontrol biologis).
+            
+        **B. Musim Dingin (Winter / Fuyu)**
+        - **Tantangan**: Suhu rendah (<10°C) melambatkan pertumbuhan & *blinding* (kuncup gagal mekar).
+        - **Strategi Greenhouse**:
+            1. **Heater (Pemanas)**: Jaga suhu malam >12°C stabil.
+            2. **Supplemental Lighting**: Tambah durasi cahaya (day extension) hingga 14-16 jam untuk mencegah *rosetting* (tidur).
+            3. **CO2 Enrichment**: Injeksi CO2 saat ventilasi tertutup meningkatkan fotosintesis 20%.
+            4. **Penyakit**: Waspada Botrytis (busuk abu-abu) karena kelembaban tinggi. Sirkulasi udara (HAF Fan) wajib 24 jam.
+
+        ### 🏭 Teknologi Greenhouse Jepang
+        - **Kontrol Iklim Otomatis**: Sensor suhu & RH terhubung ke jendela atap/samping.
+        - **Irigasi Tetes Presisi**: Berbasis VPD (Vapor Pressure Deficit).
+        - **Media Tanam**: Rockwool atau Cocopeat steril (bukan tanah langsung).
+        """,
+        "tags": ["bunga", "greenhouse", "florikultura", "jepang"],
+        "difficulty": "advanced",
+        "read_time": 10
+    }
+}
+
 # ========== HELPER FUNCTIONS ==========
 
 def search_knowledge(query):
@@ -798,8 +853,11 @@ def search_knowledge(query):
         "Dasar Pertanian": DASAR_PERTANIAN,
         "Database Tanaman": DATABASE_TANAMAN,
         "Ilmu Tanah": ILMU_TANAH,
+        "Pupuk Makro Sekunder": PUPUK_MAKRO_SEKUNDER,
         "Manajemen Air": MANAJEMEN_AIR,
-        "Hama & Penyakit": HAMA_PENYAKIT
+        "Hama & Penyakit": HAMA_PENYAKIT,
+        "Greenhouse Florikultura": GREENHOUSE_FLORIKULTURA
+    }
     }
     
     for cat_name, category in all_categories.items():
@@ -884,13 +942,14 @@ if search_query:
 st.markdown("---")
 
 # Main tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "🌱 Dasar Pertanian",
     "🌾 Database Tanaman",
     "🧪 Ilmu Tanah",
     "💧 Manajemen Air",
     "🐛 Hama & Penyakit",
     "🧬 Pupuk Makro Sekunder",
+    "🌸 Greenhouse",
     "⭐ Bookmark Saya"
 ])
 
@@ -996,8 +1055,24 @@ with tab6:
         st.session_state.current_article_id = f"pupuk_sekunder_{article_choice}"
         display_article(PUPUK_MAKRO_SEKUNDER[article_choice])
 
-# TAB 7: BOOKMARKS
+# TAB 7: GREENHOUSE FLORIKULTURA
 with tab7:
+    st.header("🌸 Greenhouse Florikultura")
+    st.markdown("**Teknologi Budidaya Bunga Potong Premium (Jepang)**")
+    
+    article_choice = st.selectbox(
+        "Pilih Topik:",
+        options=list(GREENHOUSE_FLORIKULTURA.keys()),
+        format_func=lambda x: GREENHOUSE_FLORIKULTURA[x]['title'],
+        key="greenhouse_select"
+    )
+    
+    if article_choice:
+        st.session_state.current_article_id = f"greenhouse_{article_choice}"
+        display_article(GREENHOUSE_FLORIKULTURA[article_choice])
+
+# TAB 8: BOOKMARKS
+with tab8:
     st.header("⭐ Artikel yang Saya Bookmark")
     
     if st.session_state.bookmarks:
