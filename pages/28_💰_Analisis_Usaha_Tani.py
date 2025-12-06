@@ -119,6 +119,86 @@ CROP_TEMPLATES = {
              {"kategori": "Tenaga Kerja", "item": "Rawat (Kocor/Semprot)", "satuan": "HOK", "volume": 60, "harga": 90000, "wajib": True},
              {"kategori": "Tenaga Kerja", "item": "Panen (Petik Berkala)", "satuan": "HOK", "volume": 80, "harga": 80000, "wajib": True},
         ]
+    },
+    
+    # --- PROPOSED ADDITIONS (STEP 1: HORTI HIGH VALUE) ---
+    "Bawang Merah": {
+        "params": {"populasi_ha": 250000, "estimasi_panen_kg": 12000, "harga_jual": 20000, "lama_tanam_bulan": 3},
+        "items": [
+             {"kategori": "Biaya Tetap", "item": "Sewa Lahan", "satuan": "Musim", "volume": 1, "harga": 7000000, "wajib": True},
+             {"kategori": "Benih", "item": "Bibit Umbi (Bima Brebes/Tajuk)", "satuan": "Kg", "volume": 1000, "harga": 35000, "wajib": True, "catatan": "Harga fluktuatif"},
+             {"kategori": "Pupuk", "item": "Pupuk Dasar (SP-36/Phonska)", "satuan": "Kg", "volume": 300, "harga": 6000, "wajib": True},
+             {"kategori": "Pupuk", "item": "NPK 16-16-16", "satuan": "Kg", "volume": 200, "harga": 18000, "wajib": True},
+             {"kategori": "Pestisida", "item": "Fungisida & Insektisida (Intensif)", "satuan": "Paket", "volume": 1, "harga": 8000000, "wajib": True, "catatan": "Penyemprotan harian jika hujan"},
+             {"kategori": "Tenaga Kerja", "item": "Olah Tanah", "satuan": "Borongan", "volume": 1, "harga": 3000000, "wajib": True},
+             {"kategori": "Tenaga Kerja", "item": "Tanam (Borongan)", "satuan": "HOK", "volume": 40, "harga": 90000, "wajib": True},
+             {"kategori": "Tenaga Kerja", "item": "Panen & Curing (Jemur)", "satuan": "Borongan", "volume": 1, "harga": 4500000, "wajib": True},
+        ]
+    },
+    "Kentang (Dieng/Granola)": {
+         "params": {"populasi_ha": 25000, "estimasi_panen_kg": 20000, "harga_jual": 12000, "lama_tanam_bulan": 4},
+         "items": [
+             {"kategori": "Biaya Tetap", "item": "Sewa Lahan Bukit", "satuan": "Musim", "volume": 1, "harga": 8000000, "wajib": True},
+             {"kategori": "Benih", "item": "Bibit Knol (G1/G2)", "satuan": "Kg", "volume": 1200, "harga": 25000, "wajib": True},
+             {"kategori": "Pupuk", "item": "Pupuk Kandang (Ayam/Sapi)", "satuan": "Ton", "volume": 15, "harga": 800000, "wajib": True},
+             {"kategori": "Pestisida", "item": "Fungisida (Phytophthora)", "satuan": "Paket", "volume": 1, "harga": 10000000, "wajib": True, "catatan": "Sangat tinggi di musim hujan"},
+             {"kategori": "Tenaga Kerja", "item": "Garpu/Bedengan Tinggi", "satuan": "HOK", "volume": 80, "harga": 100000, "wajib": True},
+             {"kategori": "Tenaga Kerja", "item": "Panen & Angkut", "satuan": "Borongan", "volume": 1, "harga": 5000000, "wajib": True},
+         ]
+    },
+    
+    # --- STEP 2: BUAH (MELON/SEMANGKA) ---
+    "Melon (Premium F1)": {
+        "params": {"populasi_ha": 18000, "estimasi_panen_kg": 25000, "harga_jual": 9000, "lama_tanam_bulan": 3},
+        "items": [
+            {"kategori": "Benih", "item": "Benih F1 (Import)", "satuan": "Bungkus", "volume": 35, "harga": 250000, "wajib": True, "catatan": "Benih mahal"},
+            {"kategori": "Penunjang", "item": "Mulsa Plastik", "satuan": "Roll", "volume": 10, "harga": 650000, "wajib": True},
+            {"kategori": "Penunjang", "item": "Ajir Bambu Tinggi", "satuan": "Batang", "volume": 18000, "harga": 500, "wajib": True},
+            {"kategori": "Pupuk", "item": "NPK & KNO3 (Kocor)", "satuan": "Paket", "volume": 1, "harga": 6000000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Pewiwilan (Pruning)", "satuan": "HOK", "volume": 50, "harga": 90000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Polinasi Manual", "satuan": "HOK", "volume": 20, "harga": 90000, "wajib": True},
+        ]
+    },
+    "Semangka (Non-Biji)": {
+         "params": {"populasi_ha": 4000, "estimasi_panen_kg": 25000, "harga_jual": 4500, "lama_tanam_bulan": 3},
+         "items": [
+            {"kategori": "Benih", "item": "Benih Non-Biji + Serbuk Sari", "satuan": "Paket", "volume": 1, "harga": 3000000, "wajib": True},
+            {"kategori": "Penunjang", "item": "Mulsa", "satuan": "Roll", "volume": 5, "harga": 650000, "wajib": True},
+            {"kategori": "Pupuk", "item": "Pupuk Kandang & NPK", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Olah Tanah", "satuan": "Borongan", "volume": 1, "harga": 2500000, "wajib": True},
+         ]
+    },
+
+    # --- STEP 3: SAYURAN ---
+    "Kubis / Kol": {
+        "params": {"populasi_ha": 30000, "estimasi_panen_kg": 50000, "harga_jual": 2000, "lama_tanam_bulan": 3},
+        "items": [
+            {"kategori": "Benih", "item": "Benih Hibrida", "satuan": "Sachet", "volume": 15, "harga": 80000, "wajib": True},
+            {"kategori": "Pupuk", "item": "Pupuk Kandang & Urea", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
+            {"kategori": "Pestisida", "item": "Insektisida (Ulat Krop)", "satuan": "Paket", "volume": 1, "harga": 3000000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Perawatan Intensif", "satuan": "HOK", "volume": 40, "harga": 90000, "wajib": True},
+        ]
+    },
+    "Wortel": {
+         "params": {"populasi_ha": 250000, "estimasi_panen_kg": 25000, "harga_jual": 3000, "lama_tanam_bulan": 3.5},
+         "items": [
+             {"kategori": "Benih", "item": "Benih Unggul", "satuan": "Kaleng", "volume": 8, "harga": 300000, "wajib": True},
+             {"kategori": "Tenaga Kerja", "item": "Olah Tanah (Gembur)", "satuan": "HOK", "volume": 50, "harga": 100000, "wajib": True, "catatan": "Tanah harus sangat gembur"},
+             {"kategori": "Tenaga Kerja", "item": "Panen (Cabut & Cuci)", "satuan": "HOK", "volume": 80, "harga": 80000, "wajib": True},
+         ]
+    },
+
+    # --- STEP 4: INVESTASI TAHUNAN ---
+    "Buah Naga (Investasi Tahun 1)": {
+        "params": {"populasi_ha": 2000, "estimasi_panen_kg": 0, "harga_jual": 12000, "lama_tanam_bulan": 12}, 
+        # Note: Yield Year 1 is usually 0 or low. We set 0 for konservatif, or allow small harvest.
+        "items": [
+            {"kategori": "Investasi Awal", "item": "Tiang Panjat (Beton/Kayu)", "satuan": "Batang", "volume": 500, "harga": 150000, "wajib": True, "catatan": "Jarak 2.5 x 2.5m (populasi 4 tan/tiang)"},
+            {"kategori": "Investasi Awal", "item": "Ban Bekas / Penyangga", "satuan": "Buah", "volume": 500, "harga": 10000, "wajib": True},
+            {"kategori": "Benih", "item": "Stek Batang (Bibit)", "satuan": "Batang", "volume": 2000, "harga": 5000, "wajib": True},
+            {"kategori": "Pupuk", "item": "Pupuk Kandang (Awal)", "satuan": "Truk", "volume": 5, "harga": 1500000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Lubang Tanam & Pasang Tiang", "satuan": "Borongan", "volume": 1, "harga": 6000000, "wajib": True},
+        ]
     }
 }
 
@@ -497,10 +577,14 @@ c2.metric("Estimasi Omzet", f"Rp {estimasi_omzet:,.0f}", f"Yield: {target_panen*
 c3.metric("Keuntungan Bersih", f"Rp {profit:,.0f}", delta=f"ROI: {roi:.1f}%")
 
 # BEP Calculation
+# BEP Calculation
 bep_harga = total_biaya / (target_panen * luas_lahan_ha) if target_panen > 0 else 0
 bep_unit = total_biaya / target_harga if target_harga > 0 else 0
 
-c4.metric("BEP Harga (Titik Impas)", f"Rp {bep_harga:,.0f} /kg", help="Anda tidak rugi jika harga jual di atas ini")
+if target_panen > 0:
+    c4.metric("BEP Harga (Titik Impas)", f"Rp {bep_harga:,.0f} /kg", help="Anda tidak rugi jika harga jual di atas ini")
+else:
+    c4.metric("BEP Harga", "Fase Investasi", help="Belum ada panen di tahun pertama (Masa Konstruksi/Vegetatif)")
 
 # Visualisasi Cost Structure
 st.markdown("### 🍰 Struktur Biaya")
@@ -539,7 +623,10 @@ with col_advice:
 
     # 4. Cek Margin/BEP
     margin_aman = 0.7 * crop_data['harga_jual'] # Asumsi aman jika BEP < 70% harga pasar
-    if bep_harga > margin_aman:
+    
+    if target_panen == 0:
+        st.info("ℹ️ **Fase Investasi**: Biaya tinggi di awal adalah wajar untuk tanaman tahunan (Buah Naga/Jeruk). Fokus pada kualitas konstruksi tiang/lahan.")
+    elif bep_harga > margin_aman:
         st.error(f"⚠️ **Risiko Tinggi!** BEP Harga Anda (Rp {bep_harga:,.0f}) terlalu dekat dengan harga pasar. Coba kurangi biaya input atau targetkan hasil panen lebih tinggi.")
     else:
         st.success(f"✅ **Potensi Aman**: BEP Harga (Rp {bep_harga:,.0f}) masih jauh di bawah harga pasar. Usaha ini layak dijalankan.")
