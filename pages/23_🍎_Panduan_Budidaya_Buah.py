@@ -362,9 +362,12 @@ fruit_data = {
 # 🏗️ UI LAYOUT
 # ==========================================
 
-# Sidebar
-st.sidebar.header("Pilih Komoditas")
-selected_fruit = st.sidebar.selectbox("Jenis Tanaman Buah", list(fruit_data.keys()))
+# Sidebar (Moved to Main for better visibility)
+# st.sidebar.header("Pilih Komoditas")
+# selected_fruit = st.sidebar.selectbox("Jenis Tanaman Buah", list(fruit_data.keys()))
+
+st.info(f"💡 Tersedia **{len(fruit_data)}** Komoditas (Buah & Perkebunan) dalam database. Silakan pilih di bawah ini:")
+selected_fruit = st.selectbox("👇 Pilih Komoditas Budidaya:", list(fruit_data.keys()))
 
 # DATA LOAD
 data = fruit_data[selected_fruit]
@@ -405,11 +408,15 @@ with tab2:
         st.markdown("### 📏 Jarak Tanam")
         st.write(data['tanam']['Jarak Tanam'])
     with c2:
-        st.markdown("### 🕳️ Lubang Tanam")
-        st.write(data['tanam']['Lubang Tanam'])
+        st.markdown("### 🕳️ Lubang / Teknik")
+        # Safe access with multiple fallbacks
+        lubang = data['tanam'].get('Lubang Tanam', data['tanam'].get('Lubang', data['tanam'].get('Teknik', data['tanam'].get('Sistem', '-'))))
+        st.write(lubang)
     with c3:
-        st.markdown("### 🌱 Bibit & Waktu")
-        st.write(data['tanam'].get('Bibit', data['tanam'].get('Waktu', '-')))
+        st.markdown("### 🌱 Bibit / Perawatan")
+        # Safe access with multiple fallbacks
+        bibit = data['tanam'].get('Bibit', data['tanam'].get('Waktu', data['tanam'].get('Klon', data['tanam'].get('Bentuk', data['tanam'].get('Perawatan', '-')))))
+        st.write(bibit)
         
     st.caption("💡 *Tips: Sebaiknya lubang tanam disiapkan 2-4 minggu sebelum penanaman agar gas racun tanah hilang dan pupuk kandang matang.*")
 
