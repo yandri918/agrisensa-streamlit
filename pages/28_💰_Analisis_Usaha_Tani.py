@@ -445,6 +445,12 @@ for item in template_items:
     price_override = None
     item_name_override = None
     
+    # Apply Standard HOK Price if unit is HOK
+    if item['satuan'] == 'HOK':
+        price_override = std_hok
+    elif item['satuan'] == 'Tangki':
+         price_override = biaya_per_tangki
+
     # AI OVERRIDES (If Active)
     ai_override_active = False
     
@@ -478,12 +484,19 @@ for item in template_items:
         elif "Ajir" in item['item']:
             vol = populasi_tanaman 
             
-        # Case 4: Pesticide (New Logic)
-        elif "Insektisida & Fungisida" in item['item']:
-            vol = total_tangki_musim
-            item['satuan'] = "Tangki" # Override unit
-            price_override = biaya_per_tangki
-            item_name_override = f"Pestisida ({freq_semprot}x Aplikasi, @{biaya_per_tangki/1000:.0f}k/tangki)"
+        # Case 4: Pesticide (New Logic using Config)
+        elif "Insektisida & Fungisida" in item['item'] or "Pestisida" in item['kategori']:
+            if item['satuan'] == 'Paket' and not is_mikro: # Change legacy Paket to Tank model if open field
+                 # Only convert if it looks like generic pesticide
+                 vol = total_tangki_musim
+                 item['satuan'] = "Tangki" # Override unit
+                 price_override = biaya_per_tangki
+                 item_name_override = f"Pestisida ({freq_semprot}x Aplikasi, @{biaya_per_tangki/1000:.0f}k/tangki)"
+            elif item['satuan'] == 'Paket':
+                 # Greenhouse fixed packets, usually per area
+                 vol = item['volume'] * luas_lahan_ha
+            else:
+                 vol = item['volume'] * luas_lahan_ha # Default fallback
             
         # Case 5: Default Scaling by Area
             # Case 5: Default Scaling by Area
