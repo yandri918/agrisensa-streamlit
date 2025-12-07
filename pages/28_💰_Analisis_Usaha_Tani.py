@@ -336,6 +336,8 @@ with st.sidebar:
     
     # D. Metode Bibit (Restored)
     pilih_metode_bibit = "semai"
+    pakai_booster = False
+    
     if "Cabai" in selected_crop or "Tomat" in selected_crop:
         st.divider()
         st.subheader("🌱 Metode Bibit")
