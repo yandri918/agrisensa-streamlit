@@ -22,6 +22,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.crop_service import CropService
+from services.project_service import ProjectManager
 
 # 1. Initialize with Legacy/Non-standard Crops
 CROP_TEMPLATES = {
