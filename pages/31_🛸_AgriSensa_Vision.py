@@ -138,8 +138,9 @@ if mode == "🚁 Analisis Drone (Aerial)":
     uploaded_file = st.file_uploader("Upload Foto Udara (JPG/PNG)", type=['jpg', 'jpeg', 'png'], key="drone")
 
     if uploaded_file:
-        image = Image.open(uploaded_file)
-        img_array = np.array(image.convert("RGB"))
+        with Image.open(uploaded_file) as src_img:
+            image = src_img.convert("RGB")
+            img_array = np.array(image)
         
         with st.spinner("Menganalisa lahan..."):
             count, contour_img, mask_img = detect_plants(img_array, sens, min_area)
@@ -168,13 +169,14 @@ elif mode == "📸 Analisis Daun (BWD/LCC/Visual)":
         uploaded_leaf = st.camera_input("Ambil Foto Presisi (Pastikan Cahaya Cukup)")
     
     if uploaded_leaf:
-        image = Image.open(uploaded_leaf)
-        img_array = np.array(image.convert("RGB"))
+        with Image.open(uploaded_leaf) as src_img:
+            image = src_img.convert("RGB")
+            img_array = np.array(image)
         
         col_res1, col_res2 = st.columns(2)
         
         with col_res1:
-            st.image(image, caption="Foto Asli", use_column_width=True)
+            st.image(img_array, caption="Foto Asli", use_column_width=True)
             
         with st.spinner("Menganalisa warna daun..."):
             status, rec, roi_img = analyze_bwd(img_array, crop_type)

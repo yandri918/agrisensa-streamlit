@@ -16,8 +16,8 @@ def analyze_leaf_color_image(image_file):
     Logic: Green Chromatic Coordinate (GCC) = G / (R+G+B)
     """
     try:
-        img = Image.open(image_file)
-        img = img.convert('RGB')
+        with Image.open(image_file) as src_img:
+            img = src_img.convert('RGB')
         
         # Resize for speed
         img = img.resize((150, 150))
