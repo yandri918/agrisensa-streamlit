@@ -560,15 +560,14 @@ def calculate_spray_windows(weather_df, pest_conditions):
     
     return pd.DataFrame(spray_windows)
 
-def calculate_cost(area_ha, dosage, water_volume, pesticide_price=150000):
+def calculate_cost(area_ha, dosage_val, water_val, pesticide_price=150000):
     """Calculate spraying cost"""
-    # Extract numeric value from dosage string
-    dosage_value = float(dosage.split('-')[0])
-    water_value = float(water_volume.split('-')[0])
+    # dosage_val in ml/gr per ha
+    # water_val in L per ha
     
     # Calculate
-    pesticide_needed = dosage_value * area_ha / 1000  # Convert ml to L
-    water_needed = water_value * area_ha
+    pesticide_needed = dosage_val * area_ha / 1000  # Convert ml to L (or gr to kg)
+    water_needed = water_val * area_ha
     
     pesticide_cost = pesticide_needed * pesticide_price
     labor_cost = area_ha * 50000  # Rp 50k per ha
@@ -682,6 +681,42 @@ with col2:
         help="Untuk cek safety period"
     )
     
+    # Correction: Manual Dosage Calibration
+    st.markdown("---")
+    st.markdown("**🧪 Kalibrasi Dosis**")
+    
+    # Get defaults
+    default_pest_info = PEST_DISEASE_DB[pest_disease]
+    def_dosage_str = default_pest_info['dosage_per_ha']
+    def_water_str = default_pest_info['water_volume']
+    
+    # Try parse default number
+    try:
+        def_dosage_val = float(def_dosage_str.split('-')[0].replace(',','.').strip())
+    except:
+        def_dosage_val = 500.0
+        
+    try:
+        def_water_val = float(def_water_str.split('-')[0].replace(',','.').strip())
+    except:
+        def_water_val = 400.0
+
+    manual_dosage = st.number_input(
+        "Dosis per Hektar (ml atau gram)",
+        min_value=0.0,
+        value=def_dosage_val,
+        step=50.0,
+        help="Sesuaikan dengan label produk yang Anda gunakan"
+    )
+    
+    manual_water = st.number_input(
+        "Volume Air per Hektar (Liter)",
+        min_value=0.0,
+        value=def_water_val,
+        step=10.0,
+        help="Volume semprot yang biasa Anda habiskan untuk 1 Ha"
+    )
+    
     # Rotation history (simulation)
     st.markdown("**🛡️ Manajemen Resistensi**")
     last_spray_group = st.selectbox(
@@ -706,8 +741,7 @@ if st.button("🔍 Analisis & Buat Strategi", type="primary", use_container_widt
         spray_windows = calculate_spray_windows(weather_df, pest_info['weather_conditions'])
         
         # Calculate cost
-        cost_info = calculate_cost(area_ha, pest_info['dosage_per_ha'], 
-                                   pest_info['water_volume'], pesticide_price)
+        cost_info = calculate_cost(area_ha, manual_dosage, manual_water, pesticide_price)
     
     # Display Results
     st.markdown("---")
