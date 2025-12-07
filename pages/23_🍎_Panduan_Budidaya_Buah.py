@@ -391,8 +391,8 @@ with tab1:
     col_env1, col_env2 = st.columns(2)
     
     with col_env1:
-        st.info(f"**🌡️ Iklim & Curah Hujan**\n\n{data['syarat']['Iklim']}")
-        st.warning(f"**⛰️ Ketinggian Tempat (mdpl)**\n\n{data['syarat']['Ketinggian']}")
+        st.info(f"**🌡️ Iklim & Curah Hujan**\n\n{data['syarat'].get('Iklim', '-')}")
+        st.warning(f"**⛰️ Ketinggian Tempat (mdpl)**\n\n{data['syarat'].get('Ketinggian', '-')}")
         
     with col_env2:
         # Robust access for Soil/Medium info
@@ -435,7 +435,7 @@ with tab3:
     
     with col_p1:
         st.markdown("#### 📅 Jadwal & Dosis Referensi")
-        for fase, desc in data['pupuk'].items():
+        for fase, desc in data.get('pupuk', {}).items():
             st.success(f"**{fase}**: {desc}")
             
     with col_p2:
@@ -461,7 +461,7 @@ with tab3:
 with tab4:
     st.subheader("Musuh Alami & Pengendaliannya")
     
-    for h in data['hama']:
+    for h in data.get('hama', []):
         with st.expander(f"🔴 {h['nama']}"):
             c_h1, c_h2 = st.columns([1, 2])
             with c_h1:
@@ -476,7 +476,7 @@ with tab5:
     col_end1, col_end2 = st.columns(2)
     with col_end1:
         st.subheader("🧺 Kriteria Panen")
-        st.info(data['panen'])
+        st.info(data.get('panen', '-'))
         
     with col_end2:
         st.subheader("📈 Potensi Ekonomi")
