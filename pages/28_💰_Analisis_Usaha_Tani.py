@@ -738,6 +738,8 @@ if populasi_tanaman > 0:
               delta_color="normal")
               
     st.info(f"💡 **Insight:** Dengan modal **Rp {biaya_per_tanaman:,.0f}** per tanaman, Anda mendapatkan untung bersih **Rp {margin_per_tanaman:,.0f}**. Pastikan tanaman tidak mati lebih dari {roi/2:.0f}% agar tetap untung.")
+else:
+    st.info("Populasi tanaman tidak terdefinisi (bukan tanaman individu). Analisis per batang dilewati.")
 
 # --- EXPORT SECTION ---
 st.divider()
