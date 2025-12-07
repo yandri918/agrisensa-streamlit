@@ -284,9 +284,26 @@ with st.sidebar:
     
     # A. Land & Crop
     selected_crop = st.selectbox("Komoditas", list(CROP_TEMPLATES.keys()))
-    luas_lahan_ha = st.number_input("Luas Lahan (Ha)", 0.1, 50.0, 1.0, step=0.1)
-    luas_lahan_m2 = luas_lahan_ha * 10000
-    st.caption(f"Luas: {luas_lahan_m2:,.0f} m²")
+    
+    # Unit Selector (Auto-detect preference)
+    is_mikro = "Hidroponik" in selected_crop or "Greenhouse" in selected_crop
+    
+    col_u1, col_u2 = st.columns([1, 2])
+    with col_u1:
+        satuan_luas = st.selectbox("Satuan", ["Hektar (Ha)", "Meter Persegi (m²)"], index=1 if is_mikro else 0)
+    
+    with col_u2:
+        if satuan_luas == "Hektar (Ha)":
+            input_luas = st.number_input("Luas Lahan", 0.01, 100.0, 1.0, step=0.1)
+            luas_lahan_ha = input_luas
+            luas_lahan_m2 = input_luas * 10000
+        else:
+            def_m2 = 500.0 if "Sayuran" in selected_crop else 1000.0
+            input_luas = st.number_input("Luas Lahan", 10.0, 50000.0, def_m2, step=100.0)
+            luas_lahan_m2 = input_luas
+            luas_lahan_ha = input_luas / 10000
+            
+    st.caption(f"Konversi: {luas_lahan_ha:.4f} Ha | {luas_lahan_m2:,.0f} m²")
     
     st.divider()
     
