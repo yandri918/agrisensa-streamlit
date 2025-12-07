@@ -4,12 +4,12 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
+from PIL import Image
 
 # ==========================================
 # 🌱 GROWTH STANDARDS DATABASE (Reference)
 # ==========================================
-# Ideal Growth Curves (Logistic/Linear Approximations)
-# Format: {HST (Day): {Height_cm, Leaves, Stem_mm}}
+# ... (GROWTH_STANDARDS kept same)
 GROWTH_STANDARDS = {
     "Cabai Merah": {
         "phase_switch": 35, # HST enters Generative
@@ -61,6 +61,56 @@ def get_ideal_value(crop, hst, metric):
     slope = (val_next - val_prev) / (next_day - prev_day)
     interpolated = val_prev + slope * (hst - prev_day)
     return interpolated
+
+def analyze_leaf_color_image(image_file):
+    """
+    Analyze image to determine BWD Index (1-4)
+    Logic: Green Chromatic Coordinate (GCC) = G / (R+G+B)
+    """
+    try:
+        img = Image.open(image_file)
+        img = img.convert('RGB')
+        
+        # Resize for speed
+        img = img.resize((150, 150))
+        
+        # Center crop (50%) to avoid background
+        w, h = img.size
+        left = w * 0.25
+        top = h * 0.25
+        right = w * 0.75
+        bottom = h * 0.75
+        img = img.crop((left, top, right, bottom))
+        
+        # Average Color
+        np_img = np.array(img)
+        mean_color = np_img.mean(axis=(0, 1))
+        r, g, b = mean_color
+        
+        total = r + g + b
+        if total == 0: return 1
+        
+        gcc = g / total # Green Chromatic Coordinate
+        brightness = total / 3
+        
+        # Heuristic Thresholds (To be calibrated)
+        # BWD 1 (Yellowish): gcc low
+        # BWD 4 (Dark Green): gcc high + brightness low (dark)
+        
+        detected_idx = 3 # Default
+        
+        if gcc < 0.34:
+            detected_idx = 1 # Kuning/Pucat
+        elif gcc < 0.38:
+            detected_idx = 2 # Hijau Muda
+        elif gcc < 0.42:
+            detected_idx = 3 # Hijau Normal
+        else:
+            detected_idx = 4 # Hijau Gelap
+            
+        return detected_idx, (r, g, b)
+    except Exception as e:
+        return 3, (0,0,0)
 
 # ==========================================
 # 🧠 AI EVALUATION ENGINE
@@ -129,6 +179,21 @@ def main():
         hst = (datetime.now().date() - tgl_tanam).days
         st.metric("Umur Tanaman (HST)", f"{hst} Hari")
         
+        st.divider()
+        st.subheader("📁 Manajemen Data")
+        
+        # Bulk Upload
+        uploaded_csv = st.file_uploader("Upload Data CSV (Backup)", type=['csv'])
+        if uploaded_csv:
+            try:
+                df_upload = pd.read_csv(uploaded_csv)
+                # Basic validation
+                if 'hst' in df_upload.columns and 'height' in df_upload.columns:
+                    st.session_state.growth_log = df_upload.to_dict('records')
+                    st.success(f"✅ Loaded {len(df_upload)} rows!")
+            except Exception as e:
+                st.error("Format CSV salah.")
+        
         if st.button("🗑️ Reset Data Log", type="primary"):
             st.session_state.growth_log = []
             st.rerun()
@@ -156,9 +221,27 @@ def main():
         in_leaves = st.number_input("Jumlah Daun (Helai)", 0, 500, 0, step=1)
         
         st.markdown("---")
+        st.markdown("**Analisis Warna Daun (BWD)**")
+        
+        # Smart Camera / Upload for BWD
+        bwd_source = st.radio("Sumber Input:", ["Manual Slider", "📸 Kamera / Upload Foto"], horizontal=True, label_visibility="collapsed")
+        
+        detected_bwd = 3
+        
+        if bwd_source == "📸 Kamera / Upload Foto":
+            img_file = st.camera_input("Ambil Foto Daun (Close up)")
+            if not img_file:
+                img_file = st.file_uploader("Atau Upload Foto Daun", type=['jpg','png','jpeg'])
+                
+            if img_file:
+                det_idx, rgb_val = analyze_leaf_color_image(img_file)
+                detected_bwd = det_idx
+                st.info(f"🤖 AI mendeteksi: **BWD Skala {det_idx}** (R:{rgb_val[0]:.0f} G:{rgb_val[1]:.0f})")
+        
         in_color = st.select_slider(
-            "Warna Daun (Indeks BWD)", 
+            "Warna Daun (Verifikasi)", 
             options=[1, 2, 3, 4], 
+            value=detected_bwd if bwd_source != "Manual Slider" else 3,
             format_func=lambda x: {1: "1 - Kuning Pucat", 2: "2 - Hijau Muda", 3: "3 - Hijau Normal", 4: "4 - Hijau Gelap/Pekat"}[x]
         )
         
