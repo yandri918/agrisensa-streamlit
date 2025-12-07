@@ -5,6 +5,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import sys
 import os
+import io
+import datetime
 
 # Add updated path logic if needed, but for same-repo deployment:
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
