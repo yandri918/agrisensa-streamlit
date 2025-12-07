@@ -12,68 +12,19 @@ from services.ai_farm_service import get_ai_model, optimize_solution
 # ==========================================
 # 📊 DATABASE STANDARD OPERATIONAL (RAB)
 # ==========================================
+# ==========================================
+# 📊 DATABASE STANDARD OPERATIONAL (RAB)
+# ==========================================
 # Harga asumsi nasional (bisa diedit user)
 # HOK = Hari Orang Kerja (standar 8 jam kerja)
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from services.crop_service import CropService
+
+# 1. Initialize with Legacy/Non-standard Crops
 CROP_TEMPLATES = {
-    "Cabai Merah": {
-        "params": {"populasi_ha": 18000, "estimasi_panen_kg": 15000, "harga_jual": 25000, "lama_tanam_bulan": 6},
-        "items": [
-            # 1. BIAYA TETAP
-            {"kategori": "Biaya Tetap", "item": "Sewa Lahan (per musim)", "satuan": "Musim", "volume": 1, "harga": 5000000, "wajib": True},
-            {"kategori": "Biaya Tetap", "item": "Penyusutan Alat (Sprayer, Cangkul)", "satuan": "Paket", "volume": 1, "harga": 1500000, "wajib": True},
-            
-            # 2. SARANA PRODUKSI (SAPRODI) - BENIH
-            # User nanti pilih salah satu (Semai vs Bibit)
-            {"kategori": "Benih (Opsi A)", "item": "Benih Biji (Sachet @10g)", "satuan": "Sachet", "volume": 15, "harga": 135000, "opsi": "semai", "catatan": "Butuh semai 1 bulan"},
-            {"kategori": "Benih (Opsi B)", "item": "Bibit Siap Tanam (Polybag)", "satuan": "Tanaman", "volume": 19000, "harga": 600, "opsi": "bibit", "catatan": "Termasuk sulam 5%"},
-            
-            # 2. SAPRODI - PUPUK & OBAT
-            {"kategori": "Pupuk", "item": "Pupuk Kandang/Organik", "satuan": "Karung (50kg)", "volume": 400, "harga": 25000, "wajib": True},
-            {"kategori": "Pupuk", "item": "Kapur Pertanian (Dolomit)", "satuan": "Karung (50kg)", "volume": 20, "harga": 35000, "wajib": True},
-            {"kategori": "Pupuk", "item": "NPK 16-16-16 (Pupuk Dasar)", "satuan": "Kg", "volume": 150, "harga": 18000, "wajib": True},
-            {"kategori": "Pupuk", "item": "NPK Mutiara/Grower (Susulan Kocor)", "satuan": "Kg", "volume": 200, "harga": 22000, "wajib": True, "catatan": "Kocor interval 7-10 hari (Perpaduan Terbaik)"},
-            {"kategori": "Pupuk", "item": "KNO3 Merah/Putih (Booster)", "satuan": "Kg", "volume": 50, "harga": 35000, "opsi": "premium", "catatan": "Tambahan untuk buah lebat (Opsional)"},
-             {"kategori": "Pupuk", "item": "Pupuk Daun & Mikro", "satuan": "Paket", "volume": 1, "harga": 2000000, "wajib": True},
-            {"kategori": "Pestisida", "item": "Insektisida & Fungisida (1 Musim)", "satuan": "Paket", "volume": 1, "harga": 4500000, "wajib": True},
-            
-            # 2. SAPRODI - PENUNJANG
-            {"kategori": "Penunjang", "item": "Mulsa Plastik Hitam Perak", "satuan": "Roll", "volume": 10, "harga": 650000, "wajib": True},
-            {"kategori": "Penunjang", "item": "Ajir / Turus Bambu", "satuan": "Batang", "volume": 20000, "harga": 400, "wajib": True},
-            {"kategori": "Penunjang", "item": "Tali Gawar / Salaran", "satuan": "Roll", "volume": 10, "harga": 45000, "wajib": True},
-
-            # 3. TENAGA KERJA (HOK)
-            # Standar HOK: Pria Rp 100rb, Wanita Rp 80rb (rata-rata 90rb)
-            {"kategori": "Tenaga Kerja", "item": "Olah Tanah & Bedengan", "satuan": "HOK", "volume": 60, "harga": 100000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Pemasangan Mulsa", "satuan": "HOK", "volume": 15, "harga": 90000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Persemaian (Jika Biji)", "satuan": "HOK", "volume": 10, "harga": 90000, "opsi": "semai"},
-            {"kategori": "Tenaga Kerja", "item": "Penanaman", "satuan": "HOK", "volume": 25, "harga": 90000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Pemasangan Ajir & Tali", "satuan": "HOK", "volume": 20, "harga": 90000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Pemeliharaan (Kocor, Semprot, Siang)", "satuan": "HOK", "volume": 80, "harga": 90000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Pemanenan (Petik)", "satuan": "HOK", "volume": 120, "harga": 80000, "wajib": True},
-        ]
-    },
-    "Padi Sawah": {
-        "params": {"populasi_ha": 0, "estimasi_panen_kg": 6500, "harga_jual": 6500, "lama_tanam_bulan": 4},
-        "items": [
-             # 1. BIAYA TETAP
-            {"kategori": "Biaya Tetap", "item": "Sewa Lahan", "satuan": "Musim", "volume": 1, "harga": 4000000, "wajib": True},
-            
-             # 2. SAPRODI
-            {"kategori": "Benih", "item": "Benih Padi Label Ungu", "satuan": "Kg", "volume": 30, "harga": 15000, "wajib": True},
-            {"kategori": "Pupuk", "item": "Urea (Subsidi/Non)", "satuan": "Kg", "volume": 250, "harga": 6000, "wajib": True},
-            {"kategori": "Pupuk", "item": "NPK Phonska", "satuan": "Kg", "volume": 300, "harga": 8000, "wajib": True},
-            {"kategori": "Pestisida", "item": "Herbisida Pra-Tumbuh", "satuan": "Liter", "volume": 2, "harga": 120000, "wajib": True},
-            {"kategori": "Pestisida", "item": "Insektisida & Fungisida", "satuan": "Paket", "volume": 1, "harga": 1200000, "wajib": True},
-
-             # 3. TENAGA KERJA (HOK)
-            {"kategori": "Tenaga Kerja", "item": "Olah Tanah (Traktor)", "satuan": "Borongan/Ha", "volume": 1, "harga": 2500000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Tanam (Tandur)", "satuan": "HOK", "volume": 25, "harga": 90000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Pemupukan & Penyiangan", "satuan": "HOK", "volume": 15, "harga": 90000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Penyemprotan", "satuan": "HOK", "volume": 8, "harga": 100000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Panen (Bawon/Combine)", "satuan": "Borongan", "volume": 1, "harga": 3000000, "wajib": True},
-        ]
-    },
     "Jagung Hibrida": {
         "params": {"populasi_ha": 66000, "estimasi_panen_kg": 9000, "harga_jual": 5000, "lama_tanam_bulan": 4},
         "items": [
@@ -88,54 +39,7 @@ CROP_TEMPLATES = {
             {"kategori": "Tenaga Kerja", "item": "Panen & Pipil", "satuan": "Borongan", "volume": 1, "harga": 3500000, "wajib": True},
         ]
     },
-     "Tomat": {
-        "params": {"populasi_ha": 20000, "estimasi_panen_kg": 30000, "harga_jual": 5000, "lama_tanam_bulan": 4},
-        "items": [
-            {"kategori": "Biaya Tetap", "item": "Sewa Lahan (per musim)", "satuan": "Musim", "volume": 1, "harga": 5000000, "wajib": True},
-            {"kategori": "Biaya Tetap", "item": "Penyusutan Alat", "satuan": "Paket", "volume": 1, "harga": 1000000, "wajib": True},
-            
-            # Benih
-            {"kategori": "Benih (Opsi A)", "item": "Benih Biji (Sachet)", "satuan": "Sachet", "volume": 12, "harga": 150000, "opsi": "semai", "catatan": "Perlu disemai dulu"},
-            {"kategori": "Benih (Opsi B)", "item": "Bibit Siap Tanam", "satuan": "Tanaman", "volume": 21000, "harga": 400, "opsi": "bibit", "catatan": "Lebih praktis, mahal"},
-
-            # Pupuk
-            {"kategori": "Pupuk", "item": "Pupuk Kandang/Organik", "satuan": "Karung", "volume": 400, "harga": 25000, "wajib": True},
-            {"kategori": "Pupuk", "item": "Kapur Pertanian (Dolomit)", "satuan": "Karung", "volume": 15, "harga": 35000, "wajib": True, "catatan": "Penting untuk pH stabil"},
-            {"kategori": "Pupuk", "item": "NPK 16-16-16 (Pupuk Dasar)", "satuan": "Kg", "volume": 150, "harga": 18000, "wajib": True},
-            {"kategori": "Pupuk", "item": "NPK Grower (Susulan Kocor)", "satuan": "Kg", "volume": 200, "harga": 22000, "wajib": True},
-            {"kategori": "Pupuk", "item": "KNO3/Kalsium (Booster)", "satuan": "Kg", "volume": 40, "harga": 35000, "opsi": "premium", "catatan": "Agar buah lebat & keras"},
-            
-            # Obat
-             {"kategori": "Pestisida", "item": "Insektisida & Fungisida (1 Musim)", "satuan": "Paket", "volume": 1, "harga": 3500000, "wajib": True, "catatan": "Termasuk Perekat"},
-
-             # Penunjang
-             {"kategori": "Penunjang", "item": "Mulsa Plastik", "satuan": "Roll", "volume": 10, "harga": 650000, "wajib": True},
-            {"kategori": "Penunjang", "item": "Ajir / Turus", "satuan": "Batang", "volume": 20000, "harga": 350, "wajib": True},
-             {"kategori": "Penunjang", "item": "Tali Salaran", "satuan": "Roll", "volume": 8, "harga": 45000, "wajib": True},
-
-            # Tenaga Kerja
-            {"kategori": "Tenaga Kerja", "item": "Olah Tanah & Bedengan", "satuan": "HOK", "volume": 60, "harga": 100000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Pasang Mulsa & Ajir", "satuan": "HOK", "volume": 30, "harga": 90000, "wajib": True},
-             {"kategori": "Tenaga Kerja", "item": "Rawat (Kocor/Semprot)", "satuan": "HOK", "volume": 60, "harga": 90000, "wajib": True},
-             {"kategori": "Tenaga Kerja", "item": "Panen (Petik Berkala)", "satuan": "HOK", "volume": 80, "harga": 80000, "wajib": True},
-        ]
-    },
-    
-    # --- PROPOSED ADDITIONS (STEP 1: HORTI HIGH VALUE) ---
-    "Bawang Merah": {
-        "params": {"populasi_ha": 250000, "estimasi_panen_kg": 12000, "harga_jual": 20000, "lama_tanam_bulan": 3},
-        "items": [
-             {"kategori": "Biaya Tetap", "item": "Sewa Lahan", "satuan": "Musim", "volume": 1, "harga": 7000000, "wajib": True},
-             {"kategori": "Benih", "item": "Bibit Umbi (Bima Brebes/Tajuk)", "satuan": "Kg", "volume": 1000, "harga": 35000, "wajib": True, "catatan": "Harga fluktuatif"},
-             {"kategori": "Pupuk", "item": "Pupuk Dasar (SP-36/Phonska)", "satuan": "Kg", "volume": 300, "harga": 6000, "wajib": True},
-             {"kategori": "Pupuk", "item": "NPK 16-16-16", "satuan": "Kg", "volume": 200, "harga": 18000, "wajib": True},
-             {"kategori": "Pestisida", "item": "Fungisida & Insektisida (Intensif)", "satuan": "Paket", "volume": 1, "harga": 8000000, "wajib": True, "catatan": "Penyemprotan harian jika hujan"},
-             {"kategori": "Tenaga Kerja", "item": "Olah Tanah", "satuan": "Borongan", "volume": 1, "harga": 3000000, "wajib": True},
-             {"kategori": "Tenaga Kerja", "item": "Tanam (Borongan)", "satuan": "HOK", "volume": 40, "harga": 90000, "wajib": True},
-             {"kategori": "Tenaga Kerja", "item": "Panen & Curing (Jemur)", "satuan": "Borongan", "volume": 1, "harga": 4500000, "wajib": True},
-        ]
-    },
-    "Kentang (Dieng/Granola)": {
+     "Kentang (Dieng/Granola)": {
          "params": {"populasi_ha": 25000, "estimasi_panen_kg": 20000, "harga_jual": 12000, "lama_tanam_bulan": 4},
          "items": [
              {"kategori": "Biaya Tetap", "item": "Sewa Lahan Bukit", "satuan": "Musim", "volume": 1, "harga": 8000000, "wajib": True},
@@ -146,30 +50,6 @@ CROP_TEMPLATES = {
              {"kategori": "Tenaga Kerja", "item": "Panen & Angkut", "satuan": "Borongan", "volume": 1, "harga": 5000000, "wajib": True},
          ]
     },
-    
-    # --- STEP 2: BUAH (MELON/SEMANGKA) ---
-    "Melon (Premium F1)": {
-        "params": {"populasi_ha": 18000, "estimasi_panen_kg": 25000, "harga_jual": 9000, "lama_tanam_bulan": 3},
-        "items": [
-            {"kategori": "Benih", "item": "Benih F1 (Import)", "satuan": "Bungkus", "volume": 35, "harga": 250000, "wajib": True, "catatan": "Benih mahal"},
-            {"kategori": "Penunjang", "item": "Mulsa Plastik", "satuan": "Roll", "volume": 10, "harga": 650000, "wajib": True},
-            {"kategori": "Penunjang", "item": "Ajir Bambu Tinggi", "satuan": "Batang", "volume": 18000, "harga": 500, "wajib": True},
-            {"kategori": "Pupuk", "item": "NPK & KNO3 (Kocor)", "satuan": "Paket", "volume": 1, "harga": 6000000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Pewiwilan (Pruning)", "satuan": "HOK", "volume": 50, "harga": 90000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Polinasi Manual", "satuan": "HOK", "volume": 20, "harga": 90000, "wajib": True},
-        ]
-    },
-    "Semangka (Non-Biji)": {
-         "params": {"populasi_ha": 4000, "estimasi_panen_kg": 25000, "harga_jual": 4500, "lama_tanam_bulan": 3},
-         "items": [
-            {"kategori": "Benih", "item": "Benih Non-Biji + Serbuk Sari", "satuan": "Paket", "volume": 1, "harga": 3000000, "wajib": True},
-            {"kategori": "Penunjang", "item": "Mulsa", "satuan": "Roll", "volume": 5, "harga": 650000, "wajib": True},
-            {"kategori": "Pupuk", "item": "Pupuk Kandang & NPK", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Olah Tanah", "satuan": "Borongan", "volume": 1, "harga": 2500000, "wajib": True},
-         ]
-    },
-
-    # --- STEP 3: SAYURAN ---
     "Kubis / Kol": {
         "params": {"populasi_ha": 30000, "estimasi_panen_kg": 50000, "harga_jual": 2000, "lama_tanam_bulan": 3},
         "items": [
@@ -187,9 +67,16 @@ CROP_TEMPLATES = {
              {"kategori": "Tenaga Kerja", "item": "Panen (Cabut & Cuci)", "satuan": "HOK", "volume": 80, "harga": 80000, "wajib": True},
          ]
     },
-
-    # --- STEP 4: INVESTASI TAHUNAN ---
-    "Buah Naga (Investasi Tahun 1)": {
+    "Semangka (Non-Biji)": {
+         "params": {"populasi_ha": 4000, "estimasi_panen_kg": 25000, "harga_jual": 4500, "lama_tanam_bulan": 3},
+         "items": [
+            {"kategori": "Benih", "item": "Benih Non-Biji + Serbuk Sari", "satuan": "Paket", "volume": 1, "harga": 3000000, "wajib": True},
+            {"kategori": "Penunjang", "item": "Mulsa", "satuan": "Roll", "volume": 5, "harga": 650000, "wajib": True},
+            {"kategori": "Pupuk", "item": "Pupuk Kandang & NPK", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Olah Tanah", "satuan": "Borongan", "volume": 1, "harga": 2500000, "wajib": True},
+         ]
+    },
+     "Buah Naga (Investasi Tahun 1)": {
         "params": {"populasi_ha": 2000, "estimasi_panen_kg": 0, "harga_jual": 12000, "lama_tanam_bulan": 12}, 
         # Note: Yield Year 1 is usually 0 or low. We set 0 for konservatif, or allow small harvest.
         "items": [
@@ -200,27 +87,15 @@ CROP_TEMPLATES = {
             {"kategori": "Tenaga Kerja", "item": "Lubang Tanam & Pasang Tiang", "satuan": "Borongan", "volume": 1, "harga": 6000000, "wajib": True},
         ]
     },
-    # --- STEP 5: GREENHOUSE MODERN (COMPARISON) ---
     "Cabai Merah (Greenhouse Hydroponic)": {
         "params": {"populasi_ha": 30000, "estimasi_panen_kg": 25000, "harga_jual": 30000, "lama_tanam_bulan": 6},
         "items": [
-            # Investasi & Fixed Cost
             {"kategori": "Biaya Tetap", "item": "Amortisasi Green house (Sewa/Penyusutan)", "satuan": "Musim", "volume": 1, "harga": 75000000, "wajib": True, "catatan": "Asumsi GH 1 Ha @1.5M, umur 10 thn"},
             {"kategori": "Biaya Tetap", "item": "Listrik & Air (Pompa)", "satuan": "Bulan", "volume": 6, "harga": 500000, "wajib": True},
-            
-            # Nutrisi AB Mix (Mahal tapi Efisien)
             {"kategori": "Nutrisi (AB Mix)", "item": "Paket AB Mix Cabai (Pekat)", "satuan": "Paket (5L)", "volume": 100, "harga": 85000, "wajib": True, "catatan": "Kebutuhan Fertigasi Harian"},
-            
-            # Media Tanam
             {"kategori": "Media Tanam", "item": "Cocopeat & Polybag", "satuan": "Paket", "volume": 1, "harga": 15000000, "wajib": True, "catatan": "Dipakai 2-3 musim"},
-            
-            # Benih
             {"kategori": "Benih", "item": "Benih F1 Import", "satuan": "Sachet", "volume": 20, "harga": 180000, "wajib": True},
-
-            # Pestisida (Sangat Rendah)
             {"kategori": "Pestisida", "item": "Bio-Pesticide (Preventif)", "satuan": "Paket", "volume": 1, "harga": 1500000, "wajib": True, "catatan": "Hanya 30% dibanding Open Field"},
-            
-            # Tenaga Kerja (Efisien)
             {"kategori": "Tenaga Kerja", "item": "Operator Fertigasi & Pruning", "satuan": "HOK", "volume": 120, "harga": 100000, "wajib": True, "catatan": "Manajemen Intensif"},
              {"kategori": "Tenaga Kerja", "item": "Panen (Sortir Grade A)", "satuan": "HOK", "volume": 150, "harga": 90000, "wajib": True},
         ]
@@ -228,48 +103,22 @@ CROP_TEMPLATES = {
     "Melon (Greenhouse Premium)": {
         "params": {"populasi_ha": 22000, "estimasi_panen_kg": 35000, "harga_jual": 25000, "lama_tanam_bulan": 3},
         "items": [
-            # Investasi
              {"kategori": "Biaya Tetap", "item": "Amortisasi Green house", "satuan": "Musim", "volume": 1, "harga": 75000000, "wajib": True},
              {"kategori": "Biaya Tetap", "item": "Talianjir & Klip Gantung", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
-
-            # Benih Mahal
             {"kategori": "Benih", "item": "Benih Melon Premium (Intanon/Fujisawa)", "satuan": "Biji", "volume": 22000, "harga": 2500, "wajib": True, "catatan": "Harga per biji!"},
-            
-            # Nutrisi
              {"kategori": "Nutrisi (AB Mix)", "item": "Nutrisi Buah Premium", "satuan": "Paket", "volume": 150, "harga": 90000, "wajib": True},
              {"kategori": "Pestisida", "item": "Fungisida Powdery Mildew", "satuan": "Paket", "volume": 1, "harga": 1000000, "wajib": True},
-
-             # Tenaga Kerja
              {"kategori": "Tenaga Kerja", "item": "Polinasi & Gantung Buah", "satuan": "HOK", "volume": 80, "harga": 100000, "wajib": True, "catatan": "Kritis & Rumit"},
              {"kategori": "Tenaga Kerja", "item": "Panen & Packaging", "satuan": "HOK", "volume": 60, "harga": 90000, "wajib": True},
         ]
     },
-    # --- STEP 6: SAYURAN HIDROPONIK (NEW) ---
-    "Sayuran Daun (Hidroponik)": {
-        "params": {"populasi_ha": 200000, "estimasi_panen_kg": 25000, "harga_jual": 15000, "lama_tanam_bulan": 1.5},
-        # Asumsi 1 ha bisa muat ~20.000 lubang tanam efektif (dengan jalan) atau lebih? 
-        # Modul NFT standar per meja 2x10m = 800 lubang. 
-        # 1 Ha = 50 meja x 800 = 40.000 lubang tanam (konservatif dengan greenhouse area).
-        # Tapi "populasi_ha" dihitung ulang dinamis.
-        "items": [
-            # Investasi / Biaya Tetap
-            {"kategori": "Biaya Tetap", "item": "Amortisasi Greenhouse & Instalasi", "satuan": "Siklus", "volume": 1, "harga": 15000000, "wajib": True, "catatan": "Asumsi umur 5 tahun per siklus tanam"},
-            {"kategori": "Biaya Tetap", "item": "Listrik (Pompa & Aerator)", "satuan": "Bulan", "volume": 2, "harga": 300000, "wajib": True},
-            
-            # Sarana Produksi
-            {"kategori": "Media Tanam", "item": "Rockwool (Slab)", "satuan": "Slab", "volume": 100, "harga": 65000, "wajib": True, "catatan": "1 Slab = 200-300 cubes"},
-            {"kategori": "Benih", "item": "Benih Sayur (Pakcoy/Selada Import)", "satuan": "Kaleng", "volume": 5, "harga": 120000, "wajib": True},
-            {"kategori": "Nutrisi (AB Mix)", "item": "AB Mix Sayuran Daun", "satuan": "Paket (5L)", "volume": 20, "harga": 75000, "wajib": True},
-            
-            # Operasional
-            {"kategori": "Pestisida", "item": "Pestisida Nabati / Trap", "satuan": "Paket", "volume": 1, "harga": 500000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Semai & Pindah Tanam", "satuan": "HOK", "volume": 20, "harga": 90000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Monitoring Nutrisi (Harian)", "satuan": "HOK", "volume": 30, "harga": 100000, "wajib": True},
-            {"kategori": "Tenaga Kerja", "item": "Panen & Packing", "satuan": "HOK", "volume": 25, "harga": 80000, "wajib": True},
-            {"kategori": "Pasca Panen", "item": "Plastik Kemasan / Selotip", "satuan": "Paket", "volume": 1, "harga": 1000000, "wajib": True},
-        ]
-    }
 }
+
+# 2. Merge with Standardized Crops from Service
+for crop_name in CropService.get_all_crops():
+    data = CropService.get_rab_template(crop_name)
+    if data:
+        CROP_TEMPLATES[crop_name] = data
 # ==========================================
 # 🧠 LOGIC & UI
 # ==========================================

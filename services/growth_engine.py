@@ -1,37 +1,27 @@
 import numpy as np
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from services.crop_service import CropService
+
 # ==========================================
-# 🌱 GROWTH STANDARDS DATABASE (Reference)
+# 🌱 GROWTH STANDARDS (Via CropService)
 # ==========================================
-# Ideal Growth Curves (Logistic/Linear Approximations)
-# Format: {HST (Day): {Height_cm, Leaves, Stem_mm}}
-GROWTH_STANDARDS = {
-    "Cabai Merah": {
-        "phase_switch": 35, # HST enters Generative
-        "targets": {
-            10: {"height": 10, "leaves": 5, "stem": 2},
-            20: {"height": 25, "leaves": 12, "stem": 4},
-            30: {"height": 45, "leaves": 30, "stem": 6},
-            40: {"height": 60, "leaves": 80, "stem": 8},
-            60: {"height": 90, "leaves": 150, "stem": 12},
-            90: {"height": 120, "leaves": 200, "stem": 15}
-        }
-    },
-    "Melon (Premium)": {
-        "phase_switch": 25,
-        "targets": {
-            10: {"height": 15, "leaves": 4, "stem": 3},
-            20: {"height": 50, "leaves": 15, "stem": 6},
-            30: {"height": 120, "leaves": 25, "stem": 8},
-            40: {"height": 180, "leaves": 35, "stem": 10}, # Topping usually at 25-30 leaves
-            60: {"height": 200, "leaves": 35, "stem": 12}
-        }
-    }
-}
+# Now using centralized data
+
 
 def get_ideal_value(crop, hst, metric):
     """Interpolate ideal value closest to HST"""
-    standards = GROWTH_STANDARDS.get(crop, {}).get("targets", {})
+    # Fetch from Service
+    std = CropService.get_growth_standards(crop)
+    if not std:
+        # Fallback to similar crops if specific not found
+        if "Cabai" in crop: std = CropService.get_growth_standards("Cabai Merah")
+        elif "Melon" in crop: std = CropService.get_growth_standards("Melon (Premium)")
+        else: return 0
+        
+    standards = std.get("targets", {})
     days = sorted(standards.keys())
     
     if not days: return 0
