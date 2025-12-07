@@ -100,7 +100,8 @@ is_demo = data['source'] == "Demo Simulation"
 if is_demo:
     st.info("ℹ️ **Mode Demo**: Anda belum membuat RAB di Modul 28. Menampilkan simulasi data proyek Cabai Merah.")
 else:
-    st.success(f"✅ **Proyek Aktif**: {data['crop']} (Data Real-Time)")
+    proj_name = st.session_state.get('active_project_name', 'Unnamed Project')
+    st.success(f"✅ **Proyek Aktif**: {proj_name} | Komoditas: {data['crop']} (Data Real-Time)")
 
 # 2. KEY METRICS (HERO SECTION)
 col1, col2, col3, col4 = st.columns(4)

@@ -270,7 +270,6 @@ CROP_TEMPLATES = {
         ]
     }
 }
-
 # ==========================================
 # 🧠 LOGIC & UI
 # ==========================================
@@ -278,28 +277,79 @@ CROP_TEMPLATES = {
 st.title("💰 RAB Usaha Tani Presisi")
 st.markdown("Buat Rencana Anggaran Biaya (RAB) dengan kalkulasi amandemen lahan, populasi, dan mulsa yang akurat.")
 
+# ==========================================
+# 📂 PROJECT MANAGEMENT SIDEBAR
+# ==========================================
+with st.sidebar:
+    st.header("📂 Manajemen Proyek")
+    
+    # Initialize Session State for Params if not exist
+    if 'rab_params' not in st.session_state:
+        st.session_state.rab_params = {}
+    
+    # Load/Save Logic
+    project_list = ProjectManager.get_all_projects_list()
+    selected_project_load = st.selectbox("Pilih Proyek Tersimpan", ["-- Buat Baru --"] + project_list)
+    
+    col_proj1, col_proj2 = st.columns(2)
+    if col_proj1.button("📂 Muat"):
+        if selected_project_load != "-- Buat Baru --":
+            data = ProjectManager.load_project(selected_project_load)
+            if data:
+                st.session_state.rab_params = data
+                st.session_state['active_project_name'] = selected_project_load
+                st.success(f"Proyek '{selected_project_load}' dimuat!")
+                st.rerun()
+                
+    if col_proj2.button("🗑️ Hapus"):
+         if selected_project_load != "-- Buat Baru --":
+            ProjectManager.delete_project(selected_project_load)
+            st.warning(f"Proyek dihapus.")
+            st.rerun()
+
+    st.divider()
+
 # 1. SMART CALCULATOR & CONFIGURATION
 with st.sidebar:
     st.header("⚙️ Kalkulator Agronomi")
     
+    # Helper to get value from state or default
+    def get_param(key, default):
+        return st.session_state.rab_params.get(key, default)
+
     # A. Land & Crop
-    selected_crop = st.selectbox("Komoditas", list(CROP_TEMPLATES.keys()))
+    # Note: selectbox requires index matching, so we find index of saved value
+    saved_crop = get_param('crop', list(CROP_TEMPLATES.keys())[0])
+    try:
+        crop_idx = list(CROP_TEMPLATES.keys()).index(saved_crop)
+    except:
+        crop_idx = 0
+        
+    selected_crop = st.selectbox("Komoditas", list(CROP_TEMPLATES.keys()), index=crop_idx)
     
     # Unit Selector (Auto-detect preference)
     is_mikro = "Hidroponik" in selected_crop or "Greenhouse" in selected_crop
     
+    saved_unit_idx = 1 if is_mikro else 0
+    if 'satuan_luas' in st.session_state.rab_params:
+         try:
+             saved_unit_idx = ["Hektar (Ha)", "Meter Persegi (m²)"].index(st.session_state.rab_params['satuan_luas'])
+         except: pass
+         
     col_u1, col_u2 = st.columns([1, 2])
     with col_u1:
-        satuan_luas = st.selectbox("Satuan", ["Hektar (Ha)", "Meter Persegi (m²)"], index=1 if is_mikro else 0)
+        satuan_luas = st.selectbox("Satuan", ["Hektar (Ha)", "Meter Persegi (m²)"], index=saved_unit_idx)
     
     with col_u2:
         if satuan_luas == "Hektar (Ha)":
-            input_luas = st.number_input("Luas Lahan", 0.01, 100.0, 1.0, step=0.1)
+            def_val = get_param('input_luas', 1.0)
+            input_luas = st.number_input("Luas Lahan", 0.01, 100.0, float(def_val), step=0.1)
             luas_lahan_ha = input_luas
             luas_lahan_m2 = input_luas * 10000
         else:
             def_m2 = 500.0 if "Sayuran" in selected_crop else 1000.0
-            input_luas = st.number_input("Luas Lahan", 10.0, 50000.0, def_m2, step=100.0)
+            def_val = get_param('input_luas', def_m2)
+            input_luas = st.number_input("Luas Lahan", 10.0, 50000.0, float(def_val), step=100.0)
             luas_lahan_m2 = input_luas
             luas_lahan_ha = input_luas / 10000
             
@@ -307,10 +357,9 @@ with st.sidebar:
     
     st.divider()
     
-    # B. Planting System (The Upgrade)
+    # B. Jarak Tanam (Bedengan vs Rak)
     st.subheader("📐 Jarak Tanam & Bedengan")
     
-    # Defaults based on crop
     # Defaults based on crop
     is_hydroponic = "Hidroponik" in selected_crop
     
@@ -327,24 +376,35 @@ with st.sidebar:
         
     def_parit = 50
     
+    # Get params
+    val_jarak = get_param('jarak_tanam', def_jarak)
+    val_bedengan = get_param('lebar_bedengan', def_bedengan)
+    val_parit = get_param('lebar_parit', def_parit)
+    
     if is_hydroponic:
         st.subheader("🏗️ Instalasi Hidroponik")
         # Override Concept: Bedengan -> Meja/Gully, Parit -> Jalan Antar Meja
         col_p1, col_p2 = st.columns(2)
         with col_p1:
-            jarak_tanam = st.number_input("Jarak Lubang Tanam (cm)", 10, 50, def_jarak, step=5)
-            lebar_bedengan = st.number_input("Lebar Meja/Rak (cm)", 50, 400, def_bedengan, step=10)
+            jarak_tanam = st.number_input("Jarak Lubang Tanam (cm)", 10, 50, int(val_jarak), step=5)
+            lebar_bedengan = st.number_input("Lebar Meja/Rak (cm)", 50, 400, int(val_bedengan), step=10)
         with col_p2:
-            lebar_parit = st.number_input("Jalan Antar Meja (cm)", 30, 150, def_parit, step=10)
-            baris_per_bedeng = st.number_input("Baris per Meja", 1, 20, int(def_bedengan/20), step=1, help="Lebar meja dibagi jarak tanam")
+            lebar_parit = st.number_input("Jalan Antar Meja (cm)", 30, 150, int(val_parit), step=10)
+            # Baris per meja usually derived or fixed, let's allow override
+            val_baris = get_param('baris_per_bedeng', int(def_bedengan/20))
+            baris_per_bedeng = st.number_input("Baris per Meja", 1, 20, int(val_baris), step=1, help="Lebar meja dibagi jarak tanam")
     else:
         col_p1, col_p2 = st.columns(2)
         with col_p1:
-            jarak_tanam = st.number_input("Jarak Tanam (cm)", 10, 100, def_jarak, step=5)
-            lebar_bedengan = st.number_input("Lebar Bedengan (cm)", 50, 200, def_bedengan, step=10)
+            jarak_tanam = st.number_input("Jarak Tanam (cm)", 10, 100, int(val_jarak), step=5)
+            lebar_bedengan = st.number_input("Lebar Bedengan (cm)", 50, 200, int(val_bedengan), step=10)
         with col_p2:
-            lebar_parit = st.number_input("Lebar Parit (cm)", 30, 100, 50, step=10)
-            baris_per_bedeng = st.selectbox("Model Tanam", [1, 2], index=1, format_func=lambda x: f"{x} Baris (Zigzag)" if x==2 else "1 Baris (Single)")
+            lebar_parit = st.number_input("Lebar Parit (cm)", 30, 100, int(val_parit), step=10)
+            
+            saved_model_idx = 0
+            if 'baris_per_bedeng' in st.session_state.rab_params:
+                saved_model_idx = 0 if st.session_state.rab_params['baris_per_bedeng'] == 1 else 1
+            baris_per_bedeng = st.selectbox("Model Tanam", [1, 2], index=saved_model_idx, format_func=lambda x: f"{x} Baris (Zigzag)" if x==2 else "1 Baris (Single)")
     
     # C. Mulch Specs
     st.divider()
@@ -719,19 +779,6 @@ else:
 
 # Visualisasi Cost Structure
 st.markdown("### 🍰 Struktur Biaya")
-col_chart, col_advice = st.columns([1, 1])
-
-with col_chart:
-    try:
-        cost_breakdown = edited_df.groupby("Kategori")["Total (Rp)"].sum().reset_index()
-        # Pie Chart
-        import plotly.express as px
-        fig = px.pie(cost_breakdown, values="Total (Rp)", names="Kategori", hole=0.4, 
-                     title="Proporsi Pengeluaran")
-        st.plotly_chart(fig, use_container_width=True)
-    except Exception:
-        st.warning("Data belum cukup untuk visualisasi.")
-
 with col_advice:
     st.markdown("### 💡 Saran & Rekomendasi")
     
