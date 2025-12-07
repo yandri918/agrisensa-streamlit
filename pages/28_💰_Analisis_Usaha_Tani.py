@@ -793,8 +793,13 @@ def generate_excel_file():
 def generate_html_invoice():
     today_str = datetime.datetime.now().strftime("%d %B %Y")
     
-    # Convert DF to HTML Table
-    table_html = edited_df.to_html(classes="table table-striped", index=False, float_format="Rp {:,.0f}".format)
+    # Convert DF to HTML Table with specific formatting
+    formatters = {
+        "Volume": "{:,.1f}".format,
+        "Harga Satuan (Rp)": "Rp {:,.0f}".format,
+        "Total (Rp)": "Rp {:,.0f}".format
+    }
+    table_html = edited_df.to_html(classes="table table-striped", index=False, formatters=formatters)
     
     html_content = f"""
     <html>
