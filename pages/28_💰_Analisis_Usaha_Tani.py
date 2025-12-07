@@ -207,6 +207,33 @@ with st.sidebar:
             
     st.caption(f"Konversi: {luas_lahan_ha:.4f} Ha | {luas_lahan_m2:,.0f} m²")
     
+    # Save params to state
+    st.session_state.rab_params.update({
+        'crop': selected_crop,
+        'satuan_luas': satuan_luas,
+        'input_luas': input_luas
+    })
+    
+    st.divider()
+    
+    # B. Standar & Asumsi (New Config)
+    st.subheader("⚙️ Standar & Asumsi")
+    
+    # 1. Labor Wage (HOK)
+    def_wage = get_param('std_hok', 100000.0)
+    std_hok = st.number_input("Standar Upah (Rp/HOK)", 50000.0, 500000.0, float(def_wage), step=10000.0, help="Upah harian rata-rata")
+    
+    # 2. Pesticide Cost
+    def_pest = get_param('std_pest', 15000.0)
+    std_pest = st.number_input("Biaya Racikan (Rp/Tangki)", 0.0, 200000.0, float(def_pest), step=1000.0, help="Rata-rata biaya per tangki", key="std_pest_cfg")
+    
+    st.session_state.rab_params.update({
+        'std_hok': std_hok,
+        'std_pest': std_pest
+    })
+    
+    biaya_per_tangki = std_pest # Alias for backward compatibility if used globally
+    
     st.divider()
     
     # B. Jarak Tanam (Bedengan vs Rak)
@@ -320,12 +347,20 @@ with st.sidebar:
 
     # F. Pesticide Calculator (New Request)
     st.subheader("🚿 Kalkulator Penyemprotan")
-    cap_tangki = st.number_input("Kapasitas Tangki (Liter)", 10, 20, 16, help="Standar Knapsack Sprayer 16L")
-    luas_per_tangki = st.number_input("Luas Semprot per Tangki (m²)", 100, 5000, 500, step=50, help="Satu tangki habis untuk berapa meter persegi?")
     
-    def_freq = 24 if "Cabai" in selected_crop else 10 # Cabai intensif
-    freq_semprot = st.number_input("Frekuensi Semprot (kali/musim)", 1, 100, def_freq, step=1)
-    biaya_per_tangki = st.number_input("Biaya Racikan per Tangki (Rp)", 0, 100000, 15000, step=1000, help="Total harga obat dalam 1 tangki (Insek+Fungi+Perekat)")
+    c_p1, c_p2 = st.columns(2)
+    with c_p1:
+        cap_tangki = st.number_input("Kapasitas Tangki (Liter)", 10, 20, 16, help="Standar Knapsack Sprayer 16L")
+        luas_per_tangki = st.number_input("Luas Semprot per Tangki (m²)", 100, 5000, 500, step=50, help="Satu tangki habis untuk berapa meter persegi?")
+    
+    with c_p2:
+        def_freq = 24 if "Cabai" in selected_crop else 10 # Cabai intensif
+        freq_semprot = st.number_input("Frekuensi Semprot (kali/musim)", 1, 100, def_freq, step=1)
+        # Use config as default
+        # Note: biaya_per_tangki was defined in sidebar, here we allow override for specific calculator view? 
+        # Actually better to just use the one from sidebar or allow override. 
+        # If we use same variable name, it will be updated for the calculation below.
+        biaya_per_tangki = st.number_input("Biaya Racikan (Rp/Tangki)", 0, 100000, int(biaya_per_tangki), step=1000, help="Default dari Sidebar")
 
     # Calc Pesticide Needs
     jumlah_tangki_per_aplikasi = np.ceil(luas_lahan_m2 / luas_per_tangki)
