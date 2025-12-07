@@ -692,28 +692,39 @@ with col2:
     
     # Try parse default number
     try:
-        def_dosage_val = float(def_dosage_str.split('-')[0].replace(',','.').strip())
+        # Check units for conversion
+        multiplier = 1.0
+        lower_str = def_dosage_str.lower()
+        if 'l' in lower_str and 'ml' not in lower_str: # Liter
+            multiplier = 1000.0
+        elif 'kg' in lower_str: # Kilogram
+            multiplier = 1000.0
+            
+        raw_val = float(def_dosage_str.split('-')[0].replace(',','.').strip().split()[0]) # Split space to get number part safely
+        def_dosage_val = raw_val * multiplier
     except:
         def_dosage_val = 500.0
         
     try:
-        def_water_val = float(def_water_str.split('-')[0].replace(',','.').strip())
+        def_water_val = float(def_water_str.split('-')[0].replace(',','.').strip().split()[0])
     except:
         def_water_val = 400.0
 
     manual_dosage = st.number_input(
         "Dosis per Hektar (ml atau gram)",
         min_value=0.0,
-        value=def_dosage_val,
+        value=float(def_dosage_val),
         step=50.0,
-        help="Sesuaikan dengan label produk yang Anda gunakan"
+        key="man_dosage",
+        help="Sesuaikan dengan label produk yang Anda gunakan. Angka dikonversi ke ml/gr."
     )
     
     manual_water = st.number_input(
         "Volume Air per Hektar (Liter)",
         min_value=0.0,
-        value=def_water_val,
+        value=float(def_water_val),
         step=10.0,
+        key="man_water",
         help="Volume semprot yang biasa Anda habiskan untuk 1 Ha"
     )
     
