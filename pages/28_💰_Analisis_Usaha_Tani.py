@@ -515,9 +515,13 @@ for item in template_items:
             vol = kebutuhan_mulsa_roll
             
         # Case 3: Ajir (Matches Population)
-        elif "Ajir" in item['item']:
+        elif "Ajir" in item['item'] and item['satuan'] in ['Batang', 'Buah', 'Pcs']:
             vol = populasi_tanaman 
             
+        # Case 3b: Pemasangan Ajir (Labor Estimation)
+        elif "Pasang" in item['item'] and "Ajir" in item['item']:
+             # Asumsi: 1 HOK bisa pasang 750 ajir/hari
+             vol = np.ceil(populasi_tanaman / 750)
         # Case 4: Pesticide (New Logic using Config)
         elif "Insektisida & Fungisida" in item['item'] or "Pestisida" in item['kategori']:
             if item['satuan'] == 'Paket' and not is_mikro: # Change legacy Paket to Tank model if open field
