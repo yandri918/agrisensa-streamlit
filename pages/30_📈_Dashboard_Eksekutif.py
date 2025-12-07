@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
+from services.growth_engine import evaluate_growth
 
 # Page Config
 st.set_page_config(page_title="AgriSensa Analytics", page_icon="📈", layout="wide")
@@ -45,6 +46,29 @@ def get_financial_summary():
             "profit": 125000000,
             "roi": 147.0
         }
+
+def get_realtime_status():
+    """Fetch latest growth log from session state"""
+    if 'growth_log' in st.session_state and st.session_state.growth_log:
+        last_log = st.session_state.growth_log[-1]
+        
+        # Determine Crop Type (Fallbaack if not set, usually set in session or default)
+        # For this prototype we assume "Cabai Merah" or get from last_crop if available
+        crop = st.session_state.get('last_crop', 'Cabai Merah')
+        
+        status, score, msgs = evaluate_growth(
+            crop, last_log['hst'], last_log['height'], last_log['stem'], last_log['color']
+        )
+        return {
+            "has_data": True,
+            "hst": last_log['hst'],
+            "score": score,
+            "status": status,
+            "messages": msgs,
+            "height": last_log['height']
+        }
+    else:
+        return {"has_data": False}
 
 def generate_market_trends():
     """Simulasi Tren Harga untuk Chart"""
@@ -89,74 +113,6 @@ with col3:
     st.metric("Net Profit Project", f"Rp {data['profit']/1_000_000:,.1f} Juta", "Tax Excluded")
 with col4:
     st.metric("ROI (Return on Inv)", f"{data['roi']:.1f}%", "Healthy (>30%)")
-
-# 3. DEEP DIVE ANALYTICS
-st.markdown("---")
-
-c_left, c_right = st.columns([2, 1])
-
-with c_left:
-    st.subheader("💰 Proyeksi Arus Kas (Cashflow)")
-    
-    # Generate Mock Cashflow based on Cost Profile
-    # Bulan 1: Modal Besar (Sewa, Pupuk Dasar) -> Negatif
-    # Bulan 4-6: Panen -> Positif
-    
-    cf_months = ["Bulan 1", "Bulan 2", "Bulan 3", "Bulan 4", "Bulan 5", "Bulan 6"]
-    cf_values = [
-        -data['cost'] * 0.4, # Bulan 1 keluar 40% modal
-        -data['cost'] * 0.2,
-        -data['cost'] * 0.2,
-        data['revenue'] * 0.2, # Mulai panen
-        data['revenue'] * 0.4,
-        data['revenue'] * 0.4
-    ]
-    
-    df_cf = pd.DataFrame({"Periode": cf_months, "Cashflow": cf_values})
-    
-    # Warna bar: Merah (keluar), Hijau (masuk)
-    df_cf["Color"] = ["Keluar" if x < 0 else "Masuk" for x in df_cf["Cashflow"]]
-    
-    fig_cf = px.bar(
-        df_cf, x="Periode", y="Cashflow", color="Color",
-        title="Arus Kas Bulanan (Burn Rate vs Revenue)",
-        color_discrete_map={"Keluar": "#FF4B4B", "Masuk": "#00CC96"},
-        text_auto='.2s'
-    )
-    fig_cf.update_layout(showlegend=False)
-    st.plotly_chart(fig_cf, use_container_width=True)
-
-# Import Growth Engine
-from services.growth_engine import evaluate_growth
-
-# ... (get_financial_summary kept same)
-
-def get_realtime_status():
-    """Fetch latest growth log from session state"""
-    if 'growth_log' in st.session_state and st.session_state.growth_log:
-        last_log = st.session_state.growth_log[-1]
-        
-        # Determine Crop Type (Fallbaack if not set, usually set in session or default)
-        # For this prototype we assume "Cabai Merah" or get from last_crop if available
-        crop = st.session_state.get('last_crop', 'Cabai Merah')
-        
-        status, score, msgs = evaluate_growth(
-            crop, last_log['hst'], last_log['height'], last_log['stem'], last_log['color']
-        )
-        return {
-            "has_data": True,
-            "hst": last_log['hst'],
-            "score": score,
-            "status": status,
-            "messages": msgs,
-            "height": last_log['height']
-        }
-    else:
-        return {"has_data": False}
-
-# ... (generate_market_trends kept same)
-
-# ... (UI Layout up to Key Metrics kept same)
 
 # 3. DEEP DIVE ANALYTICS
 st.markdown("---")
