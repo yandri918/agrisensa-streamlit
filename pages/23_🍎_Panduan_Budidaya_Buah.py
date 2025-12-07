@@ -395,7 +395,11 @@ with tab1:
         st.warning(f"**⛰️ Ketinggian Tempat (mdpl)**\n\n{data['syarat']['Ketinggian']}")
         
     with col_env2:
-        st.success(f"**🏞️ Kondisi Tanah**\n\n{data['syarat']['Tanah']}")
+        # Robust access for Soil/Medium info
+        media_info = data['syarat'].get('Tanah', data['syarat'].get('Media Tanam', data['syarat'].get('Naungan', data['syarat'].get('Air', '-'))))
+        lbl_tanah = "Media Tanam" if "Media" in data['syarat'] else ("Naungan" if "Naungan" in data['syarat'] else "Kondisi Tanah")
+        
+        st.success(f"**🏞️ {lbl_tanah}**\n\n{media_info}")
         if "Fase Kering" in data['syarat']:
             st.error(f"**☀️ Catatan Khusus**\n\n{data['syarat']['Fase Kering']}")
 
@@ -405,8 +409,10 @@ with tab2:
     
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.markdown("### 📏 Jarak Tanam")
-        st.write(data['tanam']['Jarak Tanam'])
+        st.markdown("### 📏 Jarak / Sistem")
+        # Fix KeyError for crops without 'Jarak Tanam' (e.g. Anggur uses 'Sistem')
+        jarak = data['tanam'].get('Jarak Tanam', data['tanam'].get('Sistem', '-'))
+        st.write(jarak)
     with c2:
         st.markdown("### 🕳️ Lubang / Teknik")
         # Safe access with multiple fallbacks
