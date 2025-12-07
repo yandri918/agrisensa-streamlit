@@ -850,24 +850,41 @@ def generate_html_invoice():
     return html_content
 
 # Render Buttons
+# Render Buttons
 with col_ex1:
-    excel_buffer = generate_excel_file()
-    st.download_button(
-        label="📑 Download Excel (.xlsx)",
-        data=excel_buffer.getvalue(),
-        file_name=f"RAB_{selected_crop}_{datetime.date.today()}.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        use_container_width=True
-    )
+    try:
+        excel_buffer = generate_excel_file()
+        st.download_button(
+            label="📑 Download Excel (.xlsx)",
+            data=excel_buffer.getvalue(),
+            file_name=f"RAB_{selected_crop}_{datetime.date.today()}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True
+        )
+    except Exception as e:
+        st.warning("⚠️ Excel Library belum aktif.")
+        st.caption("Server perlu Reboot untuk install library baru.")
+        # Fallback CSV
+        csv = edited_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download Data (CSV)",
+            data=csv,
+            file_name=f"RAB_{selected_crop}_{datetime.date.today()}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
 
 with col_ex2:
-    html_data = generate_html_invoice()
-    st.download_button(
-        label="🖨️ Download Laporan (Siap Cetak PDF)",
-        data=html_data,
-        file_name=f"Laporan_{selected_crop}_{datetime.date.today()}.html",
-        mime="text/html",
-        use_container_width=True,
-        help="Buka file ini di Browser (Chrome/Safari) lalu pilih 'Print' -> 'Save as PDF'"
-    )
+    try:
+        html_data = generate_html_invoice()
+        st.download_button(
+            label="🖨️ Download Laporan (Siap Cetak PDF)",
+            data=html_data,
+            file_name=f"Laporan_{selected_crop}_{datetime.date.today()}.html",
+            mime="text/html",
+            use_container_width=True,
+            help="Buka file ini di Browser (Chrome/Safari) lalu pilih 'Print' -> 'Save as PDF'"
+        )
+    except Exception as e:
+        st.error(f"Gagal generate HTML: {e}")
 
