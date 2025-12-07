@@ -868,16 +868,4 @@ with col_ex2:
         use_container_width=True,
         help="Buka file ini di Browser (Chrome/Safari) lalu pilih 'Print' -> 'Save as PDF'"
     )
-else:
-    st.info("Populasi tanaman tidak terdefinisi (bukan tanaman individu). Analisis per batang dilewati.")
 
-# Download Button
-st.markdown("---")
-csv = edited_df.to_csv(index=False).encode('utf-8')
-st.download_button(
-    label="📥 Download RAB (Excel/CSV)",
-    data=csv,
-    file_name=f"RAB_{selected_crop}_{luas_lahan_ha}Ha.csv",
-    mime="text/csv",
-    type="primary"
-)
