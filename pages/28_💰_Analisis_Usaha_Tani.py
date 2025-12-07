@@ -629,6 +629,15 @@ else:
 
 # Visualisasi Cost Structure
 st.markdown("### 🍰 Struktur Biaya")
+col_chart, col_advice = st.columns([1.5, 1])
+
+with col_chart:
+    # Group by Category for Pie Chart
+    pie_data = edited_df.groupby("Kategori")["Total (Rp)"].sum().reset_index()
+    fig_pie = px.pie(pie_data, values="Total (Rp)", names="Kategori", hole=0.4, title="Komposisi Biaya")
+    fig_pie.update_layout(showlegend=False, margin=dict(t=30, b=0, l=0, r=0))
+    st.plotly_chart(fig_pie, use_container_width=True)
+
 with col_advice:
     st.markdown("### 💡 Saran & Rekomendasi")
     
