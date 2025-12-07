@@ -203,6 +203,9 @@ with st.sidebar:
         else:
             def_m2 = 500.0 if "Sayuran" in selected_crop else 1000.0
             def_val = get_param('input_luas', def_m2)
+            # Prevent crash if switching from Ha (e.g. 1.0) to m2 (min 10.0)
+            if def_val < 10.0: 
+                def_val = def_m2
             input_luas = st.number_input("Luas Lahan", 10.0, 50000.0, float(def_val), step=100.0)
             luas_lahan_m2 = input_luas
             luas_lahan_ha = input_luas / 10000
