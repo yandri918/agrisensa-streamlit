@@ -560,7 +560,7 @@ def calculate_spray_windows(weather_df, pest_conditions):
     
     return pd.DataFrame(spray_windows)
 
-def calculate_cost(area_ha, dosage_val, water_val, labor_price, equipment_price, pesticide_price=150000):
+def calculate_cost(area_ha, dosage_val, water_val, labor_wage, workers_count, work_days, equipment_price, pesticide_price=150000):
     """Calculate spraying cost"""
     # dosage_val in ml/gr per ha
     # water_val in L per ha
@@ -570,7 +570,7 @@ def calculate_cost(area_ha, dosage_val, water_val, labor_price, equipment_price,
     water_needed = water_val * area_ha
     
     pesticide_cost = pesticide_needed * pesticide_price
-    labor_cost = area_ha * labor_price
+    labor_cost = labor_wage * workers_count * work_days
     equipment_cost = area_ha * equipment_price
     
     total_cost = pesticide_cost + labor_cost + equipment_cost
@@ -729,12 +729,19 @@ with col2:
     )
     
     # Operational Costs
-    st.markdown("**Biaya Operasional (per Ha)**")
-    c_op1, c_op2 = st.columns(2)
-    with c_op1:
-        labor_price = st.number_input("Tenaga Kerja (Rp)", value=50000.0, step=5000.0, key="labor_price")
-    with c_op2:
-        equipment_price = st.number_input("Sewa Alat (Rp)", value=20000.0, step=5000.0, key="eq_price")
+    st.markdown("**Biaya Operasional**")
+    
+    st.caption("Tenaga Kerja (HOK)")
+    c_hok1, c_hok2, c_hok3 = st.columns(3)
+    with c_hok1:
+        labor_wage = st.number_input("Upah Harian (Rp)", value=100000.0, step=10000.0, key="labor_wage")
+    with c_hok2:
+        workers_count = st.number_input("Jumlah Pekerja", min_value=1, value=1, step=1, key="workers_count")
+    with c_hok3:
+        work_days = st.number_input("Durasi (Hari)", min_value=1, value=1, step=1, key="work_days")
+        
+    st.caption("Peralatan")
+    equipment_price = st.number_input("Sewa Alat (Rp/Ha)", value=20000.0, step=5000.0, key="eq_price")
     
     # Rotation history (simulation)
     st.markdown("**🛡️ Manajemen Resistensi**")
@@ -760,7 +767,11 @@ if st.button("🔍 Analisis & Buat Strategi", type="primary", use_container_widt
         spray_windows = calculate_spray_windows(weather_df, pest_info['weather_conditions'])
         
         # Calculate cost
-        cost_info = calculate_cost(area_ha, manual_dosage, manual_water, labor_price, equipment_price, pesticide_price)
+        cost_info = calculate_cost(
+            area_ha, manual_dosage, manual_water, 
+            labor_wage, workers_count, work_days, 
+            equipment_price, pesticide_price
+        )
     
     # Display Results
     st.markdown("---")
