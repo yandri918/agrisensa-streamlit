@@ -356,11 +356,8 @@ with st.sidebar:
     with c_p2:
         def_freq = 24 if "Cabai" in selected_crop else 10 # Cabai intensif
         freq_semprot = st.number_input("Frekuensi Semprot (kali/musim)", 1, 100, def_freq, step=1)
-        # Use config as read-only or info here to avoid conflict
-        st.markdown(f"**Biaya Racikan:** Rp {std_pest:,.0f} /tangki")
-        st.caption("*(Ubah di Sidebar 'Standar & Asumsi')*")
-        
-    biaya_per_tangki = std_pest # Ensure downstream uses sidebar value
+        # Restore editable input with default from sidebar
+        biaya_per_tangki = st.number_input("Biaya Racikan (Rp/Tangki)", 0, 100000, int(std_pest), step=1000, help="Default diambil dari Sidebar, tapi bisa diubah khusus di sini")
 
     # Calc Pesticide Needs
     jumlah_tangki_per_aplikasi = np.ceil(luas_lahan_m2 / luas_per_tangki)
@@ -619,7 +616,7 @@ else:
 # SOLUTION: We must use `st.data_editor` on a state-backed dataframe.
 
 # Composite Context Key to detect upstream changes
-current_input_context = f"{selected_crop}_{luas_lahan_ha}_{target_panen}_{target_harga}_{use_ai_opt}_{ai_override_active}_{std_hok}_{std_pest}_{freq_semprot}_{luas_per_tangki}"
+current_input_context = f"{selected_crop}_{luas_lahan_ha}_{target_panen}_{target_harga}_{use_ai_opt}_{ai_override_active}_{std_hok}_{std_pest}_{freq_semprot}_{luas_per_tangki}_{biaya_per_tangki}"
 
 if "rab_state_df" not in st.session_state:
     st.session_state.rab_state_df = df_rab
