@@ -560,7 +560,7 @@ def calculate_spray_windows(weather_df, pest_conditions):
     
     return pd.DataFrame(spray_windows)
 
-def calculate_cost(area_ha, dosage_val, water_val, pesticide_price=150000):
+def calculate_cost(area_ha, dosage_val, water_val, labor_price, equipment_price, pesticide_price=150000):
     """Calculate spraying cost"""
     # dosage_val in ml/gr per ha
     # water_val in L per ha
@@ -570,8 +570,8 @@ def calculate_cost(area_ha, dosage_val, water_val, pesticide_price=150000):
     water_needed = water_val * area_ha
     
     pesticide_cost = pesticide_needed * pesticide_price
-    labor_cost = area_ha * 50000  # Rp 50k per ha
-    equipment_cost = area_ha * 20000  # Rp 20k per ha
+    labor_cost = area_ha * labor_price
+    equipment_cost = area_ha * equipment_price
     
     total_cost = pesticide_cost + labor_cost + equipment_cost
     
@@ -728,6 +728,14 @@ with col2:
         help="Volume semprot yang biasa Anda habiskan untuk 1 Ha"
     )
     
+    # Operational Costs
+    st.markdown("**Biaya Operasional (per Ha)**")
+    c_op1, c_op2 = st.columns(2)
+    with c_op1:
+        labor_price = st.number_input("Tenaga Kerja (Rp)", value=50000.0, step=5000.0, key="labor_price")
+    with c_op2:
+        equipment_price = st.number_input("Sewa Alat (Rp)", value=20000.0, step=5000.0, key="eq_price")
+    
     # Rotation history (simulation)
     st.markdown("**🛡️ Manajemen Resistensi**")
     last_spray_group = st.selectbox(
@@ -752,7 +760,7 @@ if st.button("🔍 Analisis & Buat Strategi", type="primary", use_container_widt
         spray_windows = calculate_spray_windows(weather_df, pest_info['weather_conditions'])
         
         # Calculate cost
-        cost_info = calculate_cost(area_ha, manual_dosage, manual_water, pesticide_price)
+        cost_info = calculate_cost(area_ha, manual_dosage, manual_water, labor_price, equipment_price, pesticide_price)
     
     # Display Results
     st.markdown("---")
