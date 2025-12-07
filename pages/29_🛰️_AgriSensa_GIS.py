@@ -159,30 +159,84 @@ with col_analysis:
             
             # 3. DISPLAY RESULTS
             
-            # --- WEATHER CARD ---
-            st.info(f"**🌤️ Cuaca Saat Ini**")
-            c_w1, c_w2, c_w3 = st.columns(3)
-            c_w1.metric("Suhu", f"{temp}°C")
-            c_w2.metric("Angin", f"{wind} km/h")
-            c_w3.metric("Status", "Siang" if is_day else "Malam")
+            # 3. DISPLAY RESULTS & MULTI-DIMENSION ANALYSIS
             
-            # --- LAND CARD ---
-            st.success(f"**⛰️ Profil Lahan: {climate_zone}**")
-            st.caption(f"Zona: {zone}")
-            st.metric("Estimasi Ketinggian", f"{elevation} mdpl")
+            tab_cuaca, tab_tanah, tab_pasar = st.tabs(["🌤️ Cuaca & Iklim", "🟤 Potensi Tanah", "🏪 Akses Pasar"])
             
-            # --- CROP RECOMMENDATION ---
-            st.markdown("### 🌱 Rekomendasi Tanaman")
-            st.markdown("Berdasarkan data agroklimat lokasi ini, tanaman yang disarankan:")
-            
-            for crop in rec_crops:
-                st.write(f"✅ **{crop}**")
-            
-            if warnings:
-                st.divider()
-                st.error("⚠️ **Peringatan Agroklimat:**")
-                for w in warnings:
-                    st.write(f"- {w}")
+            with tab_cuaca:
+                # --- WEATHER CARD ---
+                st.info(f"**Data Agroklimat Real-time**")
+                c_w1, c_w2, c_w3 = st.columns(3)
+                c_w1.metric("Suhu", f"{temp}°C")
+                c_w2.metric("Angin", f"{wind} km/h")
+                c_w3.metric("Elevasi", f"{elevation} mdpl")
+                
+                st.markdown("### 🌱 Rekomendasi Tanaman")
+                st.markdown(f"**Zona: {zone}**")
+                
+                # Group recommendations for better readability
+                col_r1, col_r2 = st.columns(2)
+                mid_idx = (len(rec_crops) + 1) // 2
+                with col_r1:
+                    for crop in rec_crops[:mid_idx]:
+                        st.write(f"✅ **{crop}**")
+                with col_r2:
+                    for crop in rec_crops[mid_idx:]:
+                        st.write(f"✅ **{crop}**")
+                
+                if warnings:
+                    st.divider()
+                    st.error("⚠️ **Peringatan Agroklimat:**")
+                    for w in warnings:
+                        st.write(f"- {w}")
+
+            with tab_tanah:
+                st.markdown("### 🟤 Estimasi Bio-Fisik Lahan")
+                st.caption("Analisis heuristik berdasarkan topografi dan iklim.")
+                
+                # Heuristic Soil Logic
+                soil_ph_est = "5.5 - 6.5"
+                soil_tex_est = "Lempung Liat Berpasir"
+                moisture_est = "Sedang"
+                
+                if elevation < 200:
+                    soil_tex_est = "Lempung Liat (Alluvial)"
+                    moisture_est = "Tinggi (Basah)"
+                    if temp > 30: soil_ph_est = "5.0 - 6.0 (Cenderung Asam)"
+                elif elevation > 800:
+                    soil_tex_est = "Andosol / Vulkanik"
+                    moisture_est = "Tinggi (Lembab)"
+                    soil_ph_est = "6.0 - 7.0 (Netral)"
+                elif temp > 32 and wind > 10:
+                    moisture_est = "Rendah (Kering)"
+                
+                t1, t2, t3 = st.columns(3)
+                t1.metric("Prediksi pH", soil_ph_est, help="Perlu koreksi kapur jika < 5.5")
+                t2.metric("Est. Tekstur", soil_tex_est)
+                t3.metric("Kelembaban", moisture_est)
+                
+                st.info("ℹ️ **Tips Pengolahan:** Lakukan uji tanah fisik untuk akurasi 100%. Data di atas adalah estimasi geospasial umum.")
+
+            with tab_pasar:
+                st.markdown("### 🚛 Analisis Akses & Logistik")
+                st.markdown("Simulasi jarak ke infrastruktur pendukung pertanian:")
+                
+                # Simulated Distance Logic
+                dist_market = max(2, int((abs(lat) + abs(lon)) % 15)) # Deterministic simulation
+                dist_road = max(0.5, dist_market / 3)
+                cost_transport = dist_market * 500 # Rp 500/kg assumption
+                
+                p1, p2 = st.columns(2)
+                p1.metric("Jarak ke Pasar Utama", f"{dist_market} km")
+                p1.metric("Jarak ke Jalan Raya", f"{dist_road:.1f} km")
+                
+                p2.metric("Est. Biaya Angkut", f"Rp {cost_transport:,.0f} /kg")
+                p2.metric("Ketersediaan Buruh Tani", "Sedang" if dist_market < 10 else "Terbatas")
+                
+                if dist_market > 20:
+                    st.warning("⚠️ Lokasi cukup terpencil. Disarankan komoditas tahan simpan (Kopi/Lada/Jagung) daripada sayuran segar.")
+                else:
+                    st.success("✅ Lokasi strategis. Sangat cocok untuk hortikultura segar (Sayur/Buah).")
                     
     else:
         st.info("👈 **Mulai Analisis:**\n\nKlik dimanapun pada peta di sebelah kiri untuk melihat potensi lahan dan data cuaca.")
