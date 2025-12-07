@@ -372,6 +372,13 @@ selected_fruit = st.selectbox("👇 Pilih Komoditas Budidaya:", list(fruit_data.
 # DATA LOAD
 data = fruit_data[selected_fruit]
 
+# Safe Data Extraction to prevent Crashes
+syarat = data.get('syarat', {})
+tanam = data.get('tanam', {})
+pupuk = data.get('pupuk', {})
+hama = data.get('hama', [])
+panen_info = data.get('panen', '-')
+
 # MAIN HEADER
 col_header1, col_header2 = st.columns([1, 4])
 with col_header1:
@@ -391,17 +398,17 @@ with tab1:
     col_env1, col_env2 = st.columns(2)
     
     with col_env1:
-        st.info(f"**🌡️ Iklim & Curah Hujan**\n\n{data['syarat'].get('Iklim', '-')}")
-        st.warning(f"**⛰️ Ketinggian Tempat (mdpl)**\n\n{data['syarat'].get('Ketinggian', '-')}")
+        st.info(f"**🌡️ Iklim & Curah Hujan**\n\n{syarat.get('Iklim', '-')}")
+        st.warning(f"**⛰️ Ketinggian Tempat (mdpl)**\n\n{syarat.get('Ketinggian', '-')}")
         
     with col_env2:
         # Robust access for Soil/Medium info
-        media_info = data['syarat'].get('Tanah', data['syarat'].get('Media Tanam', data['syarat'].get('Naungan', data['syarat'].get('Air', '-'))))
-        lbl_tanah = "Media Tanam" if "Media" in data['syarat'] else ("Naungan" if "Naungan" in data['syarat'] else "Kondisi Tanah")
+        media_info = syarat.get('Tanah', syarat.get('Media Tanam', syarat.get('Naungan', syarat.get('Air', '-'))))
+        lbl_tanah = "Media Tanam" if "Media" in syarat else ("Naungan" if "Naungan" in syarat else "Kondisi Tanah")
         
         st.success(f"**🏞️ {lbl_tanah}**\n\n{media_info}")
-        if "Fase Kering" in data['syarat']:
-            st.error(f"**☀️ Catatan Khusus**\n\n{data['syarat']['Fase Kering']}")
+        if "Fase Kering" in syarat:
+            st.error(f"**☀️ Catatan Khusus**\n\n{syarat['Fase Kering']}")
 
 # TAB 2: TEKNIS TANAM
 with tab2:
@@ -411,17 +418,17 @@ with tab2:
     with c1:
         st.markdown("### 📏 Jarak / Sistem")
         # Fix KeyError for crops without 'Jarak Tanam' (e.g. Anggur uses 'Sistem')
-        jarak = data['tanam'].get('Jarak Tanam', data['tanam'].get('Sistem', '-'))
+        jarak = tanam.get('Jarak Tanam', tanam.get('Sistem', '-'))
         st.write(jarak)
     with c2:
         st.markdown("### 🕳️ Lubang / Teknik")
         # Safe access with multiple fallbacks
-        lubang = data['tanam'].get('Lubang Tanam', data['tanam'].get('Lubang', data['tanam'].get('Teknik', data['tanam'].get('Sistem', '-'))))
+        lubang = tanam.get('Lubang Tanam', tanam.get('Lubang', tanam.get('Teknik', tanam.get('Sistem', '-'))))
         st.write(lubang)
     with c3:
         st.markdown("### 🌱 Bibit / Perawatan")
         # Safe access with multiple fallbacks
-        bibit = data['tanam'].get('Bibit', data['tanam'].get('Waktu', data['tanam'].get('Klon', data['tanam'].get('Bentuk', data['tanam'].get('Perawatan', '-')))))
+        bibit = tanam.get('Bibit', tanam.get('Waktu', tanam.get('Klon', tanam.get('Bentuk', tanam.get('Perawatan', '-')))))
         st.write(bibit)
         
     st.caption("💡 *Tips: Sebaiknya lubang tanam disiapkan 2-4 minggu sebelum penanaman agar gas racun tanah hilang dan pupuk kandang matang.*")
@@ -435,7 +442,7 @@ with tab3:
     
     with col_p1:
         st.markdown("#### 📅 Jadwal & Dosis Referensi")
-        for fase, desc in data.get('pupuk', {}).items():
+        for fase, desc in pupuk.items():
             st.success(f"**{fase}**: {desc}")
             
     with col_p2:
@@ -461,7 +468,7 @@ with tab3:
 with tab4:
     st.subheader("Musuh Alami & Pengendaliannya")
     
-    for h in data.get('hama', []):
+    for h in hama:
         with st.expander(f"🔴 {h['nama']}"):
             c_h1, c_h2 = st.columns([1, 2])
             with c_h1:
@@ -476,7 +483,7 @@ with tab5:
     col_end1, col_end2 = st.columns(2)
     with col_end1:
         st.subheader("🧺 Kriteria Panen")
-        st.info(data.get('panen', '-'))
+        st.info(panen_info)
         
     with col_end2:
         st.subheader("📈 Potensi Ekonomi")
