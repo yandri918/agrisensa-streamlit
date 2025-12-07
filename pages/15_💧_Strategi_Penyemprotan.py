@@ -8,6 +8,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
 import requests
+import folium
+from streamlit_folium import st_folium
 
 st.set_page_config(page_title="Strategi Penyemprotan", page_icon="💧", layout="wide")
 
@@ -635,11 +637,27 @@ with col1:
         step=0.1
     )
     
-    location = st.text_input(
-        "Lokasi (Kota/Kabupaten)",
-        value="Jakarta",
-        help="Untuk data cuaca"
-    )
+    # Map Input
+    st.markdown("**Lokasi Lahan (Klik pada Peta)**")
+    
+    # Default to Central Java if no click yet
+    default_lat, default_lon = -7.150975, 110.140259 
+    
+    if 'spray_coords' not in st.session_state:
+        st.session_state.spray_coords = (default_lat, default_lon)
+        
+    m = folium.Map(location=[st.session_state.spray_coords[0], st.session_state.spray_coords[1]], zoom_start=7)
+    m.add_child(folium.ClickForMarker(popup="Lokasi Lahan"))
+    
+    map_output = st_folium(m, height=300, width="100%", returned_objects=["last_clicked"])
+    
+    if map_output and map_output['last_clicked']:
+        lat = map_output['last_clicked']['lat']
+        lon = map_output['last_clicked']['lng']
+        st.session_state.spray_coords = (lat, lon)
+        
+    st.caption(f"Koordinat Terpilih: {st.session_state.spray_coords[0]:.4f}, {st.session_state.spray_coords[1]:.4f}")
+
 
 with col2:
     st.markdown("**Waktu & Harga**")
@@ -681,7 +699,8 @@ if st.button("🔍 Analisis & Buat Strategi", type="primary", use_container_widt
         pest_info = PEST_DISEASE_DB[pest_disease]
         
         # Get weather forecast
-        weather_df = get_weather_forecast()
+        selected_lat, selected_lon = st.session_state.spray_coords
+        weather_df = get_weather_forecast(lat=selected_lat, lon=selected_lon)
         
         # Calculate spray windows
         spray_windows = calculate_spray_windows(weather_df, pest_info['weather_conditions'])
