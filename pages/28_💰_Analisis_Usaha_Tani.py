@@ -738,6 +738,134 @@ if populasi_tanaman > 0:
               delta_color="normal")
               
     st.info(f"💡 **Insight:** Dengan modal **Rp {biaya_per_tanaman:,.0f}** per tanaman, Anda mendapatkan untung bersih **Rp {margin_per_tanaman:,.0f}**. Pastikan tanaman tidak mati lebih dari {roi/2:.0f}% agar tetap untung.")
+
+# --- EXPORT SECTION ---
+st.divider()
+st.subheader("📥 Export Laporan")
+
+col_ex1, col_ex2 = st.columns(2)
+
+# 1. Excel Export Logic
+def generate_excel_file():
+    buffer = io.BytesIO()
+    
+    # Create Excel Writer with openpyxl
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        # Write Summary Metadata
+        summary_data = [
+            ["Komoditas", selected_crop],
+            ["Luas Lahan", f"{luas_lahan_ha} Ha"],
+            ["Total Biaya", total_biaya],
+            ["Estimasi Omzet", estimasi_omzet],
+            ["Estimasi Profit", profit],
+            ["ROI", f"{roi:.1f}%"],
+            ["BEP Harga", bep_harga],
+            ["Populasi", populasi_tanaman],
+            ["Tanggal Buat", datetime.datetime.now().strftime("%Y-%m-%d")]
+        ]
+        df_summary = pd.DataFrame(summary_data, columns=["Parameter", "Nilai"])
+        df_summary.to_excel(writer, sheet_name="Ringkasan", index=False)
+        
+        # Write Main RAB Table
+        edited_df.to_excel(writer, sheet_name="RAB Detail", index=False)
+        
+        # Auto-adjust column width (simple heuristic)
+        worksheet = writer.sheets['RAB Detail']
+        for column in worksheet.columns:
+            max_length = 0
+            column = [cell for cell in column]
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = (max_length + 2)
+            worksheet.column_dimensions[column[0].column_letter].width = adjusted_width
+            
+    return buffer
+
+# 2. HTML (Invoice) Export Logic
+def generate_html_invoice():
+    today_str = datetime.datetime.now().strftime("%d %B %Y")
+    
+    # Convert DF to HTML Table
+    table_html = edited_df.to_html(classes="table table-striped", index=False, float_format="Rp {:,.0f}".format)
+    
+    html_content = f"""
+    <html>
+    <head>
+        <style>
+            body {{ font-family: 'Helvetica', sans-serif; padding: 40px; color: #333; }}
+            .header {{ text-align: center; margin-bottom: 30px; }}
+            .logo {{ font-size: 24px; font-weight: bold; color: #2e7d32; }}
+            .meta-box {{ background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: space-between; }}
+            .meta-item {{ text-align: center; }}
+            .meta-val {{ font-size: 18px; font-weight: bold; color: #1b5e20; }}
+            .table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+            .table th {{ background: #2e7d32; color: white; padding: 12px; text-align: left; }}
+            .table td {{ border-bottom: 1px solid #ddd; padding: 10px; }}
+            .footer {{ margin-top: 50px; text-align: center; font-size: 12px; color: #888; }}
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="logo">🌿 AGRISENSA - Laporan Analisis Usaha Tani</div>
+            <h2>RAB Proyek: {selected_crop}</h2>
+            <p>Tanggal: {today_str}</p>
+        </div>
+        
+        <div class="meta-box">
+            <div class="meta-item">
+                <div>Luas Lahan</div>
+                <div class="meta-val">{luas_lahan_ha} Ha</div>
+            </div>
+            <div class="meta-item">
+                <div>Total Biaya</div>
+                <div class="meta-val">Rp {total_biaya:,.0f}</div>
+            </div>
+            <div class="meta-item">
+                <div>Est. Profit</div>
+                <div class="meta-val">Rp {profit:,.0f}</div>
+            </div>
+            <div class="meta-item">
+                <div>ROI</div>
+                <div class="meta-val">{roi:.1f}%</div>
+            </div>
+        </div>
+        
+        <h3>Rincian Biaya (RAB)</h3>
+        {table_html}
+        
+        <div class="footer">
+            Dicetak otomatis oleh AgriSensa Smart Farming Assistant.
+        </div>
+    </body>
+    </html>
+    """
+    return html_content
+
+# Render Buttons
+with col_ex1:
+    excel_buffer = generate_excel_file()
+    st.download_button(
+        label="📑 Download Excel (.xlsx)",
+        data=excel_buffer.getvalue(),
+        file_name=f"RAB_{selected_crop}_{datetime.date.today()}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        use_container_width=True
+    )
+
+with col_ex2:
+    html_data = generate_html_invoice()
+    st.download_button(
+        label="🖨️ Download Laporan (Siap Cetak PDF)",
+        data=html_data,
+        file_name=f"Laporan_{selected_crop}_{datetime.date.today()}.html",
+        mime="text/html",
+        use_container_width=True,
+        help="Buka file ini di Browser (Chrome/Safari) lalu pilih 'Print' -> 'Save as PDF'"
+    )
 else:
     st.info("Populasi tanaman tidak terdefinisi (bukan tanaman individu). Analisis per batang dilewati.")
 
