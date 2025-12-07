@@ -126,28 +126,103 @@ with c_left:
     fig_cf.update_layout(showlegend=False)
     st.plotly_chart(fig_cf, use_container_width=True)
 
-with c_right:
-    st.subheader("🛡️ Radar Risiko Agronomi")
+# Import Growth Engine
+from services.growth_engine import evaluate_growth
+
+# ... (get_financial_summary kept same)
+
+def get_realtime_status():
+    """Fetch latest growth log from session state"""
+    if 'growth_log' in st.session_state and st.session_state.growth_log:
+        last_log = st.session_state.growth_log[-1]
+        
+        # Determine Crop Type (Fallbaack if not set, usually set in session or default)
+        # For this prototype we assume "Cabai Merah" or get from last_crop if available
+        crop = st.session_state.get('last_crop', 'Cabai Merah')
+        
+        status, score, msgs = evaluate_growth(
+            crop, last_log['hst'], last_log['height'], last_log['stem'], last_log['color']
+        )
+        return {
+            "has_data": True,
+            "hst": last_log['hst'],
+            "score": score,
+            "status": status,
+            "messages": msgs,
+            "height": last_log['height']
+        }
+    else:
+        return {"has_data": False}
+
+# ... (generate_market_trends kept same)
+
+# ... (UI Layout up to Key Metrics kept same)
+
+# 3. DEEP DIVE ANALYTICS
+st.markdown("---")
+
+c_left, c_right = st.columns([2, 1])
+
+with c_left:
+    st.subheader("💰 Proyeksi Arus Kas (Cashflow)")
     
-    # Radar Chart: Risk Factors
-    categories = ['Kesehatan Tanah', 'Risiko Hama', 'Ketersediaan Air', 'Stabilitas Harga', 'Akses Pasar']
-    r_values = [8, 4, 7, 6, 9] # Skala 1-10
+    # Generate Mock Cashflow based on Cost Profile
+    # Bulan 1: Modal Besar (Sewa, Pupuk Dasar) -> Negatif
+    # Bulan 4-6: Panen -> Positif
     
-    fig_radar = go.Figure()
-    fig_radar.add_trace(go.Scatterpolar(
-        r=r_values,
-        theta=categories,
-        fill='toself',
-        name='Project Score'
-    ))
-    fig_radar.update_layout(
-        polar=dict(
-            radialaxis=dict(visible=True, range=[0, 10])
-        ),
-        title="Skor Kesehatan Proyek (1-10)",
-        showlegend=False
+    cf_months = ["Bulan 1", "Bulan 2", "Bulan 3", "Bulan 4", "Bulan 5", "Bulan 6"]
+    cf_values = [
+        -data['cost'] * 0.4, # Bulan 1 keluar 40% modal
+        -data['cost'] * 0.2,
+        -data['cost'] * 0.2,
+        data['revenue'] * 0.2, # Mulai panen
+        data['revenue'] * 0.4,
+        data['revenue'] * 0.4
+    ]
+    
+    df_cf = pd.DataFrame({"Periode": cf_months, "Cashflow": cf_values})
+    
+    # Warna bar: Merah (keluar), Hijau (masuk)
+    df_cf["Color"] = ["Keluar" if x < 0 else "Masuk" for x in df_cf["Cashflow"]]
+    
+    fig_cf = px.bar(
+        df_cf, x="Periode", y="Cashflow", color="Color",
+        title="Arus Kas Bulanan (Burn Rate vs Revenue)",
+        color_discrete_map={"Keluar": "#FF4B4B", "Masuk": "#00CC96"},
+        text_auto='.2s'
     )
-    st.plotly_chart(fig_radar, use_container_width=True)
+    fig_cf.update_layout(showlegend=False)
+    st.plotly_chart(fig_cf, use_container_width=True)
+
+with c_right:
+    st.subheader("🌱 Kondisi Lapangan (Live)")
+    
+    realtime = get_realtime_status()
+    
+    if realtime['has_data']:
+        # Gauge Chart for Health Score
+        fig_gau = go.Figure(go.Indicator(
+            mode = "gauge+number",
+            value = realtime['score'],
+            title = {'text': f"Health Score (HST {realtime['hst']})"},
+            gauge = {'axis': {'range': [0, 100]}, 'bar': {'color': "#10b981" if realtime['score'] > 80 else "#f59e0b"}}
+        ))
+        fig_gau.update_layout(height=250, margin=dict(l=20, r=20, t=40, b=20))
+        st.plotly_chart(fig_gau, use_container_width=True)
+        
+        st.caption(f"**Status:** {realtime['status']}")
+        if realtime['messages']:
+            st.warning(realtime['messages'][0])
+    else:
+        st.info("Belum ada data pertumbuhan. Silakan input di Modul 32.")
+        
+        # Radar Chart Placeholder if no data
+        categories = ['Kesehatan Tanah', 'Risiko Hama', 'Ketersediaan Air', 'Stabilitas Harga', 'Akses Pasar']
+        r_values = [8, 4, 7, 6, 9] 
+        fig_radar = go.Figure()
+        fig_radar.add_trace(go.Scatterpolar(r=r_values, theta=categories, fill='toself', name='Project Score'))
+        fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 10])), title="Radar Risiko (Simulasi)", showlegend=False, height=250, margin=dict(l=30, r=30, t=30, b=30))
+        st.plotly_chart(fig_radar, use_container_width=True)
 
 # 4. MARKET INTELLIGENCE
 st.markdown("---")
