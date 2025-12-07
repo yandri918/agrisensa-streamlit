@@ -126,6 +126,235 @@ fruit_data = {
             {"nama": "Lalat Buah", "gejala": "Buah busuk gugur", "solusi": "Perangkap, Petik bubur sanitasi, Insektisida sistemik terbatas"}
         ],
         "panen": "Buah mulai menguning >30-50%, rasio gula:asam optimal. Panen dengan gunting, jangan ditarik."
+    },
+    "Klengkeng (New Kristal/Kateki)": {
+        "icon": "🌑",
+        "desc": "Klengkeng (*Dimocarpus longan*) varietas New Kristal memiliki daging tebal, biji kecil, dan sangat produktif dengan induksi KClO3.",
+        "syarat": {
+            "Iklim": "Dataran rendah hingga menengah. Butuh penyinaran penuh.",
+            "Ketinggian": "0 - 900 mdpl (Optimal 200-600 mdpl)",
+            "Tanah": "Lempung berpasir, pH 5.5-6.5. Tahan kekeringan lebih baik daripada durian."
+        },
+        "tanam": {
+            "Jarak Tanam": "6x6 m atau 8x8 m. Bisa sistem plantera (tabulampot) skala kebun.",
+            "Lubang Tanam": "60x60x60 cm. Campur pupuk kandang + kapur.",
+            "Booster": "Wajib induksi pembuahan dengan KClO3 (Potasium Klorat) agar berbuah serempak."
+        },
+        "pupuk": {
+            "Vegetatif": "NPK 16-16-16 rutin 3 bulan sekali.",
+            "Generatif": "Aplikasi Booster (siram/semprot) saat daun tua. Susul dengan MKP dan KNO3 untuk pembesaran buah."
+        },
+        "hama": [
+            {"nama": "Kelelawar (Codot)", "gejala": "Buah habis dimakan saat malam", "solusi": "Pemberongsongan (wajib) dengan jaring paranet seluruh tajuk (sistem kerodong)."},
+            {"nama": "Penggerek Batang", "gejala": "Lubang pada batang utama, keluar serbuk kayu", "solusi": "Suntik insektisida sistemik ke lubang aktif, tutup dengan kapas/lilin."}
+        ],
+        "panen": "6 bulan setelah aplikasi booster. Kulit buah halus, warna coklat terang, rasa manis maksimal."
+    },
+    "Anggur Import (Tropical Viticulture)": {
+        "icon": "🍇",
+        "desc": "Anggur meja (*Table Grape*) varietas import (Jupiter, Transfiguration, Julian) kini dapat dibuahkan 3x setahun di iklim tropis Indonesia.",
+        "syarat": {
+            "Iklim": "Panas terik (Full Sun), curah hujan rendah. WAJIB atap UV/Greenhouse untuk hasil premium tanpa jamur.",
+            "Ketinggian": "0 - 800 mdpl. Dataran rendah hasil lebih manis.",
+            "Media Tanam": "Sangat porous (Sekam bakar, pasir, kompos). Tidak boleh becek/padat."
+        },
+        "tanam": {
+            "Sistem": "Teralis (Pagar) atau Para-para (Atap). Jarak tanam 1.5 - 3 m antar pohon.",
+            "Bibit": "Guntung (Rootstock) tahan nematoda + Entres varietas import (Grafting).",
+            "Pruning": "Kunci pembuahan adalah PANGKAS TOTAL (Foundation Pruning -> Production Pruning)."
+        },
+        "pupuk": {
+            "Mingguan": "NPK Seimbang + MgSO4 (Vegetatif). MKP + KNO3 + Boron (Generatif - 1 bulan sebelum pangkas).",
+            "Organik": "Asam Humat dan POC rutin kocor."
+        },
+        "hama": [
+            {"nama": "Jamur Downy/Powdery Mildew", "gejala": "Serbuk putih/kuning pada daun, daun kering", "solusi": "Fungisida kontak & sistemik bergantian (Mankozeb/Amistartop). Atap UV sangat membantu."},
+            {"nama": "Kutu Perisai/Scale", "gejala": "Bintik putih/coklat pada batang, batang mati", "solusi": "Sikat batang dengan sikat gigi + insektisida/sabun cuci piring."}
+        ],
+        "panen": "90-120 hari setelah pangkas pembuahan (HSP). Rasa manis brix >18, warna sempurna."
+    },
+    "Jambu Kristal (Fast Cash Flow)": {
+        "icon": "🍐",
+        "desc": "Jambu Kristal (*Psidium guajava*) adalah pilihan terbaik untuk perputaran modal cepat. Berbuah sepanjang tahun tanpa kenal musim.",
+        "syarat": {
+            "Iklim": "Tropis basah maupun kering. Sangat adaptif.",
+            "Ketinggian": "0 - 1000 mdpl",
+            "Tanah": "Toleran terhadap berbagai jenis tanah, asal tidak tergenang."
+        },
+        "tanam": {
+            "Jarak Tanam": "3x3 m atau 2.5x2.5 m (Padat). Penjarangan tajuk sangat sering.",
+            "Bibit": "Cangkok atau Okulasi.",
+            "Perawatan": "Pembungkusan buah (brongsong) saat ukuran bola pingpong adalah WAJIB untuk mulus."
+        },
+        "pupuk": {
+            "Rutin": "NPK 16-16-16 setiap bulan 50-100g/pohon.",
+            "Mikro": "Semprot pupuk daun mikro lengkap agar daun tidak klorosis (kuning)."
+        },
+        "hama": [
+            {"nama": "Lalat Buah", "gejala": "Buah busuk berbelatung", "solusi": "Bungkus buah (Fruit cover) plastik bening + koran/styrofoam sejak dini."},
+            {"nama": "Kutu Putih", "gejala": "Putih-putih pada pucuk daun dan buah", "solusi": "Insektisida Imidakloprid atau deterjen cair."}
+        ],
+        "panen": "Panen mingguan! Tiada henti sepanjang tahun. Sangat baik untuk cashflow harian/mingguan."
+    },
+    "Pisang Cavendish (Export)": {
+        "icon": "🍌",
+        "desc": "Pisang Cavendish adalah standar pisang meja dunia. Pasar supermarket dan ekspor sangat terbuka lebar.",
+        "syarat": {
+            "Iklim": "Curah hujan merata, hindari angin topan (batang mudah patah).",
+            "Ketinggian": "0 - 400 mdpl optimal untuk ukuran buah besar.",
+            "Tanah": "Subur, gembur, kaya bahan organik."
+        },
+        "tanam": {
+            "Jarak Tanam": "2x2 m atau 2.5x2.5 m.",
+            "Bibit": "Kultur Jaringan (Wajib untuk bebas penyakit layu).",
+            "Perawatan": "Suntik jantung (insektisida), brongsong tandan, dan potong jantung jantan."
+        },
+        "pupuk": {
+            "Kalium Tinggi": "Pisang adalah 'penyedot Kalium'. Gunakan KCl/ZK dosis tinggi saat buah keluar.",
+            "Dosis": "Urea 200g, SP36 150g, KCl 300g per rumpun per tahun."
+        },
+        "hama": [
+            {"nama": "Layu Fusarium (Panama Disease)", "gejala": "Daun kuning layu, bonggol busuk merah", "solusi": "TIDAK ADA OBAT. Gunakan bibit resisten, trichoderma, dan karantina lahan."},
+            {"nama": "Burik Buah (Scab/Thrips)", "gejala": "Kulit buah bintik hitam kasar", "solusi": "Suntik jantung, bungkus tandan dengan plastik biru/perak."}
+        ],
+        "panen": "Jantung keluar -> Panen 3 bulan kemudian. Tebang pohon induk, sisakan 1 anakan (sistem 1 induk 1 anak)."
+    },
+    "Pepaya Calina (California)": {
+        "icon": "🥭",
+        "desc": "Pepaya Calina (IPB-9) adalah pepaya pendek, manis, dan tahan simpan. Panen mulai bulan ke-7.",
+        "syarat": {
+            "Iklim": "Panas, hujan sedang. Akar sangat sensitif busuk jika tergenang air 1 hari saja.",
+            "Ketinggian": "0 - 600 mdpl.",
+            "Drainase": "Wajib bedengan tinggi agar air cepat tuntas."
+        },
+        "tanam": {
+            "Jarak Tanam": "2.5 x 2.5 m.",
+            "Benih": "Biji murni varietas Calina (jangan ambil dari buah pasar, genetik menurun).",
+            "Seleksi": "Saat berbunga (bulan ke-3), buang pohon betina (buah bulat), pertahankan pohon hermafrodit (buah lonjong - laku di pasar)."
+        },
+        "pupuk": {
+            "Mingguan": "Pupuk NPK kocor setiap selasa. Pupuk kandang setiap 3 bulan.",
+            "Boron": "Kekurangan boron membuat buah benjol-benjol tidak rata."
+        },
+        "hama": [
+            {"nama": "Kutu Putih (Paracoccus)", "gejala": "Pohon hitam jelaga, buah tertutup lapisan lilin putih", "solusi": "Semprot air sabun + minyak, Insektisida Profenofos."},
+            {"nama": "Virus Kuning (Gemini/Ringspot)", "gejala": "Daun kuning keriting, buah ada cincin", "solusi": "Cabut dan bakar pohon sakit. Kendalikan vektor kutu daun Aphids."}
+        ],
+        "panen": "Mulai panen umur 7-8 bulan. Panen setiap minggu selama 2-3 tahun produktif."
+    },
+    "Kopi (Robusta & Arabica)": {
+        "icon": "☕",
+        "desc": "Kopi adalah komoditas global. Robusta untuk dataran rendah, Arabica untuk dataran tinggi dengan cita rasa khas.",
+        "syarat": {
+            "Iklim": "Robusta: 24-30°C (Panas). Arabica: 16-20°C (Sejuk).",
+            "Ketinggian": "Robusta: 0-800 mdpl. Arabica: 800-2000 mdpl (Wajib).",
+            "Naungan": "Butuh tanaman penaung (Lamtoro/Dadap) untuk menjaga kelembaban dan kualitas buah."
+        },
+        "tanam": {
+            "Jarak Tanam": "2.5 x 2.5 m (Populasi 1600/ha).",
+            "Lubang": "60x60x60 cm. Campurkan pupuk kandang.",
+            "Pemangkasan": "KUNCI PRODUKSI. Pangkas bentuk (1-3 th) dan Pangkas produksi (buang wiwilan/cabang cacing)."
+        },
+        "pupuk": {
+            "TBM": "Urea 50g/pohon (th 1). Naikkan dosis NPK bertahap.",
+            "TM": "NPK 15-15-15 (2x setahun). Tambahkan dolomit karena tanah kopi cenderung asam."
+        },
+        "hama": [
+            {"nama": "PBKo (Penggerek Buah Kopi)", "gejala": "Buah berlubang, biji hampa", "solusi": "Petik merah serentak (lelesan), pasang perangkap alkohol/feromon. Beauveria bassiana."},
+            {"nama": "Karat Daun (Hemileia)", "gejala": "Bercak kuning serbuk di bawah daun", "solusi": "Pangkas daun sakit, semprot fungisida Tembaga (Copper). Ganti varietas tahan (S795/Lini S)."}
+        ],
+        "panen": "Panen hanya buah MERAH (Red Cherry) untuk kualitas premium (Fine Robusta/Specialty Arabica)."
+    },
+    "Kakao / Coklat (MCC Clones)": {
+        "icon": "🍫",
+        "desc": "Kakao (*Theobroma cacao*) klon unggul (MCC 02/Sulawesi) sangat produktif dan tahan hama. ",
+        "syarat": {
+            "Iklim": "Curah hujan 1500-2500 mm. Tidak tahan angin kencang.",
+            "Ketinggian": "0 - 600 mdpl.",
+            "Naungan": "Wajib ada penaung sementara (pisang) dan tetap (kelapa/lamtoro) intensitas 30-50%."
+        },
+        "tanam": {
+            "Jarak Tanam": "3x3 m.",
+            "Teknik": "Sambung Samping (Side Grafting) pada pohon tua untuk rehabilitasi cepat.",
+            "Klon": "MCC 02 (Biji besar, tahan VSD)."
+        },
+        "pupuk": {
+            "Organik": "Limbah kulit kakao dikomposkan dan dikembalikan ke kebun (Siklus hara).",
+            "Kimia": "NPK 12-12-17 + 2 MgO. Kakao butuh Magnesium tinggi."
+        },
+        "hama": [
+            {"nama": "PBK (Penggerek Buah Kakao)", "gejala": "Buah masak tidak merata, biji lengket", "solusi": "Sarungisasi (bungkus buah) saat kecil. Panen sering."},
+            {"nama": "VSD (Vascular Streak Dieback)", "gejala": "Ranting kering, daun gugur tersisa tulang", "solusi": "Pangkas ranting sakit sampai batas sehat + 20cm. Gunakan klon tahan (MCC)."}
+        ],
+        "panen": "Buah berubah warna (Hijau -> Kuning / Merah -> Jingga). Pecah buah, ambil biji, fermentasi 5 hari untuk aroma coklat asli."
+    },
+    "Teh (Pucuk Pilihan)": {
+        "icon": "🍵",
+        "desc": "Teh (*Camellia sinensis*) diambil pucuk mudanya. Perkebunan teh juga bisa jadi agrowisata.",
+        "syarat": {
+            "Iklim": "Sejuk, curah hujan tinggi, kabut membantu kualitas.",
+            "Ketinggian": "800 - 2000 mdpl (Makin tinggi makin baik kualitasnya).",
+            "Tanah": "Andosol, pH 4.5-5.6 (Sangat Asam)."
+        },
+        "tanam": {
+            "Jarak Tanam": "120 x 60 cm (Baris Ganda) mengikuti kontur.",
+            "Bentuk": "Pangkas meja (plucking table) setinggi pinggang pemetik."
+        },
+        "pupuk": {
+            "Nitrogen": "Sangat butuh Urea/ZA untuk pertumbuhan daun cepat.",
+            "Sulfur": "Wajib ada unsur S untuk aroma teh."
+        },
+        "hama": [
+            {"nama": "Empoasca (Wereng Teh)", "gejala": "Tepi daun kuning kecoklatan (Hopperburn)", "solusi": "Insektisida nabati, perekat kuning."},
+            {"nama": "Cacar Daun (Blister)", "gejala": "Bintik bening/merah pada daun muda", "solusi": "Petik habis pucuk sakit, fungisida mankozeb saat cuaca ekstrim."}
+        ],
+        "panen": "Rumus P+2 (Peko + 2 Daun Muda) atau P+3. Rotasi petik 7-14 hari tergantung elevasi."
+    },
+    "Rambutan (Binjai/Rapiah)": {
+        "icon": "🔴",
+        "desc": "Rambutan (*Nephelium lappaceum*) adalah buah asli tropis. Binjai (manis, ngelotok) dan Rapiah (kecil, manis, kering) paling laku.",
+        "syarat": {
+            "Iklim": "Tropis basah. Musim kering jelas dibutuhkan untuk bunga.",
+            "Ketinggian": "0 - 500 mdpl (Dataran Rendah).",
+            "Air": "Tahan genangan sebentar, tapi sebaiknya drainase baik."
+        },
+        "tanam": {
+            "Jarak Tanam": "10 x 10 m (Tajuk lebar).",
+            "Bibit": "Okulasi mata tunas.",
+            "Kelamin": "Pastikan bibit hermaprodit/betina produktif."
+        },
+        "pupuk": {
+            "Pasca Panen": "NPK + Organik untuk pemulihan.",
+            "Bunga": "Pupuk P & K tinggi saat daun tua untuk memicu bunga."
+        },
+        "hama": [
+            {"nama": "Ulat Buah/Biji", "gejala": "Buah berlubang, kotoran ulat di kulit", "solusi": "Sanitasi kebun, semprot saat pentil buah."},
+            {"nama": "Jamur Upas", "gejala": "Cabang merah bata/merah jambu, mati", "solusi": "Kerok kulit sakit, oles fungisida tembaga."}
+        ],
+        "panen": "Warna kulit merah merata (Binjai) atau hijau kekuningan (Rapiah). Panen setandan."
+    },
+    "Duku / Langsat (Palembang)": {
+        "icon": "🌕",
+        "desc": "Duku (*Lansium domesticum*) varietas Palembang/Komering. Manis, biji kecil/tidak ada. Pohon berumur sangat panjang.",
+        "syarat": {
+            "Iklim": "Teduh, lembab. Tidak tahan panas terik langsung saat muda.",
+            "Ketinggian": "0 - 600 mdpl.",
+            "Tanah": "Lempung liat berhumus tinggi."
+        },
+        "tanam": {
+            "Jarak Tanam": "8 x 8 m.",
+            "Naungan": "Wajib naungan rapat saat bibit (1-3 tahun).",
+            "Waktu": "Sangat lambat (Juvenile phase lama), baru berbuah umur 10-15 tahun dari biji (7-8 th dari sambung)."
+        },
+        "pupuk": {
+            "Organik": "Sangat suka serasah daun/kompos tebal di bawah tajuk.",
+            "Kimia": "NPK standar setahun sekali awal hujan."
+        },
+        "hama": [
+            {"nama": "Penggerek Batang", "gejala": "Lubang pada dahan utama", "solusi": "Suntik insektisida."},
+            {"nama": "Kelelawar", "gejala": "Memakan buah masak", "solusi": "Jaring/Net pelindung."}
+        ],
+        "panen": "1x setahun. Panen dengan memanjat, potong tandan dengan pisau, JANGAN digoyang (buah rontok cepat busuk)."
     }
 }
 
