@@ -619,7 +619,7 @@ else:
 # SOLUTION: We must use `st.data_editor` on a state-backed dataframe.
 
 # Composite Context Key to detect upstream changes
-current_input_context = f"{selected_crop}_{luas_lahan_ha}_{target_panen}_{target_harga}_{use_ai_opt}_{ai_override_active}"
+current_input_context = f"{selected_crop}_{luas_lahan_ha}_{target_panen}_{target_harga}_{use_ai_opt}_{ai_override_active}_{std_hok}_{std_pest}"
 
 if "rab_state_df" not in st.session_state:
     st.session_state.rab_state_df = df_rab
