@@ -121,6 +121,16 @@ class CropService:
                      {"kategori": "Benih", "item": "Bibit Umbi", "satuan": "Kg", "volume": 1000, "harga": 35000},
                      {"kategori": "Pupuk", "item": "Pupuk Dasar & Susulan", "satuan": "Paket", "volume": 1, "harga": 8000000},
                  ]
+             },
+             "growth": {
+                 "phase_switch": 35, # HST enters Bulb Formation
+                 "targets": {
+                     10: {"height": 12, "leaves": 5, "stem": 4},
+                     20: {"height": 25, "leaves": 15, "stem": 7},
+                     30: {"height": 35, "leaves": 25, "stem": 10},
+                     40: {"height": 40, "leaves": 35, "stem": 12},
+                     55: {"height": 42, "leaves": 40, "stem": 15}
+                 }
              }
         },
         "Padi Sawah": {
@@ -131,6 +141,16 @@ class CropService:
                    {"kategori": "Biaya Tetap", "item": "Sewa Lahan", "satuan": "Musim", "volume": 1, "harga": 4000000}, 
                    {"kategori": "Benih", "item": "Benih Padi", "satuan": "Kg", "volume": 30, "harga": 15000},
                 ]
+            },
+            "growth": {
+                 "phase_switch": 60, # HST enters Generative (Malai)
+                 "targets": {
+                     15: {"height": 25, "leaves": 5, "stem": 3},
+                     30: {"height": 50, "leaves": 15, "stem": 6},
+                     45: {"height": 75, "leaves": 25, "stem": 9},
+                     60: {"height": 90, "leaves": 35, "stem": 12},
+                     90: {"height": 110, "leaves": 40, "stem": 14}
+                 }
             }
         },
         "Sayuran Daun (Hidroponik)": {
