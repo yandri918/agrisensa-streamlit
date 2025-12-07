@@ -243,6 +243,31 @@ CROP_TEMPLATES = {
              {"kategori": "Tenaga Kerja", "item": "Polinasi & Gantung Buah", "satuan": "HOK", "volume": 80, "harga": 100000, "wajib": True, "catatan": "Kritis & Rumit"},
              {"kategori": "Tenaga Kerja", "item": "Panen & Packaging", "satuan": "HOK", "volume": 60, "harga": 90000, "wajib": True},
         ]
+    },
+    # --- STEP 6: SAYURAN HIDROPONIK (NEW) ---
+    "Sayuran Daun (Hidroponik)": {
+        "params": {"populasi_ha": 200000, "estimasi_panen_kg": 25000, "harga_jual": 15000, "lama_tanam_bulan": 1.5},
+        # Asumsi 1 ha bisa muat ~20.000 lubang tanam efektif (dengan jalan) atau lebih? 
+        # Modul NFT standar per meja 2x10m = 800 lubang. 
+        # 1 Ha = 50 meja x 800 = 40.000 lubang tanam (konservatif dengan greenhouse area).
+        # Tapi "populasi_ha" dihitung ulang dinamis.
+        "items": [
+            # Investasi / Biaya Tetap
+            {"kategori": "Biaya Tetap", "item": "Amortisasi Greenhouse & Instalasi", "satuan": "Siklus", "volume": 1, "harga": 15000000, "wajib": True, "catatan": "Asumsi umur 5 tahun per siklus tanam"},
+            {"kategori": "Biaya Tetap", "item": "Listrik (Pompa & Aerator)", "satuan": "Bulan", "volume": 2, "harga": 300000, "wajib": True},
+            
+            # Sarana Produksi
+            {"kategori": "Media Tanam", "item": "Rockwool (Slab)", "satuan": "Slab", "volume": 100, "harga": 65000, "wajib": True, "catatan": "1 Slab = 200-300 cubes"},
+            {"kategori": "Benih", "item": "Benih Sayur (Pakcoy/Selada Import)", "satuan": "Kaleng", "volume": 5, "harga": 120000, "wajib": True},
+            {"kategori": "Nutrisi (AB Mix)", "item": "AB Mix Sayuran Daun", "satuan": "Paket (5L)", "volume": 20, "harga": 75000, "wajib": True},
+            
+            # Operasional
+            {"kategori": "Pestisida", "item": "Pestisida Nabati / Trap", "satuan": "Paket", "volume": 1, "harga": 500000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Semai & Pindah Tanam", "satuan": "HOK", "volume": 20, "harga": 90000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Monitoring Nutrisi (Harian)", "satuan": "HOK", "volume": 30, "harga": 100000, "wajib": True},
+            {"kategori": "Tenaga Kerja", "item": "Panen & Packing", "satuan": "HOK", "volume": 25, "harga": 80000, "wajib": True},
+            {"kategori": "Pasca Panen", "item": "Plastik Kemasan / Selotip", "satuan": "Paket", "volume": 1, "harga": 1000000, "wajib": True},
+        ]
     }
 }
 
@@ -269,31 +294,40 @@ with st.sidebar:
     st.subheader("📐 Jarak Tanam & Bedengan")
     
     # Defaults based on crop
+    # Defaults based on crop
+    is_hydroponic = "Hidroponik" in selected_crop
+    
     if "Bawang" in selected_crop:
-        def_jarak = 15
-        def_bedengan = 120
-    elif "Melon" in selected_crop or "Greenhouse" in selected_crop:
-        def_jarak = 40
-        def_bedengan = 100
+        def_jarak = 15; def_bedengan = 120
+    elif "Melon" in selected_crop:
+        def_jarak = 40; def_bedengan = 100
     elif "Cabai" in selected_crop:
-        def_jarak = 50
-        def_bedengan = 100
-    elif "Tomat" in selected_crop:
-        def_jarak = 40
-        def_bedengan = 100
+        def_jarak = 50; def_bedengan = 100
+    elif "Sayuran Daun" in selected_crop: # Hydroponic default
+        def_jarak = 20; def_bedengan = 200 # Meja lebar 2m
     else:
-        def_jarak = 25
-        def_bedengan = 100
+        def_jarak = 25; def_bedengan = 100
         
     def_parit = 50
     
-    col_p1, col_p2 = st.columns(2)
-    with col_p1:
-        jarak_tanam = st.number_input("Jarak Tanam (cm)", 10, 100, def_jarak, step=5)
-        lebar_bedengan = st.number_input("Lebar Bedengan (cm)", 50, 200, def_bedengan, step=10)
-    with col_p2:
-        lebar_parit = st.number_input("Lebar Parit (cm)", 30, 100, def_parit, step=10)
-        baris_per_bedeng = st.selectbox("Model Tanam", [1, 2], index=1, format_func=lambda x: f"{x} Baris (Zigzag)" if x==2 else "1 Baris (Single)")
+    if is_hydroponic:
+        st.subheader("🏗️ Instalasi Hidroponik")
+        # Override Concept: Bedengan -> Meja/Gully, Parit -> Jalan Antar Meja
+        col_p1, col_p2 = st.columns(2)
+        with col_p1:
+            jarak_tanam = st.number_input("Jarak Lubang Tanam (cm)", 10, 50, def_jarak, step=5)
+            lebar_bedengan = st.number_input("Lebar Meja/Rak (cm)", 50, 400, def_bedengan, step=10)
+        with col_p2:
+            lebar_parit = st.number_input("Jalan Antar Meja (cm)", 30, 150, def_parit, step=10)
+            baris_per_bedeng = st.number_input("Baris per Meja", 1, 20, int(def_bedengan/20), step=1, help="Lebar meja dibagi jarak tanam")
+    else:
+        col_p1, col_p2 = st.columns(2)
+        with col_p1:
+            jarak_tanam = st.number_input("Jarak Tanam (cm)", 10, 100, def_jarak, step=5)
+            lebar_bedengan = st.number_input("Lebar Bedengan (cm)", 50, 200, def_bedengan, step=10)
+        with col_p2:
+            lebar_parit = st.number_input("Lebar Parit (cm)", 30, 100, 50, step=10)
+            baris_per_bedeng = st.selectbox("Model Tanam", [1, 2], index=1, format_func=lambda x: f"{x} Baris (Zigzag)" if x==2 else "1 Baris (Single)")
     
     # C. Mulch Specs
     st.divider()
@@ -319,7 +353,7 @@ with st.sidebar:
     # Total Length of Beds = Net Bed Area / Bed Width (in meters)
     total_panjang_bedengan = luas_bedengan_netto / (lebar_bedengan / 100)
     
-    if panjang_roll:
+    if panjang_roll and not is_hydroponic:
         kebutuhan_mulsa_roll = total_panjang_bedengan / panjang_roll
         # Round up safely e.g. 10% safety margin for cutting
         kebutuhan_mulsa_roll = np.ceil(kebutuhan_mulsa_roll * 1.05) 
@@ -333,11 +367,13 @@ with st.sidebar:
     populasi_tanaman = int(populasi_tanaman * 1.10)
     
     # Display Calc Results in Sidebar
+    # Display Calc Results in Sidebar
+    info_mulsa = f"- Kebutuhan Mulsa: **{kebutuhan_mulsa_roll:.0f}** Roll" if not is_hydroponic else ""
     st.info(f"""
     **🔍 Hasil Kalkulasi:**
     - Populasi: **{populasi_tanaman:,.0f}** Tanaman
-    - Tot. Panjang Bedengan: **{total_panjang_bedengan:,.0f}** m
-    - Kebutuhan Mulsa: **{kebutuhan_mulsa_roll:.0f}** Roll
+    - Tot. Panjang Bedengan/Rak: **{total_panjang_bedengan:,.0f}** m
+    {info_mulsa}
     """)
     
     # D. Metode Bibit (Restored)
@@ -521,8 +557,23 @@ for item in template_items:
             item_name_override = f"Pestisida ({freq_semprot}x Aplikasi, @{biaya_per_tangki/1000:.0f}k/tangki)"
             
         # Case 5: Default Scaling by Area
+            # Case 5: Default Scaling by Area
         else:
-            if item['item'] == "Pupuk Kandang/Organik":
+            if "Rockwool" in item['item']:
+                # 1 Slab = 200 cubes approx
+                vol = np.ceil(populasi_tanaman / 250) 
+            elif "Benih" in item['item'] and "Kaleng" in item['satuan'] and "Sayur" in item['item']:
+                 # 1 Kaleng 20ml = ~2000-3000 seeds? Let's assume high density
+                 # Assume 1 kaleng covers 5000 plants
+                 vol = np.ceil(populasi_tanaman / 5000)
+            elif "AB Mix" in item['item']:
+                 # 1 Paket 5L pekat = 1000L larutan siap pakai (EC 2.0).
+                 # 1 Tanaman sayur butuh ~1-2 Liter nutrisi selama hidup (30 hari x 50ml/hari)
+                 # Total Liter = Populasi * 1.5 Liter
+                 total_larutan = populasi_tanaman * 1.5
+                 vol = np.ceil(total_larutan / 1000)
+                 item_name_override = f"{item['item']} (Butuh ~{total_larutan:,.0f} L Larutan)"
+            elif item['item'] == "Pupuk Kandang/Organik":
                 vol = item['volume'] * luas_lahan_ha
             else:
                 vol = item['volume'] * luas_lahan_ha
