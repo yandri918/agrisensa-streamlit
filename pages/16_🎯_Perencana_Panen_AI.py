@@ -17,12 +17,18 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from services.ai_farm_service import get_ai_model, optimize_solution
+from services.crop_service import CropService
 
 st.set_page_config(page_title="AI Harvest Planner Pro", page_icon="🎯", layout="wide")
 
 # ==========================================
 # 🌳 DATA DICTIONARY (CROP DATABASE)
 # ==========================================
+
+# Helper: Categorize crops
+all_crops = CropService.get_all_crops()
+# Simple auto-categorization based on service data
+# (If data had category field, use it. For now, we mix manual + dynamic)
 
 CROP_DATABASE = {
     "Tanaman Pangan": [
@@ -36,16 +42,20 @@ CROP_DATABASE = {
         "Tomat", "Kentang", "Bawang Merah", "Bawang Putih",
         "Kubis/Kol", "Wortel", "Sawi/Caisim", "Bayam", "Kangkung",
         "Terong", "Timun", "Kacang Panjang", "Brokoli"
-    ],
+    ] + [c for c in all_crops if "Sayur" in c or "Cabai" in c or "Tomat" in c or "Bawang" in c], # Add dynamic crops
     "Buah-buahan": [
         "Semangka", "Melon", "Pepaya", "Nanas", "Pisang",
         "Jeruk Siam", "Mangga", "Durian", "Alpukat", "Manggis"
-    ],
+    ] + [c for c in all_crops if "Melon" in c],
     "Perkebunan": [
         "Kelapa Sawit", "Kopi Arabika", "Kopi Robusta", 
         "Kakao (Cokelat)", "Tebu", "Karet", "Lada", "Cengkeh", "Jambu Mete"
     ]
 }
+
+# De-duplicate lists
+for cat in CROP_DATABASE:
+    CROP_DATABASE[cat] = sorted(list(set(CROP_DATABASE[cat])))
 
 SOIL_TEXTURES = {
     "Lempung Berpasir (Sandy Loam)": 0.4, 

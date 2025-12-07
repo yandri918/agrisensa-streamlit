@@ -9,6 +9,11 @@ from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Panduan Budidaya Sayuran", page_icon="🥬", layout="wide")
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from services.crop_service import CropService
+
 # ========== DATABASE BUDIDAYA SAYURAN ==========
 
 SAYURAN_DATABASE = {
@@ -461,6 +466,21 @@ SAYURAN_DATABASE = {
         }
     }
 }
+
+# MERGE WITH CENTRALIZED CROP SERVICE
+# We overlay data from the service if available
+# This ensures new "Guide" data added in CropService appears here automatically
+for crop_name in CropService.get_all_crops():
+    service_guide = CropService.get_guide_data(crop_name)
+    if service_guide:
+        # If the crop already exists, update it. If not, create it.
+        # But wait, the service guide structure might be partial.
+        # For now, let's just update if keys exist, or add if it matches structure.
+        # Simplest integration: If 'guide' data in service has 'analisis_usaha', we can use it.
+        if crop_name in SAYURAN_DATABASE:
+             SAYURAN_DATABASE[crop_name].update(service_guide)
+        elif 'kategori' in service_guide: # Only add if it looks like a full guide object
+             SAYURAN_DATABASE[crop_name] = service_guide
 
 # ========== HELPER FUNCTIONS ==========
 
