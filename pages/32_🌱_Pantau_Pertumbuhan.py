@@ -7,7 +7,8 @@ from datetime import datetime, timedelta
 from PIL import Image
 
 # Import Shared Logic
-from services.growth_engine import GROWTH_STANDARDS, get_ideal_value, evaluate_growth
+from services.growth_engine import get_ideal_value, evaluate_growth
+from services.crop_service import CropService
 
 def analyze_leaf_color_image(image_file):
     """
@@ -71,7 +72,7 @@ def main():
     # --- SIDEBAR CONFIG ---
     with st.sidebar:
         st.header("⚙️ Konfigurasi Lahan")
-        crop_type = st.selectbox("Komoditas", list(GROWTH_STANDARDS.keys()))
+        crop_type = st.selectbox("Komoditas", CropService.get_all_crops())
         varietas = st.text_input("Varietas", "Misal: Lado F1")
         tgl_tanam = st.date_input("Tanggal Tanam", datetime.now() - timedelta(days=20))
         
@@ -113,7 +114,11 @@ def main():
         st.subheader("📝 Input Jurnal Harian")
         
         # 1. Vegetative Metrics
-        st.markdown(f"**Fase: {'Generatif 🍓' if hst > GROWTH_STANDARDS[crop_type]['phase_switch'] else 'Vegetatif 🌿'}**")
+        # Fetch standard to know phase switch
+        std = CropService.get_growth_standards(crop_type)
+        phase_switch = std.get('phase_switch', 30) if std else 30
+        
+        st.markdown(f"**Fase: {'Generatif 🍓' if hst > phase_switch else 'Vegetatif 🌿'}**")
         
         in_height = st.number_input("Tinggi Tanaman (cm)", 0.0, 500.0, 0.0, step=0.5)
         in_stem = st.number_input("Diameter Batang (mm)", 0.0, 50.0, 0.0, step=0.1, help="Ukur pangkal batang utama dengan jangka sorong")
