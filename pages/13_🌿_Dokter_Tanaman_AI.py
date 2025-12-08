@@ -12,9 +12,9 @@ from datetime import datetime
 st.set_page_config(page_title="Dokter Tanaman AI", page_icon="🌿", layout="wide")
 
 # ========== ROBOFLOW CONFIGURATION ==========
-# Note: In production, use st.secrets for API key
-ROBOFLOW_API_KEY = "demo_key"  # Replace with actual key
-ROBOFLOW_MODEL = "plant-disease-detection"
+# Private API Key (Server-side)
+ROBOFLOW_API_KEY = "rf_ksQ2aJjG9GYeggju3Xf88P77OPK2" 
+ROBOFLOW_MODEL = "plant-disease-detection" 
 ROBOFLOW_VERSION = "1"
 
 # ========== DISEASE DATABASE ==========
@@ -96,34 +96,43 @@ def encode_image(image):
     img_str = base64.b64encode(buffered.getvalue()).decode()
     return img_str
 
-def detect_disease_demo(image):
+def detect_disease_real(image):
     """
-    Demo disease detection (simulated)
-    In production, replace with actual Roboflow API call
+    Real-time disease detection using Roboflow API
     """
-    # Simulated detection for demo
-    # In production, use:
-    # response = requests.post(
-    #     f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}",
-    #     params={"api_key": ROBOFLOW_API_KEY},
-    #     files={"file": image_bytes}
-    # )
+    # 1. Convert to bytes
+    img_byte_arr = io.BytesIO()
+    image.save(img_byte_arr, format='JPEG')
+    img_byte_arr = img_byte_arr.getvalue()
+
+    # 2. Call API
+    api_url = f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}"
     
-    import random
-    diseases = list(DISEASE_INFO.keys())
-    detected = random.choice(diseases)
-    confidence = random.uniform(0.75, 0.98)
-    
-    return {
-        "predictions": [{
-            "class": detected,
-            "confidence": confidence,
-            "x": 320,
-            "y": 240,
-            "width": 200,
-            "height": 200
-        }]
-    }
+    try:
+        response = requests.post(
+            api_url,
+            params={
+                "api_key": ROBOFLOW_API_KEY,
+                "confidence": 40, 
+                "overlap": 30
+            },
+            files={
+                "file": img_byte_arr
+            }
+        )
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 404:
+             st.error(f"⚠️ Model '{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}' tidak ditemukan. Mohon cek Project ID di Roboflow.")
+             return None
+        else:
+            st.error(f"⚠️ API Error: {response.text}")
+            return None
+            
+    except Exception as e:
+        st.error(f"⚠️ Connection Error: {e}")
+        return None
 
 def get_treatment_plan(disease_name, severity):
     """Generate comprehensive treatment plan"""
@@ -177,10 +186,8 @@ with st.expander("📖 Cara Menggunakan", expanded=False):
     """)
 
 # Warning about demo mode
-st.warning("""
-⚠️ **Demo Mode:** Modul ini menggunakan simulasi AI untuk demo. 
-Untuk produksi, integrasikan dengan Roboflow API key yang valid.
-""")
+# Real Mode Active
+st.info(f"🟢 **System Online:** Terhubung ke Roboflow Inference Engine ({ROBOFLOW_MODEL})")
 
 # Image Input
 st.subheader("📸 Upload Foto Tanaman")
@@ -222,7 +229,7 @@ if image and st.button("🔍 Analisis dengan AI", type="primary", use_container_
     
     with st.spinner("AI sedang menganalisis gambar..."):
         # Detect disease
-        result = detect_disease_demo(image)
+        result = detect_disease_real(image)
         
         if result and "predictions" in result and len(result["predictions"]) > 0:
             prediction = result["predictions"][0]
