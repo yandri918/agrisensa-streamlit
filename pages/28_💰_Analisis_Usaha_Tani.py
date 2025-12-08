@@ -607,7 +607,7 @@ if "rab_editor" in st.session_state:
 df_rab = pd.DataFrame(rab_data)
 
 cols_config = {
-    "Kategori": st.column_config.TextColumn("Kategori", disabled=True),
+    "Kategori": st.column_config.TextColumn("Kategori", disabled=False),
     "Uraian": st.column_config.TextColumn("Uraian Pekerjaan/Barang", width="large"),
     "Satuan": st.column_config.TextColumn("Satuan", width="small"),
     "Volume": st.column_config.NumberColumn("Volume", format="%.1f"),
@@ -617,7 +617,7 @@ cols_config = {
 
 # 3. MAIN TABLE EDITOR
 st.subheader(f"📝 Tabel RAB: {selected_crop} ({luas_lahan_ha} Ha)")
-st.info("💡 Klik pada sel tabel untuk mengubah Volume atau Harga. Tekan Enter untuk update Total.")
+st.info("💡 Klik sel untuk ubah data. Anda bisa mengetik manual di kolom 'Kategori' untuk menambah item baru (misal: 'Lainnya').")
 
 # Session State for Dataframe to support "Reactive" updates
 if 'df_rab_current' not in st.session_state or st.session_state.get('last_crop') != selected_crop:
