@@ -20,16 +20,28 @@ if not api_key:
         api_key = os.environ["GOOGLE_API_KEY"]
 
 # ========== GEMINI LOGIC ==========
-def analyze_with_gemini(image, key):
+def get_gemini_models(api_key):
+    """Fetch available Gemini models from API"""
+    try:
+        genai.configure(api_key=api_key)
+        models = []
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                models.append(m.name)
+        return models
+    except Exception as e:
+        return []
+
+def analyze_with_gemini(image, key, model_name='models/gemini-1.5-flash'):
     """
-    Analyze image using Google Gemini 1.5 Flash
+    Analyze image using Google Gemini
     """
     if not key:
         return None, "API Key belum diisi."
         
     try:
         genai.configure(api_key=key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel(model_name)
         
         prompt = """
         You are an expert agricultural plant pathologist. Analyze this image of a plant.
@@ -52,7 +64,9 @@ def analyze_with_gemini(image, key):
         Do not allow markdown formatting in the response, just raw JSON.
         """
         
-        with st.spinner("🤖 Gemini sedang meneliti tanaman Anda..."):
+        with st.spinner(f"🤖 Meminta analisis ke {model_name}..."):
+            # Gemini 1.5 Flash/Pro supports image directly in list
+            # Legacy models might act differently, but 'generateContent' is standard for newer ones
             response = model.generate_content([prompt, image])
             text_response = response.text.replace('```json', '').replace('```', '').strip()
             
@@ -66,21 +80,32 @@ def analyze_with_gemini(image, key):
         return None, str(e)
 
 # ========== MAIN APP ==========
-st.title("🌿 Dokter Tanaman AI (Gemini 1.5 Flash)")
-st.caption("Didukung oleh Google Gemini 1.5 Flash - Multimodal Analysis")
+st.title("🌿 Dokter Tanaman AI (Gemini)")
+st.caption("Didukung oleh Google Gemini - Multimodal Analysis")
 
 # Sidebar Info
 with st.sidebar:
-    st.info("""
-    **Tentang Model Ini:**
+    st.info("💡 **Tips:** Pastikan API Key Anda memiliki akses ke model yang dipilih.")
+    st.divider()
+
+    # Model Selection Logic
+    available_models = []
+    if api_key:
+        available_models = get_gemini_models(api_key)
     
-    Menggunakan **Gemini 1.5 Flash**, model multimodal Google yang mampu 'melihat' dan menganalisis gambar tanaman layaknya ahli patologi tanaman.
+    # Default options if fetch fails
+    default_options = ["models/gemini-1.5-flash", "models/gemini-1.5-pro", "models/gemini-pro-vision"]
     
-    **Kelebihan:**
-    - Analisis konteks visual (bukan sekadar pola)
-    - Penjelasan logis (reasoning)
-    - Rekomendasi yang dipersonalisasi
-    """)
+    # Merge found models
+    options = available_models if available_models else default_options
+    
+    selected_model = st.selectbox(
+        "Pilih Model AI", 
+        options, 
+        index=0 if options else 0,
+        help="Pilih model yang tersedia di akun Anda. Gunakan 'flash' untuk kecepatan, 'pro' untuk akurasi."
+    )
+    
     st.divider()
     st.markdown("[Dapatkan API Key Gratis](https://aistudio.google.com/app/apikey)")
 
@@ -109,7 +134,7 @@ with col2:
             st.warning("⚠️ Masukkan Google API Key di Sidebar untuk memulai analisis.")
             
         if api_key and st.button("🔍 Analisis Sekarang", type="primary", use_container_width=True):
-            result, error = analyze_with_gemini(image, api_key)
+            result, error = analyze_with_gemini(image, api_key, model_name=selected_model)
             
             if error:
                 st.error(f"Terjadi Kesalahan: {error}")
