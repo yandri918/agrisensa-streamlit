@@ -47,18 +47,20 @@ def analyze_with_gemini(image, key, model_name='models/gemini-1.5-flash'):
         You are an expert agricultural plant pathologist. Analyze this image of a plant.
         Identify if there is any disease, pest, or nutrient deficiency.
         
+        IMPORTANT: Provide the response strictly in INDONESIAN language (Bahasa Indonesia).
+        
         Return the result strictly in this JSON format:
         {
             "is_healthy": boolean,
-            "diagnosis": "Name of the disease/pest/deficiency or 'Healthy' if none",
+            "diagnosis": "Nama penyakit/hama/defisiensi atau 'Sehat' jika tidak ada (Dalam Bahasa Indonesia)",
             "confidence": float (0.0 to 1.0),
             "severity": "None" | "Low" | "Medium" | "High" | "Critical",
-            "symptoms_observed": ["List", "of", "visual", "symptoms"],
-            "explanation": "Brief explanation of why you made this diagnosis based on visual evidence.",
+            "symptoms_observed": ["Daftar", "gejala", "visual", "yang", "terlihat"],
+            "explanation": "Penjelasan singkat mengapa Anda membuat diagnosis ini berdasarkan bukti visual (Dalam Bahasa Indonesia).",
             "treatment_recommendations": {
-                "immediate": ["Action 1", "Action 2"],
-                "short_term": ["Action 1", "Action 2"],
-                "prevention": ["Action 1", "Action 2"]
+                "immediate": ["Tindakan 1", "Tindakan 2"],
+                "short_term": ["Tindakan 1", "Tindakan 2"],
+                "prevention": ["Tindakan 1", "Tindakan 2"]
             }
         }
         Do not allow markdown formatting in the response, just raw JSON.
