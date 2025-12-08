@@ -555,10 +555,26 @@ PESTISIDA_DATABASE["Pinang (Areca catechu)"] = {
 }
 
 # ========== SIDEBAR INFO ==========
+# ========== SIDEBAR INFO ==========
 with st.sidebar:
     st.info("ℹ️ **Info Ilmiah:** Ingin tahu lebih dalam tentang bahan aktif seperti *Azadirachtin* atau *Rotenon*?")
     if st.button("🔬 Buka Direktori Bahan Aktif"):
         st.switch_page("pages/26_🔬_Direktori_Bahan_Aktif.py")
+        
+    st.markdown("---")
+    st.header("📚 Referensi Lengkap")
+    st.write("Untuk informasi lebih lengkap buka file ini:")
+    
+    try:
+        with open("assets/pdfs/M-48_Pestisida_Nabati.pdf", "rb") as pdf_file:
+            st.download_button(
+                label="📥 Download PDF M-48",
+                data=pdf_file,
+                file_name="M-48_Pestisida_Nabati.pdf",
+                mime="application/pdf"
+            )
+    except FileNotFoundError:
+        st.error("File PDF belum tersedia.")
 
 # ========== HELPER FUNCTIONS ==========
 def calculate_dosage(luas_lahan, volume_per_ha, konsentrasi):
