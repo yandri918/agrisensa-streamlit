@@ -276,18 +276,19 @@ if image and st.button("🔍 Analisis dengan AI", type="primary", use_container_
     # Display Results ONLY if prediction found
     if found_prediction:
             
-    # Display Results
-    st.markdown("---")
-    st.subheader("🎯 Hasil Diagnosis AI")
-    
-    # Main diagnosis card
-    severity_colors = {
-        "None": "#10b981",
-        "Low": "#3b82f6",
-        "Medium": "#f59e0b",
-        "High": "#ef4444",
-        "Very High": "#dc2626"
-    }
+        # Display Results
+        st.markdown("---")
+        st.subheader("🎯 Hasil Diagnosis AI")
+        
+        # Main diagnosis card
+        severity_colors = {
+            "None": "#10b981",
+            "Low": "#3b82f6",
+            "Medium": "#f59e0b",
+            "High": "#ef4444",
+            "Unknown": "#6b7280",
+            "Very High": "#dc2626"
+        }
     
     severity_icons = {
         "None": "✅",
