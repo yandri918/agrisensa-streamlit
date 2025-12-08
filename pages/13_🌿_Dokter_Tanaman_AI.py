@@ -14,8 +14,9 @@ st.set_page_config(page_title="Dokter Tanaman AI", page_icon="🌿", layout="wid
 # ========== ROBOFLOW CONFIGURATION ==========
 # Private API Key (Server-side)
 ROBOFLOW_API_KEY = "rf_ksQ2aJjG9GYeggju3Xf88P77OPK2" 
-ROBOFLOW_MODEL = "plant-disease-detection" 
-ROBOFLOW_VERSION = "1"
+# Defaults
+DEFAULT_MODEL = "plant-disease-detection"
+DEFAULT_VERSION = "1"
 
 # ========== DISEASE DATABASE ==========
 DISEASE_INFO = {
@@ -96,7 +97,7 @@ def encode_image(image):
     img_str = base64.b64encode(buffered.getvalue()).decode()
     return img_str
 
-def detect_disease_real(image):
+def detect_disease_real(image, model_id, model_version):
     """
     Real-time disease detection using Roboflow API
     """
@@ -106,7 +107,7 @@ def detect_disease_real(image):
     img_byte_arr = img_byte_arr.getvalue()
 
     # 2. Call API
-    api_url = f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}"
+    api_url = f"https://detect.roboflow.com/{model_id}/{model_version}"
     
     try:
         response = requests.post(
@@ -123,8 +124,11 @@ def detect_disease_real(image):
 
         if response.status_code == 200:
             return response.json()
+        elif response.status_code == 403:
+             st.error(f"⚠️ Akses Ditolak (403). API Key tidak memiliki izin ke model '{model_id}'. Cek Model ID atau API Key.")
+             return None
         elif response.status_code == 404:
-             st.error(f"⚠️ Model '{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}' tidak ditemukan. Mohon cek Project ID di Roboflow.")
+             st.error(f"⚠️ Model '{model_id}/{model_version}' tidak ditemukan. Mohon cek Project ID di Roboflow.")
              return None
         else:
             st.error(f"⚠️ API Error: {response.text}")
@@ -187,7 +191,13 @@ with st.expander("📖 Cara Menggunakan", expanded=False):
 
 # Warning about demo mode
 # Real Mode Active
-st.info(f"🟢 **System Online:** Terhubung ke Roboflow Inference Engine ({ROBOFLOW_MODEL})")
+st.info(f"🟢 **System Online:** Terhubung ke Roboflow Inference.")
+
+# Config Expander
+with st.expander("⚙️ Konfigurasi Model AI"):
+    custom_model = st.text_input("Roboflow Model ID", DEFAULT_MODEL, help="ID Project di Roboflow (misal: 'plant-disease-detection' atau 'my-custom-model')")
+    custom_version = st.text_input("Version", DEFAULT_VERSION, help="Versi Model (angka)")
+
 
 # Image Input
 st.subheader("📸 Upload Foto Tanaman")
@@ -227,18 +237,44 @@ with col2:
 # Analysis Button
 if image and st.button("🔍 Analisis dengan AI", type="primary", use_container_width=True):
     
+    disease_name = "Unknown"
+    confidence = 0.0
+    severity = "Unknown"
+    found_prediction = False
+    
     with st.spinner("AI sedang menganalisis gambar..."):
         # Detect disease
-        result = detect_disease_real(image)
+        result = detect_disease_real(image, custom_model, custom_version)
         
         if result and "predictions" in result and len(result["predictions"]) > 0:
             prediction = result["predictions"][0]
-            disease_name = prediction["class"]
+            # Normalize class name to Title Case to match DB
+            raw_class = prediction["class"]
+            # Try exact match or title case
+            disease_name = raw_class
+            
+            # Map robustly
+            if raw_class not in DISEASE_INFO:
+                # Try simple variations
+                if raw_class.title() in DISEASE_INFO:
+                    disease_name = raw_class.title()
+            
             confidence = prediction["confidence"]
+            found_prediction = True
             
             # Get disease info
             disease_info = DISEASE_INFO.get(disease_name, {})
-            severity = disease_info.get("severity", "Unknown")
+            severity = disease_info.get("severity", "Medium") # Default if not found
+            
+        elif result and "predictions" in result and len(result["predictions"]) == 0:
+             st.info("✅ Tidak ada gejala penyakit terdeteksi (Healthy).")
+             disease_name = "Healthy"
+             severity = "None"
+             confidence = 1.0
+             found_prediction = True
+             
+    # Display Results ONLY if prediction found
+    if found_prediction:
             
     # Display Results
     st.markdown("---")
