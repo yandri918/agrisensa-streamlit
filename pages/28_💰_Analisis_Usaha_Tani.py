@@ -304,7 +304,12 @@ with st.sidebar:
             saved_model_idx = 0
             if 'baris_per_bedeng' in st.session_state.rab_params:
                 saved_model_idx = 0 if st.session_state.rab_params['baris_per_bedeng'] == 1 else 1
-            baris_per_bedeng = st.selectbox("Model Tanam", [1, 2], index=saved_model_idx, format_func=lambda x: f"{x} Baris (Zigzag)" if x==2 else "1 Baris (Single)")
+            
+            if "Krisan" in selected_crop:
+                 def_baris = 8
+                 baris_per_bedeng = st.number_input("Baris per Bedengan", 2, 20, int(def_baris), step=1, help="Krisan butuh kerapatan tinggi")
+            else:
+                 baris_per_bedeng = st.selectbox("Model Tanam", [1, 2], index=saved_model_idx, format_func=lambda x: f"{x} Baris (Zigzag)" if x==2 else "1 Baris (Single)")
     
     # C. Mulch Specs
     st.divider()
