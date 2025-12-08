@@ -290,138 +290,139 @@ if image and st.button("🔍 Analisis dengan AI", type="primary", use_container_
             "Very High": "#dc2626"
         }
     
-    severity_icons = {
-        "None": "✅",
-        "Low": "🟢",
-        "Medium": "🟡",
-        "High": "🟠",
-        "Very High": "🔴"
-    }
-    
-    color = severity_colors.get(severity, "#6b7280")
-    icon = severity_icons.get(severity, "⚪")
-    
-    col1, col2, col3 = st.columns([2, 1, 1])
-    
-    with col1:
-        st.markdown(f"""
-        <div style="background: linear-gradient(135deg, {color}20 0%, {color}40 100%); 
-                    padding: 2rem; border-radius: 12px; border: 2px solid {color}; text-align: center;">
-            <div style="font-size: 4rem;">{icon}</div>
-            <h2 style="color: {color}; margin: 0.5rem 0;">Terdeteksi: {disease_name}</h2>
-            <p style="font-size: 1.2rem; color: #6b7280; margin: 0;">Tingkat Keparahan: {severity}</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.metric(
-            "AI Confidence",
-            f"{confidence*100:.1f}%",
-            help="Tingkat kepercayaan AI terhadap diagnosis"
-        )
-    
-    with col3:
-        reliability = "Tinggi" if confidence > 0.8 else "Sedang" if confidence > 0.6 else "Rendah"
-        st.metric(
-            "Reliability",
-            reliability,
-            help="Keandalan hasil berdasarkan confidence"
-        )
-    
-    # Disease Information
-    st.markdown("---")
-    st.subheader("📋 Informasi Penyakit")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown(f"""
-        **Deskripsi:**
-        {disease_info.get('description', 'Tidak ada deskripsi')}
-        
-        **Tingkat Keparahan:** {severity}
-        
-        **Confidence Score:** {confidence*100:.1f}%
-        """)
-    
-    with col2:
-        if disease_name != "Healthy":
-            st.error(f"""
-            ⚠️ **Tindakan Diperlukan!**
-            
-            Tanaman terdeteksi mengalami {disease_name}.
-            Segera lakukan treatment sesuai rekomendasi di bawah.
-            """)
-        else:
-            st.success("""
-            ✅ **Tanaman Sehat!**
-            
-            Tidak ada penyakit terdeteksi.
-            Lanjutkan perawatan rutin.
-            """)
-    
-    # Treatment Plan
-    if disease_name != "Healthy":
-        st.markdown("---")
-        st.subheader("💊 Rencana Penanganan")
-        
-        treatment_plan = get_treatment_plan(disease_name, severity)
-        
-        tab1, tab2, tab3 = st.tabs(["⚡ Immediate", "📅 Short-term", "🛡️ Long-term"])
-        
-        with tab1:
-            st.markdown("**Tindakan Segera (0-24 jam):**")
-            for action in treatment_plan["immediate"]:
-                st.write(f"- {action}")
-        
-        with tab2:
-            st.markdown("**Tindakan Jangka Pendek (1-4 minggu):**")
-            for action in treatment_plan["short_term"]:
-                st.write(f"- {action}")
-        
-        with tab3:
-            st.markdown("**Tindakan Jangka Panjang (Pencegahan):**")
-            for action in treatment_plan["long_term"]:
-                st.write(f"- {action}")
-    
-    # Additional Recommendations
-    st.markdown("---")
-    st.subheader("💡 Rekomendasi Tambahan")
-    
-    if confidence < 0.7:
-        st.warning("""
-        ⚠️ **Confidence rendah!**
-        
-        Hasil deteksi kurang akurat. Pertimbangkan:
-        - Ambil foto ulang dengan pencahayaan lebih baik
-        - Foto dari sudut berbeda
-        - Konsultasi dengan ahli untuk konfirmasi
-        """)
-    
-    if disease_name != "Healthy":
-        st.info("""
-        **Langkah Selanjutnya:**
-        
-        1. **Dokumentasi:** Simpan foto dan hasil diagnosis
-        2. **Monitoring:** Amati perkembangan setelah treatment
-        3. **Follow-up:** Foto ulang setelah 1-2 minggu
-        4. **Konsultasi:** Hubungi penyuluh jika tidak membaik
-        5. **Pencegahan:** Terapkan langkah pencegahan untuk tanaman lain
-        """)
-    
-    # Save diagnosis
-    st.markdown("---")
-    if st.button("💾 Simpan Hasil Diagnosis", use_container_width=True):
-        diagnosis_record = {
-            'timestamp': datetime.now().isoformat(),
-            'disease': disease_name,
-            'confidence': confidence,
-            'severity': severity,
-            'treatment_plan': treatment_plan
+        severity_icons = {
+            "None": "✅",
+            "Low": "🟢",
+            "Medium": "🟡",
+            "High": "🟠",
+            "Unknown": "❓",
+            "Very High": "🔴"
         }
         
-        st.success("✅ Hasil diagnosis berhasil disimpan!")
-        st.json(diagnosis_record)
+        color = severity_colors.get(severity, "#6b7280")
+        icon = severity_icons.get(severity, "⚪")
+        
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
+        with col1:
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, {color}20 0%, {color}40 100%); 
+                        padding: 2rem; border-radius: 12px; border: 2px solid {color}; text-align: center;">
+                <div style="font-size: 4rem;">{icon}</div>
+                <h2 style="color: {color}; margin: 0.5rem 0;">Terdeteksi: {disease_name}</h2>
+                <p style="font-size: 1.2rem; color: #6b7280; margin: 0;">Tingkat Keparahan: {severity}</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.metric(
+                "AI Confidence",
+                f"{confidence*100:.1f}%",
+                help="Tingkat kepercayaan AI terhadap diagnosis"
+            )
+        
+        with col3:
+            reliability = "Tinggi" if confidence > 0.8 else "Sedang" if confidence > 0.6 else "Rendah"
+            st.metric(
+                "Reliability",
+                reliability,
+                help="Keandalan hasil berdasarkan confidence"
+            )
+        
+        # Disease Information
+        st.markdown("---")
+        st.subheader("📋 Informasi Penyakit")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown(f"""
+            **Deskripsi:**
+            {disease_info.get('description', 'Tidak ada deskripsi')}
+            
+            **Tingkat Keparahan:** {severity}
+            
+            **Confidence Score:** {confidence*100:.1f}%
+            """)
+        
+        with col2:
+            if disease_name != "Healthy":
+                st.error(f"""
+                ⚠️ **Tindakan Diperlukan!**
+                
+                Tanaman terdeteksi mengalami {disease_name}.
+                Segera lakukan treatment sesuai rekomendasi di bawah.
+                """)
+            else:
+                st.success("""
+                ✅ **Tanaman Sehat!**
+                
+                Tidak ada penyakit terdeteksi.
+                Lanjutkan perawatan rutin.
+                """)
+        
+        # Treatment Plan
+        if disease_name != "Healthy":
+            st.markdown("---")
+            st.subheader("💊 Rencana Penanganan")
+            
+            treatment_plan = get_treatment_plan(disease_name, severity)
+            
+            tab1, tab2, tab3 = st.tabs(["⚡ Immediate", "📅 Short-term", "🛡️ Long-term"])
+            
+            with tab1:
+                st.markdown("**Tindakan Segera (0-24 jam):**")
+                for action in treatment_plan["immediate"]:
+                    st.write(f"- {action}")
+            
+            with tab2:
+                st.markdown("**Tindakan Jangka Pendek (1-4 minggu):**")
+                for action in treatment_plan["short_term"]:
+                    st.write(f"- {action}")
+            
+            with tab3:
+                st.markdown("**Tindakan Jangka Panjang (Pencegahan):**")
+                for action in treatment_plan["long_term"]:
+                    st.write(f"- {action}")
+        
+        # Additional Recommendations
+        st.markdown("---")
+        st.subheader("💡 Rekomendasi Tambahan")
+        
+        if confidence < 0.7:
+            st.warning("""
+            ⚠️ **Confidence rendah!**
+            
+            Hasil deteksi kurang akurat. Pertimbangkan:
+            - Ambil foto ulang dengan pencahayaan lebih baik
+            - Foto dari sudut berbeda
+            - Konsultasi dengan ahli untuk konfirmasi
+            """)
+        
+        if disease_name != "Healthy":
+            st.info("""
+            **Langkah Selanjutnya:**
+            
+            1. **Dokumentasi:** Simpan foto dan hasil diagnosis
+            2. **Monitoring:** Amati perkembangan setelah treatment
+            3. **Follow-up:** Foto ulang setelah 1-2 minggu
+            4. **Konsultasi:** Hubungi penyuluh jika tidak membaik
+            5. **Pencegahan:** Terapkan langkah pencegahan untuk tanaman lain
+            """)
+        
+        # Save diagnosis
+        st.markdown("---")
+        if st.button("💾 Simpan Hasil Diagnosis", use_container_width=True):
+            diagnosis_record = {
+                'timestamp': datetime.now().isoformat(),
+                'disease': disease_name,
+                'confidence': confidence,
+                'severity': severity,
+                'treatment_plan': treatment_plan
+            }
+            
+            st.success("✅ Hasil diagnosis berhasil disimpan!")
+            st.json(diagnosis_record)
 
 elif not image:
     st.info("👆 Upload foto atau ambil foto tanaman untuk memulai diagnosis")
