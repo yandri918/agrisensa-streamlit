@@ -12,11 +12,10 @@ from datetime import datetime
 st.set_page_config(page_title="Dokter Tanaman AI", page_icon="🌿", layout="wide")
 
 # ========== ROBOFLOW CONFIGURATION ==========
-# Private API Key (Server-side)
-ROBOFLOW_API_KEY = "rf_ksQ2aJjG9GYeggju3Xf88P77OPK2" 
-# Defaults
-DEFAULT_MODEL = "plant-disease-detection"
-DEFAULT_VERSION = "1"
+# Note: In production, use st.secrets for API key
+ROBOFLOW_API_KEY = "demo_key"  # Replace with actual key
+ROBOFLOW_MODEL = "plant-disease-detection"
+ROBOFLOW_VERSION = "1"
 
 # ========== DISEASE DATABASE ==========
 DISEASE_INFO = {
@@ -97,46 +96,34 @@ def encode_image(image):
     img_str = base64.b64encode(buffered.getvalue()).decode()
     return img_str
 
-def detect_disease_real(image, model_id, model_version):
+def detect_disease_demo(image):
     """
-    Real-time disease detection using Roboflow API
+    Demo disease detection (simulated)
+    In production, replace with actual Roboflow API call
     """
-    # 1. Convert to bytes
-    img_byte_arr = io.BytesIO()
-    image.save(img_byte_arr, format='JPEG')
-    img_byte_arr = img_byte_arr.getvalue()
-
-    # 2. Call API
-    api_url = f"https://detect.roboflow.com/{model_id}/{model_version}"
+    # Simulated detection for demo
+    # In production, use:
+    # response = requests.post(
+    #     f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}",
+    #     params={"api_key": ROBOFLOW_API_KEY},
+    #     files={"file": image_bytes}
+    # )
     
-    try:
-        response = requests.post(
-            api_url,
-            params={
-                "api_key": ROBOFLOW_API_KEY,
-                "confidence": 40, 
-                "overlap": 30
-            },
-            files={
-                "file": img_byte_arr
-            }
-        )
-
-        if response.status_code == 200:
-            return response.json()
-        elif response.status_code == 403:
-             st.error(f"⚠️ Akses Ditolak (403). API Key tidak memiliki izin ke model '{model_id}'. Cek Model ID atau API Key.")
-             return None
-        elif response.status_code == 404:
-             st.error(f"⚠️ Model '{model_id}/{model_version}' tidak ditemukan. Mohon cek Project ID di Roboflow.")
-             return None
-        else:
-            st.error(f"⚠️ API Error: {response.text}")
-            return None
-            
-    except Exception as e:
-        st.error(f"⚠️ Connection Error: {e}")
-        return None
+    import random
+    diseases = list(DISEASE_INFO.keys())
+    detected = random.choice(diseases)
+    confidence = random.uniform(0.75, 0.98)
+    
+    return {
+        "predictions": [{
+            "class": detected,
+            "confidence": confidence,
+            "x": 320,
+            "y": 240,
+            "width": 200,
+            "height": 200
+        }]
+    }
 
 def get_treatment_plan(disease_name, severity):
     """Generate comprehensive treatment plan"""
@@ -190,14 +177,10 @@ with st.expander("📖 Cara Menggunakan", expanded=False):
     """)
 
 # Warning about demo mode
-# Real Mode Active
-st.info(f"🟢 **System Online:** Terhubung ke Roboflow Inference.")
-
-# Config Expander
-with st.expander("⚙️ Konfigurasi Model AI"):
-    custom_model = st.text_input("Roboflow Model ID", DEFAULT_MODEL, help="ID Project di Roboflow (misal: 'plant-disease-detection' atau 'my-custom-model')")
-    custom_version = st.text_input("Version", DEFAULT_VERSION, help="Versi Model (angka)")
-
+st.warning("""
+⚠️ **Demo Mode:** Modul ini menggunakan simulasi AI untuk demo. 
+Untuk produksi, integrasikan dengan Roboflow API key yang valid.
+""")
 
 # Image Input
 st.subheader("📸 Upload Foto Tanaman")
@@ -237,192 +220,164 @@ with col2:
 # Analysis Button
 if image and st.button("🔍 Analisis dengan AI", type="primary", use_container_width=True):
     
-    disease_name = "Unknown"
-    confidence = 0.0
-    severity = "Unknown"
-    found_prediction = False
-    
     with st.spinner("AI sedang menganalisis gambar..."):
         # Detect disease
-        result = detect_disease_real(image, custom_model, custom_version)
+        result = detect_disease_demo(image)
         
         if result and "predictions" in result and len(result["predictions"]) > 0:
             prediction = result["predictions"][0]
-            # Normalize class name to Title Case to match DB
-            raw_class = prediction["class"]
-            # Try exact match or title case
-            disease_name = raw_class
-            
-            # Map robustly
-            if raw_class not in DISEASE_INFO:
-                # Try simple variations
-                if raw_class.title() in DISEASE_INFO:
-                    disease_name = raw_class.title()
-            
+            disease_name = prediction["class"]
             confidence = prediction["confidence"]
-            found_prediction = True
             
             # Get disease info
             disease_info = DISEASE_INFO.get(disease_name, {})
-            severity = disease_info.get("severity", "Medium") # Default if not found
+            severity = disease_info.get("severity", "Unknown")
             
-        elif result and "predictions" in result and len(result["predictions"]) == 0:
-             st.info("✅ Tidak ada gejala penyakit terdeteksi (Healthy).")
-             disease_name = "Healthy"
-             severity = "None"
-             confidence = 1.0
-             found_prediction = True
-             
-    # Display Results ONLY if prediction found
-    if found_prediction:
-            
-        # Display Results
-        st.markdown("---")
-        st.subheader("🎯 Hasil Diagnosis AI")
-        
-        # Main diagnosis card
-        severity_colors = {
-            "None": "#10b981",
-            "Low": "#3b82f6",
-            "Medium": "#f59e0b",
-            "High": "#ef4444",
-            "Unknown": "#6b7280",
-            "Very High": "#dc2626"
-        }
+    # Display Results
+    st.markdown("---")
+    st.subheader("🎯 Hasil Diagnosis AI")
     
-        severity_icons = {
-            "None": "✅",
-            "Low": "🟢",
-            "Medium": "🟡",
-            "High": "🟠",
-            "Unknown": "❓",
-            "Very High": "🔴"
+    # Main diagnosis card
+    severity_colors = {
+        "None": "#10b981",
+        "Low": "#3b82f6",
+        "Medium": "#f59e0b",
+        "High": "#ef4444",
+        "Very High": "#dc2626"
+    }
+    
+    severity_icons = {
+        "None": "✅",
+        "Low": "🟢",
+        "Medium": "🟡",
+        "High": "🟠",
+        "Very High": "🔴"
+    }
+    
+    color = severity_colors.get(severity, "#6b7280")
+    icon = severity_icons.get(severity, "⚪")
+    
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, {color}20 0%, {color}40 100%); 
+                    padding: 2rem; border-radius: 12px; border: 2px solid {color}; text-align: center;">
+            <div style="font-size: 4rem;">{icon}</div>
+            <h2 style="color: {color}; margin: 0.5rem 0;">Terdeteksi: {disease_name}</h2>
+            <p style="font-size: 1.2rem; color: #6b7280; margin: 0;">Tingkat Keparahan: {severity}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.metric(
+            "AI Confidence",
+            f"{confidence*100:.1f}%",
+            help="Tingkat kepercayaan AI terhadap diagnosis"
+        )
+    
+    with col3:
+        reliability = "Tinggi" if confidence > 0.8 else "Sedang" if confidence > 0.6 else "Rendah"
+        st.metric(
+            "Reliability",
+            reliability,
+            help="Keandalan hasil berdasarkan confidence"
+        )
+    
+    # Disease Information
+    st.markdown("---")
+    st.subheader("📋 Informasi Penyakit")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown(f"""
+        **Deskripsi:**
+        {disease_info.get('description', 'Tidak ada deskripsi')}
+        
+        **Tingkat Keparahan:** {severity}
+        
+        **Confidence Score:** {confidence*100:.1f}%
+        """)
+    
+    with col2:
+        if disease_name != "Healthy":
+            st.error(f"""
+            ⚠️ **Tindakan Diperlukan!**
+            
+            Tanaman terdeteksi mengalami {disease_name}.
+            Segera lakukan treatment sesuai rekomendasi di bawah.
+            """)
+        else:
+            st.success("""
+            ✅ **Tanaman Sehat!**
+            
+            Tidak ada penyakit terdeteksi.
+            Lanjutkan perawatan rutin.
+            """)
+    
+    # Treatment Plan
+    if disease_name != "Healthy":
+        st.markdown("---")
+        st.subheader("💊 Rencana Penanganan")
+        
+        treatment_plan = get_treatment_plan(disease_name, severity)
+        
+        tab1, tab2, tab3 = st.tabs(["⚡ Immediate", "📅 Short-term", "🛡️ Long-term"])
+        
+        with tab1:
+            st.markdown("**Tindakan Segera (0-24 jam):**")
+            for action in treatment_plan["immediate"]:
+                st.write(f"- {action}")
+        
+        with tab2:
+            st.markdown("**Tindakan Jangka Pendek (1-4 minggu):**")
+            for action in treatment_plan["short_term"]:
+                st.write(f"- {action}")
+        
+        with tab3:
+            st.markdown("**Tindakan Jangka Panjang (Pencegahan):**")
+            for action in treatment_plan["long_term"]:
+                st.write(f"- {action}")
+    
+    # Additional Recommendations
+    st.markdown("---")
+    st.subheader("💡 Rekomendasi Tambahan")
+    
+    if confidence < 0.7:
+        st.warning("""
+        ⚠️ **Confidence rendah!**
+        
+        Hasil deteksi kurang akurat. Pertimbangkan:
+        - Ambil foto ulang dengan pencahayaan lebih baik
+        - Foto dari sudut berbeda
+        - Konsultasi dengan ahli untuk konfirmasi
+        """)
+    
+    if disease_name != "Healthy":
+        st.info("""
+        **Langkah Selanjutnya:**
+        
+        1. **Dokumentasi:** Simpan foto dan hasil diagnosis
+        2. **Monitoring:** Amati perkembangan setelah treatment
+        3. **Follow-up:** Foto ulang setelah 1-2 minggu
+        4. **Konsultasi:** Hubungi penyuluh jika tidak membaik
+        5. **Pencegahan:** Terapkan langkah pencegahan untuk tanaman lain
+        """)
+    
+    # Save diagnosis
+    st.markdown("---")
+    if st.button("💾 Simpan Hasil Diagnosis", use_container_width=True):
+        diagnosis_record = {
+            'timestamp': datetime.now().isoformat(),
+            'disease': disease_name,
+            'confidence': confidence,
+            'severity': severity,
+            'treatment_plan': treatment_plan
         }
         
-        color = severity_colors.get(severity, "#6b7280")
-        icon = severity_icons.get(severity, "⚪")
-        
-        col1, col2, col3 = st.columns([2, 1, 1])
-        
-        with col1:
-            st.markdown(f"""
-            <div style="background: linear-gradient(135deg, {color}20 0%, {color}40 100%); 
-                        padding: 2rem; border-radius: 12px; border: 2px solid {color}; text-align: center;">
-                <div style="font-size: 4rem;">{icon}</div>
-                <h2 style="color: {color}; margin: 0.5rem 0;">Terdeteksi: {disease_name}</h2>
-                <p style="font-size: 1.2rem; color: #6b7280; margin: 0;">Tingkat Keparahan: {severity}</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            st.metric(
-                "AI Confidence",
-                f"{confidence*100:.1f}%",
-                help="Tingkat kepercayaan AI terhadap diagnosis"
-            )
-        
-        with col3:
-            reliability = "Tinggi" if confidence > 0.8 else "Sedang" if confidence > 0.6 else "Rendah"
-            st.metric(
-                "Reliability",
-                reliability,
-                help="Keandalan hasil berdasarkan confidence"
-            )
-        
-        # Disease Information
-        st.markdown("---")
-        st.subheader("📋 Informasi Penyakit")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown(f"""
-            **Deskripsi:**
-            {disease_info.get('description', 'Tidak ada deskripsi')}
-            
-            **Tingkat Keparahan:** {severity}
-            
-            **Confidence Score:** {confidence*100:.1f}%
-            """)
-        
-        with col2:
-            if disease_name != "Healthy":
-                st.error(f"""
-                ⚠️ **Tindakan Diperlukan!**
-                
-                Tanaman terdeteksi mengalami {disease_name}.
-                Segera lakukan treatment sesuai rekomendasi di bawah.
-                """)
-            else:
-                st.success("""
-                ✅ **Tanaman Sehat!**
-                
-                Tidak ada penyakit terdeteksi.
-                Lanjutkan perawatan rutin.
-                """)
-        
-        # Treatment Plan
-        if disease_name != "Healthy":
-            st.markdown("---")
-            st.subheader("💊 Rencana Penanganan")
-            
-            treatment_plan = get_treatment_plan(disease_name, severity)
-            
-            tab1, tab2, tab3 = st.tabs(["⚡ Immediate", "📅 Short-term", "🛡️ Long-term"])
-            
-            with tab1:
-                st.markdown("**Tindakan Segera (0-24 jam):**")
-                for action in treatment_plan["immediate"]:
-                    st.write(f"- {action}")
-            
-            with tab2:
-                st.markdown("**Tindakan Jangka Pendek (1-4 minggu):**")
-                for action in treatment_plan["short_term"]:
-                    st.write(f"- {action}")
-            
-            with tab3:
-                st.markdown("**Tindakan Jangka Panjang (Pencegahan):**")
-                for action in treatment_plan["long_term"]:
-                    st.write(f"- {action}")
-        
-        # Additional Recommendations
-        st.markdown("---")
-        st.subheader("💡 Rekomendasi Tambahan")
-        
-        if confidence < 0.7:
-            st.warning("""
-            ⚠️ **Confidence rendah!**
-            
-            Hasil deteksi kurang akurat. Pertimbangkan:
-            - Ambil foto ulang dengan pencahayaan lebih baik
-            - Foto dari sudut berbeda
-            - Konsultasi dengan ahli untuk konfirmasi
-            """)
-        
-        if disease_name != "Healthy":
-            st.info("""
-            **Langkah Selanjutnya:**
-            
-            1. **Dokumentasi:** Simpan foto dan hasil diagnosis
-            2. **Monitoring:** Amati perkembangan setelah treatment
-            3. **Follow-up:** Foto ulang setelah 1-2 minggu
-            4. **Konsultasi:** Hubungi penyuluh jika tidak membaik
-            5. **Pencegahan:** Terapkan langkah pencegahan untuk tanaman lain
-            """)
-        
-        # Save diagnosis
-        st.markdown("---")
-        if st.button("💾 Simpan Hasil Diagnosis", use_container_width=True):
-            diagnosis_record = {
-                'timestamp': datetime.now().isoformat(),
-                'disease': disease_name,
-                'confidence': confidence,
-                'severity': severity,
-                'treatment_plan': treatment_plan
-            }
-            
-            st.success("✅ Hasil diagnosis berhasil disimpan!")
-            st.json(diagnosis_record)
+        st.success("✅ Hasil diagnosis berhasil disimpan!")
+        st.json(diagnosis_record)
 
 elif not image:
     st.info("👆 Upload foto atau ambil foto tanaman untuk memulai diagnosis")
@@ -469,12 +424,12 @@ with st.expander("🔧 Panduan Integrasi Roboflow API"):
     4. **Uncomment API Call:**
        ```python
        # Di function detect_disease_demo(), uncomment:
-       response = requests.post(
-           f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}",
-           params={"api_key": ROBOFLOW_API_KEY},
-           files={"file": image_bytes}
-       )
-       result = response.json()
+       # response = requests.post(
+       #     f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}",
+       #     params={"api_key": ROBOFLOW_API_KEY},
+       #     files={"file": image_bytes}
+       # )
+       # result = response.json()
        ```
     
     5. **Deploy:**
