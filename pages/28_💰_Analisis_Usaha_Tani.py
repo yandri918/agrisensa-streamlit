@@ -117,6 +117,20 @@ CROP_TEMPLATES = {
              {"kategori": "Tenaga Kerja", "item": "Panen & Packaging", "satuan": "HOK", "volume": 60, "harga": 90000, "wajib": True},
         ]
     },
+    "Krisan / Bunga Potong (Greenhouse)": {
+        "params": {"populasi_ha": 400000, "estimasi_panen_kg": 350000, "harga_jual": 2500, "lama_tanam_bulan": 3.5, "unit": "Batang"},
+        "items": [
+             {"kategori": "Biaya Tetap", "item": "Amortisasi Green house (Standard)", "satuan": "Musim", "volume": 1, "harga": 50000000, "wajib": True, "catatan": "Bambu/Besi Sederhana, umur 5 th"},
+             {"kategori": "Biaya Tetap", "item": "Listrik Night Break (Lampu)", "satuan": "Bulan", "volume": 2, "harga": 1500000, "wajib": True, "catatan": "Fase Vegetatif (4-5 Jam/malam)"},
+             {"kategori": "Persiapan Lahan", "item": "Amandemen (Kapur/Sekam)", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
+             {"kategori": "Persiapan Lahan", "item": "Jaring Penegak (Netting)", "satuan": "Roll", "volume": 20, "harga": 350000, "wajib": True, "catatan": "Dipakai berulang 3-4x"},
+             {"kategori": "Benih", "item": "Bibit Siap Tanam (Stek Pucuk)", "satuan": "Batang", "volume": 400000, "harga": 300, "wajib": True, "catatan": "Kerapatan 60-80 tan/m2"},
+             {"kategori": "Pupuk", "item": "Pupuk Dasar & Kocor", "satuan": "Paket", "volume": 1, "harga": 12000000, "wajib": True},
+             {"kategori": "Pestisida", "item": "Pestisida (Karat Putih/Trips)", "satuan": "Paket", "volume": 1, "harga": 8000000, "wajib": True},
+             {"kategori": "Tenaga Kerja", "item": "Tanam/Pinch/Disbudding", "satuan": "HOK", "volume": 200, "harga": 90000, "wajib": True},
+             {"kategori": "Tenaga Kerja", "item": "Panen & Ikat", "satuan": "HOK", "volume": 150, "harga": 90000, "wajib": True},
+        ]
+    },
 }
 
 # 2. Merge with Standardized Crops from Service
@@ -255,6 +269,8 @@ with st.sidebar:
         def_jarak = 50; def_bedengan = 100
     elif "Sayuran Daun" in selected_crop: # Hydroponic default
         def_jarak = 20; def_bedengan = 200 # Meja lebar 2m
+    elif "Krisan" in selected_crop:
+        def_jarak = 12; def_bedengan = 100 # Jarak 12.5 x 12.5 cm -> 64 tanaman/m2 bedeng
     else:
         def_jarak = 25; def_bedengan = 100
         
@@ -457,6 +473,7 @@ with st.sidebar:
     # H. Market Assumptions
     st.subheader("💵 Asumsi Pasar")
     crop_data = CROP_TEMPLATES[selected_crop]['params']
+    unit_hasil = crop_data.get('unit', 'kg') # Default kg
     
     if ai_suggestion:
         def_target_panen = float(ai_suggestion['predicted_yield'])
@@ -464,8 +481,8 @@ with st.sidebar:
     else:
         def_target_panen = float(crop_data['estimasi_panen_kg'])
         
-    target_harga = st.number_input("Harga Jual (Rp/kg)", 0, 200000, crop_data['harga_jual'], step=500)
-    target_panen = st.number_input("Target Hasil (kg/ha)", 0, 100000, int(def_target_panen), step=500)
+    target_harga = st.number_input(f"Harga Jual (Rp/{unit_hasil})", 0, 200000, crop_data['harga_jual'], step=100)
+    target_panen = st.number_input(f"Target Hasil ({unit_hasil}/ha)", 0, 1000000, int(def_target_panen), step=500)
 
 # 2. GENERATE DATA FRAME (DYNAMICALLY)
 template_items = CROP_TEMPLATES[selected_crop]['items']
@@ -672,7 +689,7 @@ st.subheader("📊 Analisis Kelayakan Usaha")
 
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Total Biaya (Modal)", f"Rp {total_biaya:,.0f}")
-c2.metric("Estimasi Omzet", f"Rp {estimasi_omzet:,.0f}", f"Yield: {target_panen*luas_lahan_ha:,.0f} kg")
+c2.metric("Estimasi Omzet", f"Rp {estimasi_omzet:,.0f}", f"Yield: {target_panen*luas_lahan_ha:,.0f} {unit_hasil}")
 c3.metric("Keuntungan Bersih", f"Rp {profit:,.0f}", delta=f"ROI: {roi:.1f}%")
 
 # BEP Calculation
@@ -681,7 +698,7 @@ bep_harga = total_biaya / (target_panen * luas_lahan_ha) if target_panen > 0 els
 bep_unit = total_biaya / target_harga if target_harga > 0 else 0
 
 if target_panen > 0:
-    c4.metric("BEP Harga (Titik Impas)", f"Rp {bep_harga:,.0f} /kg", help="Anda tidak rugi jika harga jual di atas ini")
+    c4.metric(f"BEP Harga (Titik Impas)", f"Rp {bep_harga:,.0f} /{unit_hasil}", help="Anda tidak rugi jika harga jual di atas ini")
 else:
     c4.metric("BEP Harga", "Fase Investasi", help="Belum ada panen di tahun pertama (Masa Konstruksi/Vegetatif)")
 
