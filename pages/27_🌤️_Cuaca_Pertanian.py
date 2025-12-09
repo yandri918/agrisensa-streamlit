@@ -57,14 +57,53 @@ def get_weather_icon(code):
     """Get weather icon based on WMO code"""
     # WMO Weather interpretation codes (WW)
     # https://open-meteo.com/en/docs
+    
+    # 0: Clear sky
     if code == 0: return "☀️", "Cerah"
-    if code in [1, 2, 3]: return "⛅", "Berawan"
+    
+    # 1, 2, 3: Mainly clear, partly cloudy, and overcast
+    if code == 1: return "🌤️", "Cerah Berawan"
+    if code == 2: return "⛅", "Berawan"
+    if code == 3: return "☁️", "Mendung"
+    
+    # 45, 48: Fog
     if code in [45, 48]: return "🌫️", "Kabut"
+    
+    # 51, 53, 55: Drizzle: Light, moderate, and dense intensity
     if code in [51, 53, 55]: return "🌦️", "Gerimis"
-    if code in [61, 63, 65]: return "🌧️", "Hujan"
-    if code in [80, 81, 82]: return "🌧️", "Hujan Lebat"
-    if code in [95, 96, 99]: return "⛈️", "Badai Petir"
-    return "🌤️", "Cerah Berawan"
+    
+    # 56, 57: Freezing Drizzle
+    if code in [56, 57]: return "❄️", "Gerimis Beku"
+    
+    # 61, 63, 65: Rain: Slight, moderate and heavy intensity
+    if code == 61: return "🌧️", "Hujan Ringan"
+    if code == 63: return "🌧️", "Hujan Sedang"
+    if code == 65: return "🌧️", "Hujan Lebat"
+    
+    # 66, 67: Freezing Rain
+    if code in [66, 67]: return "❄️", "Hujan Beku"
+    
+    # 71, 73, 75: Snow fall: Slight, moderate, and heavy intensity
+    if code in [71, 73, 75]: return "☃️", "Salju"
+    
+    # 77: Snow grains
+    if code == 77: return "❄️", "Butiran Salju"
+    
+    # 80, 81, 82: Rain showers: Slight, moderate, and violent
+    if code == 80: return "🌦️", "Hujan Lokal Ringan"
+    if code == 81: return "🌧️", "Hujan Lokal Sedang"
+    if code == 82: return "⛈️", "Hujan Lokal Lebat"
+    
+    # 85, 86: Snow showers slight and heavy
+    if code in [85, 86]: return "❄️", "Badai Salju"
+    
+    # 95: Thunderstorm: Slight or moderate
+    if code == 95: return "⛈️", "Badai Petir"
+    
+    # 96, 99: Thunderstorm with slight and heavy hail
+    if code in [96, 99]: return "⛈️", "Badai Petir & Hujan Es"
+    
+    return "❓", f"Unknown ({code})"
 
 def get_climate_season(lat):
     """Detect climate zone and current season based on latitude and month"""
