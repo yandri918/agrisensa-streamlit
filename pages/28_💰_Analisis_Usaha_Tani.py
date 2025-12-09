@@ -271,6 +271,8 @@ with st.sidebar:
         def_jarak = 20; def_bedengan = 200 # Meja lebar 2m
     elif "Krisan" in selected_crop:
         def_jarak = 12; def_bedengan = 100 # Jarak 12.5 x 12.5 cm -> 64 tanaman/m2 bedeng
+    elif "Padi" in selected_crop:
+        def_jarak = 25; def_bedengan = 0 # Not used for Padi
     else:
         def_jarak = 25; def_bedengan = 100
         
@@ -281,7 +283,46 @@ with st.sidebar:
     val_bedengan = get_param('lebar_bedengan', def_bedengan)
     val_parit = get_param('lebar_parit', def_parit)
     
-    if is_hydroponic:
+    # --- PADI MODE: Pola Tanam ---
+    padi_mode = "Padi" in selected_crop
+    populasi_padi_override = 0
+    
+    if padi_mode:
+        st.subheader("🌾 Pola Tanam Padi")
+        pola_tanam = st.selectbox("Sistem Tanam", ["Sistem Tegel (25x25)", "Jajar Legowo 2:1", "Jajar Legowo 4:1", "Custom"])
+        
+        if pola_tanam == "Sistem Tegel (25x25)":
+            jarak_padi = st.number_input("Jarak Tanam (cm)", 20, 30, 25)
+            populasi_padi_override = (10000 / ((jarak_padi/100)**2)) * luas_lahan_ha
+            st.caption(f"Populasi Tegel: {populasi_padi_override:,.0f} rumpun/ha")
+            
+        elif "Jajar Legowo" in pola_tanam:
+            # Asumsi standar Legowo: Jarak antar baris 20-25cm, Legowo gap 40-50cm
+            # Rumus Praktis: Peningkatan populasi vs Tegel
+            # Legowo 2:1 -> +30% s.d +33% dari Tegel
+            # Legowo 4:1 -> +20% s.d +25% dari Tegel
+            basis_tegel = 160000 # 25x25
+            
+            if "2:1" in pola_tanam:
+                factor = 1.33  # 213.300
+                st.caption("ℹ️ Legowo 2:1 meningkatkan populasi ~33% dibanding Tegel.")
+            else:
+                factor = 1.25 # 200.000 (4:1)
+                st.caption("ℹ️ Legowo 4:1 meningkatkan populasi ~25% dibanding Tegel.")
+                
+            populasi_padi_override = basis_tegel * factor * luas_lahan_ha
+            
+        elif pola_tanam == "Custom":
+            c_p1, c_p2 = st.columns(2)
+            with c_p1:
+                j_baris = st.number_input("Jarak Antar Baris (cm)", 10, 100, 25)
+            with c_p2:
+                j_dalam = st.number_input("Jarak Dalam Baris (cm)", 10, 100, 25)
+            
+            populasi_padi_override = (10000 / ((j_baris/100) * (j_dalam/100))) * luas_lahan_ha
+    
+    elif is_hydroponic:
+
         st.subheader("🏗️ Instalasi Hidroponik")
         # Override Concept: Bedengan -> Meja/Gully, Parit -> Jalan Antar Meja
         col_p1, col_p2 = st.columns(2)
@@ -374,10 +415,19 @@ with st.sidebar:
         kebutuhan_mulsa_roll = 0
         
     # 3. Population Needs (Seeds)
-    # Pop = (Total Bed Length / Plant Spacing) * Rows per Bed
-    populasi_tanaman = (total_panjang_bedengan / (jarak_tanam / 100)) * baris_per_bedeng
-    # Safety margin 10% for 'sulam' (replanting dead seeds)
-    populasi_tanaman = int(populasi_tanaman * 1.10)
+    if krisan_mode:
+       # ... (Existing Krisan logic) ...
+       pass 
+    elif padi_mode:
+        populasi_tanaman = int(populasi_padi_override)
+    else:
+        # Standard Formula
+        # Pop = (Total Bed Length / Plant Spacing) * Rows per Bed
+        populasi_tanaman = (total_panjang_bedengan / (jarak_tanam / 100)) * baris_per_bedeng
+    
+    # Safety margin 10% for 'sulam' if not Padi (Padi seeds usually by weight not clumps, but we track clumps for yield)
+    if not padi_mode:
+        populasi_tanaman = int(populasi_tanaman * 1.10)
     
     # Display Calc Results in Sidebar
     # Display Calc Results in Sidebar
@@ -393,11 +443,16 @@ with st.sidebar:
     pilih_metode_bibit = "semai"
     pakai_booster = False
     
-    if "Cabai" in selected_crop or "Tomat" in selected_crop:
+    if "Cabai" in selected_crop or "Tomat" in selected_crop or "Padi" in selected_crop:
         st.divider()
         st.subheader("🌱 Metode Bibit")
-        metode_bibit_ui = st.radio("Sumber Bibit:", ["Semai Sendiri", "Beli Bibit Jadi"], index=0)
-        pilih_metode_bibit = "semai" if "Semai" in metode_bibit_ui else "bibit"
+        if "Padi" in selected_crop:
+             metode_bibit_ui = st.radio("Sumber Benih:", ["Beli Benih Label", "Benih Sendiri"], index=0)
+             # Reuse helper
+             pilih_metode_bibit = "semai" # Default logic
+        else:
+             metode_bibit_ui = st.radio("Sumber Bibit:", ["Semai Sendiri", "Beli Bibit Jadi"], index=0)
+             pilih_metode_bibit = "semai" if "Semai" in metode_bibit_ui else "bibit"
         
         st.caption("💎 **Opsi Pupuk**")
         pakai_booster = st.checkbox("Pakai Booster (KNO3/Kalsium)?", value=True, help="Centang untuk hasil panen premium (Perpaduan Terbaik)")
@@ -576,10 +631,26 @@ for item in template_items:
         elif "Ajir" in item['item'] and item['satuan'] in ['Batang', 'Buah', 'Pcs']:
             vol = populasi_tanaman 
             
-        # Case 3b: Pemasangan Ajir (Labor Estimation)
+        # Case 3b: KPemasangan Ajir
         elif "Pasang" in item['item'] and "Ajir" in item['item']:
-             # Asumsi: 1 HOK bisa pasang 750 ajir/hari
              vol = np.ceil(populasi_tanaman / 750)
+
+        # Case 3c: Benih Padi (Scale by Population Density)
+        elif "Benih Padi" in item['item'] and padi_mode:
+             # Standard 30kg is for Tegel (160k pop). Scale if density changes.
+             # Only scale if we are calculating population (some modes might be area only)
+             if populasi_tanaman > 0:
+                 std_pop_per_ha = 160000
+                 current_pop_per_ha = populasi_tanaman / luas_lahan_ha
+                 scale_factor = current_pop_per_ha / std_pop_per_ha
+                 # Apply scale but keep reasonable bounds (e.g. 0.8 to 1.5)
+                 vol = item['volume'] * luas_lahan_ha * scale_factor
+                 
+                 if abs(scale_factor - 1.0) > 0.1:
+                      item_name_override = f"{item['item']} (Kepadatan {scale_factor:.1f}x)"
+             else:
+                 vol = item['volume'] * luas_lahan_ha
+
         # Case 4: Pesticide (New Logic using Config)
         elif "Insektisida & Fungisida" in item['item'] or "Pestisida" in item['kategori']:
             if item['satuan'] == 'Paket' and not is_mikro: # Change legacy Paket to Tank model if open field
