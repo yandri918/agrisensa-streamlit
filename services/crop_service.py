@@ -94,12 +94,26 @@ class CropService:
         "Melon (Premium)": {
             "category": "Buah-buahan",
             "rab": {
-                 # Mapping from 'Melon (Premium F1)' in Page 28
-                 "params": {"populasi_ha": 18000, "estimasi_panen_kg": 25000, "harga_jual": 9000, "lama_tanam_bulan": 3},
+                 # High Density for GH: 20k-24k plants/ha (1 plant/polybag or 40cm spacing)
+                 "params": {"populasi_ha": 22000, "estimasi_panen_kg": 35000, "harga_jual": 25000, "lama_tanam_bulan": 3},
                  "items": [
-                     {"kategori": "Benih", "item": "Benih F1 (Import)", "satuan": "Bungkus", "volume": 35, "harga": 250000, "wajib": True},
-                     {"kategori": "Penunjang", "item": "Mulsa Plastik", "satuan": "Roll", "volume": 10, "harga": 650000, "wajib": True},
-                     {"kategori": "Tenaga Kerja", "item": "Pewiwilan (Pruning)", "satuan": "HOK", "volume": 50, "harga": 90000, "wajib": True},
+                     {"kategori": "Biaya Tetap", "item": "Amortisasi Green house (Sewa/Penyusutan)", "satuan": "Musim", "volume": 1, "harga": 15000000, "wajib": True, "catatan": "Asumsi GH 1 Ha @1.5M, umur 10 thn (per musim)"},
+                     
+                     {"kategori": "Benih", "item": "Benih Premium F1 (Import/Eksklusif)", "satuan": "Biji", "volume": 22000, "harga": 3000, "wajib": True, "catatan": "Ex: Intanon, Fujisawa, Honey Globe (Mahal)"},
+                     
+                     {"kategori": "Media Tanam", "item": "Cocopeat & Polybag (Soilless)", "satuan": "Paket", "volume": 1, "harga": 8000000, "wajib": False, "catatan": "Opsi jika pakai polybag"},
+                     
+                     {"kategori": "Penunjang", "item": "Tali Gawar & Klip (Sistem Gantung)", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
+                     
+                     {"kategori": "Nutrisi (AB Mix)", "item": "Nutrisi AB Mix Premium (Buah)", "satuan": "Paket", "volume": 150, "harga": 95000, "wajib": True},
+                     
+                     {"kategori": "Pestisida", "item": "Fungisida (Powdery Mildew)", "satuan": "Paket", "volume": 1, "harga": 1500000, "wajib": True},
+                     {"kategori": "Pestisida", "item": "Insektisida (Kutu Kebul/Virus)", "satuan": "Paket", "volume": 1, "harga": 2000000, "wajib": True},
+                     
+                     {"kategori": "Tenaga Kerja", "item": "Polinasi Manual (Serbuk Sari)", "satuan": "HOK", "volume": 50, "harga": 100000, "wajib": True, "catatan": "Kritis! Hari ke 25-30"},
+                     {"kategori": "Tenaga Kerja", "item": "Pruning & Branding (Toping)", "satuan": "HOK", "volume": 60, "harga": 90000, "wajib": True},
+                     {"kategori": "Tenaga Kerja", "item": "Gantung Buah (Fruit Support)", "satuan": "HOK", "volume": 40, "harga": 90000, "wajib": True},
+                     {"kategori": "Tenaga Kerja", "item": "Panen & QC (Sortir Brix)", "satuan": "HOK", "volume": 40, "harga": 100000, "wajib": True},
                  ]
             },
             "growth": {
@@ -107,9 +121,43 @@ class CropService:
                 "targets": {
                     10: {"height": 15, "leaves": 4, "stem": 3},
                     20: {"height": 50, "leaves": 15, "stem": 6},
-                    30: {"height": 120, "leaves": 25, "stem": 8},
-                    40: {"height": 180, "leaves": 35, "stem": 10},
-                    60: {"height": 200, "leaves": 35, "stem": 12}
+                    30: {"height": 150, "leaves": 25, "stem": 8},
+                    40: {"height": 200, "leaves": 35, "stem": 10},
+                    60: {"height": 220, "leaves": 35, "stem": 12}
+                }
+            }
+        },
+        "Melon (Open Field)": {
+            "category": "Buah-buahan",
+            "rab": {
+                 # Lower density for Lesehan: 15k-18k
+                 "params": {"populasi_ha": 16000, "estimasi_panen_kg": 25000, "harga_jual": 10000, "lama_tanam_bulan": 2.5},
+                 "items": [
+                      {"kategori": "Biaya Tetap", "item": "Sewa Lahan", "satuan": "Musim", "volume": 1, "harga": 5000000, "wajib": True},
+                      
+                      {"kategori": "Benih", "item": "Benih F1 Standard (Lokal)", "satuan": "Bungkus (500 butir)", "volume": 35, "harga": 350000, "wajib": True, "catatan": "Ex: Action, Pertiwi (@ Rp 700/biji)"},
+                      
+                      {"kategori": "Persiapan", "item": "Mulsa Plastik Perak", "satuan": "Roll", "volume": 12, "harga": 650000, "wajib": True},
+                      {"kategori": "Persiapan", "item": "Jerami / Alas Buah (Lesehan)", "satuan": "Truk", "volume": 5, "harga": 400000, "wajib": True},
+                      
+                      {"kategori": "Pupuk", "item": "Pupuk Kandang", "satuan": "Ton", "volume": 10, "harga": 600000, "wajib": True},
+                      {"kategori": "Pupuk", "item": "NPK 16-16-16", "satuan": "Kg", "volume": 400, "harga": 18000, "wajib": True},
+                      {"kategori": "Pupuk", "item": "NO3 (Nitrat) / ZA", "satuan": "Kg", "volume": 200, "harga": 5000, "wajib": True},
+                      
+                      {"kategori": "Pestisida", "item": "Paket Fungisida (Hujan)", "satuan": "Paket", "volume": 1, "harga": 3000000, "wajib": True},
+                      {"kategori": "Pestisida", "item": "Insektisida (Lalat Buah)", "satuan": "Paket", "volume": 1, "harga": 2000000, "wajib": True},
+                      
+                      {"kategori": "Tenaga Kerja", "item": "Pewiwilan (Pruning Lesehan)", "satuan": "HOK", "volume": 40, "harga": 90000, "wajib": True},
+                      {"kategori": "Tenaga Kerja", "item": "Balik Buah (Agar merata)", "satuan": "HOK", "volume": 20, "harga": 90000, "wajib": True},
+                      {"kategori": "Tenaga Kerja", "item": "Panen", "satuan": "Borongan", "volume": 1, "harga": 3000000, "wajib": True},
+                 ]
+            },
+            "growth": {
+                "phase_switch": 30,
+                "targets": {
+                    15: {"height": 30, "leaves": 5, "stem": 3},
+                    30: {"height": 80, "leaves": 20, "stem": 6},
+                    45: {"height": 120, "leaves": 35, "stem": 8}
                 }
             }
         },
