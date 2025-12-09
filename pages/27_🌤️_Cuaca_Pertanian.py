@@ -554,14 +554,37 @@ if 'weather_data' in st.session_state:
         
         # Add Daily Insights Column
         insights = []
+        # We need to access codes by index matching row index
+        # export_df created above has same index as codes list
+        
         for i, row in export_df.iterrows():
+            code = codes[i]
             rain = row['Curah Hujan (mm)']
-            if rain > 10:
-                insights.append("⚠️ Hujan Lebat - Stop Aktivitas")
-            elif rain > 0:
-                insights.append("🌧️ Hujan Ringan - Waspada")
+            
+            # Priority 1: Safety (Thunderstorm)
+            if code in [95, 96, 99]:
+                insights.append("⚡ BAHAYA PETIR - Stop Aktivitas Lapangan!")
+            
+            # Priority 2: Heavy Rain / Violent Showers
+            elif code in [65, 82]:
+                insights.append("⚠️ Hujan Lebat - Risiko Pencucian Pupuk & Banjir.")
+            
+            # Priority 3: Moderate Rain / Snow
+            elif code in [63, 81, 71, 73, 75, 85, 86]:
+                insights.append("🌧️ Hujan/Salju Sedang - Tunda Semprot & Panen.")
+            
+            # Priority 4: Light Rain / Drizzle
+            elif code in [51, 53, 55, 56, 57, 61, 66, 67, 80]:
+                insights.append("🌦️ Gerimis/Hujan Ringan - Waspada Kelembaban (Jamur).")
+            
+            # Priority 5: Clear/Cloudy but verify Rain Sum mismatch
             else:
-                insights.append("✅ Cerah - Aman untuk Semprot/Panen")
+                if rain > 10:
+                    insights.append("⚠️ Potensi Hujan Lebat (Data Lokal) - Waspada.")
+                elif rain > 2:
+                    insights.append("🌦️ Berawan tapi Berpotensi Hujan.")
+                else:
+                    insights.append("✅ Cerah/Berawan - Optimal untuk Tanam, Semprot, & Panen.")
         export_df['Rekomendasi Harian'] = insights
         
         st.dataframe(export_df, use_container_width=True)
