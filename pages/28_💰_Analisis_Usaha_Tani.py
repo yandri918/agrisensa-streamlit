@@ -324,6 +324,32 @@ with st.sidebar:
     else:
         panjang_roll = None
 
+    # --- KHUSUS KRISAN: Input Panjang & Jumlah Bedengan ---
+    krisan_mode = "Krisan" in selected_crop
+    total_panjang_bedengan_override = 0
+    
+    if krisan_mode:
+        st.divider()
+        st.subheader("🌸 Dimensi Bedengan (Krisan)")
+        col_k1, col_k2 = st.columns(2)
+        with col_k1:
+            panjang_bedengan_m = st.number_input("Panjang Bedengan (m)", 1, 100, 50)
+        with col_k2:
+            jumlah_bedengan = st.number_input("Jumlah Bedengan", 1, 1000, 20)
+            
+        # Override Total Panjang Bedengan
+        total_panjang_bedengan_override = panjang_bedengan_m * jumlah_bedengan
+        
+        # Override Luas Lahan Display (Estimasi)
+        lebar_total_cm = lebar_bedengan + lebar_parit
+        estimasi_luas_m2 = (lebar_total_cm / 100) * total_panjang_bedengan_override
+        st.caption(f"ℹ️ Total Bedengan: {total_panjang_bedengan_override:,.0f} m | Est. Luas: {estimasi_luas_m2:,.0f} m²")
+        
+        # Sync to metric variables
+        luas_lahan_m2 = estimasi_luas_m2
+        luas_lahan_ha = luas_lahan_m2 / 10000
+
+
     # --- CALCULATION ENGINE ---
     # 1. Efficiency Metric
     total_lebar_segmen = (lebar_bedengan + lebar_parit) / 100 # meter
@@ -332,8 +358,13 @@ with st.sidebar:
     luas_bedengan_netto = luas_lahan_m2 * efisiensi_lahan
     
     # 2. Mulch Needs
-    # Total Length of Beds = Net Bed Area / Bed Width (in meters)
-    total_panjang_bedengan = luas_bedengan_netto / (lebar_bedengan / 100)
+    if krisan_mode:
+        # Use explicit override
+        total_panjang_bedengan = total_panjang_bedengan_override
+    else:
+        # Standard Formula
+        # Total Length of Beds = Net Bed Area / Bed Width (in meters)
+        total_panjang_bedengan = luas_bedengan_netto / (lebar_bedengan / 100)
     
     if panjang_roll and not is_hydroponic:
         kebutuhan_mulsa_roll = total_panjang_bedengan / panjang_roll
@@ -598,6 +629,38 @@ for item in template_items:
         "Total (Rp)": int(vol * (price_override if price_override is not None else item['harga'])),
         "Catatan": item.get('catatan', '-')
     })
+
+# --- INJECT EXTRA ITEMS FOR KRISAN (IRRIGATION) ---
+if krisan_mode:
+    # 1. Nozzle (Tip 30 cm)
+    # Jarak nozzle 30 cm -> 0.3 m
+    jml_nozzle = np.ceil(total_panjang_bedengan_override / 0.3)
+    harga_nozzle = 2500 # Asumsi harga satuan nozzle
+    
+    rab_data.append({
+        "Kategori": "Irigasi (Drip/Sprinkler)",
+        "Uraian": "Nozzle Sprayer (Jarak 30cm)",
+        "Satuan": "Pcs",
+        "Volume": float(jml_nozzle),
+        "Harga Satuan (Rp)": harga_nozzle,
+        "Total (Rp)": int(jml_nozzle * harga_nozzle),
+        "Catatan": "Tengah bedengan"
+    })
+    
+    # 2. Pipa (Sepanjang bedengan)
+    panjang_pipa = np.ceil(total_panjang_bedengan_override)
+    harga_pipa_per_m = 5000 # Asumsi PE 16mm/20mm
+    
+    rab_data.append({
+        "Kategori": "Irigasi (Drip/Sprinkler)",
+        "Uraian": "Pipa Irigasi (PE/PVC)",
+        "Satuan": "Meter",
+        "Volume": float(panjang_pipa),
+        "Harga Satuan (Rp)": harga_pipa_per_m,
+        "Total (Rp)": int(panjang_pipa * harga_pipa_per_m),
+        "Catatan": "Sepanjang bedengan"
+    })
+
 
 # --- FIX: PERSIST EDITS AND RECALC TOTALS ---
 if "rab_editor" in st.session_state:
