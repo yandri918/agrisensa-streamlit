@@ -136,10 +136,34 @@ class CropService:
         "Padi Sawah": {
             "category": "Tanaman Pangan",
             "rab": {
-                "params": {"populasi_ha": 0, "estimasi_panen_kg": 6500, "harga_jual": 6500, "lama_tanam_bulan": 4},
+                "params": {"populasi_ha": 0, "estimasi_panen_kg": 7000, "harga_jual": 6500, "lama_tanam_bulan": 4},
                 "items": [
-                   {"kategori": "Biaya Tetap", "item": "Sewa Lahan", "satuan": "Musim", "volume": 1, "harga": 4000000}, 
-                   {"kategori": "Benih", "item": "Benih Padi", "satuan": "Kg", "volume": 30, "harga": 15000},
+                    {"kategori": "Biaya Tetap", "item": "Sewa Lahan", "satuan": "Musim", "volume": 1, "harga": 6000000, "wajib": True},
+                    {"kategori": "Biaya Tetap", "item": "Sewa Pompa Air (BBM)", "satuan": "Musim", "volume": 1, "harga": 1500000, "wajib": True},
+                    
+                    {"kategori": "Persiapan Lahan", "item": "Sewa Traktor (Bajak & Garu)", "satuan": "Borongan/Ha", "volume": 1, "harga": 2500000, "wajib": True},
+                    {"kategori": "Persiapan Lahan", "item": "Perbaikan Pematang (Galengan)", "satuan": "HOK", "volume": 10, "harga": 100000, "wajib": True},
+                    {"kategori": "Persiapan Lahan", "item": "Persiapan Persemaian (Nursery)", "satuan": "Paket", "volume": 1, "harga": 500000, "wajib": True},
+                    
+                    {"kategori": "Benih", "item": "Benih Padi (Label Ungu/Putih)", "satuan": "Kg", "volume": 30, "harga": 15000, "wajib": True},
+                    
+                    {"kategori": "Pupuk", "item": "Pupuk Urea (Nitrogen)", "satuan": "Kg", "volume": 250, "harga": 3000, "wajib": True, "catatan": "Harga Subsidi (estimasi)"},
+                    {"kategori": "Pupuk", "item": "Pupuk NPK (Phonska)", "satuan": "Kg", "volume": 300, "harga": 3500, "wajib": True, "catatan": "Harga Subsidi (estimasi)"},
+                    {"kategori": "Pupuk", "item": "Pupuk Organik/Kandang", "satuan": "Kg", "volume": 500, "harga": 1000, "wajib": True},
+                    
+                    {"kategori": "Pestisida", "item": "Herbisida Pra/Purna Tumbuh", "satuan": "Liter", "volume": 2, "harga": 120000, "wajib": True},
+                    {"kategori": "Pestisida", "item": "Insektisida (Wereng/Penggerek)", "satuan": "Paket", "volume": 1, "harga": 800000, "wajib": True},
+                    {"kategori": "Pestisida", "item": "Fungisida (Blast/Kresek)", "satuan": "Paket", "volume": 1, "harga": 500000, "wajib": True},
+                    
+                    {"kategori": "Tenaga Kerja", "item": "Tanam (Tandur/Jajar Legowo)", "satuan": "Borongan/Ha", "volume": 1, "harga": 2500000, "wajib": True},
+                    {"kategori": "Tenaga Kerja", "item": "Pemupukan (3-4 kali)", "satuan": "HOK", "volume": 8, "harga": 100000, "wajib": True},
+                    {"kategori": "Tenaga Kerja", "item": "Penyiangan (Matun Manual)", "satuan": "HOK", "volume": 20, "harga": 100000, "wajib": False, "catatan": "Jika herbisida kurang efektif"},
+                    {"kategori": "Tenaga Kerja", "item": "Penyemprotan Hama", "satuan": "HOK", "volume": 6, "harga": 100000, "wajib": True},
+                    {"kategori": "Tenaga Kerja", "item": "Pengaturan Air (Jogotirto)", "satuan": "Musim", "volume": 1, "harga": 1000000, "wajib": True},
+                    
+                    {"kategori": "Panen & Pasca", "item": "Sewa Combine Harvester", "satuan": "Borongan/Ha", "volume": 1, "harga": 3000000, "wajib": True, "catatan": "Lebih efisien dari tenaga manual"},
+                    {"kategori": "Panen & Pasca", "item": "Karung & Tali", "satuan": "Paket", "volume": 1, "harga": 300000, "wajib": True},
+                    {"kategori": "Panen & Pasca", "item": "Angkut Gabah (Ojek Sawah)", "satuan": "Karung (50kg)", "volume": 140, "harga": 5000, "wajib": True, "catatan": "Asumsi panen 7 ton"},
                 ]
             },
             "growth": {
