@@ -115,13 +115,36 @@ class CropService:
         },
         "Bawang Merah": {
              "category": "Sayuran Umbi",
-             "rab": {
-                 "params": {"populasi_ha": 250000, "estimasi_panen_kg": 12000, "harga_jual": 20000, "lama_tanam_bulan": 3},
-                 "items": [
-                     {"kategori": "Benih", "item": "Bibit Umbi", "satuan": "Kg", "volume": 1000, "harga": 35000},
-                     {"kategori": "Pupuk", "item": "Pupuk Dasar & Susulan", "satuan": "Paket", "volume": 1, "harga": 8000000},
-                 ]
-             },
+            "rab": {
+                "params": {"populasi_ha": 250000, "estimasi_panen_kg": 12000, "harga_jual": 20000, "lama_tanam_bulan": 2.5},
+                "items": [
+                    {"kategori": "Biaya Tetap", "item": "Sewa Lahan (per musim)", "satuan": "Musim", "volume": 1, "harga": 7000000, "wajib": True},
+                    
+                    {"kategori": "Persiapan Lahan", "item": "Sewa Traktor (Bajak Dalam)", "satuan": "Borongan", "volume": 1, "harga": 3000000, "wajib": True},
+                    {"kategori": "Persiapan Lahan", "item": "Pembuatan Bedengan (Got Dalam)", "satuan": "HOK", "volume": 40, "harga": 100000, "wajib": True, "catatan": "Parit harus dalam (40-50cm)"},
+                    {"kategori": "Persiapan Lahan", "item": "Kapur Dolomit (Netralisir pH)", "satuan": "Karung (50kg)", "volume": 30, "harga": 30000, "wajib": True},
+
+                    {"kategori": "Benih", "item": "Bibit Umbi (Siap Tanam)", "satuan": "Kg", "volume": 1000, "harga": 35000, "wajib": True, "catatan": "Harga fluktuatif, volume 800-1200kg"},
+                    
+                    {"kategori": "Pupuk", "item": "Pupuk Kandang (Dasar)", "satuan": "Ton", "volume": 5, "harga": 800000, "wajib": True, "catatan": "Wajib untuk struktur tanah"},
+                    {"kategori": "Pupuk", "item": "NPK 16-16-16 (Dasar & Susulan)", "satuan": "Kg", "volume": 400, "harga": 18000, "wajib": True},
+                    {"kategori": "Pupuk", "item": "SP-36 / TSP (Phosphate)", "satuan": "Kg", "volume": 150, "harga": 15000, "wajib": True},
+                    {"kategori": "Pupuk", "item": "ZA (Sulfur utk Aroma/Warna)", "satuan": "Kg", "volume": 200, "harga": 6000, "wajib": True},
+                    {"kategori": "Pupuk", "item": "KCl (Kalium utk Umbi)", "satuan": "Kg", "volume": 100, "harga": 15000, "wajib": True, "catatan": "Fase Generatif (40 HST)"},
+
+                    {"kategori": "Pestisida", "item": "Herbisida Pra-Tumbuh", "satuan": "Liter", "volume": 2, "harga": 150000, "wajib": True},
+                    {"kategori": "Pestisida", "item": "Fungisida (Antraknosa/Moler)", "satuan": "Paket Intensif", "volume": 1, "harga": 5000000, "wajib": True, "catatan": "Sangat rawan jamur di musim hujan"},
+                    {"kategori": "Pestisida", "item": "Insektisida (Ulat Grayak)", "satuan": "Paket Intensif", "volume": 1, "harga": 4000000, "wajib": True, "catatan": "Ulat grayak musuh utama"},
+                    {"kategori": "Pestisida", "item": "Perekat & Perata", "satuan": "Liter", "volume": 10, "harga": 50000, "wajib": True},
+
+                    {"kategori": "Tenaga Kerja", "item": "Tanam (Borongan)", "satuan": "HOK", "volume": 40, "harga": 90000, "wajib": True},
+                    {"kategori": "Tenaga Kerja", "item": "Pemupukan & Dangir (Timbun)", "satuan": "HOK", "volume": 20, "harga": 90000, "wajib": True},
+                    {"kategori": "Tenaga Kerja", "item": "Penyemprotan (Rutin)", "satuan": "HOK", "volume": 30, "harga": 100000, "wajib": True, "catatan": "Tiap 2-3 hari sekali"},
+                    {"kategori": "Tenaga Kerja", "item": "Siang Gulma (Matun)", "satuan": "HOK", "volume": 30, "harga": 90000, "wajib": True},
+                    {"kategori": "Tenaga Kerja", "item": "Panen & Angkut", "satuan": "Borongan/Ha", "volume": 1, "harga": 4000000, "wajib": True},
+                    {"kategori": "Pasca Panen", "item": "Proses Askip (Jemur & Ikat)", "satuan": "Borongan", "volume": 1, "harga": 3000000, "wajib": False},
+                ]
+            },
              "growth": {
                  "phase_switch": 35, # HST enters Bulb Formation
                  "targets": {
