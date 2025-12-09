@@ -321,6 +321,12 @@ with tabs[0]:
     if map_data and map_data.get("last_clicked"):
         lat = map_data["last_clicked"]["lat"]
         lon = map_data["last_clicked"]["lng"]
+        
+        # FIX: Normalize Longitude if user scrolled indefinitely (e.g. -249 -> +110)
+        # Formula: ((lon + 180) % 360) - 180
+        if lon < -180 or lon > 180:
+            lon = ((lon + 180) % 360) - 180
+            
         st.success(f"📍 Terpilih: {lat:.5f}, {lon:.5f}")
     else:
         lat, lon = default_lat, default_lon
