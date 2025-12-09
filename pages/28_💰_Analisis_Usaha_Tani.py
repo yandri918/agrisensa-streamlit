@@ -320,6 +320,12 @@ with st.sidebar:
                 j_dalam = st.number_input("Jarak Dalam Baris (cm)", 10, 100, 25)
             
             populasi_padi_override = (10000 / ((j_baris/100) * (j_dalam/100))) * luas_lahan_ha
+            
+        # Fix NameError: Padi doesn't use Bedengan/Parit logic, but downstream calc needs it.
+        # Set dummy to 100% efficiency.
+        lebar_bedengan = 100 
+        lebar_parit = 0
+
     
     elif is_hydroponic:
 
