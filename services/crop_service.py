@@ -243,6 +243,40 @@ class CropService:
                      15: {"height": 25, "leaves": 5, "stem": 3},
                      30: {"height": 50, "leaves": 15, "stem": 6},
                      45: {"height": 75, "leaves": 25, "stem": 9},
+                     60: {"height": 90, "leaves": 35, "stem": 12},
+                     90: {"height": 110, "leaves": 40, "stem": 14}
+                 }
+            }
+        },
+        "Sayuran Daun (Hidroponik)": {
+             "category": "Hidroponik",
+             "rab": {
+                 "params": {"populasi_ha": 200000, "estimasi_panen_kg": 25000, "harga_jual": 15000, "lama_tanam_bulan": 1.5},
+                 "items": [
+                     {"kategori": "Biaya Tetap", "item": "Instalasi & Greenhouse", "satuan": "Siklus", "volume": 1, "harga": 15000000},
+                     {"kategori": "Nutrisi", "item": "AB Mix", "satuan": "Paket", "volume": 20, "harga": 75000},
+                 ]
+             },
+             "growth": {
+                 "phase_switch": 20,
+                 "targets": {
+                     10: {"height": 5, "leaves": 4, "stem": 2},
+                     20: {"height": 15, "leaves": 10, "stem": 4},
+                     30: {"height": 25, "leaves": 20, "stem": 6}
+                 }
+             }
+        }
+    }
+
+    @staticmethod
+    def get_all_crops():
+        """Return list of all available crops"""
+        return list(CropService.CROP_DATABASE.keys())
+
+    @staticmethod
+    def get_rab_template(crop_name):
+        """Return RAB data for specific crop"""
+        return CropService.CROP_DATABASE.get(crop_name, {}).get('rab', None)
 
     @staticmethod
     def get_growth_standards(crop_name):
