@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 import os
+import uuid
 from datetime import datetime, date
 import plotly.express as px
 
@@ -26,12 +27,23 @@ if not os.path.exists(LOG_FILE):
         json.dump([], f)
 
 def load_logs():
-    """Load logs from JSON file."""
+    """Load logs from JSON file and ensure UUIDs exist."""
     try:
         with open(LOG_FILE, 'r') as f:
             data = json.load(f)
-            # Ensure compatibility if file is corrupted
             if not isinstance(data, list): return []
+            
+            # MIGRATION: Auto-assign UUID if missing
+            updated = False
+            for entry in data:
+                if 'id' not in entry:
+                    entry['id'] = str(uuid.uuid4())
+                    updated = True
+            
+            if updated:
+                with open(LOG_FILE, 'w') as fw:
+                    json.dump(data, fw, indent=4)
+            
             return data
     except Exception as e:
         st.error(f"Error loading logs: {e}")
@@ -40,18 +52,28 @@ def load_logs():
 def save_log(entry):
     """Save a new log entry."""
     logs = load_logs()
+    # Ensure ID
+    if 'id' not in entry:
+        entry['id'] = str(uuid.uuid4())
+        
     logs.append(entry)
     with open(LOG_FILE, 'w') as f:
         json.dump(logs, f, indent=4)
     return True
 
-def delete_log(idx):
-    """Delete log entry by index."""
+def save_all_logs(logs):
+    """Save all logs (bulk update)."""
+    with open(LOG_FILE, 'w') as f:
+        json.dump(logs, f, indent=4)
+
+def delete_log_by_id(log_id):
+    """Delete log entry by UUID."""
     logs = load_logs()
-    if 0 <= idx < len(logs):
-        logs.pop(idx)
-        with open(LOG_FILE, 'w') as f:
-            json.dump(logs, f, indent=4)
+    original_len = len(logs)
+    logs = [log for log in logs if log['id'] != log_id]
+    
+    if len(logs) < original_len:
+        save_all_logs(logs)
         return True
     return False
 
@@ -86,6 +108,7 @@ with st.sidebar:
                 st.error("Deskripsi wajib diisi!")
             else:
                 new_entry = {
+                    "id": str(uuid.uuid4()),
                     "date": f_date.strftime("%Y-%m-%d"),
                     "category": f_cat,
                     "description": f_desc,
@@ -106,6 +129,7 @@ else:
     # Convert to DataFrame
     df = pd.DataFrame(logs)
     df['date'] = pd.to_datetime(df['date'])
+    # Sort by date desc
     df = df.sort_values(by='date', ascending=False).reset_index(drop=True)
     
     # 💰 FINANCIAL METRICS
@@ -128,39 +152,93 @@ else:
     c1, c2 = st.columns([2, 1])
     
     with c1:
-        st.subheader("📅 Riwayat Kegiatan")
+        st.subheader("📅 Riwayat Kegiatan (Bisa Diedit)")
+        st.caption("Klik dua kali pada sel tabel untuk mengedit data.")
         
         # Filtering
         filter_cat = st.multiselect("Filter Kategori", df['category'].unique())
         view_df = df if not filter_cat else df[df['category'].isin(filter_cat)]
         
-        # Display Table with Formatting
-        st.dataframe(
-            view_df[['date', 'category', 'description', 'cost', 'notes']],
+        # 📝 DATA EDITOR (EDIT FEATURE)
+        edited_df = st.data_editor(
+            view_df,
             column_config={
-                "date": "Tanggal",
-                "category": "Kategori",
+                "id": None, # Hide ID
+                "month": None, # Hide helper col
+                "timestamp": None,
+                "date": st.column_config.DateColumn("Tanggal", disabled=True), # Keep date readonly for simplicity in V1
+                "category": st.column_config.SelectboxColumn("Kategori", options=[
+                    "Tanam", "Pemupukan", "Penyemprotan (Pestisida)", 
+                    "Perawatan (Siang Gulma/Pruning)", "Irigasi/Penyiraman", 
+                    "Panen", "Pembelian Sarana (Alat/Bahan)", "Lainnya"
+                ], required=True),
                 "description": "Deskripsi",
-                "cost": st.column_config.NumberColumn("Biaya (Rp)", format="Rp %d"),
+                "cost": st.column_config.NumberColumn("Biaya (Rp)", format="Rp %d", min_value=0),
                 "notes": "Catatan"
             },
+            hide_index=True,
             use_container_width=True,
-            height=400
+            num_rows="fixed", # Disable add/del rows via UI, use form/button
+            key="journal_editor"
         )
+        
+        # SAVE LOGIC
+        # Detect if edited_df is different from view_df (excluding index/order if needed, but here simple comparison)
+        # However, data_editor returns a new object. 
+        # Robust way: Check if any content changed.
+        # But we need to update the ORIGINAL logs list (which might contain items NOT in view_df)
+        
+        if not view_df.drop(columns=['month'], errors='ignore').equals(edited_df.drop(columns=['month'], errors='ignore')):
+            # Logic to update
+            # 1. Convert edited_df back to dicts
+            updated_records = edited_df.to_dict('records')
+            
+            # 2. Update main 'logs' list
+            # Create a map of ID -> updated_record
+            update_map = {rec['id']: rec for rec in updated_records}
+            
+            # 3. Apply updates to the master list
+            new_master_logs = []
+            for original_log in logs:
+                uid = original_log.get('id')
+                if uid in update_map:
+                    # Merge updates (preserve timestamp or other hidden fields if needed)
+                    # We just take the updated record content + original hidden fields if any lost?
+                    # edited_df has id, date, cat, desc, cost, notes, timestamp (hidden but present in df)
+                    # Ensure date format string for JSON
+                    rec = update_map[uid]
+                    if isinstance(rec['date'], (date, datetime)):
+                        rec['date'] = rec['date'].strftime("%Y-%m-%d")
+                    new_master_logs.append(rec)
+                else:
+                    new_master_logs.append(original_log)
+            
+            # 4. Save and Rerun
+            save_all_logs(new_master_logs)
+            st.toast("✅ Perubahan disimpan otomatis!", icon="💾")
+            # We don't necessarily need to rerun immediately if st.data_editor maintains state, 
+            # but syncing is safer.
+            # st.rerun() # Optional: might verify later if needed.
         
         # Delete Action
         with st.expander("🗑️ Hapus Data"):
-            del_idx = st.number_input("Index baris untuk dihapus (lihat tabel)", min_value=0, max_value=len(view_df)-1, step=1)
-            if st.button("Hapus Permanen"):
-                # Map view index back to original log list
-                # This is tricky with filters. Ideally use UUID. 
-                # For V1 Simple: Only allow delete if no filter, or verify logic.
-                # Simplest for V1: Just delete by row index of the full list (df is sorted desc, list is append asc)
-                # Let's revert: Just simple list delete from original logs is risky with sort.
-                # IMPLEMENT UUID for robustness later. 
-                # For now, just Warning.
-                st.warning("Fitur hapus dinonaktifkan sementara untuk keamanan data (Sort issue).")
-                
+            st.markdown("Pilih ID kegiatan untuk dihapus (Fitur hapus permanen).")
+            # Selectbox with description
+            # Create label map
+            
+            delete_options = {row['id']: f"{row['date'].strftime('%d/%m')} - {row['description']} ({row['category']})" 
+                              for index, row in view_df.iterrows()}
+            
+            selected_del_id = st.selectbox("Pilih Data", options=list(delete_options.keys()), 
+                                         format_func=lambda x: delete_options[x])
+            
+            if st.button("Hapus Permanen", type="primary"):
+                if delete_log_by_id(selected_del_id):
+                    st.success("Data berhasil dihapus!")
+                    st.rerun()
+                else:
+                    st.error("Gagal menghapus data.")
+
     with c2:
         st.subheader("📊 Analisis Biaya")
         if total_cost > 0:
