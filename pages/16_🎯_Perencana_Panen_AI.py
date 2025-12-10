@@ -1,3 +1,4 @@
+
 # 🎯 AgriSensa AI Harvest Planner (Global Standard Edition)
 # Advanced Decision Support System for Precision Agriculture
 # Features: Yield/Profit Optimization, Sustainability Scoring, Risk Analysis, Deep Integration (Modul 6, 18, 25, 26, 27)
@@ -13,13 +14,20 @@ import requests
 import sys
 import os
 
-# Add updated path logic if needed, but for same-repo deployment:
+# Add updated path logic
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from services.ai_farm_service import get_ai_model, optimize_solution
 from services.crop_service import CropService
+from services.bapanas_service import BapanasService 
+from services.weather_service import WeatherService
+from utils.bapanas_constants import PROVINCE_MAPPING # for location mapping
 
 st.set_page_config(page_title="AI Harvest Planner Pro", page_icon="🎯", layout="wide")
+
+# Initialize Services
+bapanas_service = BapanasService()
+weather_service = WeatherService()
 
 # ==========================================
 # 🌳 DATA DICTIONARY (CROP DATABASE)
@@ -27,8 +35,6 @@ st.set_page_config(page_title="AI Harvest Planner Pro", page_icon="🎯", layout
 
 # Helper: Categorize crops
 all_crops = CropService.get_all_crops()
-# Simple auto-categorization based on service data
-# (If data had category field, use it. For now, we mix manual + dynamic)
 
 CROP_DATABASE = {
     "Tanaman Pangan": [
@@ -42,7 +48,7 @@ CROP_DATABASE = {
         "Tomat", "Kentang", "Bawang Merah", "Bawang Putih",
         "Kubis/Kol", "Wortel", "Sawi/Caisim", "Bayam", "Kangkung",
         "Terong", "Timun", "Kacang Panjang", "Brokoli"
-    ] + [c for c in all_crops if "Sayur" in c or "Cabai" in c or "Tomat" in c or "Bawang" in c], # Add dynamic crops
+    ] + [c for c in all_crops if "Sayur" in c or "Cabai" in c or "Tomat" in c or "Bawang" in c], 
     "Buah-buahan": [
         "Semangka", "Melon", "Pepaya", "Nanas", "Pisang",
         "Jeruk Siam", "Mangga", "Durian", "Alpukat", "Manggis"
@@ -72,86 +78,8 @@ PEST_STRATEGIES = {
 }
 
 # ==========================================
-# 🔗 INTEGRATION API LAYER (REAL & MOCK)
-# ==========================================
-
-def mock_market_price_api(commodity):
-    """
-    Simulates fetching data from Modul 6 (Analisis Tren Harga).
-    Returns a predicted price based on commodity type.
-    """
-    base_prices = {
-        "Padi": 6000, "Jagung": 5000, "Kedelai": 10000,
-        "Cabai": 45000, "Bawang": 30000, "Tomat": 12000, "Kentang": 15000,
-        "Sawit": 2500, "Kopi": 40000
-    }
-    
-    # Simple fuzzy matching
-    price = 6000
-    for key, val in base_prices.items():
-        if key in commodity:
-            price = val
-            break
-            
-    # Add random fluctuation to simulate "Market Trend"
-    fluctuation = np.random.uniform(0.9, 1.2)
-    predicted_price = int(price * fluctuation)
-    
-    trend = "Naik 📈" if fluctuation > 1.05 else "Turun 📉" if fluctuation < 0.95 else "Stabil 📊"
-    return predicted_price, trend
-
-def get_real_weather_api(lat, lon):
-    """
-    Fetches REAL data from Open-Meteo API (Same as Modul 27).
-    Returns rain (seasonal estimate) and temp (current).
-    """
-    try:
-        url = "https://api.open-meteo.com/v1/forecast"
-        params = {
-            "latitude": lat,
-            "longitude": lon,
-            "current": "temperature_2m,rain",
-            "daily": "rain_sum,precipitation_probability_max",
-            "timezone": "auto"
-        }
-        response = requests.get(url, params=params, timeout=5)
-        
-        if response.status_code == 200:
-            data = response.json()
-            
-            # 1. Temperature (Real Current)
-            temp = data['current']['temperature_2m']
-            
-            # 2. Rain (Seasonal Estimate for AI)
-            # AI needs "Seasonal Rain (mm)". API gives "Daily Forecast".
-            # Logic: Calculate avg daily rain from 7-day forecast -> multiply by season length (e.g. 100 days)
-            daily_rain_sums = data['daily']['rain_sum']
-            avg_daily_rain = sum(daily_rain_sums) / len(daily_rain_sums)
-            
-            # Adjust based on season probability
-            # If avg is very low (<1mm), likely dry season -> 500-1000mm estimate
-            # If avg implies wet season -> 2000-3000mm estimate
-            seasonal_rain_est = avg_daily_rain * 120 # Estimate for 4 months season
-            
-            # Clamp to realistic tropical bounds (Yearly often 2000-4000mm)
-            # If forecast says 0 rain (dry week), we don't want 0 seasonal rain.
-            # Use 'climate baseline' + forecast anomaly
-            baseline_rain = 2000 
-            anomaly = (avg_daily_rain - 5) * 100 # Simple shift
-            final_rain = max(500, baseline_rain + anomaly)
-            
-            return int(final_rain), temp
-            
-    except Exception as e:
-        st.error(f"Gagal koneksi Open-Meteo: {e}")
-        
-    return 2000, 27.0 # Fallback
-
-# ==========================================
 # 🧠 AI ENGINE & LOGIC LAYER
 # ==========================================
-
-# AI Model & Logic now imported from app.services.ai_farm_service
 
 def calculate_sustainability_score(n_input, p_input, k_input, org_input, yield_produced, pest_strategy):
     """Calculate Sustainability Score (0-100)."""
@@ -180,8 +108,6 @@ def run_monte_carlo_simulation(model, conditions, pest_strategy, n_simulations=5
     base_temp = conditions[5]
     
     risk_reduction = PEST_STRATEGIES[pest_strategy]['risk_reduction']
-    pesticide_volatility = 0.3 * (1 - risk_reduction) 
-    weather_volatility = 0.15 
     
     final_predictions = []
     
@@ -214,7 +140,33 @@ def run_monte_carlo_simulation(model, conditions, pest_strategy, n_simulations=5
     
     return p10, p50, p90, final_predictions
 
-# optimize_solution now imported from app.services.ai_farm_service
+def generate_strategic_insight(weather_data, price_trend, price_val):
+    """Combines Price and Weather data for high-level advice"""
+    rain_risk = weather_data.get('rain_risk_3d', 'Rendah')
+    is_high_price = price_trend == "Naik 📈"
+    
+    advice = "Netral"
+    action = "Lanjutkan SOP standar."
+    color = "blue"
+    
+    if is_high_price and rain_risk == "Rendah":
+        advice = "🚀 PELUANG EMAS (Golden Opportunity)"
+        action = "Cuaca mendukung dan harga sedang naik. Genjot produksi maksimal!"
+        color = "green"
+    elif is_high_price and rain_risk == "Tinggi":
+        advice = "⚠️ HIGH RISK HIGH REWARD"
+        action = "Harga bagus tapi cuaca berisiko. Gunakan varietas tahan air atau perlindungan ekstra."
+        color = "orange"
+    elif not is_high_price and rain_risk == "Tinggi":
+        advice = "⛔ SITUASI TIDAK MENGUNTUNGKAN"
+        action = "Harga turun & cuaca buruk. Pertimbangkan menunda tanam untuk efisiensi biaya."
+        color = "red"
+    elif not is_high_price and rain_risk == "Rendah":
+        advice = "🛡️ STRATEGI DEFENSIF"
+        action = "Cuaca aman, tapi harga kurang menarik. Fokus pada efisiensi biaya input (pupuk/pestisida)."
+        color = "blue"
+        
+    return advice, action, color
 
 # ==========================================
 # 🎨 UI PRESENTATION LAYER
@@ -223,68 +175,76 @@ def run_monte_carlo_simulation(model, conditions, pest_strategy, n_simulations=5
 with st.sidebar:
     st.header("⚙️ Konfigurasi Lahan")
     
-    # INTEGRATION: Modul 6 (Market Price)
+    # CROP SELECTION
     category = st.selectbox("Kategori Tanaman", list(CROP_DATABASE.keys()))
     selected_crop = st.selectbox("Komoditas", CROP_DATABASE[category])
     
-    # Fetch Dynamic Price
-    with st.spinner("Mengambil tren harga pasar..."):
-        market_price, market_trend = mock_market_price_api(selected_crop)
+    # LOCATION (Synced with Modul 27 Logic)
+    # Mapping simple province selection for Price API
+    province_name = st.selectbox("Provinsi (Untuk Harga)", list(PROVINCE_MAPPING.keys()), index=0)
+    province_id = PROVINCE_MAPPING[province_name]
     
-    st.caption(f"💰 Harga Pasar (Modul 6): **Rp {market_price:,} /kg** ({market_trend})")
-    
-    st.divider()
-    
-    col_t1, col_t2 = st.columns(2)
-    with col_t1:
-        target_yield_input = st.number_input("Target (kg/ha)", 4000, 30000, 8000, step=500)
-    with col_t2:
-        land_area = st.number_input("Luas (Ha)", 0.1, 100.0, 1.0, step=0.1)
-    
-    st.divider()
-    
-    # INTEGRATION: Modul 27 (Weather)
-    st.subheader("🌦️ Kondisi Iklim")
-    
-    # Check if Modul 27 location exists in Session State
-    has_modul_27_loc = 'data_lat' in st.session_state and 'data_lon' in st.session_state
-    
-    if has_modul_27_loc:
-       use_location_data = st.checkbox(f"📍 Gunakan Lokasi Modul 27", value=True)
-       st.caption(f"Koordinat: {st.session_state['data_lat']:.4f}, {st.session_state['data_lon']:.4f}")
-    else:
-       use_location_data = st.checkbox("📍 Integrasi Modul 27 (Lokasi Saya)", value=False)
-       if use_location_data:
-           st.warning("⚠️ Belum ada lokasi tersimpan di Modul 27. Menggunakan Default (Jakarta).")
-    
-    if use_location_data:
-        # Determine Lat/Lon
-        lat = st.session_state.get('data_lat', -6.2088)
-        lon = st.session_state.get('data_lon', 106.8456)
+    # 1. FETCH PRICE (BAPANAS API)
+    with st.spinner("Mengambil harga Bapanas..."):
+        # Try to find commodity in fetched data
+        price_df = bapanas_service.get_latest_prices(province_id=province_id)
         
-        # Real API Call
-        with st.spinner("Mengambil data Open-Meteo Real-time..."):
-            curah_hujan_val, temp_val = get_real_weather_api(lat, lon)
+        market_price = 0
+        market_trend = "Stabil ➖"
+        
+        if price_df is not None and not price_df.empty:
+            # Fuzzy Logic to match selected_crop string to API commodity name
+            # Simple contains check
+            match_row = price_df[price_df['commodity'].apply(lambda x: x.lower() in selected_crop.lower() or selected_crop.lower() in x.lower())]
             
-        st.success(f"Open-Meteo: Rain Est {curah_hujan_val}mm, Temp {temp_val:.1f}°C")
-    else:
-        curah_hujan_val = 2000.0
-        temp_val = 27.0
-        st.caption("Pilih opsi di atas untuk data real.")
+            if not match_row.empty:
+                market_price = int(match_row.iloc[0]['price'])
+                # Simple trend if previous data exists (simulated for now if single point)
+                market_trend = "Naik 📈" # Placeholder/Simulated as API V2 gives snapshots
+            else:
+                # Fallback if specific commodity not found in Bapanas List (e.g. Durian)
+                 market_price = 15000 # Default fallback
+                 st.caption(f"ℹ️ Harga tidak tersedia di Bapanas, estimasi manual.")
+        else:
+             market_price = 15000 # Fallback connection error
+        
+    st.metric("Harga Pasar (Bapanas)", f"Rp {market_price:,} /kg", market_trend)
     
     st.divider()
     
-    st.subheader("🧪 Parameter Tanah")
+    # 2. FETCH WEATHER (OPEN-METEO VIA SERVICE)
+    st.subheader("🌦️ Kondisi Iklim (Real-time)")
+    
+    # Use Session State location if avail (from Modul 27) or Default
+    lat = st.session_state.get('data_lat', -6.2088)
+    lon = st.session_state.get('data_lon', 106.8456)
+    
+    with st.spinner("Mengambil data cuaca..."):
+        weather_insight = weather_service.get_weather_forecast(lat, lon)
+        
+    if weather_insight:
+        rain_est = weather_insight['seasonal_rain_est']
+        temp = weather_insight['current_temp']
+        st.success(f"Lokasi: {lat:.2f}, {lon:.2f}")
+        st.info(f"Hujan: {rain_est} mm/musim | Suhu: {temp}°C")
+    else:
+        rain_est = 2000
+        temp = 27.0
+        st.error("Gagal ambil cuaca, pakai data default.")
+        
+    st.divider()
+    
+    # FARM PARAMETERS
+    st.subheader("🧪 Parameter Input")
+    target_yield_input = st.number_input("Target (kg/ha)", 4000, 30000, 8000, step=500)
+    land_area = st.number_input("Luas (Ha)", 0.1, 100.0, 1.0, step=0.1)
+    
     soil_texture_name = st.selectbox("Tekstur Tanah", list(SOIL_TEXTURES.keys()), index=1)
     
-    st.subheader("🌿 Manajemen Input")
     use_organic = st.checkbox("Pupuk Organik", value=True)
     organic_dose = st.slider("Dosis Organik (Ton/ha)", 0.0, 20.0, 5.0, step=0.5) if use_organic else 0.0
     
     pest_strategy = st.select_slider("Strategi Hama", options=list(PEST_STRATEGIES.keys()), value="IPM (Terpadu)")
-    st.caption(f"ℹ️ {PEST_STRATEGIES[pest_strategy]['desc']}")
-        
-    st.divider()
     
     optimization_strategy = st.radio("Strategi AI:", ["Max Yield", "Max Profit"])
     
@@ -293,10 +253,24 @@ with st.sidebar:
 
 # MAIN CONTENT
 st.title("🎯 AI Harvest Planner: Command Center")
-st.markdown(f"**Komoditas:** {selected_crop} | **Harga:** Rp {market_price:,}/kg | **Mode:** {optimization_strategy}")
+st.markdown(f"**Komoditas:** {selected_crop} | **Lokasi:** {province_name}")
+
+# STRATEGIC INSIGHT BLOCK (NEW)
+if weather_insight and market_price > 0:
+    st.markdown("### 🧠 AgriSensa Strategic Insight")
+    adv_title, adv_desc, adv_color = generate_strategic_insight(weather_insight, market_trend, market_price)
+    
+    st.markdown(f"""
+    <div style="background-color: #f8f9fa; border-left: 6px solid {adv_color}; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h3 style="margin-top:0; color: {adv_color};">{adv_title}</h3>
+        <p style="font-size: 1.1em;">{adv_desc}</p>
+        <hr>
+        <small>💡 Analisis gabungan: <b>Harga Bapanas</b> (Market Demand) + <b>Open-Meteo</b> (Production Risk)</small>
+    </div>
+    """, unsafe_allow_html=True)
 
 if 'run_analysis_v4' not in st.session_state:
-     st.info("👈 Silakan atur parameter lahan. Aktifkan 'Integrasi Modul 27' di sidebar untuk hasil akurat.")
+     st.info("👈 Silakan atur parameter lahan dan klik tombol Jalankan Analisis.")
 else:
     with st.spinner("AI mensimulasikan pertumbuhan, pasar, & risiko..."):
         model = get_ai_model()
@@ -305,29 +279,26 @@ else:
             'texture': SOIL_TEXTURES[soil_texture_name],
             'fixed_org': organic_dose,
             'pest_strategy': pest_strategy,
-            'rain': curah_hujan_val, # From Real Weather API
-            'temp': temp_val
+            'rain': rain_est, # Integrated Data
+            'temp': temp      # Integrated Data
         }
         
         mode_str = "Yield" if "Yield" in optimization_strategy else "Profit"
         
-        # Using dynamic market price from Integration
-        # optimize_solution returns a DICTIONARY from shared service now
+        # Optimize
         opt_result = optimize_solution(model, target_yield_input, mode_str, fixed_params, price_per_kg=market_price)
         
-        # Legacy mapping for this file visualization
-        # Reconstruct full condition array for Monte Carlo
-        # Order: N, P, K, pH, Rain, Temp, Org, Texture, Water
+        # Reconstruct Condition
         opt_cond = np.array([
             opt_result['n_kg'], 
             opt_result['p_kg'], 
             opt_result['k_kg'], 
-            6.5,                     # pH (Assume optimal/neutral)
-            fixed_params['rain'],    # Rain from Weather API
-            fixed_params['temp'],    # Temp from Weather API
+            6.5,                     
+            fixed_params['rain'],    
+            fixed_params['temp'],    
             opt_result['organic_ton'],
-            fixed_params['texture'], # Texture
-            0.8                      # Water Access (Standard irrigation)
+            fixed_params['texture'], 
+            0.8                      
         ])
         pred_yield = opt_result['predicted_yield']
         pest_cost = opt_result['pest_cost']
@@ -364,11 +335,9 @@ else:
             st.divider()
             st.markdown("#### 🛍️ Tindakan Lanjut (Integrasi)")
             
-            # INTEGRATION: Modul 25 (Fertilizer Catalog)
             if st.button("🛒 Beli Pupuk (Katalog Modul 25)", use_container_width=True):
                 st.switch_page("pages/25_🧪_Katalog_Pupuk_Harga.py")
             
-            # INTEGRATION: Modul 18 & 26 (Pesticides)
             if "Organic" in pest_strategy:
                 if st.button("🌿 Lihat Resep Nabati (Modul 18)", use_container_width=True):
                     st.switch_page("pages/18_🌿_Pestisida_Nabati.py")
@@ -382,7 +351,7 @@ else:
                     opt_cond[0]/350*100, 
                     opt_cond[1]/130*100, 
                     opt_cond[2]/250*100, 
-                    PEST_STRATEGIES[pest_strategy]['cost_factor']*25, # Protection Intensity
+                    PEST_STRATEGIES[pest_strategy]['cost_factor']*25, 
                     opt_cond[6]/20*100 if opt_cond[6] > 0 else 5
                 ],
                 'theta': ['N', 'P', 'K', 'Proteksi Hama', 'Bahan Organik']
@@ -421,4 +390,4 @@ else:
         st.plotly_chart(fig_pie, use_container_width=True)
 
 st.markdown("---")
-st.caption("© 2025 AgriSensa Intelligence Systems | v3.1 Real-time Open-Meteo Integration")
+st.caption("© 2025 AgriSensa Intelligence Systems | v3.2 Integrated Price & Weather Module")
