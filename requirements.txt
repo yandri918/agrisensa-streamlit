@@ -12,3 +12,5 @@ lxml
 google-generativeai
 matplotlib
 scipy
+xlsxwriter
+openpyxl
