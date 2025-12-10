@@ -105,3 +105,71 @@ class BapanasService:
 
     def get_commodity_list(self):
         return list(COMMODITY_MAPPING.keys())
+
+    def get_price_map_data(self, commodity_id=2, level_id=3):
+        """
+        Fetch spatial price data from harga-peta-provinsi endpoint.
+        Uses 'rata_rata_geometrik' as the price value.
+        """
+        endpoint = f"{self.base_url}/harga-peta-provinsi"
+        
+        # Date: Today
+        today_str = datetime.now().strftime("%d/%m/%Y")
+        period = f"{today_str} - {today_str}"
+        
+        params = {
+            "level_harga_id": level_id,
+            "komoditas_id": commodity_id,
+            "period_date": period,
+            "multi_status_map[0]": "",
+            "multi_province_id[0]": ""
+        }
+        
+        try:
+            response = requests.get(endpoint, headers=self.headers, params=params, timeout=15)
+            if response.status_code == 200:
+                result = response.json()
+                if "data" in result:
+                    return self._parse_map_response(result['data'])
+            return None
+        except Exception as e:
+            print(f"Map API Error: {e}")
+            return None
+
+    def _parse_map_response(self, data_list):
+        """
+        Parse map data into DataFrame with Lat/Lon and Price
+        """
+        parsed_data = []
+        for item in data_list:
+            try:
+                # Parse LatLong "lat,lon"
+                ll = item.get('latlong', '').split(',')
+                if len(ll) != 2: continue
+                
+                lat = float(ll[0])
+                lon = float(ll[1])
+                
+                # Parse Price (rata_rata_geometrik or average)
+                # 'rata_rata_geometrik' seems to be the numeric value from debug
+                price = item.get('rata_rata_geometrik', 0)
+                
+                # Ensure price is valid number
+                try:
+                    price = float(price)
+                except:
+                    price = 0
+                
+                if price > 0:
+                    parsed_data.append({
+                        'province': item.get('province_name'),
+                        'lat': lat,
+                        'lon': lon,
+                        'price': price,
+                        'level': item.get('level_harga', '?'),
+                        'status': item.get('status_map', 'Normal')
+                    })
+            except:
+                continue
+                
+        return pd.DataFrame(parsed_data)
