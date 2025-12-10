@@ -1,6 +1,9 @@
 
 # Constants for Bapanas API Integration
 
+import os
+import streamlit as st
+
 # Mapping Commodity Names to Bapanas IDs (level_harga_id=1 for retail?)
 # Note: These IDs need to be verified against the actual API response
 # but we can infer some from standard ordering or use searching
@@ -64,6 +67,22 @@ PROVINCE_MAPPING = {
 ID_TO_COMMODITY = {v: k for k, v in COMMODITY_MAPPING.items()}
 ID_TO_PROVINCE = {v: k for k, v in PROVINCE_MAPPING.items()}
 
+# Secure API Key Loading
+def get_bapanas_key():
+    # Priority 1: Streamlit Secrets (Cloud/Local)
+    try:
+        return st.secrets["BAPANAS_API_KEY"]
+    except:
+        pass
+    
+    # Priority 2: OS Environment Variable
+    if "BAPANAS_API_KEY" in os.environ:
+        return os.environ["BAPANAS_API_KEY"]
+        
+    # Priority 3: Fallback (Empty/Warning)
+    # DO NOT COMMIT REAL KEYS HERE
+    return ""
+
 API_CONFIG = {
     "BASE_URL": "https://api-panelhargav2.badanpangan.go.id/api/front",
     "HEADERS": {
@@ -78,6 +97,6 @@ API_CONFIG = {
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-site",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "X-API-KEY": "zHWbt7U2qvPoUDkiUgvnOqYrtj3zClR7unnH2G4apE7HcMV4QyNC6BSD0yV3uvSHqS91TxwE8aMDTiCznmGceEX3zQmO1Xwq7TJblotIt2CpwvK6YjRKDJwcgMJwav9p4RshM3nfuFyurSQQv9BhueMJ0HJ778oD"
+        "X-API-KEY": get_bapanas_key()
     }
 }

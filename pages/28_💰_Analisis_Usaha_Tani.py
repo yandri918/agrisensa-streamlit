@@ -421,15 +421,14 @@ with st.sidebar:
         kebutuhan_mulsa_roll = 0
         
     # 3. Population Needs (Seeds)
-    if krisan_mode:
-       # ... (Existing Krisan logic) ...
-       pass 
-    elif padi_mode:
+    if padi_mode:
         populasi_tanaman = int(populasi_padi_override)
     else:
-        # Standard Formula
+        # Standard Formula (Applies to Krisan, Chili, etc)
         # Pop = (Total Bed Length / Plant Spacing) * Rows per Bed
-        populasi_tanaman = (total_panjang_bedengan / (jarak_tanam / 100)) * baris_per_bedeng
+        # Ensure non-zero divisor
+        j_tanam_m = max(jarak_tanam / 100, 0.05) 
+        populasi_tanaman = (total_panjang_bedengan / j_tanam_m) * baris_per_bedeng
     
     # Safety margin 10% for 'sulam' if not Padi (Padi seeds usually by weight not clumps, but we track clumps for yield)
     if not padi_mode:
@@ -798,269 +797,86 @@ elif st.session_state.get("last_input_context") != current_input_context:
     # Inputs changed! Reset the dataframe to reflect new params (Area scaling, etc)
     st.session_state.rab_state_df = df_rab
     st.session_state.last_input_context = current_input_context
-    # Optional: We could try to migrate manual edits here, but it's risky if structure changes.
-    # For now, safer to reset to "Correct Logical Defaults" when inputs change.
 
-# Display Editor
+# 4. DATA EDITOR DISPLAY
 edited_df = st.data_editor(
-    st.session_state.rab_state_df, # Use persistence
-    column_config=cols_config,
-    use_container_width=True,
+    st.session_state.rab_state_df, 
+    use_container_width=True, 
     num_rows="dynamic",
+    column_config=cols_config,
     key="rab_editor"
 )
 
-# RECALC LOGIC
-# Whenever 'edited_df' changes (user edit), we update the state AND the total column
-if not edited_df.equals(st.session_state.rab_state_df):
-    # User made an edit!
-    # Update totals
-    edited_df["Total (Rp)"] = edited_df["Volume"] * edited_df["Harga Satuan (Rp)"]
-    # Save back to state so it renders correctly NEXT time? 
-    # Actually, saving it to state allows the NEXT RERUN to show the correct values.
-    # But we need to trigger that rerun or the user won't see it until they act again.
-    st.session_state.rab_state_df = edited_df
-    st.rerun() # Force rerun to update the table UI with new totals immediately
+# 5. RECALCULATE TOTALS (Reactive Mode)
+# We need to recalc the 'Total (Rp)' column because user might have changed Volume or Price
+edited_df['Total (Rp)'] = edited_df['Volume'] * edited_df['Harga Satuan (Rp)']
 
-total_biaya = edited_df["Total (Rp)"].sum()
-
+# 6. SUMMARY METRICS
+total_biaya = edited_df['Total (Rp)'].sum()
 estimasi_omzet = target_panen * luas_lahan_ha * target_harga
-profit = estimasi_omzet - total_biaya
-roi = (profit / total_biaya) * 100 if total_biaya > 0 else 0
+estimasi_laba = estimasi_omzet - total_biaya
+roi_percent = (estimasi_laba / total_biaya * 100) if total_biaya > 0 else 0
 
-# 4. ANALYSIS & INSIGHTS
-st.markdown("---")
-st.subheader("📊 Analisis Kelayakan Usaha")
-
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Total Biaya (Modal)", f"Rp {total_biaya:,.0f}")
-c2.metric("Estimasi Omzet", f"Rp {estimasi_omzet:,.0f}", f"Yield: {target_panen*luas_lahan_ha:,.0f} {unit_hasil}")
-c3.metric("Keuntungan Bersih", f"Rp {profit:,.0f}", delta=f"ROI: {roi:.1f}%")
-
-# BEP Calculation
-# BEP Calculation
-bep_harga = total_biaya / (target_panen * luas_lahan_ha) if target_panen > 0 else 0
-bep_unit = total_biaya / target_harga if target_harga > 0 else 0
-
-if target_panen > 0:
-    c4.metric(f"BEP Harga (Titik Impas)", f"Rp {bep_harga:,.0f} /{unit_hasil}", help="Anda tidak rugi jika harga jual di atas ini")
-else:
-    c4.metric("BEP Harga", "Fase Investasi", help="Belum ada panen di tahun pertama (Masa Konstruksi/Vegetatif)")
-
-# Visualisasi Cost Structure
-st.markdown("### 🍰 Struktur Biaya")
-col_chart, col_advice = st.columns([1.5, 1])
-
-with col_chart:
-    # Group by Category for Pie Chart
-    pie_data = edited_df.groupby("Kategori")["Total (Rp)"].sum().reset_index()
-    fig_pie = px.pie(pie_data, values="Total (Rp)", names="Kategori", hole=0.4, title="Komposisi Biaya")
-    fig_pie.update_layout(showlegend=False, margin=dict(t=30, b=0, l=0, r=0))
-    st.plotly_chart(fig_pie, use_container_width=True)
-
-with col_advice:
-    st.markdown("### 💡 Saran & Rekomendasi")
-    
-    # 1. Cek Biaya Tenaga Kerja (Labor Cost)
-    # Fix: Handle NA to avoid bool index error
-    labor_cost = edited_df[edited_df['Kategori'].str.contains("Tenaga", case=False, na=False)]["Total (Rp)"].sum()
-    labor_pct = (labor_cost / total_biaya * 100) if total_biaya > 0 else 0
-    
-    # 2. Top Cost Drivers
-    st.markdown("**🏆 3 Pengeluaran Terbesar:**")
-    top_costs = edited_df.sort_values("Total (Rp)", ascending=False).head(3)
-    for index, row in top_costs.iterrows():
-        st.write(f"- **{row['Uraian']}**: Rp {row['Total (Rp)']:,.0f} ({row['Total (Rp)']/total_biaya*100:.1f}%)")
-
-    # 3. Analisis Labor Check
-    if labor_pct > 40:
-        st.warning(f"⚠️ **Biaya Tenaga Kerja Tinggi ({labor_pct:.1f}%)**: HOK Anda cukup besar. Pertimbangkan mekanisasi (traktor/kultivator) atau penggunaan herbisida untuk mengurangi penyiangan manual.")
-    else:
-        st.success(f"✅ **Efisiensi Tenaga Kerja Baik ({labor_pct:.1f}%)**: Masih dalam batas wajar (<40%).")
-
-    # 4. Cek Margin/BEP
-    margin_aman = 0.7 * crop_data['harga_jual'] # Asumsi aman jika BEP < 70% harga pasar
-    
-    if target_panen == 0:
-        st.info("ℹ️ **Fase Investasi**: Biaya tinggi di awal adalah wajar untuk tanaman tahunan (Buah Naga/Jeruk). Fokus pada kualitas konstruksi tiang/lahan.")
-    elif bep_harga > margin_aman:
-        st.error(f"⚠️ **Risiko Tinggi!** BEP Harga Anda (Rp {bep_harga:,.0f}) terlalu dekat dengan harga pasar. Coba kurangi biaya input atau targetkan hasil panen lebih tinggi.")
-    else:
-        st.success(f"✅ **Potensi Aman**: BEP Harga (Rp {bep_harga:,.0f}) masih jauh di bawah harga pasar. Usaha ini layak dijalankan.")
-
-    # 5. Mulsa Check (Safe)
-    has_mulsa = not edited_df[edited_df['Uraian'].str.contains("Mulsa", case=False, na=False)].empty
-    if "Cabai" in selected_crop and not has_mulsa:
-        st.warning("ℹ️ **Saran Teknis**: Budidaya Cabai tanpa Mulsa berisiko tinggi serangan penyakit dan gulma. Disarankan tetap menggunakan mulsa meski biaya awal tinggi.")
-
-# UNIT ECONOMICS (New Feature)
-st.markdown("---")
-st.subheader("🌱 Analisis Per Tanaman (Unit Economics)")
-
-if populasi_tanaman > 0:
-    biaya_per_tanaman = total_biaya / populasi_tanaman
-    pendapatan_per_tanaman = estimasi_omzet / populasi_tanaman
-    margin_per_tanaman = pendapatan_per_tanaman - biaya_per_tanaman
-    
-    ue1, ue2, ue3 = st.columns(3)
-    
-    ue1.metric("Biaya per Batang", f"Rp {biaya_per_tanaman:,.0f}", help="Modal yang Anda keluarkan untuk merawat 1 tanaman sampai panen")
-    ue2.metric("Pendapatan per Batang", f"Rp {pendapatan_per_tanaman:,.0f}", help="Hasil penjualan rata-rata dari 1 tanaman")
-    ue3.metric("Profit per Batang", f"Rp {margin_per_tanaman:,.0f}", 
-              delta="Untung" if margin_per_tanaman > 0 else "Rugi",
-              delta_color="normal")
-              
-    st.info(f"💡 **Insight:** Dengan modal **Rp {biaya_per_tanaman:,.0f}** per tanaman, Anda mendapatkan untung bersih **Rp {margin_per_tanaman:,.0f}**. Pastikan tanaman tidak mati lebih dari {roi/2:.0f}% agar tetap untung.")
-else:
-    st.info("Populasi tanaman tidak terdefinisi (bukan tanaman individu). Analisis per batang dilewati.")
-
-# --- EXPORT SECTION ---
 st.divider()
-st.subheader("📥 Export Laporan")
+m1, m2, m3 = st.columns(3)
+m1.metric("Total Biaya (RAB)", f"Rp {total_biaya:,.0f}", help="Total CAPEX + OPEX")
+m2.metric("Est. Omzet Panen", f"Rp {estimasi_omzet:,.0f}", f"{target_panen:,.0f} {unit_hasil} x Rp {target_harga}")
+m3.metric("Potensi Laba", f"Rp {estimasi_laba:,.0f}", f"ROI: {roi_percent:.1f}%")
 
-col_ex1, col_ex2 = st.columns(2)
+if roi_percent < 0:
+    st.error("⚠️ Proyeksi Rugi! Coba kurangi biaya tetangga atau naikkan target panen.")
+elif roi_percent > 100:
+    st.success("🚀 Potensi ROI Sangat Tinggi (High Risk High Return)")
 
-# 1. Excel Export Logic
-def generate_excel_file():
-    buffer = io.BytesIO()
+# 7. EXPORT & ACTIONS
+st.subheader("📤 Export & Simpan")
+c_ex1, c_ex2 = st.columns(2)
+
+# save logic
+with c_ex1:
+    save_name = st.text_input("Nama Proyek", value=st.session_state.get('active_project_name', f"RAB {selected_crop}"))
+    if st.button("💾 Simpan Proyek"):
+        project_data = st.session_state.rab_params.copy()
+        ProjectManager.save_project(save_name, project_data)
+        st.success(f"Proyek '{save_name}' berhasil disimpan!")
+
+# Download Logic
+from datetime import datetime
+
+with c_ex2:
+    st.write("Download Data")
     
-    # Create Excel Writer with openpyxl
-    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        # Write Summary Metadata
-        summary_data = [
-            ["Komoditas", selected_crop],
-            ["Luas Lahan", f"{luas_lahan_ha} Ha"],
-            ["Total Biaya", total_biaya],
-            ["Estimasi Omzet", estimasi_omzet],
-            ["Estimasi Profit", profit],
-            ["ROI", f"{roi:.1f}%"],
-            ["BEP Harga", bep_harga],
-            ["Populasi", populasi_tanaman],
-            ["Tanggal Buat", datetime.datetime.now().strftime("%Y-%m-%d")]
-        ]
-        df_summary = pd.DataFrame(summary_data, columns=["Parameter", "Nilai"])
-        df_summary.to_excel(writer, sheet_name="Ringkasan", index=False)
+    # --- EXCEL EXPORT (Using pandas) ---
+    buffer_excel = io.BytesIO()
+    with pd.ExcelWriter(buffer_excel, engine='xlsxwriter') as writer:
+        edited_df.to_excel(writer, sheet_name='RAB Detail', index=False)
+        # Add Summary Sheet
+        summary_data = pd.DataFrame([{
+            "Parameter": "Komoditas", "Nilai": selected_crop
+        }, {
+            "Parameter": "Luas Lahan", "Nilai": f"{luas_lahan_ha} Ha"
+        }, {
+            "Parameter": "Total Biaya", "Nilai": total_biaya
+        }, {
+            "Parameter": "Estimasi Omzet", "Nilai": estimasi_omzet
+        }, {
+            "Parameter": "Estimasi Laba", "Nilai": estimasi_laba
+        }])
+        summary_data.to_excel(writer, sheet_name='Ringkasan', index=False)
         
-        # Write Main RAB Table
-        edited_df.to_excel(writer, sheet_name="RAB Detail", index=False)
-        
-        # Auto-adjust column width (simple heuristic)
-        worksheet = writer.sheets['RAB Detail']
-        for column in worksheet.columns:
-            max_length = 0
-            column = [cell for cell in column]
-            for cell in column:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-            adjusted_width = (max_length + 2)
-            worksheet.column_dimensions[column[0].column_letter].width = adjusted_width
-            
-    return buffer
+    st.download_button(
+        label="📥 Download Excel (.xlsx)",
+        data=buffer_excel.getvalue(),
+        file_name=f"RAB_{selected_crop}_{datetime.now().strftime('%Y%m%d')}.xlsx",
+        mime="application/vnd.ms-excel"
+    )
 
-# 2. HTML (Invoice) Export Logic
-def generate_html_invoice():
-    today_str = datetime.datetime.now().strftime("%d %B %Y")
-    
-    # Convert DF to HTML Table with specific formatting
-    formatters = {
-        "Volume": "{:,.1f}".format,
-        "Harga Satuan (Rp)": "Rp {:,.0f}".format,
-        "Total (Rp)": "Rp {:,.0f}".format
-    }
-    table_html = edited_df.to_html(classes="table table-striped", index=False, formatters=formatters)
-    
-    html_content = f"""
-    <html>
-    <head>
-        <style>
-            body {{ font-family: 'Helvetica', sans-serif; padding: 40px; color: #333; }}
-            .header {{ text-align: center; margin-bottom: 30px; }}
-            .logo {{ font-size: 24px; font-weight: bold; color: #2e7d32; }}
-            .meta-box {{ background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: space-between; }}
-            .meta-item {{ text-align: center; }}
-            .meta-val {{ font-size: 18px; font-weight: bold; color: #1b5e20; }}
-            .table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
-            .table th {{ background: #2e7d32; color: white; padding: 12px; text-align: left; }}
-            .table td {{ border-bottom: 1px solid #ddd; padding: 10px; }}
-            .footer {{ margin-top: 50px; text-align: center; font-size: 12px; color: #888; }}
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <div class="logo">🌿 AGRISENSA - Laporan Analisis Usaha Tani</div>
-            <h2>RAB Proyek: {selected_crop}</h2>
-            <p>Tanggal: {today_str}</p>
-        </div>
-        
-        <div class="meta-box">
-            <div class="meta-item">
-                <div>Luas Lahan</div>
-                <div class="meta-val">{luas_lahan_ha} Ha</div>
-            </div>
-            <div class="meta-item">
-                <div>Total Biaya</div>
-                <div class="meta-val">Rp {total_biaya:,.0f}</div>
-            </div>
-            <div class="meta-item">
-                <div>Est. Profit</div>
-                <div class="meta-val">Rp {profit:,.0f}</div>
-            </div>
-            <div class="meta-item">
-                <div>ROI</div>
-                <div class="meta-val">{roi:.1f}%</div>
-            </div>
-        </div>
-        
-        <h3>Rincian Biaya (RAB)</h3>
-        {table_html}
-        
-        <div class="footer">
-            Dicetak otomatis oleh AgriSensa Smart Farming Assistant.
-        </div>
-    </body>
-    </html>
-    """
-    return html_content
-
-# Render Buttons
-# Render Buttons
-with col_ex1:
-    try:
-        excel_buffer = generate_excel_file()
-        st.download_button(
-            label="📑 Download Excel (.xlsx)",
-            data=excel_buffer.getvalue(),
-            file_name=f"RAB_{selected_crop}_{datetime.date.today()}.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
-        )
-    except Exception as e:
-        st.warning("⚠️ Excel Library belum aktif.")
-        st.caption("Server perlu Reboot untuk install library baru.")
-        # Fallback CSV
-        csv = edited_df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 Download Data (CSV)",
-            data=csv,
-            file_name=f"RAB_{selected_crop}_{datetime.date.today()}.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
-
-with col_ex2:
-    try:
-        html_data = generate_html_invoice()
-        st.download_button(
-            label="🖨️ Download Laporan (Siap Cetak PDF)",
-            data=html_data,
-            file_name=f"Laporan_{selected_crop}_{datetime.date.today()}.html",
-            mime="text/html",
-            use_container_width=True,
-            help="Buka file ini di Browser (Chrome/Safari) lalu pilih 'Print' -> 'Save as PDF'"
-        )
-    except Exception as e:
-        st.error(f"Gagal generate HTML: {e}")
-
+    # --- CSV EXPORT ---
+    csv = edited_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        "📄 Download CSV",
+        csv,
+        f"RAB_{selected_crop}.csv",
+        "text/csv",
+        key='download-csv'
+    )

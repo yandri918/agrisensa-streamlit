@@ -129,7 +129,9 @@ if st.button("🔄 Segarkan Data Harga", type="primary", use_container_width=Tru
             if df is not None and not df.empty:
                 st.session_state['price_data'] = df
                 st.session_state['data_source'] = "Bapanas API v2"
-                st.success(f"Berhasil memuat {len(df)} data komoditas!")
+                # Correct message to count unique commodities
+                comm_count = df['commodity'].nunique()
+                st.success(f"Berhasil memuat {comm_count} jenis komoditas! (Total {len(df)} data poin hari ini & kemarin)")
             else:
                 st.error("Gagal mengambil data. Server Bapanas mungkin sibuk atau API Key expired.")
                 
