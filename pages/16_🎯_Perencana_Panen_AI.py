@@ -70,6 +70,38 @@ SOIL_TEXTURES = {
     "Liat (Clay)": 0.8 
 }
 
+# Mapping: Modul 16 Variety Name -> Bapanas Commodity Name Substring
+# Crucial for valid price fetching
+CROP_TO_BAPANAS_MAP = {
+    # Padi / Beras
+    "Padi (Inpari 32)": "Beras Premium", 
+    "Padi (Ciherang)": "Beras Medium",
+    "Padi (IR64)": "Beras Medium", 
+    "Padi (Sidenuk)": "Beras Medium",
+    
+    # Jagung
+    "Jagung Hibrida": "Jagung",
+    "Jagung Manis": "Jagung",
+    "Jagung Pakan": "Jagung",
+    
+    # Edisi Khusus / Sayur
+    "Cabai Merah Besar": "Cabai Merah Keriting", # Approximation
+    "Cabai Rawit": "Cabai Rawit Merah",
+    "Cabai Keriting": "Cabai Merah Keriting",
+    "Bawang Merah": "Bawang Merah",
+    "Bawang Putih": "Bawang Putih",
+    
+    # Kedelai
+    "Kedelai (Grobogan)": "Kedelai",
+    "Kedelai (Anjasmoro)": "Kedelai",
+    
+    # Others (Fallback or Manual Estimations if not in Bapanas)
+    "Daging Sapi": "Daging Sapi",
+    "Telur Ayam": "Telur Ayam",
+    "Gula": "Gula Pasir",
+    "Minyak": "Minyak Goreng" 
+}
+
 PEST_STRATEGIES = {
     "Organic (Nabati)": {"cost_factor": 1.0, "risk_reduction": 0.3, "tox_score": 0, "desc": "Ramah lingkungan, risiko hama moderat"},
     "IPM (Terpadu)": {"cost_factor": 1.5, "risk_reduction": 0.6, "tox_score": 20, "desc": "Seimbang, kimia hanya jika perlu"},
@@ -193,18 +225,28 @@ with st.sidebar:
         market_trend = "Stabil ➖"
         
         if price_df is not None and not price_df.empty:
-            # Fuzzy Logic to match selected_crop string to API commodity name
-            # Simple contains check
-            match_row = price_df[price_df['commodity'].apply(lambda x: x.lower() in selected_crop.lower() or selected_crop.lower() in x.lower())]
+            # 1. TRY EXACT MAPPING FIRST (Priority)
+            bapanas_name = CROP_TO_BAPANAS_MAP.get(selected_crop, "")
+            match_row = pd.DataFrame()
+            
+            if bapanas_name:
+                # Filter strictly by the mapped name (substring check)
+                match_row = price_df[price_df['commodity'].str.contains(bapanas_name, case=False, na=False)]
+            
+            # 2. IF NO MAP OR NO MATCH, TRY FUZZY SEARCH (Fallback)
+            if match_row.empty:
+                match_row = price_df[price_df['commodity'].apply(
+                    lambda x: x.lower() in selected_crop.lower() or selected_crop.lower() in x.lower()
+                )]
             
             if not match_row.empty:
                 market_price = int(match_row.iloc[0]['price'])
                 # Simple trend if previous data exists (simulated for now if single point)
                 market_trend = "Naik 📈" # Placeholder/Simulated as API V2 gives snapshots
             else:
-                # Fallback if specific commodity not found in Bapanas List (e.g. Durian)
-                 market_price = 15000 # Default fallback
-                 st.caption(f"ℹ️ Harga tidak tersedia di Bapanas, estimasi manual.")
+                 # Fallback if specific commodity not found in Bapanas List (e.g. Durian)
+                 market_price = 15000 
+                 st.caption(f"ℹ️ Item '{selected_crop}' (Map: {bapanas_name}) tidak ada di Bapanas. Estimasi manual.")
         else:
              market_price = 15000 # Fallback connection error
         
@@ -390,4 +432,4 @@ else:
         st.plotly_chart(fig_pie, use_container_width=True)
 
 st.markdown("---")
-st.caption("© 2025 AgriSensa Intelligence Systems | v3.2 Integrated Price & Weather Module")
+st.caption("© 2025 AgriSensa Intelligence Systems | v3.3 Integrated Price Mapping & Weather")
