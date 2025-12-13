@@ -624,6 +624,12 @@ else:
         st.session_state.weight_risk = 20
     if 'weight_env' not in st.session_state:
         st.session_state.weight_env = 15
+    if 'decision_results' not in st.session_state:
+        st.session_state.decision_results = None
+    if 'decision_crop' not in st.session_state:
+        st.session_state.decision_crop = None
+    if 'decision_area' not in st.session_state:
+        st.session_state.decision_area = None
     
     col1, col2, col3, col4 = st.columns(4)
     
@@ -639,6 +645,19 @@ else:
                 st.session_state.weight_risk = int(st.session_state.weight_risk * ratio)
                 st.session_state.weight_env = 100 - new_cost - st.session_state.weight_eff - st.session_state.weight_risk
             st.session_state.weight_cost = new_cost
+            # Recalculate if results exist
+            if st.session_state.decision_results is not None:
+                temp_weights = {
+                    'cost': st.session_state.weight_cost / 100,
+                    'effectiveness': st.session_state.weight_eff / 100,
+                    'risk': st.session_state.weight_risk / 100,
+                    'environmental': st.session_state.weight_env / 100
+                }
+                st.session_state.decision_results, _ = calculate_decision_matrix(
+                    st.session_state.decision_crop, 
+                    st.session_state.decision_area, 
+                    temp_weights
+                )
             st.rerun()
     
     with col2:
@@ -652,6 +671,18 @@ else:
                 st.session_state.weight_risk = int(st.session_state.weight_risk * ratio)
                 st.session_state.weight_env = 100 - new_eff - st.session_state.weight_cost - st.session_state.weight_risk
             st.session_state.weight_eff = new_eff
+            if st.session_state.decision_results is not None:
+                temp_weights = {
+                    'cost': st.session_state.weight_cost / 100,
+                    'effectiveness': st.session_state.weight_eff / 100,
+                    'risk': st.session_state.weight_risk / 100,
+                    'environmental': st.session_state.weight_env / 100
+                }
+                st.session_state.decision_results, _ = calculate_decision_matrix(
+                    st.session_state.decision_crop, 
+                    st.session_state.decision_area, 
+                    temp_weights
+                )
             st.rerun()
     
     with col3:
@@ -665,6 +696,18 @@ else:
                 st.session_state.weight_eff = int(st.session_state.weight_eff * ratio)
                 st.session_state.weight_env = 100 - new_risk - st.session_state.weight_cost - st.session_state.weight_eff
             st.session_state.weight_risk = new_risk
+            if st.session_state.decision_results is not None:
+                temp_weights = {
+                    'cost': st.session_state.weight_cost / 100,
+                    'effectiveness': st.session_state.weight_eff / 100,
+                    'risk': st.session_state.weight_risk / 100,
+                    'environmental': st.session_state.weight_env / 100
+                }
+                st.session_state.decision_results, _ = calculate_decision_matrix(
+                    st.session_state.decision_crop, 
+                    st.session_state.decision_area, 
+                    temp_weights
+                )
             st.rerun()
     
     with col4:
@@ -678,6 +721,18 @@ else:
                 st.session_state.weight_eff = int(st.session_state.weight_eff * ratio)
                 st.session_state.weight_risk = 100 - new_env - st.session_state.weight_cost - st.session_state.weight_eff
             st.session_state.weight_env = new_env
+            if st.session_state.decision_results is not None:
+                temp_weights = {
+                    'cost': st.session_state.weight_cost / 100,
+                    'effectiveness': st.session_state.weight_eff / 100,
+                    'risk': st.session_state.weight_risk / 100,
+                    'environmental': st.session_state.weight_env / 100
+                }
+                st.session_state.decision_results, _ = calculate_decision_matrix(
+                    st.session_state.decision_crop, 
+                    st.session_state.decision_area, 
+                    temp_weights
+                )
             st.rerun()
     
     # Use session state values
@@ -699,6 +754,13 @@ else:
     
     if st.button("Analisis Strategi", type="primary", use_container_width=True):
         results, weights = calculate_decision_matrix(crop_decision, area_decision, user_weights)
+        st.session_state.decision_results = results
+        st.session_state.decision_crop = crop_decision
+        st.session_state.decision_area = area_decision
+    
+    # Display results if they exist in session state
+    if st.session_state.decision_results is not None:
+        results = st.session_state.decision_results
         
         st.markdown("---")
         st.subheader("Decision Matrix")
