@@ -203,173 +203,292 @@ DIAGNOSTIC_TREE = {
 
 # ========== MAIN APP ==========
 st.title("🔍 Diagnostik Gejala Cerdas")
-st.markdown("**Jawab pertanyaan berikut untuk mengidentifikasi masalah pada tanaman Anda**")
+st.markdown("**Jawab pertanyaan atau pilih gejala untuk mengidentifikasi masalah pada tanaman Anda**")
 
-# Initialize session state
-if 'current_question' not in st.session_state:
-    st.session_state.current_question = 'start'
-if 'diagnosis_history' not in st.session_state:
-    st.session_state.diagnosis_history = []
-if 'diagnosis_result' not in st.session_state:
-    st.session_state.diagnosis_result = None
+# Tabs for different methods
+tab1, tab2 = st.tabs(["🌲 Pohon Keputusan (Interaktif)", "🧮 Teorema Bayes (Kalkulator)"])
 
-# Instructions
-with st.expander("📖 Cara Menggunakan", expanded=False):
-    st.markdown("""
-    **Langkah-langkah:**
-    1. Jawab pertanyaan yang muncul secara berurutan
-    2. Pilih opsi yang paling sesuai dengan gejala tanaman Anda
-    3. Sistem akan mendiagnosis masalah berdasarkan jawaban Anda
-    4. Dapatkan rekomendasi penanganan dan pencegahan
-    
-    **Tips:**
-    - Amati tanaman dengan teliti sebelum menjawab
-    - Pilih gejala yang paling dominan
-    - Jika ragu, konsultasikan dengan ahli
-    - Foto gejala untuk dokumentasi
-    """)
+# --- TAB 1: DECISION TREE ---
+with tab1:
+    # Initialize session state
+    if 'current_question' not in st.session_state:
+        st.session_state.current_question = 'start'
+    if 'diagnosis_history' not in st.session_state:
+        st.session_state.diagnosis_history = []
+    if 'diagnosis_result' not in st.session_state:
+        st.session_state.diagnosis_result = None
 
-# Reset button
-if st.button("🔄 Mulai Diagnosis Baru"):
-    st.session_state.current_question = 'start'
-    st.session_state.diagnosis_history = []
-    st.session_state.diagnosis_result = None
-    st.rerun()
+    # Instructions
+    with st.expander("📖 Cara Menggunakan Pohon Keputusan", expanded=False):
+        st.markdown("""
+        **Langkah-langkah:**
+        1. Jawab pertanyaan yang muncul secara berurutan
+        2. Pilih opsi yang paling sesuai dengan gejala tanaman Anda
+        3. Sistem akan mendiagnosis masalah berdasarkan jawaban Anda
+        """)
 
-# Display diagnostic flow
-st.markdown("---")
+    # Reset button
+    if st.button("🔄 Mulai Diagnosis Baru", key="reset_tree"):
+        st.session_state.current_question = 'start'
+        st.session_state.diagnosis_history = []
+        st.session_state.diagnosis_result = None
+        st.rerun()
 
-# Show history
-if st.session_state.diagnosis_history:
-    st.subheader("📋 Riwayat Jawaban")
-    for i, (q, a) in enumerate(st.session_state.diagnosis_history):
-        st.write(f"{i+1}. **{q}** → {a}")
+    # Display diagnostic flow
     st.markdown("---")
 
-# Current question
-if st.session_state.diagnosis_result is None:
-    current = DIAGNOSTIC_TREE.get(st.session_state.current_question)
-    
-    if current:
-        st.subheader("❓ Pertanyaan")
-        st.markdown(f"### {current['question']}")
-        
-        # Display options
-        st.markdown("**Pilih salah satu:**")
-        
-        for option in current['options'].keys():
-            if st.button(option, key=f"btn_{option}", use_container_width=True):
-                # Save answer
-                st.session_state.diagnosis_history.append((current['question'], option))
-                
-                # Get next question or diagnosis
-                next_step = current['options'][option]
-                
-                if isinstance(next_step, dict) and 'diagnosis' in next_step:
-                    # We have a diagnosis
-                    st.session_state.diagnosis_result = next_step['diagnosis']
-                else:
-                    # Move to next question
-                    st.session_state.current_question = next_step
-                
-                st.rerun()
-else:
-    # Display diagnosis result
-    diagnosis_name = st.session_state.diagnosis_result
-    diagnosis = DISEASE_DATABASE.get(diagnosis_name)
-    
-    if diagnosis:
-        st.success("✅ Diagnosis Selesai!")
-        
+    # Show history
+    if st.session_state.diagnosis_history:
+        st.subheader("📋 Riwayat Jawaban")
+        for i, (q, a) in enumerate(st.session_state.diagnosis_history):
+            st.write(f"{i+1}. **{q}** → {a}")
         st.markdown("---")
-        st.subheader(f"🎯 Hasil Diagnosis: {diagnosis_name}")
+
+    # Current question
+    if st.session_state.diagnosis_result is None:
+        current = DIAGNOSTIC_TREE.get(st.session_state.current_question)
         
-        # Severity indicator
-        severity_colors = {
-            "Rendah": ("🟢", "#10b981"),
-            "Sedang": ("🟡", "#f59e0b"),
-            "Tinggi": ("🟠", "#f97316"),
-            "Sangat Tinggi": ("🔴", "#ef4444")
-        }
-        
-        severity_icon, severity_color = severity_colors.get(diagnosis['severity'], ("⚪", "#6b7280"))
-        
-        st.markdown(f"""
-        <div style="background: {severity_color}20; padding: 1rem; border-radius: 8px; 
-                    border-left: 4px solid {severity_color}; margin: 1rem 0;">
-            <h4 style="margin: 0; color: {severity_color};">
-                {severity_icon} Tingkat Keparahan: {diagnosis['severity']}
-            </h4>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Details
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("### 🔬 Informasi")
-            st.markdown(f"**Penyebab:** {diagnosis['causes']}")
+        if current:
+            st.subheader("❓ Pertanyaan")
+            st.markdown(f"### {current['question']}")
             
-            st.markdown("**Gejala:**")
-            for symptom in diagnosis['symptoms']:
-                st.write(f"- {symptom}")
+            # Display options
+            st.markdown("**Pilih salah satu:**")
+            
+            for option in current['options'].keys():
+                if st.button(option, key=f"btn_{option}", use_container_width=True):
+                    # Save answer
+                    st.session_state.diagnosis_history.append((current['question'], option))
+                    
+                    # Get next question or diagnosis
+                    next_step = current['options'][option]
+                    
+                    if isinstance(next_step, dict) and 'diagnosis' in next_step:
+                        # We have a diagnosis
+                        st.session_state.diagnosis_result = next_step['diagnosis']
+                    else:
+                        # Move to next question
+                        st.session_state.current_question = next_step
+                    
+                    st.rerun()
+    else:
+        # Display diagnosis result
+        diagnosis_name = st.session_state.diagnosis_result
+        diagnosis = DISEASE_DATABASE.get(diagnosis_name)
         
-        with col2:
-            st.markdown("### 💊 Penanganan")
-            for i, treatment in enumerate(diagnosis['treatment'], 1):
-                st.write(f"{i}. {treatment}")
-        
-        # Prevention
-        st.markdown("---")
-        st.subheader("🛡️ Pencegahan")
-        
-        cols = st.columns(len(diagnosis['prevention']))
-        for col, prevention in zip(cols, diagnosis['prevention']):
-            with col:
-                st.info(f"✓ {prevention}")
-        
-        # Additional recommendations
-        st.markdown("---")
-        st.subheader("💡 Rekomendasi Tambahan")
-        
-        if "Defisiensi" in diagnosis_name:
-            st.markdown("""
-            **Untuk masalah nutrisi:**
-            - Gunakan modul **Analisis NPK** untuk cek status tanah
-            - Gunakan **Kalkulator Pupuk** untuk dosis yang tepat
-            - Lakukan uji tanah di laboratorium
-            """)
-        elif "Virus" in diagnosis_name:
-            st.warning("""
-            ⚠️ **Penting untuk Penyakit Virus:**
-            - Tidak ada obat langsung untuk virus
-            - Fokus pada pencegahan dan pengendalian vektor
-            - Cabut dan musnahkan tanaman terinfeksi
-            - Tanam varietas tahan virus
-            """)
-        else:
-            st.markdown("""
-            **Untuk penyakit/hama:**
-            - Aplikasi pestisida sesuai dosis anjuran
-            - Rotasi jenis pestisida untuk hindari resistensi
-            - Kombinasikan dengan pengendalian hayati
-            - Monitor populasi hama/penyakit secara rutin
-            """)
-        
-        # Save diagnosis
-        st.markdown("---")
-        if st.button("💾 Simpan Hasil Diagnosis", use_container_width=True):
-            diagnosis_record = {
-                'date': pd.Timestamp.now().isoformat(),
-                'diagnosis': diagnosis_name,
-                'severity': diagnosis['severity'],
-                'questions': st.session_state.diagnosis_history
+        if diagnosis:
+            st.success("✅ Diagnosis Selesai!")
+            
+            st.markdown("---")
+            st.subheader(f"🎯 Hasil Diagnosis: {diagnosis_name}")
+            
+            # Severity indicator
+            severity_colors = {
+                "Rendah": ("🟢", "#10b981"),
+                "Sedang": ("🟡", "#f59e0b"),
+                "Tinggi": ("🟠", "#f97316"),
+                "Sangat Tinggi": ("🔴", "#ef4444")
             }
             
-            st.success("✅ Hasil diagnosis berhasil disimpan!")
-            st.json(diagnosis_record)
-    else:
-        st.error("❌ Diagnosis tidak ditemukan dalam database")
+            severity_icon, severity_color = severity_colors.get(diagnosis['severity'], ("⚪", "#6b7280"))
+            
+            st.markdown(f"""
+            <div style="background: {severity_color}20; padding: 1rem; border-radius: 8px; 
+                        border-left: 4px solid {severity_color}; margin: 1rem 0;">
+                <h4 style="margin: 0; color: {severity_color};">
+                    {severity_icon} Tingkat Keparahan: {diagnosis['severity']}
+                </h4>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Details
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("### 🔬 Informasi")
+                st.markdown(f"**Penyebab:** {diagnosis['causes']}")
+                
+                st.markdown("**Gejala:**")
+                for symptom in diagnosis['symptoms']:
+                    st.write(f"- {symptom}")
+            
+            with col2:
+                st.markdown("### 💊 Penanganan")
+                for i, treatment in enumerate(diagnosis['treatment'], 1):
+                    st.write(f"{i}. {treatment}")
+            
+            # Prevention
+            st.markdown("---")
+            st.subheader("🛡️ Pencegahan")
+            
+            cols = st.columns(len(diagnosis['prevention']))
+            for col, prevention in zip(cols, diagnosis['prevention']):
+                with col:
+                    st.info(f"✓ {prevention}")
+            
+            # Additional recommendations
+            st.markdown("---")
+            st.subheader("💡 Rekomendasi Tambahan")
+             
+            if "Defisiensi" in diagnosis_name:
+                st.markdown("""
+                **Untuk masalah nutrisi:**
+                - Gunakan modul **Analisis NPK** untuk cek status tanah
+                - Gunakan **Kalkulator Pupuk** untuk dosis yang tepat
+                - Lakukan uji tanah di laboratorium
+                """)
+            elif "Virus" in diagnosis_name:
+                st.warning("""
+                ⚠️ **Penting untuk Penyakit Virus:**
+                - Tidak ada obat langsung untuk virus
+                - Fokus pada pencegahan dan pengendalian vektor
+                - Cabut dan musnahkan tanaman terinfeksi
+                - Tanam varietas tahan virus
+                """)
+            else:
+                st.markdown("""
+                **Untuk penyakit/hama:**
+                - Aplikasi pestisida sesuai dosis anjuran
+                - Rotasi jenis pestisida untuk hindari resistensi
+                - Kombinasikan dengan pengendalian hayati
+                - Monitor populasi hama/penyakit secara rutin
+                """)
+            
+            # Save diagnosis
+            st.markdown("---")
+            if st.button("💾 Simpan Hasil Diagnosis", use_container_width=True):
+                diagnosis_record = {
+                    'date': pd.Timestamp.now().isoformat(),
+                    'diagnosis': diagnosis_name,
+                    'severity': diagnosis['severity'],
+                    'questions': st.session_state.diagnosis_history
+                }
+                
+                st.success("✅ Hasil diagnosis berhasil disimpan!")
+                st.json(diagnosis_record)
+        else:
+            st.error("❌ Diagnosis tidak ditemukan dalam database")
+
+# --- TAB 2: BAYES THEOREM ---
+with tab2:
+    st.subheader("🧮 Kalkulator Teorema Bayes")
+    st.info("Metode ini menggunakan probabilitas statistik untuk memprediksi penyakit berdasarkan gejala yang terpilih. Cocok jika gejala tidak lengkap atau ambigu.")
+    
+    # 1. Get all unique symptoms
+    all_symptoms = set()
+    for d in DISEASE_DATABASE.values():
+        for s in d['symptoms']:
+            all_symptoms.add(s)
+    all_symptoms = sorted(list(all_symptoms))
+    
+    # 2. Input UI
+    st.markdown("### 1. Pilih Gejala yang Terlihat")
+    selected_symptoms_bayes = st.multiselect(
+        "Cari dan pilih gejala:",
+        options=all_symptoms,
+        placeholder="Ketik gejala (contoh: Daun kuning...)"
+    )
+    
+    # 3. Calculation & Display
+    if st.button("🧮 Hitung Probabilitas Diagnosis", type="primary"):
+        if not selected_symptoms_bayes:
+            st.warning("⚠️ Mohon pilih setidaknya satu gejala untuk dianalisis.")
+        else:
+            # Calculation
+            results = []
+            diseases = list(DISEASE_DATABASE.keys())
+            prior = 1.0 / len(diseases) # Uniform assumption
+            
+            total_unnormalized = 0
+            disease_scores = {}
+            
+            for disease_name, info in DISEASE_DATABASE.items():
+                likelihood = 1.0
+                disease_symptoms_set = set(info['symptoms'])
+                
+                # Naive Bayes Logic: P(Observed | Disease)
+                # We reward matches high (0.9), and mismatches low (0.1)
+                for s in selected_symptoms_bayes:
+                    if s in disease_symptoms_set:
+                        likelihood *= 0.9
+                    else:
+                        likelihood *= 0.1
+                
+                posterior_score = prior * likelihood
+                disease_scores[disease_name] = posterior_score
+                total_unnormalized += posterior_score
+            
+            # Normalize
+            for d_name in diseases:
+                score = disease_scores[d_name]
+                prob = 0.0
+                if total_unnormalized > 0:
+                    prob = score / total_unnormalized
+                
+                results.append({
+                    "name": d_name,
+                    "prob": prob,
+                    "info": DISEASE_DATABASE[d_name]
+                })
+            
+            # Sort desc
+            results.sort(key=lambda x: x['prob'], reverse=True)
+            
+            # Display Results
+            st.markdown("---")
+            st.subheader("📊 Hasil Analisis Probabilitas")
+            
+            # Top Result
+            top = results[0]
+            st.success(f"Diagnosis Utama: **{top['name']}** dengan probabilitas **{top['prob']:.1%}**")
+            
+            # Bar Chart
+            df_chart = pd.DataFrame(results)
+            # Filter low prob for cleaner chart if many diseases
+            df_chart = df_chart[df_chart['prob'] > 0.01] 
+            
+            fig = go.Figure(go.Bar(
+                x=df_chart['prob'],
+                y=df_chart['name'],
+                orientation='h',
+                text=[f"{p:.1%}" for p in df_chart['prob']],
+                textposition='inside',
+                marker_color=['#10b981' if p == top['prob'] else '#6b7280' for p in df_chart['prob']]
+            ))
+            
+            fig.update_layout(
+                title="Distribusi Probabilitas Penyakit",
+                xaxis_title="Probabilitas",
+                yaxis_title="Penyakit",
+                yaxis_autorange="reversed", # Top result on top
+                height=max(400, len(df_chart) * 50)
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Detailed View for Top Result
+            with st.container():
+                st.info(f"Detail Diagnosis: {top['name']}")
+                info = top['info']
+                
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.markdown("**Gejala yang Cocok:**")
+                    for s in info['symptoms']:
+                        if s in selected_symptoms_bayes:
+                            st.write(f"✅ {s}")
+                    
+                    st.markdown("**Gejala Lain (Tidak Terpilih):**")
+                    for s in info['symptoms']:
+                        if s not in selected_symptoms_bayes:
+                            st.write(f"⬜ {s}")
+                            
+                with c2:
+                    st.markdown("**Penyebab:**")
+                    st.write(info['causes'])
+                    
+                    st.markdown("**Penanganan Utama:**")
+                    for t in info['treatment']:
+                        st.write(f"- {t}")
 
 # Quick reference
 st.markdown("---")
