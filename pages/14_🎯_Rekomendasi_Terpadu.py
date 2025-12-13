@@ -1,5 +1,5 @@
 # Rekomendasi Pupuk Terpadu
-# Unified fertilizer recommendation with 3 methods: Basic, AI Advanced, and BWD Leaf Analysis
+# Unified fertilizer recommendation with 4 methods: Basic, AI Advanced, BWD Leaf Analysis, and Decision Theory
 
 import streamlit as st
 import pandas as pd
@@ -183,6 +183,108 @@ def get_bwd_recommendation(score, brown, white):
     
     return recommendations
 
+def calculate_decision_matrix(crop, area_ha, user_weights=None):
+    """
+    Multi-Attribute Utility Theory (MAUT) for fertilization strategy selection
+    Criteria: Cost, Effectiveness, Risk, Environmental Impact
+    """
+    # Default weights (can be adjusted by user)
+    if user_weights is None:
+        weights = {
+            'cost': 0.30,
+            'effectiveness': 0.35,
+            'risk': 0.20,
+            'environmental': 0.15
+        }
+    else:
+        weights = user_weights
+    
+    # Define strategies with their attributes
+    strategies = {
+        "Kimia Penuh": {
+            "cost_per_ha": 3500000,
+            "effectiveness": 95,
+            "risk": 75,
+            "environmental_impact": 80,
+            "description": "Pupuk kimia 100% (Urea, SP-36, KCl) dengan dosis optimal",
+            "pros": ["Hasil maksimal", "Respons cepat", "Mudah diaplikasikan"],
+            "cons": ["Biaya tinggi", "Risiko over-fertilization", "Dampak lingkungan"]
+        },
+        "Kombinasi Seimbang": {
+            "cost_per_ha": 2800000,
+            "effectiveness": 85,
+            "risk": 45,
+            "environmental_impact": 50,
+            "description": "60% kimia + 40% organik untuk keseimbangan",
+            "pros": ["Biaya moderat", "Risiko rendah", "Ramah lingkungan"],
+            "cons": ["Hasil sedikit lebih rendah", "Perlu 2 jenis pupuk"]
+        },
+        "Organik Prioritas": {
+            "cost_per_ha": 3200000,
+            "effectiveness": 75,
+            "risk": 25,
+            "environmental_impact": 20,
+            "description": "80% organik + 20% kimia untuk sustainability",
+            "pros": ["Sangat ramah lingkungan", "Perbaiki struktur tanah", "Risiko minimal"],
+            "cons": ["Hasil lebih rendah", "Respons lebih lambat", "Biaya cukup tinggi"]
+        },
+        "Slow-Release": {
+            "cost_per_ha": 4200000,
+            "effectiveness": 90,
+            "risk": 30,
+            "environmental_impact": 35,
+            "description": "Pupuk lepas lambat untuk efisiensi jangka panjang",
+            "pros": ["Efisiensi tinggi", "Aplikasi lebih jarang", "Risiko rendah"],
+            "cons": ["Biaya awal tinggi", "Ketersediaan terbatas"]
+        }
+    }
+    
+    # Calculate total cost for the area
+    for strategy in strategies.values():
+        strategy['total_cost'] = strategy['cost_per_ha'] * area_ha
+    
+    # Normalize attributes (0-100 scale)
+    costs = [s['cost_per_ha'] for s in strategies.values()]
+    min_cost, max_cost = min(costs), max(costs)
+    
+    results = {}
+    for name, strategy in strategies.items():
+        # Normalize cost (lower is better, so invert)
+        norm_cost = 100 - ((strategy['cost_per_ha'] - min_cost) / (max_cost - min_cost) * 100) if max_cost > min_cost else 100
+        
+        # Normalize effectiveness (higher is better)
+        norm_effectiveness = strategy['effectiveness']
+        
+        # Normalize risk (lower is better, so invert)
+        norm_risk = 100 - strategy['risk']
+        
+        # Normalize environmental impact (lower is better, so invert)
+        norm_environmental = 100 - strategy['environmental_impact']
+        
+        # Calculate weighted utility score
+        utility_score = (
+            norm_cost * weights['cost'] +
+            norm_effectiveness * weights['effectiveness'] +
+            norm_risk * weights['risk'] +
+            norm_environmental * weights['environmental']
+        )
+        
+        results[name] = {
+            **strategy,
+            'normalized_scores': {
+                'cost': round(norm_cost, 1),
+                'effectiveness': round(norm_effectiveness, 1),
+                'risk': round(norm_risk, 1),
+                'environmental': round(norm_environmental, 1)
+            },
+            'utility_score': round(utility_score, 1)
+        }
+    
+    # Sort by utility score
+    sorted_results = dict(sorted(results.items(), key=lambda x: x[1]['utility_score'], reverse=True))
+    
+    return sorted_results, weights
+
 # ========== MAIN APP ==========
 st.title("🎯 Rekomendasi Pupuk Terpadu")
 st.markdown("**Pilih metode rekomendasi yang sesuai dengan kebutuhan Anda**")
@@ -193,9 +295,10 @@ st.subheader("📋 Pilih Metode Rekomendasi")
 method = st.radio(
     "Pilih metode:",
     [
-        "🧮 Kalkulator Dosis (Basic)",
-        "🧠 Rekomendasi Cerdas (Advanced AI)",
-        "📸 Analisis Kesehatan Daun (BWD)"
+        "Kalkulator Dosis (Basic)",
+        "Rekomendasi Cerdas (Advanced AI)",
+        "Analisis Kesehatan Daun (BWD)",
+        "Strategi Keputusan (Decision Theory)"
     ],
     help="Pilih metode sesuai data yang Anda miliki"
 )
@@ -203,9 +306,9 @@ method = st.radio(
 st.markdown("---")
 
 # ========== METHOD 1: BASIC CALCULATOR ==========
-if method == "🧮 Kalkulator Dosis (Basic)":
-    st.subheader("🧮 Kalkulator Dosis Pupuk (Basic)")
-    st.info("💡 Metode ini menggunakan rekomendasi standar berdasarkan jenis tanaman dan luas lahan")
+if method == "Kalkulator Dosis (Basic)":
+    st.subheader("Kalkulator Dosis Pupuk (Basic)")
+    st.info("Metode ini menggunakan rekomendasi standar berdasarkan jenis tanaman dan luas lahan")
     
     col1, col2 = st.columns(2)
     
@@ -224,11 +327,11 @@ if method == "🧮 Kalkulator Dosis (Basic)":
             step=0.1
         )
     
-    if st.button("🔍 Hitung Dosis", type="primary", use_container_width=True):
+    if st.button("Hitung Dosis", type="primary", use_container_width=True):
         result = calculate_basic_fertilizer(crop, area_ha)
         
         st.markdown("---")
-        st.subheader("📊 Hasil Perhitungan")
+        st.subheader("Hasil Perhitungan")
         
         col1, col2, col3 = st.columns(3)
         
@@ -241,7 +344,7 @@ if method == "🧮 Kalkulator Dosis (Basic)":
         
         # Fertilizer breakdown
         st.markdown("---")
-        st.subheader("💊 Kebutuhan Pupuk")
+        st.subheader("Kebutuhan Pupuk")
         
         urea = result['N'] / 0.46
         sp36 = result['P'] / 0.36
@@ -274,12 +377,12 @@ if method == "🧮 Kalkulator Dosis (Basic)":
             """)
         
         total_cost = (urea * 2500) + (sp36 * 3000) + (kcl * 3500)
-        st.success(f"💰 **Total Biaya: Rp {total_cost:,.0f}**")
+        st.success(f"Total Biaya: Rp {total_cost:,.0f}")
 
 # ========== METHOD 2: AI ADVANCED ==========
-elif method == "🧠 Rekomendasi Cerdas (Advanced AI)":
-    st.subheader("🧠 Rekomendasi Cerdas dengan AI")
-    st.info("💡 Analisis mendalam menggunakan AI berdasarkan kondisi tanah dan tanaman")
+elif method == "Rekomendasi Cerdas (Advanced AI)":
+    st.subheader("Rekomendasi Cerdas dengan AI")
+    st.info("Analisis mendalam menggunakan AI berdasarkan kondisi tanah dan tanaman")
     
     col1, col2 = st.columns(2)
     
@@ -304,34 +407,30 @@ elif method == "🧠 Rekomendasi Cerdas (Advanced AI)":
         k_ppm = st.number_input("Kalium (ppm)", 0.0, 10000.0, 2500.0, 100.0)
         ph = st.number_input("pH Tanah", 0.0, 14.0, 6.5, 0.1)
     
-    if st.button("🤖 Analisis dengan AI", type="primary", use_container_width=True):
+    if st.button("Analisis dengan AI", type="primary", use_container_width=True):
         result = ai_advanced_recommendation(crop, n_ppm, p_ppm, k_ppm, ph, area_ha)
         
         st.markdown("---")
-        st.subheader("📊 Hasil Analisis AI")
+        st.subheader("Hasil Analisis AI")
         
         # Soil status
         st.markdown("**Status Tanah:**")
         col1, col2, col3, col4 = st.columns(4)
         
-        status_colors = {'Cukup': '🟢', 'Kurang': '🔴', 'Optimal': '🟢', 'Perlu Penyesuaian': '🟡'}
+        status_colors = {'Cukup': 'green', 'Kurang': 'red', 'Optimal': 'green', 'Perlu Penyesuaian': 'yellow'}
         
         with col1:
-            st.metric("Nitrogen", result['soil_status']['N'], 
-                     delta=status_colors[result['soil_status']['N']])
+            st.metric("Nitrogen", result['soil_status']['N'])
         with col2:
-            st.metric("Fosfor", result['soil_status']['P'],
-                     delta=status_colors[result['soil_status']['P']])
+            st.metric("Fosfor", result['soil_status']['P'])
         with col3:
-            st.metric("Kalium", result['soil_status']['K'],
-                     delta=status_colors[result['soil_status']['K']])
+            st.metric("Kalium", result['soil_status']['K'])
         with col4:
-            st.metric("pH", result['soil_status']['pH'],
-                     delta=status_colors[result['soil_status']['pH']])
+            st.metric("pH", result['soil_status']['pH'])
         
         # NPK needed
         st.markdown("---")
-        st.subheader("💊 Rekomendasi Pupuk AI")
+        st.subheader("Rekomendasi Pupuk AI")
         
         col1, col2, col3 = st.columns(3)
         
@@ -376,11 +475,11 @@ elif method == "🧠 Rekomendasi Cerdas (Advanced AI)":
         st.plotly_chart(fig, use_container_width=True)
 
 # ========== METHOD 3: BWD LEAF ANALYSIS ==========
-else:  # BWD Analysis
-    st.subheader("📸 Analisis Kesehatan Daun (BWD)")
-    st.info("💡 Upload foto daun untuk mendapatkan skor BWD otomatis dan deteksi penyakit")
+elif method == "Analisis Kesehatan Daun (BWD)":
+    st.subheader("Analisis Kesehatan Daun (BWD)")
+    st.info("Upload foto daun untuk mendapatkan skor BWD otomatis dan deteksi penyakit")
     
-    with st.expander("ℹ️ Tentang Analisis BWD"):
+    with st.expander("Tentang Analisis BWD"):
         st.markdown("""
         **BWD (Brown-White-Disease) Analysis:**
         - **Brown Spots:** Deteksi bercak coklat (penyakit jamur)
@@ -408,7 +507,7 @@ else:  # BWD Analysis
         with col1:
             st.image(image, caption="Foto Original", use_container_width=True)
         
-        if st.button("🔍 Analisis BWD", type="primary", use_container_width=True):
+        if st.button("Analisis BWD", type="primary", use_container_width=True):
             with st.spinner("Menganalisis kesehatan daun..."):
                 result = analyze_bwd_leaf(image)
             
@@ -429,33 +528,30 @@ else:  # BWD Analysis
             
             # Detailed Analysis
             st.markdown("---")
-            st.subheader("📊 Analisis Detail")
+            st.subheader("Analisis Detail")
             
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                st.metric("Bercak Coklat", f"{result['brown_percent']:.1f}%",
-                         delta="⚠️" if result['brown_percent'] > 5 else "✅")
+                st.metric("Bercak Coklat", f"{result['brown_percent']:.1f}%")
             with col2:
-                st.metric("Bercak Putih", f"{result['white_percent']:.1f}%",
-                         delta="⚠️" if result['white_percent'] > 3 else "✅")
+                st.metric("Bercak Putih", f"{result['white_percent']:.1f}%")
             with col3:
-                st.metric("Area Hijau Sehat", f"{result['green_percent']:.1f}%",
-                         delta="✅" if result['green_percent'] > 50 else "⚠️")
+                st.metric("Area Hijau Sehat", f"{result['green_percent']:.1f}%")
             
             # Disease Detection
             st.markdown("---")
-            st.subheader("🦠 Penyakit Terdeteksi")
+            st.subheader("Penyakit Terdeteksi")
             
             for disease in result['diseases']:
                 if "Tidak ada" in disease:
-                    st.success(f"✅ {disease}")
+                    st.success(f"{disease}")
                 else:
-                    st.error(f"⚠️ {disease}")
+                    st.error(f"{disease}")
             
             # Recommendations
             st.markdown("---")
-            st.subheader("💡 Rekomendasi")
+            st.subheader("Rekomendasi")
             
             rec = result['recommendation']
             
@@ -474,9 +570,186 @@ else:  # BWD Analysis
                 for prev in rec['prevention']:
                     st.write(f"- {prev}")
 
+# ========== METHOD 4: DECISION THEORY ==========
+else:
+    st.subheader("Analisis Strategi Pemupukan (MAUT)")
+    st.info("Gunakan Multi-Attribute Utility Theory untuk memilih strategi pemupukan terbaik berdasarkan biaya, efektivitas, risiko, dan dampak lingkungan")
+    
+    with st.expander("Tentang Decision Theory"):
+        st.markdown("""
+        **Multi-Attribute Utility Theory (MAUT):**
+        
+        Metode ini membantu Anda memilih strategi pemupukan terbaik dengan mempertimbangkan:
+        - **Biaya (30%):** Total investasi pupuk
+        - **Efektivitas (35%):** Potensi hasil panen
+        - **Risiko (20%):** Risiko over-fertilization dan kegagalan
+        - **Dampak Lingkungan (15%):** Sustainability dan kesehatan tanah
+        
+        **4 Strategi yang Dibandingkan:**
+        1. **Kimia Penuh:** Maksimalkan hasil dengan pupuk kimia
+        2. **Kombinasi Seimbang:** Balance antara kimia dan organik
+        3. **Organik Prioritas:** Fokus sustainability
+        4. **Slow-Release:** Efisiensi jangka panjang
+        """)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        crop_decision = st.selectbox(
+            "Jenis Tanaman",
+            ["Padi", "Jagung", "Cabai Merah", "Tomat"],
+            key="crop_decision"
+        )
+    
+    with col2:
+        area_decision = st.number_input(
+            "Luas Lahan (ha)",
+            min_value=0.1,
+            max_value=100.0,
+            value=1.0,
+            step=0.1,
+            key="area_decision"
+        )
+    
+    # Sensitivity Analysis - Adjust Weights
+    st.markdown("---")
+    st.subheader("Sesuaikan Bobot Kriteria (Sensitivity Analysis)")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        weight_cost = st.slider("Biaya", 0, 100, 30, 5, key="w_cost")
+    with col2:
+        weight_eff = st.slider("Efektivitas", 0, 100, 35, 5, key="w_eff")
+    with col3:
+        weight_risk = st.slider("Risiko", 0, 100, 20, 5, key="w_risk")
+    with col4:
+        weight_env = st.slider("Lingkungan", 0, 100, 15, 5, key="w_env")
+    
+    total_weight = weight_cost + weight_eff + weight_risk + weight_env
+    
+    if total_weight != 100:
+        st.warning(f"Total bobot harus 100%. Saat ini: {total_weight}%")
+    else:
+        st.success(f"Total bobot: {total_weight}%")
+    
+    user_weights = {
+        'cost': weight_cost / 100,
+        'effectiveness': weight_eff / 100,
+        'risk': weight_risk / 100,
+        'environmental': weight_env / 100
+    }
+    
+    if st.button("Analisis Strategi", type="primary", use_container_width=True):
+        results, weights = calculate_decision_matrix(crop_decision, area_decision, user_weights)
+        
+        st.markdown("---")
+        st.subheader("Decision Matrix")
+        
+        # Create decision matrix table
+        matrix_data = []
+        for strategy_name, data in results.items():
+            matrix_data.append({
+                'Strategi': strategy_name,
+                'Biaya': f"Rp {data['total_cost']:,.0f}",
+                'Efektivitas': f"{data['effectiveness']}/100",
+                'Risiko': f"{100 - data['risk']}/100",
+                'Lingkungan': f"{100 - data['environmental_impact']}/100",
+                'Skor Utilitas': f"{data['utility_score']:.1f}/100"
+            })
+        
+        df_matrix = pd.DataFrame(matrix_data)
+        st.dataframe(df_matrix, use_container_width=True, hide_index=True)
+        
+        # Top Recommendation
+        st.markdown("---")
+        top_strategy = list(results.keys())[0]
+        top_data = results[top_strategy]
+        
+        st.success(f"Rekomendasi Terbaik: {top_strategy}")
+        st.write(f"**Skor Utilitas:** {top_data['utility_score']:.1f}/100")
+        st.write(f"**Deskripsi:** {top_data['description']}")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Keunggulan:**")
+            for pro in top_data['pros']:
+                st.write(f"- {pro}")
+        
+        with col2:
+            st.markdown("**Pertimbangan:**")
+            for con in top_data['cons']:
+                st.write(f"- {con}")
+        
+        # Radar Chart Comparison
+        st.markdown("---")
+        st.subheader("Perbandingan Visual (Radar Chart)")
+        
+        # Prepare data for radar chart
+        categories = ['Biaya', 'Efektivitas', 'Risiko (Rendah)', 'Lingkungan (Ramah)']
+        
+        fig = go.Figure()
+        
+        for strategy_name, data in results.items():
+            scores = data['normalized_scores']
+            fig.add_trace(go.Scatterpolar(
+                r=[scores['cost'], scores['effectiveness'], scores['risk'], scores['environmental']],
+                theta=categories,
+                fill='toself',
+                name=strategy_name
+            ))
+        
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 100]
+                )),
+            showlegend=True,
+            title="Perbandingan Strategi Pemupukan",
+            height=500
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Detailed Comparison
+        st.markdown("---")
+        st.subheader("Perbandingan Detail Semua Strategi")
+        
+        for rank, (strategy_name, data) in enumerate(results.items(), 1):
+            with st.expander(f"#{rank} - {strategy_name} (Skor: {data['utility_score']:.1f})"):
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    st.metric("Biaya Total", f"Rp {data['total_cost']:,.0f}")
+                    st.metric("Biaya/ha", f"Rp {data['cost_per_ha']:,.0f}")
+                
+                with col2:
+                    st.metric("Efektivitas", f"{data['effectiveness']}/100")
+                    st.metric("Risiko", f"{data['risk']}/100")
+                
+                with col3:
+                    st.metric("Dampak Lingkungan", f"{data['environmental_impact']}/100")
+                    st.metric("Skor Utilitas", f"{data['utility_score']:.1f}/100")
+                
+                st.markdown(f"**Deskripsi:** {data['description']}")
+                
+                col_pros, col_cons = st.columns(2)
+                
+                with col_pros:
+                    st.markdown("**Keunggulan:**")
+                    for pro in data['pros']:
+                        st.write(f"- {pro}")
+                
+                with col_cons:
+                    st.markdown("**Pertimbangan:**")
+                    for con in data['cons']:
+                        st.write(f"- {con}")
+
 # Footer
 st.markdown("---")
 st.caption("""
-🎯 **Rekomendasi Pupuk Terpadu** - Pilih metode sesuai kebutuhan: Basic untuk cepat, 
-AI Advanced untuk presisi, atau BWD untuk diagnosis kesehatan daun.
+Rekomendasi Pupuk Terpadu - Pilih metode sesuai kebutuhan: Basic untuk cepat, 
+AI Advanced untuk presisi, BWD untuk diagnosis kesehatan daun, atau Decision Theory untuk analisis strategi.
 """)
