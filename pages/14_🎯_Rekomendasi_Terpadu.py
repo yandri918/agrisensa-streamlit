@@ -615,23 +615,80 @@ else:
     st.markdown("---")
     st.subheader("Sesuaikan Bobot Kriteria (Sensitivity Analysis)")
     
+    # Initialize session state for weights
+    if 'weight_cost' not in st.session_state:
+        st.session_state.weight_cost = 30
+    if 'weight_eff' not in st.session_state:
+        st.session_state.weight_eff = 35
+    if 'weight_risk' not in st.session_state:
+        st.session_state.weight_risk = 20
+    if 'weight_env' not in st.session_state:
+        st.session_state.weight_env = 15
+    
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        weight_cost = st.slider("Biaya", 0, 100, 30, 5, key="w_cost")
+        new_cost = st.slider("Biaya", 0, 100, st.session_state.weight_cost, 5, key="slider_cost")
+        if new_cost != st.session_state.weight_cost:
+            # Adjust other weights proportionally
+            old_total = st.session_state.weight_eff + st.session_state.weight_risk + st.session_state.weight_env
+            if old_total > 0:
+                remaining = 100 - new_cost
+                ratio = remaining / old_total
+                st.session_state.weight_eff = int(st.session_state.weight_eff * ratio)
+                st.session_state.weight_risk = int(st.session_state.weight_risk * ratio)
+                st.session_state.weight_env = 100 - new_cost - st.session_state.weight_eff - st.session_state.weight_risk
+            st.session_state.weight_cost = new_cost
+            st.rerun()
+    
     with col2:
-        weight_eff = st.slider("Efektivitas", 0, 100, 35, 5, key="w_eff")
+        new_eff = st.slider("Efektivitas", 0, 100, st.session_state.weight_eff, 5, key="slider_eff")
+        if new_eff != st.session_state.weight_eff:
+            old_total = st.session_state.weight_cost + st.session_state.weight_risk + st.session_state.weight_env
+            if old_total > 0:
+                remaining = 100 - new_eff
+                ratio = remaining / old_total
+                st.session_state.weight_cost = int(st.session_state.weight_cost * ratio)
+                st.session_state.weight_risk = int(st.session_state.weight_risk * ratio)
+                st.session_state.weight_env = 100 - new_eff - st.session_state.weight_cost - st.session_state.weight_risk
+            st.session_state.weight_eff = new_eff
+            st.rerun()
+    
     with col3:
-        weight_risk = st.slider("Risiko", 0, 100, 20, 5, key="w_risk")
+        new_risk = st.slider("Risiko", 0, 100, st.session_state.weight_risk, 5, key="slider_risk")
+        if new_risk != st.session_state.weight_risk:
+            old_total = st.session_state.weight_cost + st.session_state.weight_eff + st.session_state.weight_env
+            if old_total > 0:
+                remaining = 100 - new_risk
+                ratio = remaining / old_total
+                st.session_state.weight_cost = int(st.session_state.weight_cost * ratio)
+                st.session_state.weight_eff = int(st.session_state.weight_eff * ratio)
+                st.session_state.weight_env = 100 - new_risk - st.session_state.weight_cost - st.session_state.weight_eff
+            st.session_state.weight_risk = new_risk
+            st.rerun()
+    
     with col4:
-        weight_env = st.slider("Lingkungan", 0, 100, 15, 5, key="w_env")
+        new_env = st.slider("Lingkungan", 0, 100, st.session_state.weight_env, 5, key="slider_env")
+        if new_env != st.session_state.weight_env:
+            old_total = st.session_state.weight_cost + st.session_state.weight_eff + st.session_state.weight_risk
+            if old_total > 0:
+                remaining = 100 - new_env
+                ratio = remaining / old_total
+                st.session_state.weight_cost = int(st.session_state.weight_cost * ratio)
+                st.session_state.weight_eff = int(st.session_state.weight_eff * ratio)
+                st.session_state.weight_risk = 100 - new_env - st.session_state.weight_cost - st.session_state.weight_eff
+            st.session_state.weight_env = new_env
+            st.rerun()
+    
+    # Use session state values
+    weight_cost = st.session_state.weight_cost
+    weight_eff = st.session_state.weight_eff
+    weight_risk = st.session_state.weight_risk
+    weight_env = st.session_state.weight_env
     
     total_weight = weight_cost + weight_eff + weight_risk + weight_env
     
-    if total_weight != 100:
-        st.warning(f"Total bobot harus 100%. Saat ini: {total_weight}%")
-    else:
-        st.success(f"Total bobot: {total_weight}%")
+    st.success(f"Total bobot: {total_weight}% (Biaya: {weight_cost}%, Efektivitas: {weight_eff}%, Risiko: {weight_risk}%, Lingkungan: {weight_env}%)")
     
     user_weights = {
         'cost': weight_cost / 100,
