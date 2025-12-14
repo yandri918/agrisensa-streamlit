@@ -396,8 +396,6 @@ with tab_systems:
     
     """)
 
-    """)
-
 # ===== TAB 2: PERHITUNGAN KEBUTUHAN AIR =====
 with tab_calculation:
     st.header("📊 Perhitungan Kebutuhan Air Tanaman")
