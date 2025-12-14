@@ -571,13 +571,14 @@ with tab_regression:
     st.header("📚 Teori Regresi Linear & Aplikasi Ekonomi Pertanian")
     st.info("Tab ini menjelaskan konsep regresi linear, dari dasar hingga lanjutan, dengan visualisasi dan aplikasi praktis dalam ekonomi & bisnis pertanian.")
     
-    # Sub-tabs for better organization (6 sub-tabs)
-    subtab_simple, subtab_multiple, subtab_inference, subtab_timeseries, subtab_chisquare, subtab_viz = st.tabs([
+    # Sub-tabs for better organization (7 sub-tabs)
+    subtab_simple, subtab_multiple, subtab_inference, subtab_timeseries, subtab_chisquare, subtab_bayes, subtab_viz = st.tabs([
         "📖 Regresi Sederhana", 
         "🔢 Regresi Berganda",
         "📊 Inferensia OLS",
         "📈 Analisis Runtun Waktu",
         "🔲 Uji Chi-Square",
+        "🎲 Teorema Bayes",
         "🎨 Visualisasi & Praktik"
     ])
     
@@ -2899,7 +2900,552 @@ with tab_regression:
         
         """)  # End of Chi-Square sub-tab
     
-    # ===== SUB-TAB 6: VISUALISASI & PRAKTIK =====
+    # ===== SUB-TAB 6: TEOREMA BAYES =====
+    with subtab_bayes:
+        st.subheader("🎲 Teorema Bayes & Probabilitas")
+        
+        st.markdown("""
+        ## 🎲 PELUANG BERBAGAI KEJADIAN
+        
+        ### Konsep Dasar Probabilitas
+        
+        **Probabilitas (Peluang)** adalah ukuran kemungkinan suatu kejadian terjadi, dengan nilai antara 0 dan 1.
+        
+        $$0 \\leq P(A) \\leq 1$$
+        
+        **Interpretasi:**
+        - **P(A) = 0** → Kejadian A tidak mungkin terjadi
+        - **P(A) = 1** → Kejadian A pasti terjadi
+        - **P(A) = 0.5** → Kejadian A memiliki peluang 50%
+        
+        **Contoh Pertanian:**
+        - P(Hujan besok) = 0.7 → Peluang hujan 70%
+        - P(Panen gagal) = 0.1 → Peluang gagal panen 10%
+        - P(Harga naik) = 0.6 → Peluang harga naik 60%
+        
+        ---
+        
+        ### 1. Aturan Dasar Probabilitas
+        
+        #### A. Complement Rule (Aturan Komplemen)
+        
+        $$P(A^c) = 1 - P(A)$$
+        
+        Dimana A^c = kejadian A tidak terjadi
+        
+        **Contoh:**
+        ```
+        P(Hujan) = 0.7
+        P(Tidak Hujan) = 1 - 0.7 = 0.3
+        ```
+        
+        #### B. Addition Rule (Aturan Penjumlahan)
+        
+        **Untuk kejadian mutually exclusive (saling lepas):**
+        
+        $$P(A \\cup B) = P(A) + P(B)$$
+        
+        **Untuk kejadian umum:**
+        
+        $$P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$$
+        
+        **Contoh:**
+        ```
+        P(Harga naik) = 0.4
+        P(Harga turun) = 0.3
+        P(Harga stabil) = 0.3
+        
+        P(Harga naik ATAU turun) = 0.4 + 0.3 = 0.7
+        (karena mutually exclusive)
+        ```
+        
+        #### C. Multiplication Rule (Aturan Perkalian)
+        
+        **Untuk kejadian independen:**
+        
+        $$P(A \\cap B) = P(A) \\times P(B)$$
+        
+        **Untuk kejadian dependen:**
+        
+        $$P(A \\cap B) = P(A) \\times P(B|A)$$
+        
+        **Contoh Independen:**
+        ```
+        P(Hujan di Lahan A) = 0.7
+        P(Hujan di Lahan B) = 0.6
+        
+        P(Hujan di A DAN B) = 0.7 × 0.6 = 0.42
+        (jika independen)
+        ```
+        
+        ---
+        
+        ### 2. Probabilitas Bersyarat (Conditional Probability)
+        
+        **Definisi:**
+        
+        Probabilitas kejadian A terjadi **JIKA** kejadian B sudah terjadi.
+        
+        $$P(A|B) = \\frac{P(A \\cap B)}{P(B)}$$
+        
+        **Dibaca:** "Probabilitas A given B"
+        
+        **Contoh:**
+        
+        ```
+        P(Panen Berhasil | Cuaca Baik) = ?
+        
+        P(Panen Berhasil ∩ Cuaca Baik) = 0.56
+        P(Cuaca Baik) = 0.7
+        
+        P(Panen Berhasil | Cuaca Baik) = 0.56 / 0.7 = 0.8
+        
+        Interpretasi:
+        Jika cuaca baik, peluang panen berhasil adalah 80%
+        ```
+        
+        ---
+        
+        ### 3. Independensi vs Dependensi
+        
+        **Kejadian Independen:**
+        
+        A dan B independen jika:
+        
+        $$P(A|B) = P(A)$$
+        
+        Artinya: Kejadian B tidak mempengaruhi probabilitas A
+        
+        **Contoh Independen:**
+        - Hasil lempar koin pertama vs kedua
+        - Cuaca di Jakarta vs cuaca di Surabaya
+        
+        **Kejadian Dependen:**
+        
+        $$P(A|B) \\neq P(A)$$
+        
+        **Contoh Dependen:**
+        - Cuaca vs Hasil Panen
+        - Harga Pupuk vs Biaya Produksi
+        - Adopsi Teknologi vs Produktivitas
+        
+        ---
+        
+        ### 4. Law of Total Probability
+        
+        Jika B₁, B₂, ..., Bₙ adalah partisi dari sample space:
+        
+        $$P(A) = \\sum_{i=1}^{n} P(A|B_i) \\times P(B_i)$$
+        
+        **Contoh:**
+        
+        ```
+        Hitung P(Panen Berhasil) dengan 3 kondisi cuaca:
+        
+        P(Berhasil | Baik) = 0.9,  P(Baik) = 0.5
+        P(Berhasil | Sedang) = 0.6,  P(Sedang) = 0.3
+        P(Berhasil | Buruk) = 0.2,  P(Buruk) = 0.2
+        
+        P(Berhasil) = 0.9×0.5 + 0.6×0.3 + 0.2×0.2
+                    = 0.45 + 0.18 + 0.04
+                    = 0.67 (67%)
+        ```
+        
+        ---
+        
+        ## 📊 TEOREMA BAYES
+        
+        ### Apa itu Teorema Bayes?
+        
+        **Teorema Bayes** adalah formula untuk **memperbarui** probabilitas berdasarkan **informasi baru**.
+        
+        **Formula:**
+        
+        $$P(A|B) = \\frac{P(B|A) \\times P(A)}{P(B)}$$
+        
+        Atau lebih lengkap:
+        
+        $$P(A|B) = \\frac{P(B|A) \\times P(A)}{P(B|A) \\times P(A) + P(B|A^c) \\times P(A^c)}$$
+        
+        **Komponen:**
+        - **P(A|B)** = **Posterior** (probabilitas A setelah tahu B)
+        - **P(B|A)** = **Likelihood** (probabilitas B jika A benar)
+        - **P(A)** = **Prior** (probabilitas A sebelum tahu B)
+        - **P(B)** = **Evidence** (probabilitas B total)
+        
+        ---
+        
+        ### Interpretasi Bayesian
+        
+        **Bayesian Thinking:**
+        
+        ```
+        Prior Belief + New Evidence → Updated Belief (Posterior)
+        ```
+        
+        **Contoh Sederhana:**
+        
+        ```
+        Prior: "Saya pikir peluang hujan 30%"
+        Evidence: "Langit mendung"
+        Posterior: "Sekarang saya pikir peluang hujan 70%"
+        ```
+        
+        Teorema Bayes memberikan cara **matematis** untuk update belief!
+        
+        ---
+        
+        ### Contoh 1: Diagnosis Penyakit Tanaman
+        
+        **Kasus:**
+        
+        Petani ingin tahu apakah tanamannya terkena penyakit layu berdasarkan gejala daun kuning.
+        
+        **Informasi:**
+        - P(Penyakit Layu) = 0.05 (5% tanaman terkena)
+        - P(Daun Kuning | Penyakit Layu) = 0.90 (90% tanaman sakit punya daun kuning)
+        - P(Daun Kuning | Sehat) = 0.10 (10% tanaman sehat juga punya daun kuning)
+        
+        **Pertanyaan:**
+        
+        Jika tanaman punya daun kuning, berapa peluang terkena penyakit layu?
+        
+        **Solusi:**
+        
+        ```
+        P(Layu | Kuning) = ?
+        
+        P(Kuning | Layu) = 0.90
+        P(Layu) = 0.05
+        P(Sehat) = 0.95
+        P(Kuning | Sehat) = 0.10
+        
+        P(Kuning) = P(Kuning|Layu)×P(Layu) + P(Kuning|Sehat)×P(Sehat)
+                  = 0.90×0.05 + 0.10×0.95
+                  = 0.045 + 0.095
+                  = 0.14
+        
+        P(Layu | Kuning) = (0.90 × 0.05) / 0.14
+                         = 0.045 / 0.14
+                         = 0.321 (32.1%)
+        ```
+        
+        **Interpretasi:**
+        
+        - **Sebelum** lihat daun kuning: P(Layu) = 5%
+        - **Setelah** lihat daun kuning: P(Layu|Kuning) = 32.1%
+        - Informasi baru **meningkatkan** peluang dari 5% → 32.1%
+        - Tapi masih **lebih mungkin sehat** (67.9%) daripada sakit
+        
+        **Rekomendasi:**
+        - Lakukan tes lebih lanjut
+        - Cek gejala lain
+        - Jangan langsung semprot pestisida
+        
+        ---
+        
+        ### Contoh 2: Kualitas Benih
+        
+        **Kasus:**
+        
+        Petani beli benih dari 3 supplier berbeda. Ingin tahu dari supplier mana benih yang gagal tumbuh berasal.
+        
+        **Informasi:**
+        
+        | Supplier | % Pembelian | % Gagal Tumbuh |
+        |----------|-------------|----------------|
+        | A        | 50%         | 5%             |
+        | B        | 30%         | 10%            |
+        | C        | 20%         | 15%            |
+        
+        **Pertanyaan:**
+        
+        Jika ada benih yang gagal tumbuh, berapa peluang berasal dari Supplier A, B, atau C?
+        
+        **Solusi:**
+        
+        ```
+        P(A) = 0.50,  P(Gagal|A) = 0.05
+        P(B) = 0.30,  P(Gagal|B) = 0.10
+        P(C) = 0.20,  P(Gagal|C) = 0.15
+        
+        P(Gagal) = 0.05×0.50 + 0.10×0.30 + 0.15×0.20
+                 = 0.025 + 0.030 + 0.030
+                 = 0.085 (8.5%)
+        
+        P(A|Gagal) = (0.05 × 0.50) / 0.085 = 0.294 (29.4%)
+        P(B|Gagal) = (0.10 × 0.30) / 0.085 = 0.353 (35.3%)
+        P(C|Gagal) = (0.15 × 0.20) / 0.085 = 0.353 (35.3%)
+        ```
+        
+        **Interpretasi:**
+        
+        - Meskipun 50% benih dari A, hanya 29.4% benih gagal dari A
+        - B dan C punya peluang sama (35.3%) sebagai sumber benih gagal
+        - **Rekomendasi:** Kurangi pembelian dari B dan C
+        
+        ---
+        
+        ### Contoh 3: Prediksi Cuaca & Keputusan Tanam
+        
+        **Kasus:**
+        
+        Petani ingin tanam besok. Ramalan cuaca bilang 70% hujan. Tapi ramalan sering salah.
+        
+        **Informasi:**
+        
+        - P(Hujan) = 0.30 (30% hari dalam setahun hujan)
+        - P(Ramalan Hujan | Hujan) = 0.80 (80% akurat jika memang hujan)
+        - P(Ramalan Hujan | Tidak Hujan) = 0.20 (20% false alarm)
+        
+        **Pertanyaan:**
+        
+        Jika ramalan bilang hujan, berapa peluang **benar-benar** hujan?
+        
+        **Solusi:**
+        
+        ```
+        P(Hujan | Ramalan Hujan) = ?
+        
+        P(Ramalan Hujan) = 0.80×0.30 + 0.20×0.70
+                         = 0.24 + 0.14
+                         = 0.38
+        
+        P(Hujan | Ramalan Hujan) = (0.80 × 0.30) / 0.38
+                                  = 0.24 / 0.38
+                                  = 0.632 (63.2%)
+        ```
+        
+        **Interpretasi:**
+        
+        - Ramalan bilang 70% hujan
+        - Tapi peluang **sebenarnya** hanya 63.2%
+        - Masih ada 36.8% peluang tidak hujan
+        
+        **Keputusan:**
+        - Jika tanaman tahan hujan → Tanam
+        - Jika tanaman sensitif → Tunda 1 hari
+        
+        ---
+        
+        ## 📈 APLIKASI TEOREMA BAYES DALAM PERTANIAN
+        
+        ### 1. Diagnosis Penyakit & Hama
+        
+        **Update probabilitas penyakit berdasarkan gejala:**
+        
+        ```
+        Prior: Prevalensi penyakit di daerah
+        Evidence: Gejala yang diamati
+        Posterior: Peluang penyakit setelah lihat gejala
+        ```
+        
+        **Manfaat:**
+        - Diagnosis lebih akurat
+        - Hindari over-treatment
+        - Hemat biaya pestisida
+        
+        ### 2. Kualitas Produk
+        
+        **Update probabilitas sumber masalah:**
+        
+        ```
+        Prior: Distribusi supplier/batch
+        Evidence: Produk defect
+        Posterior: Peluang dari supplier tertentu
+        ```
+        
+        **Manfaat:**
+        - Identifikasi supplier bermasalah
+        - Quality control lebih baik
+        - Keputusan pembelian lebih informed
+        
+        ### 3. Prediksi Cuaca & Iklim
+        
+        **Update probabilitas cuaca berdasarkan ramalan:**
+        
+        ```
+        Prior: Pola cuaca historis
+        Evidence: Ramalan cuaca
+        Posterior: Peluang cuaca adjusted
+        ```
+        
+        **Manfaat:**
+        - Keputusan tanam lebih baik
+        - Manajemen risiko
+        - Optimasi jadwal panen
+        
+        ### 4. Adopsi Teknologi
+        
+        **Update probabilitas sukses berdasarkan karakteristik petani:**
+        
+        ```
+        Prior: Success rate teknologi
+        Evidence: Profil petani (pendidikan, luas lahan, dll)
+        Posterior: Peluang sukses untuk petani ini
+        ```
+        
+        **Manfaat:**
+        - Targeting program lebih tepat
+        - Customized recommendations
+        - Prediksi adopsi lebih akurat
+        
+        ### 5. Market Intelligence
+        
+        **Update probabilitas harga berdasarkan informasi:**
+        
+        ```
+        Prior: Pola harga historis
+        Evidence: Berita, kebijakan, produksi
+        Posterior: Prediksi harga updated
+        ```
+        
+        **Manfaat:**
+        - Timing penjualan lebih baik
+        - Hedging decisions
+        - Inventory management
+        
+        ---
+        
+        ## 💡 BAYESIAN vs FREQUENTIST
+        
+        ### Perbedaan Filosofi
+        
+        | Aspek | Frequentist | Bayesian |
+        |-------|-------------|----------|
+        | **Probabilitas** | Frekuensi jangka panjang | Degree of belief |
+        | **Parameter** | Fixed (unknown) | Random variable |
+        | **Prior** | Tidak ada | Ada (subjective) |
+        | **Update** | Tidak | Ya (dengan data baru) |
+        | **Contoh** | t-test, ANOVA | Bayesian inference |
+        
+        ### Kapan Gunakan Bayesian?
+        
+        **Gunakan Bayesian jika:**
+        - Ada **prior knowledge** yang kuat
+        - Data **terbatas** (small sample)
+        - Perlu **update** belief secara bertahap
+        - Decision making **sequential**
+        
+        **Gunakan Frequentist jika:**
+        - **Tidak ada** prior knowledge
+        - Data **banyak** (large sample)
+        - Perlu **objektif** (no subjectivity)
+        - Analisis **one-time**
+        
+        ---
+        
+        ## ⚠️ PERINGATAN PENTING
+        
+        ### 1. Prior Sensitivity
+        
+        - Hasil Bayesian **sensitif** terhadap prior
+        - Prior yang salah → Posterior yang salah
+        - **Solusi:** Gunakan **non-informative prior** jika tidak yakin
+        
+        ### 2. Base Rate Fallacy
+        
+        **Jangan abaikan base rate (prior)!**
+        
+        **Contoh:**
+        
+        ```
+        Tes penyakit 99% akurat
+        Tapi prevalensi penyakit hanya 0.1%
+        
+        Jika tes positif:
+        P(Sakit | Positif) ≈ 9% (BUKAN 99%!)
+        ```
+        
+        ### 3. Conditional Probability Confusion
+        
+        **P(A|B) ≠ P(B|A)**
+        
+        **Contoh:**
+        - P(Hujan | Mendung) ≠ P(Mendung | Hujan)
+        - P(Penyakit | Gejala) ≠ P(Gejala | Penyakit)
+        
+        ### 4. Independence Assumption
+        
+        - Teorema Bayes assume **conditional independence**
+        - Jika asumsi dilanggar → Hasil bias
+        - **Solusi:** Gunakan **Bayesian Network** untuk dependensi kompleks
+        
+        ---
+        
+        ## 🎯 TIPS PRAKTIS
+        
+        ### 1. Visualisasi
+        
+        Gunakan **tree diagram** atau **probability tree** untuk visualisasi:
+        
+        ```
+        Penyakit (5%)
+            ├─ Kuning (90%)
+            └─ Tidak Kuning (10%)
+        
+        Sehat (95%)
+            ├─ Kuning (10%)
+            └─ Tidak Kuning (90%)
+        ```
+        
+        ### 2. Sensitivity Analysis
+        
+        - Coba berbagai **prior** yang reasonable
+        - Lihat seberapa **robust** posterior
+        - Jika posterior stabil → Hasil reliable
+        
+        ### 3. Update Iteratif
+        
+        - Posterior hari ini = Prior besok
+        - Update terus dengan data baru
+        - **Bayesian learning** = continuous improvement
+        
+        ### 4. Komunikasi
+        
+        Jelaskan dalam bahasa sederhana:
+        
+        ```
+        "Sebelumnya saya pikir peluangnya 30%,
+         tapi setelah lihat bukti baru,
+         sekarang saya pikir peluangnya 60%"
+        ```
+        
+        ### 5. Software
+        
+        - **Python:** `scipy.stats`, `pymc3`
+        - **R:** `BayesFactor`, `rstan`
+        - **Excel:** Bisa manual dengan formula
+        
+        ---
+        
+        ## 📚 KESIMPULAN
+        
+        **Teorema Bayes adalah tool powerful untuk:**
+        
+        1. **Update belief** dengan informasi baru
+        2. **Decision making** under uncertainty
+        3. **Diagnosis** dan troubleshooting
+        4. **Prediction** yang lebih akurat
+        5. **Learning** dari data secara bertahap
+        
+        **Key Takeaways:**
+        
+        - Probabilitas bisa **diupdate** dengan evidence
+        - **Prior knowledge** penting (jangan diabaikan)
+        - **Base rate** sangat berpengaruh
+        - Bayesian thinking = **rational** way to update beliefs
+        
+        **Dalam Pertanian:**
+        
+        Teorema Bayes membantu petani membuat **keputusan lebih baik** dengan:
+        - Menggabungkan **pengalaman** (prior) dan **data baru** (evidence)
+        - Update **prediksi** secara real-time
+        - **Quantify uncertainty** dalam decision making
+        
+        """)  # End of Bayes' Theorem sub-tab
+    
+    # ===== SUB-TAB 7: VISUALISASI & PRAKTIK =====
     with subtab_viz:
         st.subheader("📊 Visualisasi Garis Regresi & Residual")
         
