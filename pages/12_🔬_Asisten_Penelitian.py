@@ -571,12 +571,13 @@ with tab_regression:
     st.header("📚 Teori Regresi Linear & Aplikasi Ekonomi Pertanian")
     st.info("Tab ini menjelaskan konsep regresi linear, dari dasar hingga lanjutan, dengan visualisasi dan aplikasi praktis dalam ekonomi & bisnis pertanian.")
     
-    # Sub-tabs for better organization (5 sub-tabs)
-    subtab_simple, subtab_multiple, subtab_inference, subtab_timeseries, subtab_viz = st.tabs([
+    # Sub-tabs for better organization (6 sub-tabs)
+    subtab_simple, subtab_multiple, subtab_inference, subtab_timeseries, subtab_chisquare, subtab_viz = st.tabs([
         "📖 Regresi Sederhana", 
         "🔢 Regresi Berganda",
         "📊 Inferensia OLS",
         "📈 Analisis Runtun Waktu",
+        "🔲 Uji Chi-Square",
         "🎨 Visualisasi & Praktik"
     ])
     
@@ -2448,7 +2449,457 @@ with tab_regression:
         
         """)  # End of Time Series sub-tab
     
-    # ===== SUB-TAB 5: VISUALISASI & PRAKTIK =====
+    # ===== SUB-TAB 5: UJI CHI-SQUARE =====
+    with subtab_chisquare:
+        st.subheader("🔲 Uji Chi-Square (χ²)")
+        
+        st.markdown("""
+        ## 🔲 KONSEP CHI-SQUARE
+        
+        ### Apa itu Uji Chi-Square?
+        
+        **Uji Chi-Square (χ²)** adalah uji statistik **non-parametrik** untuk menguji hubungan antara **variabel kategorikal** (nominal atau ordinal).
+        
+        **Kapan Digunakan:**
+        - Data **kategorikal** (bukan numerik)
+        - Tidak asumsi distribusi normal
+        - Ukuran sampel cukup besar (n ≥ 30)
+        
+        **Perbedaan dengan Uji Parametrik:**
+        
+        | Aspek | Uji Parametrik (t, F) | Uji Chi-Square |
+        |-------|----------------------|----------------|
+        | **Data** | Numerik (interval/rasio) | Kategorikal (nominal/ordinal) |
+        | **Asumsi** | Normalitas, homoskedastisitas | Minimal (frekuensi ≥ 5) |
+        | **Contoh** | Rata-rata hasil panen | Proporsi petani adopsi teknologi |
+        
+        ---
+        
+        ### Distribusi Chi-Square
+        
+        **Statistik Chi-Square:**
+        
+        $$\\chi^2 = \\sum \\frac{(O_i - E_i)^2}{E_i}$$
+        
+        Dimana:
+        - **O_i** = Observed frequency (frekuensi observasi)
+        - **E_i** = Expected frequency (frekuensi harapan)
+        
+        **Interpretasi:**
+        - **χ² = 0** → Observed = Expected (perfect fit)
+        - **χ² besar** → Perbedaan besar antara observed dan expected
+        
+        **Distribusi:**
+        - Mengikuti distribusi chi-square dengan **degrees of freedom (df)**
+        - Selalu **positif** (χ² ≥ 0)
+        - **Skewed right** (tidak simetris)
+        
+        **Degrees of Freedom:**
+        - Goodness of Fit: df = k - 1 (k = jumlah kategori)
+        - Test of Independence: df = (r-1)(c-1) (r=baris, c=kolom)
+        - Test of Homogeneity: df = (r-1)(c-1)
+        
+        ---
+        
+        ## A. UJI KEPATUTAN (GOODNESS OF FIT TEST)
+        
+        ### Tujuan
+        
+        Menguji apakah **distribusi observasi** sesuai dengan **distribusi teoritis** tertentu.
+        
+        **Pertanyaan yang Dijawab:**
+        - Apakah data mengikuti distribusi uniform?
+        - Apakah data mengikuti distribusi normal?
+        - Apakah proporsi sesuai dengan yang diharapkan?
+        
+        ---
+        
+        ### Hipotesis
+        
+        - **H₀:** Data mengikuti distribusi yang diharapkan
+        - **H₁:** Data TIDAK mengikuti distribusi yang diharapkan
+        
+        ---
+        
+        ### Formula
+        
+        $$\\chi^2 = \\sum_{i=1}^{k} \\frac{(O_i - E_i)^2}{E_i}$$
+        
+        **Degrees of Freedom:** df = k - 1 - p
+        
+        Dimana:
+        - k = Jumlah kategori
+        - p = Jumlah parameter yang diestimasi
+        
+        **Keputusan:**
+        - Jika **χ² > χ²_critical** atau **p < 0.05** → Tolak H₀
+        - Jika **χ² ≤ χ²_critical** atau **p ≥ 0.05** → Terima H₀
+        
+        ---
+        
+        ### Contoh 1: Uji Distribusi Uniform
+        
+        **Kasus:** Apakah petani memilih 4 varietas padi dengan proporsi yang sama?
+        
+        **Data:**
+        
+        | Varietas | Observed (O) | Expected (E) | (O-E)²/E |
+        |----------|--------------|--------------|----------|
+        | A        | 45           | 50           | 0.50     |
+        | B        | 52           | 50           | 0.08     |
+        | C        | 48           | 50           | 0.08     |
+        | D        | 55           | 50           | 0.50     |
+        | **Total**| **200**      | **200**      | **1.16** |
+        
+        **Perhitungan:**
+        
+        ```
+        Expected (E) = Total / k = 200 / 4 = 50
+        
+        χ² = Σ(O-E)²/E = 1.16
+        df = k - 1 = 4 - 1 = 3
+        χ²_critical (α=0.05, df=3) = 7.815
+        
+        Keputusan: χ² (1.16) < χ²_critical (7.815)
+        Kesimpulan: Terima H₀ → Distribusi uniform ✅
+        ```
+        
+        **Interpretasi:**
+        - Tidak ada perbedaan signifikan dalam preferensi varietas
+        - Petani memilih keempat varietas dengan proporsi yang sama
+        
+        ---
+        
+        ### Contoh 2: Uji Proporsi Tertentu
+        
+        **Kasus:** Apakah proporsi adopsi teknologi sesuai target (60% adopsi, 40% non-adopsi)?
+        
+        **Data:**
+        
+        | Status | Observed (O) | Expected (E) | (O-E)²/E |
+        |--------|--------------|--------------|----------|
+        | Adopsi | 140          | 150 (60%)    | 0.67     |
+        | Non-Adopsi | 110      | 100 (40%)    | 1.00     |
+        | **Total** | **250**   | **250**      | **1.67** |
+        
+        **Perhitungan:**
+        
+        ```
+        χ² = 1.67
+        df = 2 - 1 = 1
+        χ²_critical (α=0.05, df=1) = 3.841
+        p-value = 0.196
+        
+        Keputusan: χ² (1.67) < χ²_critical (3.841)
+        Kesimpulan: Terima H₀ → Proporsi sesuai target ✅
+        ```
+        
+        ---
+        
+        ### Contoh 3: Uji Distribusi Normal (Binning)
+        
+        **Kasus:** Apakah hasil panen mengikuti distribusi normal?
+        
+        **Langkah:**
+        
+        1. **Bagi data ke dalam bins** (misal 5 kategori)
+        2. **Hitung expected frequency** berdasarkan distribusi normal
+        3. **Hitung χ²**
+        
+        **Data:**
+        
+        | Bin | Range | Observed | Expected (Normal) | (O-E)²/E |
+        |-----|-------|----------|-------------------|----------|
+        | 1   | < 40  | 12       | 15.9              | 0.96     |
+        | 2   | 40-50 | 35       | 34.1              | 0.02     |
+        | 3   | 50-60 | 48       | 50.0              | 0.08     |
+        | 4   | 60-70 | 33       | 34.1              | 0.04     |
+        | 5   | > 70  | 17       | 15.9              | 0.08     |
+        | **Total** | | **145** | **150**          | **1.18** |
+        
+        ```
+        χ² = 1.18
+        df = 5 - 1 - 2 = 2  (2 parameter: mean, SD)
+        χ²_critical (α=0.05, df=2) = 5.991
+        
+        Kesimpulan: Terima H₀ → Data normal ✅
+        ```
+        
+        ---
+        
+        ## C. TES HOMOGENITAS (TEST OF HOMOGENEITY)
+        
+        ### Tujuan
+        
+        Menguji apakah **distribusi variabel kategorikal sama** di beberapa **populasi berbeda**.
+        
+        **Pertanyaan yang Dijawab:**
+        - Apakah proporsi adopsi sama di berbagai daerah?
+        - Apakah preferensi varietas sama di berbagai kelompok petani?
+        - Apakah distribusi tingkat pendidikan sama di berbagai desa?
+        
+        **Perbedaan dengan Test of Independence:**
+        
+        | Aspek | Test of Homogeneity | Test of Independence |
+        |-------|---------------------|----------------------|
+        | **Tujuan** | Compare distribusi antar populasi | Test hubungan 2 variabel |
+        | **Sampling** | Sampel terpisah per populasi | Satu sampel |
+        | **Pertanyaan** | "Apakah distribusi sama?" | "Apakah ada hubungan?" |
+        
+        ---
+        
+        ### Hipotesis
+        
+        - **H₀:** Distribusi sama di semua populasi (homogen)
+        - **H₁:** Distribusi berbeda di minimal satu populasi
+        
+        ---
+        
+        ### Formula
+        
+        $$\\chi^2 = \\sum_{i=1}^{r} \\sum_{j=1}^{c} \\frac{(O_{ij} - E_{ij})^2}{E_{ij}}$$
+        
+        **Expected Frequency:**
+        
+        $$E_{ij} = \\frac{(\\text{Row Total}_i) \\times (\\text{Column Total}_j)}{\\text{Grand Total}}$$
+        
+        **Degrees of Freedom:** df = (r - 1)(c - 1)
+        
+        Dimana:
+        - r = Jumlah baris (populasi)
+        - c = Jumlah kolom (kategori)
+        
+        ---
+        
+        ### Contoh: Adopsi Teknologi di 3 Daerah
+        
+        **Kasus:** Apakah proporsi adopsi teknologi sama di Daerah A, B, dan C?
+        
+        **Data Observasi:**
+        
+        | Daerah | Adopsi | Non-Adopsi | Total |
+        |--------|--------|------------|-------|
+        | A      | 60     | 40         | 100   |
+        | B      | 45     | 55         | 100   |
+        | C      | 75     | 25         | 100   |
+        | **Total** | **180** | **120** | **300** |
+        
+        **Expected Frequency:**
+        
+        ```
+        E(A, Adopsi) = (100 × 180) / 300 = 60
+        E(A, Non-Adopsi) = (100 × 120) / 300 = 40
+        E(B, Adopsi) = (100 × 180) / 300 = 60
+        E(B, Non-Adopsi) = (100 × 120) / 300 = 40
+        E(C, Adopsi) = (100 × 180) / 300 = 60
+        E(C, Non-Adopsi) = (100 × 120) / 300 = 40
+        ```
+        
+        **Tabel Expected:**
+        
+        | Daerah | Adopsi | Non-Adopsi |
+        |--------|--------|------------|
+        | A      | 60     | 40         |
+        | B      | 60     | 40         |
+        | C      | 60     | 40         |
+        
+        **Perhitungan χ²:**
+        
+        ```
+        χ² = (60-60)²/60 + (40-40)²/40 +
+             (45-60)²/60 + (55-40)²/40 +
+             (75-60)²/60 + (25-40)²/40
+           
+           = 0 + 0 + 3.75 + 5.625 + 3.75 + 5.625
+           = 18.75
+        
+        df = (3-1)(2-1) = 2
+        χ²_critical (α=0.05, df=2) = 5.991
+        p-value < 0.001
+        
+        Keputusan: χ² (18.75) > χ²_critical (5.991)
+        Kesimpulan: Tolak H₀ → Distribusi BERBEDA ❌
+        ```
+        
+        **Interpretasi:**
+        - Proporsi adopsi **tidak sama** di ketiga daerah
+        - Daerah C memiliki adopsi tertinggi (75%)
+        - Daerah B memiliki adopsi terendah (45%)
+        - **Rekomendasi:** Fokus program penyuluhan di Daerah B
+        
+        ---
+        
+        ### Contoh 2: Preferensi Varietas di 4 Kelompok Petani
+        
+        **Data:**
+        
+        | Kelompok | Varietas A | Varietas B | Varietas C | Total |
+        |----------|------------|------------|------------|-------|
+        | Muda     | 30         | 45         | 25         | 100   |
+        | Menengah | 40         | 35         | 25         | 100   |
+        | Tua      | 50         | 30         | 20         | 100   |
+        | Wanita   | 35         | 40         | 25         | 100   |
+        | **Total**| **155**    | **150**    | **95**     | **400**|
+        
+        **Hasil Analisis:**
+        
+        ```
+        χ² = 8.92
+        df = (4-1)(3-1) = 6
+        χ²_critical (α=0.05, df=6) = 12.592
+        p-value = 0.178
+        
+        Kesimpulan: Terima H₀ → Distribusi SAMA ✅
+        ```
+        
+        **Interpretasi:**
+        - Tidak ada perbedaan signifikan dalam preferensi varietas
+        - Semua kelompok memiliki pola preferensi yang serupa
+        
+        ---
+        
+        ## 📊 ASUMSI UJI CHI-SQUARE
+        
+        ### 1. **Expected Frequency ≥ 5**
+        
+        **Aturan:**
+        - Semua sel harus memiliki **E_i ≥ 5**
+        - Jika ada sel dengan E < 5 → Gabungkan kategori
+        
+        **Contoh:**
+        
+        ```
+        Kategori | Observed | Expected
+        ---------|----------|----------
+        A        | 10       | 8.5  ✅
+        B        | 15       | 12.0 ✅
+        C        | 3        | 2.5  ❌ (< 5)
+        D        | 2        | 2.0  ❌ (< 5)
+        
+        Solusi: Gabungkan C dan D
+        
+        C+D      | 5        | 4.5  ⚠️ (borderline, tapi acceptable)
+        ```
+        
+        ### 2. **Independence**
+        
+        - Observasi harus **independen**
+        - Satu individu hanya masuk **satu kategori**
+        - Tidak ada **repeated measures**
+        
+        ### 3. **Random Sampling**
+        
+        - Sampel harus **random**
+        - Representatif dari populasi
+        
+        ---
+        
+        ## ⚠️ PERINGATAN PENTING
+        
+        ### 1. **Chi-Square vs Fisher's Exact Test**
+        
+        **Gunakan Fisher's Exact Test jika:**
+        - Sampel kecil (n < 30)
+        - Ada expected frequency < 5
+        - Tabel 2×2
+        
+        ### 2. **Interpretasi p-value**
+        
+        - **p < 0.05** → Tolak H₀ (ada perbedaan/hubungan)
+        - **p ≥ 0.05** → Terima H₀ (tidak ada perbedaan/hubungan)
+        
+        **TAPI:** p-value tidak memberitahu **seberapa besar** perbedaannya!
+        
+        ### 3. **Effect Size**
+        
+        **Cramér's V** (untuk mengukur kekuatan hubungan):
+        
+        $$V = \\sqrt{\\frac{\\chi^2}{n \\times \\min(r-1, c-1)}}$$
+        
+        **Interpretasi:**
+        - **V < 0.1** → Efek sangat kecil
+        - **0.1 ≤ V < 0.3** → Efek kecil
+        - **0.3 ≤ V < 0.5** → Efek sedang
+        - **V ≥ 0.5** → Efek besar
+        
+        ### 4. **Multiple Comparisons**
+        
+        Jika χ² signifikan dengan banyak kategori:
+        - Lakukan **post-hoc tests**
+        - Gunakan **Bonferroni correction**
+        - α_adjusted = α / jumlah_perbandingan
+        
+        ---
+        
+        ## 💡 TIPS PRAKTIS
+        
+        ### 1. **Selalu Cek Asumsi**
+        
+        ```python
+        # Cek expected frequency
+        if any(expected < 5):
+            print("Warning: Expected frequency < 5")
+            print("Consider combining categories")
+        ```
+        
+        ### 2. **Visualisasi**
+        
+        - Gunakan **bar chart** untuk compare observed vs expected
+        - Gunakan **mosaic plot** untuk tabel kontingensi
+        
+        ### 3. **Interpretasi Kontekstual**
+        
+        - Jangan hanya lihat p-value
+        - Lihat **magnitude** perbedaan
+        - Pertimbangkan **practical significance**
+        
+        ### 4. **Report Lengkap**
+        
+        Selalu report:
+        - χ² statistic
+        - Degrees of freedom
+        - p-value
+        - Effect size (Cramér's V)
+        - Interpretasi dalam konteks
+        
+        **Contoh:**
+        ```
+        χ²(2, N=300) = 18.75, p < 0.001, V = 0.25
+        
+        Interpretasi:
+        Terdapat perbedaan signifikan dalam proporsi adopsi
+        teknologi di ketiga daerah (χ² = 18.75, p < 0.001).
+        Effect size sedang (V = 0.25) menunjukkan perbedaan
+        yang cukup substansial secara praktis.
+        ```
+        
+        ---
+        
+        ## 📚 APLIKASI DALAM PENELITIAN PERTANIAN
+        
+        ### 1. **Adopsi Teknologi**
+        - Uji homogenitas adopsi di berbagai daerah
+        - Uji kepatutan proporsi adopsi vs target
+        
+        ### 2. **Preferensi Varietas**
+        - Uji apakah petani memilih varietas secara merata
+        - Uji perbedaan preferensi antar kelompok
+        
+        ### 3. **Distribusi Penyakit**
+        - Uji apakah distribusi penyakit sama di berbagai lokasi
+        - Uji kepatutan dengan distribusi teoritis
+        
+        ### 4. **Kategori Hasil Panen**
+        - Uji homogenitas distribusi kualitas (A, B, C) antar daerah
+        - Uji kepatutan dengan standar industri
+        
+        ### 5. **Survei Petani**
+        - Uji apakah distribusi jawaban sama antar kelompok
+        - Uji kepatutan dengan expected response pattern
+        
+        """)  # End of Chi-Square sub-tab
+    
+    # ===== SUB-TAB 6: VISUALISASI & PRAKTIK =====
     with subtab_viz:
         st.subheader("📊 Visualisasi Garis Regresi & Residual")
         
