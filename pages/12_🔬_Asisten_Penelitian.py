@@ -752,6 +752,280 @@ with tab_regression:
         4. **Normalitas**: Error harus terdistribusi normal
         5. **No Multicollinearity** (untuk regresi berganda): Variabel X tidak saling berkorelasi tinggi
         
+        ---
+        
+        ## 🔢 REGRESI LINEAR BERGANDA (Multiple Linear Regression)
+        
+        ### Apa itu Regresi Berganda?
+        
+        **Regresi berganda** adalah perluasan dari regresi sederhana dimana kita menggunakan **lebih dari satu variabel independen** untuk memprediksi variabel dependen.
+        
+        **Contoh Aplikasi Pertanian:**
+        - Hasil Panen = f(Pupuk N, Pupuk P, Pupuk K, Curah Hujan, Suhu)
+        - Harga Komoditas = f(Produksi, Permintaan, Biaya Transportasi, Musim)
+        - Produktivitas = f(Luas Lahan, Tenaga Kerja, Modal, Teknologi)
+        
+        ---
+        
+        ### Model Regresi Linear Berganda
+        
+        **Bentuk Umum:**
+        
+        $$Y = \\beta_0 + \\beta_1 X_1 + \\beta_2 X_2 + \\beta_3 X_3 + ... + \\beta_k X_k + \\varepsilon$$
+        
+        Dimana:
+        - **Y** = Variabel dependen (yang diprediksi)
+        - **X₁, X₂, ..., Xₖ** = Variabel independen (prediktor)
+        - **β₀** = Intercept (konstanta)
+        - **β₁, β₂, ..., βₖ** = Koefisien regresi parsial
+        - **ε** = Error term
+        - **k** = Jumlah variabel independen
+        
+        **Contoh Konkret (Hasil Panen Padi):**
+        
+        $$\\text{Yield} = \\beta_0 + \\beta_1 \\text{(Pupuk N)} + \\beta_2 \\text{(Pupuk P)} + \\beta_3 \\text{(Curah Hujan)} + \\varepsilon$$
+        
+        Misal hasil estimasi:
+        
+        $$\\text{Yield} = 2000 + 15N + 10P + 5R + \\varepsilon$$
+        
+        **Interpretasi:**
+        - **Intercept (2000)**: Hasil panen dasar tanpa input apapun
+        - **β₁ = 15**: Setiap kenaikan 1 kg/ha pupuk N → yield naik 15 kg/ha (ceteris paribus)
+        - **β₂ = 10**: Setiap kenaikan 1 kg/ha pupuk P → yield naik 10 kg/ha (ceteris paribus)
+        - **β₃ = 5**: Setiap kenaikan 1 mm curah hujan → yield naik 5 kg/ha (ceteris paribus)
+        
+        > **Ceteris paribus** = "hal lain tetap sama" - artinya efek satu variabel dihitung sambil menahan variabel lain konstan
+        
+        ---
+        
+        ### Notasi Matriks (Matrix Form)
+        
+        Untuk efisiensi komputasi, regresi berganda ditulis dalam bentuk matriks:
+        
+        $$\\mathbf{Y} = \\mathbf{X}\\boldsymbol{\\beta} + \\boldsymbol{\\varepsilon}$$
+        
+        Dimana:
+        - **Y** = Vektor n×1 (n observasi)
+        - **X** = Matriks n×(k+1) (design matrix)
+        - **β** = Vektor (k+1)×1 (koefisien)
+        - **ε** = Vektor n×1 (error)
+        
+        **Solusi Least Squares:**
+        
+        $$\\hat{\\boldsymbol{\\beta}} = (\\mathbf{X}^T\\mathbf{X})^{-1}\\mathbf{X}^T\\mathbf{Y}$$
+        
+        Ini adalah formula yang digunakan oleh software statistik (Python, R, SPSS, dll) untuk menghitung koefisien regresi.
+        
+        ---
+        
+        ### R² dan Adjusted R² (R² Adjusted)
+        
+        **R² (Coefficient of Determination):**
+        
+        $$R^2 = 1 - \\frac{\\text{SSE}}{\\text{SST}} = 1 - \\frac{\\sum(Y_i - \\hat{Y}_i)^2}{\\sum(Y_i - \\bar{Y})^2}$$
+        
+        **Masalah R² dalam Regresi Berganda:**
+        - R² **selalu naik** ketika menambah variabel baru (bahkan variabel yang tidak relevan!)
+        - Ini bisa menyesatkan - model dengan banyak variabel terlihat lebih baik padahal overfitting
+        
+        **Solusi: Adjusted R² (R̄²)**
+        
+        $$R^2_{adj} = 1 - \\frac{(1-R^2)(n-1)}{n-k-1}$$
+        
+        Dimana:
+        - **n** = Jumlah observasi
+        - **k** = Jumlah variabel independen
+        
+        **Perbedaan:**
+        
+        | Aspek | R² | Adjusted R² |
+        |-------|-----|-------------|
+        | **Nilai** | Selalu naik saat tambah variabel | Bisa turun jika variabel tidak berguna |
+        | **Penalty** | Tidak ada | Ada penalty untuk kompleksitas |
+        | **Interpretasi** | % variasi dijelaskan | % variasi dijelaskan (adjusted) |
+        | **Untuk Perbandingan** | Tidak cocok | Cocok untuk compare model |
+        
+        **Contoh:**
+        - Model 1: R² = 0.85, R²adj = 0.83 (3 variabel)
+        - Model 2: R² = 0.87, R²adj = 0.82 (10 variabel)
+        - **Pilih Model 1!** (R²adj lebih tinggi, lebih parsimonious)
+        
+        ---
+        
+        ### Multicollinearity (Multikolinearitas)
+        
+        **Definisi:**
+        Multikolinearitas terjadi ketika **variabel independen saling berkorelasi tinggi**.
+        
+        **Contoh Masalah:**
+        - Pupuk N dan Pupuk Urea (hampir sama, korelasi tinggi)
+        - Luas Lahan dan Jumlah Tanaman (berkorelasi sempurna)
+        - Suhu dan Musim (berkorelasi kuat)
+        
+        **Dampak Multikolinearitas:**
+        1. **Koefisien tidak stabil** - berubah drastis dengan data sedikit berbeda
+        2. **Standard error besar** - koefisien tidak signifikan padahal seharusnya signifikan
+        3. **Interpretasi sulit** - susah memisahkan efek masing-masing variabel
+        4. **Tanda koefisien aneh** - bisa berlawanan dengan teori
+        
+        **Deteksi Multikolinearitas: VIF (Variance Inflation Factor)**
+        
+        $$VIF_j = \\frac{1}{1 - R^2_j}$$
+        
+        Dimana R²ⱼ adalah R² dari regresi Xⱼ terhadap semua X lainnya.
+        
+        **Interpretasi VIF:**
+        - **VIF = 1** → Tidak ada korelasi (ideal)
+        - **VIF < 5** → Multikolinearitas rendah (acceptable)
+        - **5 ≤ VIF < 10** → Multikolinearitas sedang (perlu perhatian)
+        - **VIF ≥ 10** → Multikolinearitas tinggi (masalah serius!)
+        
+        **Solusi Multikolinearitas:**
+        1. **Hapus salah satu variabel** yang berkorelasi tinggi
+        2. **Kombinasikan variabel** (misal: buat indeks komposit)
+        3. **Gunakan Ridge Regression** atau Lasso (regularization)
+        4. **Tambah data** (jika memungkinkan)
+        5. **Principal Component Analysis (PCA)**
+        
+        ---
+        
+        ### Interpretasi Koefisien Regresi Berganda
+        
+        **Koefisien Parsial (βⱼ):**
+        
+        Koefisien βⱼ menunjukkan **perubahan Y untuk setiap kenaikan 1 unit Xⱼ, dengan variabel lain tetap (ceteris paribus)**.
+        
+        **Contoh Praktis:**
+        
+        Model: **Harga Tomat = 5000 + 200×Kualitas - 50×Jarak + 100×Musim**
+        
+        Interpretasi:
+        - **β₀ = 5000**: Harga dasar tomat (Rp 5,000/kg)
+        - **β₁ = 200**: Setiap kenaikan 1 poin kualitas → harga naik Rp 200/kg (jarak & musim tetap)
+        - **β₂ = -50**: Setiap kenaikan 1 km jarak → harga turun Rp 50/kg (kualitas & musim tetap)
+        - **β₃ = 100**: Di musim panen → harga naik Rp 100/kg (kualitas & jarak tetap)
+        
+        **Standardized Coefficients (Beta Coefficients):**
+        
+        Untuk membandingkan **kekuatan relatif** masing-masing variabel:
+        
+        $$\\beta^*_j = \\beta_j \\times \\frac{\\sigma_{X_j}}{\\sigma_Y}$$
+        
+        **Contoh:**
+        - β*₁ = 0.65 (Kualitas)
+        - β*₂ = -0.30 (Jarak)
+        - β*₃ = 0.15 (Musim)
+        
+        **Interpretasi:** Kualitas adalah faktor paling kuat (0.65), diikuti Jarak (-0.30), lalu Musim (0.15).
+        
+        ---
+        
+        ### Uji Signifikansi dalam Regresi Berganda
+        
+        **1. Uji F (Overall Significance)**
+        
+        **Hipotesis:**
+        - H₀: β₁ = β₂ = ... = βₖ = 0 (semua variabel tidak berpengaruh)
+        - H₁: Minimal ada satu βⱼ ≠ 0
+        
+        **Statistik F:**
+        
+        $$F = \\frac{R^2/k}{(1-R^2)/(n-k-1)}$$
+        
+        **Keputusan:**
+        - Jika **p-value < 0.05** → Tolak H₀ → Model signifikan secara keseluruhan
+        - Jika **p-value ≥ 0.05** → Terima H₀ → Model tidak berguna
+        
+        **2. Uji t (Individual Significance)**
+        
+        **Hipotesis (untuk setiap βⱼ):**
+        - H₀: βⱼ = 0 (variabel Xⱼ tidak berpengaruh)
+        - H₁: βⱼ ≠ 0 (variabel Xⱼ berpengaruh)
+        
+        **Statistik t:**
+        
+        $$t_j = \\frac{\\hat{\\beta}_j}{SE(\\hat{\\beta}_j)}$$
+        
+        **Keputusan:**
+        - Jika **p-value < 0.05** → Variabel Xⱼ signifikan
+        - Jika **p-value ≥ 0.05** → Variabel Xⱼ tidak signifikan (bisa dihapus)
+        
+        ---
+        
+        ### Contoh Analisis Lengkap (Hasil Panen Cabai)
+        
+        **Data:** 100 petani cabai dengan variabel:
+        - Y = Hasil Panen (ton/ha)
+        - X₁ = Pupuk NPK (kg/ha)
+        - X₂ = Pestisida (liter/ha)
+        - X₃ = Tenaga Kerja (HOK/ha)
+        
+        **Hasil Regresi:**
+        
+        ```
+        Yield = 2.5 + 0.015×NPK + 0.8×Pestisida + 0.05×Tenaga_Kerja
+        
+        R² = 0.78
+        R²adj = 0.77
+        F-statistic = 112.5 (p < 0.001)
+        
+        Koefisien:
+        - NPK: β = 0.015, t = 8.2, p < 0.001 ✅ Signifikan
+        - Pestisida: β = 0.8, t = 5.1, p < 0.001 ✅ Signifikan
+        - Tenaga Kerja: β = 0.05, t = 2.3, p = 0.024 ✅ Signifikan
+        
+        VIF:
+        - NPK: 1.2 ✅ OK
+        - Pestisida: 1.5 ✅ OK
+        - Tenaga Kerja: 1.3 ✅ OK
+        ```
+        
+        **Interpretasi:**
+        
+        1. **Model Valid:**
+           - F-test signifikan (p < 0.001) → Model berguna
+           - R²adj = 0.77 → 77% variasi yield dijelaskan
+           - VIF < 5 → Tidak ada multikolinearitas
+        
+        2. **Efek Variabel:**
+           - **NPK**: Setiap tambahan 1 kg/ha → yield naik 0.015 ton/ha (15 kg/ha)
+           - **Pestisida**: Setiap tambahan 1 liter/ha → yield naik 0.8 ton/ha (800 kg/ha)
+           - **Tenaga Kerja**: Setiap tambahan 1 HOK/ha → yield naik 0.05 ton/ha (50 kg/ha)
+        
+        3. **Rekomendasi:**
+           - Semua variabel signifikan → pertahankan dalam model
+           - Pestisida paling efektif (koefisien terbesar)
+           - Untuk meningkatkan yield 1 ton/ha, bisa:
+             - Tambah 67 kg NPK, ATAU
+             - Tambah 1.25 liter pestisida, ATAU
+             - Tambah 20 HOK tenaga kerja
+        
+        ---
+        
+        ### ⚠️ Peringatan Penting Regresi Berganda
+        
+        1. **Overfitting:**
+           - Jangan tambah terlalu banyak variabel
+           - Gunakan R²adj, bukan R²
+           - Rule of thumb: n ≥ 10k (10 observasi per variabel)
+        
+        2. **Multikolinearitas:**
+           - Selalu cek VIF
+           - Jangan gunakan variabel yang sangat berkorelasi
+        
+        3. **Interpretasi Kausal:**
+           - Regresi hanya menunjukkan **asosiasi**, bukan **kausalitas**
+           - Perlu eksperimen atau teori kuat untuk klaim kausal
+        
+        4. **Extrapolation:**
+           - Jangan prediksi di luar range data
+           - Model hanya valid dalam range observasi
+        
+        5. **Asumsi:**
+           - Tetap harus cek asumsi BLUE
+           - Gunakan residual plot untuk diagnostik
+        
         """)
         
         # Interactive Example
