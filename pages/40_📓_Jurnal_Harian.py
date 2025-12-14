@@ -16,22 +16,34 @@ st.set_page_config(
 JOURNAL_FILE = "data/activity_journal.csv"
 GROWTH_FILE = "data/growth_journal.csv"
 
-# Ensure Data Utils
-def init_journal():
+# --- DATA UTILS ---
+def init_data():
     if not os.path.exists('data'):
         os.makedirs('data')
     if not os.path.exists(JOURNAL_FILE):
         df = pd.DataFrame(columns=['tanggal', 'kategori', 'judul', 'catatan', 'biaya', 'foto_path'])
         df.to_csv(JOURNAL_FILE, index=False)
+    if not os.path.exists(GROWTH_FILE):
+        df = pd.DataFrame(columns=['tanggal', 'komoditas', 'usia_hst', 'tinggi_cm', 'jumlah_daun'])
+        df.to_csv(GROWTH_FILE, index=False)
 
 def load_journal():
-    init_journal()
     try:
-        return pd.read_csv(JOURNAL_FILE)
+        if os.path.exists(JOURNAL_FILE):
+            return pd.read_csv(JOURNAL_FILE)
     except:
-        return pd.DataFrame(columns=['tanggal', 'kategori', 'judul', 'catatan', 'biaya', 'foto_path'])
+        pass
+    return pd.DataFrame(columns=['tanggal', 'kategori', 'judul', 'catatan', 'biaya', 'foto_path'])
 
-def save_entry(tgl, kategori, judul, catatan, biaya):
+def load_growth():
+    try:
+        if os.path.exists(GROWTH_FILE):
+            return pd.read_csv(GROWTH_FILE)
+    except:
+        pass
+    return pd.DataFrame(columns=['tanggal', 'komoditas', 'usia_hst', 'tinggi_cm', 'jumlah_daun'])
+
+def save_activity(tgl, kategori, judul, catatan, biaya):
     df = load_journal()
     new_data = pd.DataFrame({
         'tanggal': [tgl],
@@ -39,174 +51,184 @@ def save_entry(tgl, kategori, judul, catatan, biaya):
         'judul': [judul],
         'catatan': [catatan],
         'biaya': [biaya],
-        'foto_path': [""] # Future proofing
+        'foto_path': [""]
     })
     df = pd.concat([df, new_data], ignore_index=True)
     df.to_csv(JOURNAL_FILE, index=False)
 
-def load_growth_data():
-    if os.path.exists(GROWTH_FILE):
-        try:
-            return pd.read_csv(GROWTH_FILE)
-        except:
-            return pd.DataFrame()
-    return pd.DataFrame()
+def save_growth(tgl, komoditas, hst, tinggi, daun):
+    df = load_growth()
+    new_data = pd.DataFrame({
+        'tanggal': [tgl],
+        'komoditas': [komoditas],
+        'usia_hst': [hst],
+        'tinggi_cm': [tinggi],
+        'jumlah_daun': [daun]
+    })
+    df = pd.concat([df, new_data], ignore_index=True)
+    df.to_csv(GROWTH_FILE, index=False)
+
+init_data()
 
 # UI STYLING
 st.markdown("""
 <style>
     .journal-card {
-        background-color: #f8f9fa;
+        background-color: #ffffff;
         border-left: 5px solid #4CAF50;
         padding: 15px;
-        border-radius: 5px;
+        border-radius: 8px;
         margin-bottom: 15px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: transform 0.1s;
     }
-    .journal-card.expense {
-        border-left-color: #f44336;
+    .journal-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    .journal-card.harvest {
-        border-left-color: #ff9800;
-    }
-    .journal-card.growth {
-        border-left-color: #2196F3;
-    }
-    .card-date {
-        font-size: 0.85em;
-        color: #666;
-        margin-bottom: 5px;
-    }
-    .card-title {
-        font-weight: bold;
-        font-size: 1.1em;
-        color: #333;
-    }
-    .card-cost {
-        float: right;
-        font-weight: bold;
-        color: #d32f2f;
+    .journal-card.expense { border-left-color: #f44336; }
+    .journal-card.harvest { border-left-color: #ff9800; }
+    .journal-card.growth { border-left-color: #2196F3; }
+    
+    .card-date { font-size: 0.8em; color: #888; margin-bottom: 4px; }
+    .card-title { font-weight: 700; font-size: 1.05em; color: #333; }
+    .card-cost { float: right; font-weight: bold; color: #d32f2f; font-size: 0.9em;}
+    .card-metric { 
+        display: inline-block; 
+        background: #e3f2fd; 
+        color: #1565c0; 
+        padding: 2px 8px; 
+        border-radius: 12px; 
+        font-size: 0.8em; 
+        font-weight: 500;
+        margin-right: 5px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # HEADER
 st.title("📓 Jurnal Harian Modern")
-st.markdown("Catat aktivitas, pantau biaya, dan kumpulkan memori pertanian Anda dalam satu linimasa terpadu.")
+st.caption("Central Control Room: Catat aktivitas & pertumbuhan, pantau biaya, dan review timeline.")
 
 # LAYOUT
-col_input, col_feed = st.columns([1, 2])
+col_input, col_feed = st.columns([1.2, 2])
 
 with col_input:
     st.container(border=True)
-    st.subheader("✍️ Tulis Jurnal Baru")
     
-    with st.form("journal_form"):
-        tgl = st.date_input("Tanggal", datetime.now())
-        kategori = st.selectbox("Kategori", ["✅ Umum", "💧 Penyiraman", "💊 Pemupukan", "🛡️ Pengendalian Hama", "🛠️ Perawatan Infrastruktur", "🚜 Panen", "💰 Pembelian/Pengeluaran"])
-        judul = st.text_input("Judul Singkat", placeholder="Contoh: Beli Pupuk NPK")
-        catatan = st.text_area("Catatan Detail", placeholder="Dosis, cuaca, kendala...", height=100)
-        biaya = st.number_input("Biaya (Rp) - Opsional", min_value=0, step=1000)
-        
-        submit = st.form_submit_button("Simpan Aktivitas", use_container_width=True)
-        
-        if submit:
-            if judul:
-                save_entry(tgl, kategori, judul, catatan, biaya)
-                st.success("Tersimpan!")
+    # TABS INPUT
+    tab_act, tab_growth = st.tabs(["📝 Catat Aktivitas", "📏 Catat Pertumbuhan"])
+    
+    with tab_act:
+        with st.form("journal_form"):
+            st.subheader("Aktivitas Kebun")
+            tgl = st.date_input("Tanggal", datetime.now(), key="tgl_act")
+            kategori = st.selectbox("Kategori", ["✅ Umum", "💧 Penyiraman", "💊 Pemupukan", "🛡️ Pengendalian Hama", "🛠️ Perawatan Infrastruktur", "🚜 Panen", "💰 Pembelian/Pengeluaran"])
+            judul = st.text_input("Judul Singkat", placeholder="Contoh: Beli Pupuk NPK")
+            catatan = st.text_area("Catatan Detail", placeholder="Dosis, cuaca, kendala...", height=80)
+            biaya = st.number_input("Biaya (Rp) - Opsional", min_value=0, step=1000)
+            
+            submit_act = st.form_submit_button("Simpan Aktivitas", use_container_width=True)
+            
+            if submit_act:
+                if judul:
+                    save_activity(tgl, kategori, judul, catatan, biaya)
+                    st.success("Tersimpan!")
+                    st.rerun()
+                else:
+                    st.error("Judul wajib diisi.")
+    
+    with tab_growth:
+        st.info("Input data ini akan otomatis masuk ke grafik Modul 39.")
+        with st.form("growth_form"):
+            st.subheader("Data Pertumbuhan")
+            tgl_g = st.date_input("Tanggal Ukur", datetime.now(), key="tgl_grow")
+            komoditas = st.selectbox("Komoditas", ["Jagung Hibrida", "Padi Inpari", "Cabai Rawit", "Melon"])
+            usia_hst = st.number_input("Usia (HST)", min_value=1, value=1)
+            tinggi = st.number_input("Tinggi (cm)", min_value=0.0)
+            daun = st.number_input("Jumlah Daun", min_value=0)
+            
+            submit_grow = st.form_submit_button("Simpan Data Pertumbuhan", use_container_width=True)
+            
+            if submit_grow:
+                save_growth(tgl_g, komoditas, usia_hst, tinggi, daun)
+                st.success(f"Data {komoditas} tersimpan!")
                 st.rerun()
-            else:
-                st.error("Judul wajib diisi.")
 
-    # Financial Summary
+    # Financial Summary Small Widget
     st.divider()
-    st.subheader("💰 Ringkasan Biaya")
     df_j = load_journal()
-    if not df_j.empty:
-        total_expense = df_j['biaya'].sum()
-        this_month_expense = df_j[pd.to_datetime(df_j['tanggal']).dt.month == datetime.now().month]['biaya'].sum()
-        
-        st.metric("Total Pengeluaran (Semua)", f"Rp {total_expense:,.0f}")
-        st.metric("Pengeluaran Bulan Ini", f"Rp {this_month_expense:,.0f}")
-        
-        # Expense by Category Pie
-        if total_expense > 0:
-            exp_by_cat = df_j.groupby('kategori')['biaya'].sum().reset_index()
-            fig_pie = px.pie(exp_by_cat, values='biaya', names='kategori', title='Komposisi Biaya', hole=0.4)
-            fig_pie.update_layout(showlegend=False, margin=dict(t=30, b=0, l=0, r=0), height=200)
-            st.plotly_chart(fig_pie, use_container_width=True)
+    total_expense = df_j['biaya'].sum() if not df_j.empty else 0
+    st.metric("Total Pengeluaran", f"Rp {total_expense:,.0f}")
 
 with col_feed:
-    st.subheader("📅 Linimasa Aktivitas (Timeline)")
+    st.subheader("📅 Linimasa (Feed)")
     
-    # MERGE DATA SOURCES
-    # 1. Activity Data
+    # Load & Merge
     df_act = load_journal()
-    df_act['source'] = 'activity'
+    df_act['type'] = 'activity'
     
-    # 2. Growth Data (from Modul 39)
-    df_grow = load_growth_data()
-    timeline_items = []
+    df_grow = load_growth()
+    df_grow['type'] = 'growth'
     
-    # Convert Activity DF to List
+    timeline = []
+    
     if not df_act.empty:
-        for _, row in df_act.iterrows():
-            style_class = "expense" if row['biaya'] > 0 else "journal-card"
-            if "Panen" in row['kategori']: style_class = "harvest"
+        for _, r in df_act.iterrows():
+            style = "journal-card"
+            if r['biaya'] > 0: style = "expense"
+            if "Panen" in str(r['kategori']): style = "harvest"
             
-            timeline_items.append({
-                'date': pd.to_datetime(row['tanggal']),
-                'title': row['judul'],
-                'desc': row['catatan'],
-                'meta': f"{row['kategori']}",
-                'cost': row['biaya'],
-                'type': 'activity',
-                'style': style_class,
-                'raw_date': row['tanggal']
+            timeline.append({
+                'date': pd.to_datetime(r['tanggal']),
+                'raw_date': r['tanggal'],
+                'title': r['judul'],
+                'desc': r['catatan'],
+                'meta': r['kategori'],
+                'cost': r['biaya'],
+                'style': style,
+                'type': 'activity'
             })
             
-    # Convert Growth DF to List
     if not df_grow.empty:
-        for _, row in df_grow.iterrows():
-            timeline_items.append({
-                'date': pd.to_datetime(row['tanggal']),
-                'title': f"Monitoring: {row['komoditas']}",
-                'desc': f"Tinggi: {row['tinggi_cm']} cm | Daun: {row['jumlah_daun']} helai | HST: {row['usia_hst']}",
-                'meta': "📏 Data Pertumbuhan",
+        for _, r in df_grow.iterrows():
+            timeline.append({
+                'date': pd.to_datetime(r['tanggal']),
+                'raw_date': r['tanggal'],
+                'title': f"Monitoring {r['komoditas']}",
+                'desc': f"<span class='card-metric'>📏 {r['tinggi_cm']} cm</span> <span class='card-metric'>🍃 {r['jumlah_daun']} daun</span>",
+                'meta': f"HST {r['usia_hst']}",
                 'cost': 0,
-                'type': 'growth',
-                'style': "growth",
-                'raw_date': row['tanggal']
+                'style': 'growth',
+                'type': 'growth'
             })
             
-    # Sort by Date Descending
-    timeline_items.sort(key=lambda x: x['date'], reverse=True)
+    timeline.sort(key=lambda x: x['date'], reverse=True)
     
-    # RENDER FEED
-    # Filter Controls
-    f_col1, f_col2 = st.columns(2)
-    filter_type = f_col1.multiselect("Filter Tipe", ["activity", "growth"], default=["activity", "growth"])
+    # Filter
+    f_mode = st.radio("Tampilkan:", ["Semua", "Hanya Aktivitas", "Hanya Pertumbuhan"], horizontal=True, label_visibility="collapsed")
     
-    cnt = 0
-    for item in timeline_items:
-        if item['type'] in filter_type:
-            cnt += 1
-            
-            cost_html = f'<span class="card-cost">- Rp {item["cost"]:,.0f}</span>' if item['cost'] > 0 else ""
+    for item in timeline:
+        show = True
+        if f_mode == "Hanya Aktivitas" and item['type'] != 'activity': show = False
+        if f_mode == "Hanya Pertumbuhan" and item['type'] != 'growth': show = False
+        
+        if show:
             icon = "📝"
-            if item['style'] == 'growth': icon = "📏"
+            if item['style'] == 'growth': icon = "📈"
             elif item['style'] == 'harvest': icon = "🌾"
             elif item['style'] == 'expense': icon = "💸"
             
+            cost_html = f'<div class="card-cost">- Rp {item["cost"]:,.0f}</div>' if item['cost'] > 0 else ""
+            
             st.markdown(f"""
-            <div class="journal-card {item['style']}">
+            <div class="{item['style']}">
                 <div class="card-date">{item['raw_date']} • {item['meta']}</div>
-                <div class="card-title">{icon} {item['title']} {cost_html}</div>
-                <div style="margin-top: 5px; color: #555;">{item['desc']}</div>
+                {cost_html}
+                <div class="card-title">{icon} {item['title']}</div>
+                <div style="margin-top: 5px; color: #444;">{item['desc']}</div>
             </div>
             """, unsafe_allow_html=True)
             
-    if cnt == 0:
-        st.info("Belum ada catatan aktivitas. Mulailah mencatat di panel sebelah kiri!")
-
-# Analytics Logic? Maybe next time.
+    if not timeline:
+        st.info("Belum ada data. Mulai mencatat di panel kiri!")
