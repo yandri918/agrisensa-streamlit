@@ -2199,8 +2199,6 @@ with tab_growth:
     st.header("📈 Pertumbuhan & Perkembangan Tanaman")
     
     st.markdown("""
-    ## 📈 PERTUMBUHAN & PERKEMBANGAN TANAMAN
-    
     ### Perbedaan Pertumbuhan vs Perkembangan
     
     **PERTUMBUHAN (Growth):**
@@ -2560,8 +2558,6 @@ with tab_photosynthesis:
     st.header("☀️ Fotosintesis & Respirasi")
     
     st.markdown("""
-    ## ☀️ FOTOSINTESIS & RESPIRASI
-    
     ### Hubungan Fotosintesis & Respirasi
     
     **FOTOSINTESIS:**
@@ -3382,8 +3378,6 @@ with tab_practice:
     st.header("🛠️ Aplikasi Praktis Fisiologi Tumbuhan")
     
     st.markdown("""
-    ## 🛠️ APLIKASI PRAKTIS FISIOLOGI TUMBUHAN
-    
     ### Integrasi Pengetahuan Fisiologi untuk Optimasi Produksi
     
     ---
