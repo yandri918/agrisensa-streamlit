@@ -2969,8 +2969,6 @@ with tab_stress:
     st.header("⚠️ Stress & Adaptasi Tanaman")
     
     st.markdown("""
-    ## ⚠️ STRESS & ADAPTASI TANAMAN
-    
     ### Apa itu Stress pada Tanaman?
     
     **STRESS:** Kondisi lingkungan yang **tidak optimal** yang menyebabkan **penurunan pertumbuhan, produktivitas, atau survival**.
