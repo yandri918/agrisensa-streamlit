@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 # Header
-st.title("🌳 Sistem Pertanian Terpadu")
+st.title(" Sistem Pertanian Terpadu")
 st.markdown("**Integrated Farming Systems untuk Keberlanjutan dan Ketahanan**")
 
 # Main tabs
@@ -153,23 +153,341 @@ with tab_intro:
     
     ---
     
-    ### **4. PERMACULTURE**
+    ### **4. PERMACULTURE (Permanent Agriculture)**
     ```
     Prinsip: Design sistem yang meniru ekosistem alami
+    → Self-sustaining, regenerative, resilient
+    ```
     
-    Zona:
-    - Zona 0: Rumah
-    - Zona 1: Sayuran intensif (dekat rumah)
-    - Zona 2: Tanaman tahunan (buah, ternak kecil)
-    - Zona 3: Tanaman utama (padi, jagung)
-    - Zona 4: Hutan produksi (kayu, HHBK)
-    - Zona 5: Wilderness (konservasi)
+    **Filosofi:**
+    ```
+    "Work WITH nature, not AGAINST nature"
+    - Observe & interact
+    - Catch & store energy
+    - Obtain a yield
+    - Self-regulation & feedback
+    - Use renewable resources
+    - Produce no waste
+    - Design from patterns to details
+    - Integrate rather than segregate
+    - Use small & slow solutions
+    - Value diversity
+    - Use edges & value the marginal
+    - Creatively use & respond to change
+    ```
+    
+    **3 Etika Permakultur:**
+    ```
+    1. EARTH CARE (Peduli Bumi)
+       - Tanah sehat = Tanaman sehat = Manusia sehat
+       - Regenerasi, bukan degradasi
+    
+    2. PEOPLE CARE (Peduli Manusia)
+       - Kebutuhan dasar: Makanan, air, shelter, energi
+       - Kesehatan & kesejahteraan
+    
+    3. FAIR SHARE (Berbagi Adil)
+       - Surplus untuk komunitas
+       - Limits to consumption
+       - Redistribusi kelebihan
+    ```
+    
+    ---
+    
+    ### **ZONA PERMAKULTUR:**
+    
+    **Zona 0: RUMAH (Center)**
+    ```
+    - Pusat aktivitas
+    - Energy hub (solar panel, biogas)
+    - Water storage (tangki air hujan)
+    - Composting toilet
+    
+    Prinsip: Maximum efficiency
+    ```
+    
+    **Zona 1: INTENSIF (Daily Visit)**
+    ```
+    Jarak: 0-10 m dari rumah
+    
+    Tanaman:
+    - Sayuran harian (selada, bayam, kangkung)
+    - Herbs (basil, mint, cilantro)
+    - Salad greens
+    
+    Ternak:
+    - Ayam (5-10 ekor) - telur harian
+    
+    Infrastruktur:
+    - Raised beds
+    - Vertical garden
+    - Compost bin
+    - Worm farm
+    
+    Maintenance: Harian (panen, siram, panen telur)
+    ```
+    
+    **Zona 2: SEMI-INTENSIF (Weekly Visit)**
+    ```
+    Jarak: 10-50 m
+    
+    Tanaman:
+    - Buah-buahan (pisang, pepaya, mangga)
+    - Tanaman tahunan (singkong, ubi)
+    - Perennial vegetables (katuk, kelor)
+    
+    Ternak:
+    - Kambing/domba (5-10 ekor)
+    - Bebek (kolam kecil)
+    
+    Infrastruktur:
+    - Mulch garden
+    - Swales (water harvesting)
+    - Small pond
+    
+    Maintenance: Mingguan (panen, pruning)
+    ```
+    
+    **Zona 3: PRODUKSI UTAMA (Monthly Visit)**
+    ```
+    Jarak: 50-200 m
+    
+    Tanaman:
+    - Padi/jagung (staple crops)
+    - Orchard (durian, rambutan, alpukat)
+    - Timber trees (jati, mahoni)
+    
+    Ternak:
+    - Sapi (2-5 ekor)
+    - Silvopasture
+    
+    Maintenance: Bulanan (seasonal work)
+    ```
+    
+    **Zona 4: HUTAN PRODUKSI (Seasonal Visit)**
+    ```
+    Jarak: 200-500 m
+    
+    Tanaman:
+    - Timber (kayu bangunan)
+    - HHBK (madu, rotan, gaharu)
+    - Medicinal plants
+    
+    Ternak:
+    - Free-range (ayam kampung)
+    
+    Maintenance: Seasonal (panen, thinning)
+    ```
+    
+    **Zona 5: WILDERNESS (No Intervention)**
+    ```
+    Jarak: >500 m
+    
+    Fungsi:
+    - Konservasi
+    - Biodiversitas
+    - Seed bank (genetic diversity)
+    - Spiritual/recreational
+    
+    Maintenance: None (let nature do its work)
+    ```
+    
+    ---
+    
+    ### **GUILD DESIGN (Companion Planting):**
+    
+    **Konsep:**
+    ```
+    Guild = Kelompok tanaman yang saling mendukung
+    → Meniru ekosistem hutan
+    ```
+    
+    **Contoh: FRUIT TREE GUILD**
+    ```
+    Center: Pohon buah (mangga, alpukat)
+    
+    Layer 1 - Nitrogen Fixer:
+    - Lamtoro, gamal (N-fixation)
+    - Jarak: 2-3 m dari center
+    
+    Layer 2 - Dynamic Accumulator:
+    - Comfrey, katuk (deep roots, nutrient pump)
+    - Jarak: 1-2 m
+    
+    Layer 3 - Ground Cover:
+    - Sweet potato, kacang tanah
+    - Suppress weeds, living mulch
+    
+    Layer 4 - Pest Repellent:
+    - Marigold, basil, lemongrass
+    - Attract beneficial insects
+    
+    Layer 5 - Pollinator Attractor:
+    - Bunga matahari, cosmos
+    - Attract bees, butterflies
+    
+    Hasil:
+    ✅ No fertilizer (N-fixation + nutrient cycling)
+    ✅ No herbicide (ground cover suppress weeds)
+    ✅ No pesticide (companion plants repel pests)
+    ✅ High biodiversity (habitat for beneficial insects)
+    ```
+    
+    ---
+    
+    ### **WATER MANAGEMENT:**
+    
+    **A. SWALES (Parit Kontur):**
+    ```
+    Prinsip:
+    - Parit mengikuti kontur (level)
+    - Tangkap air hujan → Infiltrasi → Groundwater recharge
+    
+    Desain:
+    - Lebar: 0.5-1 m
+    - Kedalaman: 0.3-0.5 m
+    - Jarak: 10-30 m (tergantung kemiringan)
+    - Tanaman: Pohon di berm (gundukan)
     
     Keuntungan:
-    - Efisiensi energi (minimize input)
-    - Resiliensi tinggi (diverse, redundant)
-    - Estetika (beautiful, livable)
+    ✅ Cegah erosi
+    ✅ Recharge groundwater
+    ✅ Microclimate (humidity ↑)
+    ✅ Passive irrigation
+    
+    Referensi:
+    - Yeomans, P. A. (1954). The Keyline Plan.
     ```
+    
+    **B. PONDS (Kolam):**
+    ```
+    Fungsi:
+    - Water storage (irigasi)
+    - Aquaculture (ikan, bebek)
+    - Microclimate (cooling)
+    - Wildlife habitat
+    - Fire protection
+    
+    Desain:
+    - Lokasi: Titik terendah (gravity-fed)
+    - Ukuran: 100-500 m² (tergantung kebutuhan)
+    - Kedalaman: 1.5-2 m (avoid mosquito)
+    - Edge: Gradual slope (wildlife access)
+    
+    Tanaman:
+    - Eceng gondok (biofilter)
+    - Kangkung air (pakan)
+    - Lotus (estetika)
+    ```
+    
+    **C. RAIN WATER HARVESTING:**
+    ```
+    - Atap rumah → Talang → Tangki (5,000-10,000 L)
+    - Potensi: 1 mm hujan × 100 m² atap = 100 L
+    - Jakarta (2,000 mm/tahun): 200,000 L/tahun!
+    ```
+    
+    ---
+    
+    ### **IMPLEMENTASI PERMAKULTUR:**
+    
+    **Tahap 1: OBSERVASI (1-12 bulan)**
+    ```
+    - Pola matahari (sun path)
+    - Pola angin (wind direction)
+    - Aliran air (water flow)
+    - Tanah (soil type, pH)
+    - Existing vegetation
+    - Wildlife
+    
+    Tools:
+    - Kompas (orientasi)
+    - Clinometer (kemiringan)
+    - Soil test kit
+    - Notebook (catat pola)
+    ```
+    
+    **Tahap 2: DESIGN (1-3 bulan)**
+    ```
+    - Buat peta (scale 1:100 atau 1:500)
+    - Tentukan zona (0-5)
+    - Design water management (swales, ponds)
+    - Pilih tanaman (guild design)
+    - Plan infrastructure (paths, fences)
+    
+    Tools:
+    - Graph paper
+    - Pencil & eraser
+    - Ruler & compass
+    ```
+    
+    **Tahap 3: IMPLEMENTASI (Bertahap)**
+    ```
+    Tahun 1:
+    - Zona 0-1 (rumah, sayuran intensif)
+    - Water harvesting (tangki, swales)
+    - Compost system
+    
+    Tahun 2:
+    - Zona 2 (buah, ternak kecil)
+    - Pond
+    - Perennial vegetables
+    
+    Tahun 3-5:
+    - Zona 3-4 (orchard, hutan produksi)
+    - Timber trees
+    - Silvopasture
+    
+    Prinsip: Small & slow solutions!
+    ```
+    
+    ---
+    
+    ### **EKONOMI PERMAKULTUR:**
+    
+    **Kasus: Permaculture Farm 1 Ha**
+    ```
+    INVESTASI (Tahun 0-2): Rp 50-100 juta
+    - Infrastruktur (swales, ponds, fences)
+    - Bibit (pohon, sayuran, ternak)
+    - Tools
+    
+    PENDAPATAN (Tahun 5+):
+    - Zona 1 (sayuran): Rp 20-30 juta/tahun
+    - Zona 2 (buah, telur): Rp 30-50 juta/tahun
+    - Zona 3 (padi, daging): Rp 40-60 juta/tahun
+    - Zona 4 (kayu, HHBK): Rp 10-20 juta/tahun
+    
+    TOTAL: Rp 100-160 juta/tahun
+    
+    HEMAT:
+    - Pupuk: 80-90% (recycle)
+    - Pestisida: 90-100% (biodiversity)
+    - Air: 50-70% (water harvesting)
+    - Energi: 50-80% (biogas, solar)
+    
+    ROI: 3-5 tahun
+    
+    Bonus:
+    ✅ Food security (diversified)
+    ✅ Resilience (climate, market)
+    ✅ Quality of life (beautiful, peaceful)
+    ✅ Legacy (regenerative, sustainable)
+    ```
+    
+    **Keuntungan:**
+    ```
+    ✅ Efisiensi energi (minimize input)
+    ✅ Resiliensi tinggi (diverse, redundant)
+    ✅ Estetika (beautiful, livable)
+    ✅ Keberlanjutan (regenerative)
+    ✅ Low maintenance (self-regulating)
+    ```
+    
+    **Referensi:**
+    - **Mollison, B., & Holmgren, D. (1978).** Permaculture One. Tagari Publications.
+    - **Holmgren, D. (2002).** Permaculture: Principles and Pathways Beyond Sustainability.
+    - **Whitefield, P. (2004).** The Earth Care Manual. Permanent Publications.
     
     ---
     
@@ -260,8 +578,6 @@ with tab_intro:
     
     5. **Altieri, M. A. (1999).** The ecological role of biodiversity in agroecosystems. Agriculture, Ecosystems & Environment, 74, 19-31.
     
-    """)
-
     """)
 
 # ===== TAB 2: AGROFORESTRI =====
