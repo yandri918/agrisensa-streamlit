@@ -1561,7 +1561,390 @@ with tab_regression:
            - X tidak mempengaruhi Y
            - R² mendekati 0 (model tidak berguna)
         """)
-
+        
+        # ===== ASUMSI OLS & UJI ASUMSI KLASIK =====
+        st.divider()
+        st.subheader("🔍 Asumsi OLS & Uji Asumsi Klasik")
+        
+        st.markdown("""
+        ## 🔍 ASUMSI YANG MENDASARI REGRESI OLS
+        
+        ### Mengapa Asumsi Penting?
+        
+        **Ordinary Least Squares (OLS)** memberikan estimator **BLUE** (Best Linear Unbiased Estimator) **HANYA JIKA** asumsi-asumsi tertentu terpenuhi.
+        
+        **Jika asumsi dilanggar:**
+        - Estimator tidak lagi BLUE
+        - Standard error bias → uji t dan F tidak valid
+        - Interval kepercayaan salah
+        - Prediksi tidak akurat
+        
+        ---
+        
+        ### Asumsi Klasik Regresi OLS (Gauss-Markov)
+        
+        #### 1. **LINEARITAS (Linearity)**
+        
+        **Asumsi:** Hubungan antara X dan Y adalah **linear** dalam parameter
+        
+        $$E(Y|X) = \\beta_0 + \\beta_1 X_1 + \\beta_2 X_2 + ... + \\beta_k X_k$$
+        
+        **Artinya:**
+        - Model harus linear dalam β (bukan harus linear dalam X!)
+        - Y = β₀ + β₁X + β₂X² ✅ Linear dalam β (polynomial)
+        - Y = β₀X^β₁ ❌ Tidak linear dalam β
+        
+        **Konsekuensi Jika Dilanggar:**
+        - Estimasi bias
+        - Prediksi tidak akurat
+        - R² menyesatkan
+        
+        **Uji Linearitas:**
+        
+        1. **Scatter Plot** (X vs Y)
+           - Lihat pola: harus linear
+           - Jika kurva → perlu transformasi
+        
+        2. **Residual Plot** (Fitted vs Residuals)
+           - Pola acak = ✅ Linear
+           - Pola kurva/U-shape = ❌ Non-linear
+        
+        3. **Ramsey RESET Test**
+           - H₀: Model linear
+           - H₁: Model non-linear
+           - Jika p < 0.05 → Tolak H₀ (non-linear)
+        
+        **Remedial Measures:**
+        - Transformasi variabel (log, sqrt, polynomial)
+        - Tambah variabel kuadratik (X²)
+        - Gunakan model non-linear
+        
+        ---
+        
+        #### 2. **NORMALITAS (Normality of Errors)**
+        
+        **Asumsi:** Error term (ε) terdistribusi **normal**
+        
+        $$\\varepsilon \\sim N(0, \\sigma^2)$$
+        
+        **Artinya:**
+        - Residual harus mengikuti distribusi normal
+        - Mean residual = 0
+        - Variance konstan
+        
+        **Konsekuensi Jika Dilanggar:**
+        - Uji t dan F tidak valid (untuk sampel kecil)
+        - Interval kepercayaan bias
+        - **TAPI:** Dengan n besar (n > 30), CLT berlaku → masih OK
+        
+        **Uji Normalitas:**
+        
+        1. **Histogram Residual**
+           - Bentuk bell curve = ✅ Normal
+           - Skewed/flat = ❌ Tidak normal
+        
+        2. **Q-Q Plot (Quantile-Quantile)**
+           - Titik mengikuti garis diagonal = ✅ Normal
+           - Titik menyimpang = ❌ Tidak normal
+        
+        3. **Kolmogorov-Smirnov Test**
+           - H₀: Residual normal
+           - H₁: Residual tidak normal
+           - Jika p > 0.05 → Terima H₀ (normal)
+        
+        4. **Shapiro-Wilk Test** (lebih powerful)
+           - H₀: Residual normal
+           - Jika p > 0.05 → Normal ✅
+        
+        5. **Jarque-Bera Test**
+           - Berdasarkan skewness dan kurtosis
+           - Jika p > 0.05 → Normal ✅
+        
+        **Remedial Measures:**
+        - Transformasi Y (log, sqrt, Box-Cox)
+        - Hapus outliers (jika justified)
+        - Gunakan robust regression
+        - Dengan n besar, abaikan (CLT)
+        
+        ---
+        
+        #### 3. **HOMOSKEDASTISITAS (Constant Variance)**
+        
+        **Asumsi:** Variance error **konstan** untuk semua nilai X
+        
+        $$Var(\\varepsilon_i) = \\sigma^2 \\text{ untuk semua } i$$
+        
+        **Artinya:**
+        - Spread residual harus sama di semua level X
+        - Tidak ada pola corong (funnel shape)
+        
+        **Lawan:** **Heteroskedastisitas** (variance tidak konstan)
+        
+        **Konsekuensi Heteroskedastisitas:**
+        - Estimator masih **unbiased** ✅
+        - TAPI tidak lagi **efficient** (variance besar)
+        - Standard error **bias** → uji t dan F tidak valid
+        - Interval kepercayaan salah
+        
+        **Uji Homoskedastisitas:**
+        
+        1. **Residual Plot** (Fitted vs Residuals)
+           - Spread konstan = ✅ Homoskedastik
+           - Pola corong = ❌ Heteroskedastik
+        
+        2. **Breusch-Pagan Test**
+           - H₀: Homoskedastik
+           - H₁: Heteroskedastik
+           - Jika p > 0.05 → Homoskedastik ✅
+        
+        3. **White Test**
+           - Lebih general (tidak assume bentuk heteroskedastisitas)
+           - Jika p > 0.05 → Homoskedastik ✅
+        
+        4. **Goldfeld-Quandt Test**
+           - Membagi data jadi 2 grup
+           - Compare variance kedua grup
+        
+        **Remedial Measures:**
+        - **Weighted Least Squares (WLS)**
+        - **Robust Standard Errors** (White's correction)
+        - Transformasi Y (log, sqrt)
+        - Tambah variabel yang hilang
+        
+        ---
+        
+        #### 4. **NO AUTOCORRELATION (Independence)**
+        
+        **Asumsi:** Error tidak **berkorelasi** satu sama lain
+        
+        $$Cov(\\varepsilon_i, \\varepsilon_j) = 0 \\text{ untuk } i \\neq j$$
+        
+        **Artinya:**
+        - Residual observasi ke-i tidak tergantung pada residual observasi ke-j
+        - Penting untuk **data time series**
+        
+        **Lawan:** **Autokorelasi** (serial correlation)
+        
+        **Konsekuensi Autokorelasi:**
+        - Estimator masih unbiased
+        - Standard error bias (biasanya underestimate)
+        - Uji t dan F terlalu optimis
+        - R² overestimate
+        
+        **Uji Autokorelasi:**
+        
+        1. **Durbin-Watson Test**
+           - Statistik DW: 0 hingga 4
+           - **DW ≈ 2** → Tidak ada autokorelasi ✅
+           - **DW < 2** → Autokorelasi positif
+           - **DW > 2** → Autokorelasi negatif
+           - Rule: 1.5 < DW < 2.5 → OK
+        
+        2. **Breusch-Godfrey Test (LM Test)**
+           - Lebih general dari DW
+           - Bisa detect higher-order autocorrelation
+           - Jika p > 0.05 → Tidak ada autokorelasi ✅
+        
+        3. **Ljung-Box Test**
+           - Untuk time series
+           - Jika p > 0.05 → Tidak ada autokorelasi ✅
+        
+        4. **ACF Plot (Autocorrelation Function)**
+           - Visual inspection
+           - Jika lag signifikan → Ada autokorelasi
+        
+        **Remedial Measures:**
+        - Tambah lag variabel dependen (AR model)
+        - **Cochrane-Orcutt procedure**
+        - **Newey-West standard errors**
+        - Gunakan ARIMA atau time series model
+        
+        ---
+        
+        #### 5. **NO MULTICOLLINEARITY**
+        
+        **Asumsi:** Variabel independen **tidak saling berkorelasi tinggi**
+        
+        **Artinya:**
+        - Tidak ada hubungan linear sempurna antar X
+        - Tidak ada X yang bisa diprediksi sempurna dari X lain
+        
+        **Konsekuensi Multikolinearitas:**
+        - Estimator masih unbiased
+        - Standard error **sangat besar**
+        - Koefisien tidak signifikan (padahal seharusnya signifikan)
+        - Koefisien tidak stabil (berubah drastis)
+        - Tanda koefisien aneh (berlawanan teori)
+        
+        **Uji Multikolinearitas:**
+        
+        1. **Correlation Matrix**
+           - Jika |r| > 0.8 antar X → Multikolinearitas
+        
+        2. **VIF (Variance Inflation Factor)**
+           - **VIF < 5** → OK ✅
+           - **5 ≤ VIF < 10** → Moderate
+           - **VIF ≥ 10** → Serious problem ❌
+        
+        3. **Tolerance** (1/VIF)
+           - **Tolerance > 0.2** → OK ✅
+           - **Tolerance < 0.1** → Problem ❌
+        
+        4. **Condition Index**
+           - **CI < 30** → OK ✅
+           - **CI ≥ 30** → Multikolinearitas
+        
+        **Remedial Measures:**
+        - Hapus salah satu variabel yang berkorelasi
+        - Kombinasikan variabel (buat index)
+        - **Ridge Regression** atau **Lasso**
+        - **Principal Component Analysis (PCA)**
+        - Tambah data (jika memungkinkan)
+        
+        ---
+        
+        ### 📊 PENGGUNAAN SPSS UNTUK UJI ASUMSI
+        
+        #### Langkah-langkah di SPSS:
+        
+        **1. Jalankan Regresi:**
+        ```
+        Analyze → Regression → Linear
+        - Dependent: Y
+        - Independent: X1, X2, X3
+        - Statistics: Klik "Collinearity diagnostics" (untuk VIF)
+        - Plots: 
+          ✓ *ZPRED vs *ZRESID (untuk linearitas & homoskedastisitas)
+          ✓ Histogram (untuk normalitas)
+          ✓ Normal P-P Plot (untuk normalitas)
+        - Save: Klik "Unstandardized residuals" (untuk uji lebih lanjut)
+        - OK
+        ```
+        
+        **2. Interpretasi Output:**
+        
+        **A. Coefficients Table:**
+        ```
+        Variable    | VIF   | Tolerance
+        ------------|-------|----------
+        X1          | 1.25  | 0.800  ✅ OK
+        X2          | 8.50  | 0.118  ⚠️ Moderate
+        X3          | 12.30 | 0.081  ❌ Problem!
+        ```
+        
+        **B. Residual Plots:**
+        
+        **Scatter Plot (*ZPRED vs *ZRESID):**
+        - **Pola acak** = ✅ Linearitas & Homoskedastisitas OK
+        - **Pola kurva** = ❌ Non-linear
+        - **Pola corong** = ❌ Heteroskedastisitas
+        
+        **Histogram:**
+        - **Bell curve** = ✅ Normal
+        - **Skewed** = ❌ Tidak normal
+        
+        **Normal P-P Plot:**
+        - **Titik di garis diagonal** = ✅ Normal
+        - **Titik menyimpang** = ❌ Tidak normal
+        
+        **3. Uji Tambahan (Manual):**
+        
+        **Durbin-Watson (Autokorelasi):**
+        - Lihat di "Model Summary" table
+        - **DW ≈ 2** → OK ✅
+        - **DW < 1.5 atau > 2.5** → Problem ❌
+        
+        **Kolmogorov-Smirnov (Normalitas):**
+        ```
+        Analyze → Nonparametric Tests → Legacy Dialogs → 1-Sample K-S
+        - Test Variable: RES_1 (saved residuals)
+        - Test Distribution: Normal
+        - OK
+        
+        Interpretasi:
+        - p > 0.05 → Normal ✅
+        - p < 0.05 → Tidak normal ❌
+        ```
+        
+        **Breusch-Pagan (Heteroskedastisitas):**
+        - SPSS tidak punya built-in
+        - Gunakan syntax atau plugin
+        - Atau gunakan White test
+        
+        ---
+        
+        ### 📋 Checklist Uji Asumsi (Praktis)
+        
+        **Sebelum Interpretasi Regresi, CEK:**
+        
+        - [ ] **Linearitas**
+          - ✅ Scatter plot linear
+          - ✅ Residual plot acak
+        
+        - [ ] **Normalitas**
+          - ✅ Histogram bell curve
+          - ✅ Q-Q plot di garis
+          - ✅ K-S test p > 0.05
+        
+        - [ ] **Homoskedastisitas**
+          - ✅ Residual plot spread konstan
+          - ✅ Breusch-Pagan p > 0.05
+        
+        - [ ] **No Autokorelasi**
+          - ✅ Durbin-Watson ≈ 2
+          - ✅ (Untuk time series saja)
+        
+        - [ ] **No Multikolinearitas**
+          - ✅ VIF < 5
+          - ✅ Tolerance > 0.2
+        
+        **Jika SEMUA ✅ → Lanjut interpretasi!**
+        
+        **Jika ada ❌ → Lakukan remedial measures!**
+        
+        ---
+        
+        ### ⚠️ Prioritas Uji Asumsi
+        
+        **Paling Penting (HARUS dicek):**
+        1. **Multikolinearitas** - Sangat mudah dicek (VIF)
+        2. **Linearitas** - Fundamental assumption
+        3. **Homoskedastisitas** - Mempengaruhi inferensia
+        
+        **Penting (Sebaiknya dicek):**
+        4. **Normalitas** - Kurang penting jika n > 30 (CLT)
+        
+        **Opsional (Tergantung data):**
+        5. **Autokorelasi** - Hanya untuk time series
+        
+        ---
+        
+        ### 💡 Tips Praktis
+        
+        1. **Jangan Panik Jika Ada Pelanggaran:**
+           - Hampir semua data real-world melanggar asumsi
+           - Yang penting: magnitude pelanggaran
+        
+        2. **Prioritaskan Remedial:**
+           - Multikolinearitas → Paling mudah diatasi
+           - Heteroskedastisitas → Gunakan robust SE
+           - Non-linearitas → Transformasi
+        
+        3. **Dokumentasikan:**
+           - Selalu report hasil uji asumsi
+           - Jelaskan remedial measures yang diambil
+        
+        4. **Gunakan Robust Methods:**
+           - Jika banyak pelanggaran → Robust regression
+           - Bootstrap standard errors
+           - Quantile regression
+        
+        5. **Sample Size Matters:**
+           - n > 100 → Banyak asumsi lebih toleran
+           - n < 30 → Harus strict dengan asumsi
+        
+        """)  # End of OLS Assumptions section
+    
     
     # ===== SUB-TAB 4: VISUALISASI & PRAKTIK =====
     with subtab_viz:
