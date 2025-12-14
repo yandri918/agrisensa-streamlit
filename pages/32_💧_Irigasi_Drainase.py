@@ -29,8 +29,6 @@ with tab_systems:
     st.header("🚿 Sistem Irigasi Modern")
     
     st.markdown("""
-    ## 🚿 SISTEM IRIGASI MODERN
-    
     ### Definisi
     
     **Irigasi** adalah pemberian **air secara teratur** ke lahan pertanian untuk **memenuhi kebutuhan air tanaman** dan **meningkatkan produktivitas**.
@@ -401,8 +399,6 @@ with tab_calculation:
     st.header("📊 Perhitungan Kebutuhan Air Tanaman")
     
     st.markdown("""
-    ## 📊 PERHITUNGAN KEBUTUHAN AIR TANAMAN
-    
     ### Konsep Dasar
     
     **Evapotranspirasi (ET)** = **Evaporasi** (penguapan dari tanah) + **Transpirasi** (penguapan dari tanaman)
@@ -663,8 +659,6 @@ with tab_drainage:
     st.header("🌊 Sistem Drainase Pertanian")
     
     st.markdown("""
-    ## 🌊 SISTEM DRAINASE PERTANIAN
-    
     ### Definisi
     
     **Drainase** adalah **pembuangan kelebihan air** dari lahan pertanian untuk **mencegah genangan** dan **menjaga aerasi tanah**.
@@ -1221,8 +1215,6 @@ with tab_tools:
     st.header("🛠️ Tools & Calculator")
     
     st.markdown("""
-    ## 🛠️ INTERACTIVE TOOLS & CALCULATOR
-    
     ### Fitur yang Tersedia:
     - 💧 ET0 Calculator (Penman-Monteith)
     - 🌾 Crop Water Requirement Calculator
