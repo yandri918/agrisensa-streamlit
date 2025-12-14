@@ -29,8 +29,6 @@ with tab_harvest:
     st.header("🌾 Teknik Pemanenan")
     
     st.markdown("""
-    ## 🌾 TEKNIK PEMANENAN (HARVESTING)
-    
     ### Definisi Pemanenan
     
     **Pemanenan** adalah proses **pengambilan hasil pertanian** dari tanaman pada saat yang tepat untuk mendapatkan **kualitas dan kuantitas optimal**.
@@ -540,8 +538,6 @@ with tab_storage:
     st.header("🏪 Teknologi Penyimpanan")
     
     st.markdown("""
-    ## 🏪 TEKNOLOGI PENYIMPANAN (STORAGE)
-    
     ### Tujuan Penyimpanan
     
     **Penyimpanan** adalah proses **mempertahankan kualitas** produk pertanian setelah panen untuk **memperpanjang shelf-life** dan **mengurangi kehilangan**.
@@ -1138,8 +1134,6 @@ with tab_processing:
     st.header("⚙️ Teknologi Pengolahan")
     
     st.markdown("""
-    ## ⚙️ TEKNOLOGI PENGOLAHAN (PROCESSING)
-    
     ### Tujuan Pengolahan
     
     **Pengolahan** adalah proses **mengubah produk segar** menjadi **produk olahan** untuk **memperpanjang shelf-life** dan **menambah nilai**.
@@ -1511,8 +1505,6 @@ with tab_quality:
     st.header("✅ Kontrol Kualitas")
     
     st.markdown("""
-    ## ✅ KONTROL KUALITAS (QUALITY CONTROL)
-    
     ### Definisi Kualitas
     
     **Kualitas** adalah **tingkat kesempurnaan** produk yang memenuhi **standar** dan **ekspektasi konsumen**.
@@ -1889,8 +1881,6 @@ with tab_value:
     st.header("💎 Produk Nilai Tambah")
     
     st.markdown("""
-    ## 💎 PRODUK NILAI TAMBAH (VALUE-ADDED PRODUCTS)
-    
     ### Definisi
     
     **Produk nilai tambah** adalah produk yang **diproses lebih lanjut** dari produk segar untuk **meningkatkan nilai ekonomi**.
@@ -2280,6 +2270,4 @@ with tab_value:
     
     """)
 
-# Save message
-st.success("✅ Module Teknologi Pasca Panen berhasil dibuat!")
-st.info("💡 Module ini mencakup pemanenan dan penyimpanan dengan protokol lengkap!")
+
