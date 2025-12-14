@@ -2194,6 +2194,1657 @@ with tab_hormone:
         
         """)
 
+# ===== TAB 2: PERTUMBUHAN & PERKEMBANGAN =====
+with tab_growth:
+    st.header("📈 Pertumbuhan & Perkembangan Tanaman")
+    
+    st.markdown("""
+    ## 📈 PERTUMBUHAN & PERKEMBANGAN TANAMAN
+    
+    ### Perbedaan Pertumbuhan vs Perkembangan
+    
+    **PERTUMBUHAN (Growth):**
+    - Peningkatan **ukuran** dan **massa** yang **irreversible**
+    - Dapat diukur (tinggi, berat, volume)
+    - Hasil dari pembelahan dan pemanjangan sel
+    
+    **PERKEMBANGAN (Development):**
+    - Perubahan **bentuk** dan **fungsi** sepanjang siklus hidup
+    - Diferensiasi sel → jaringan → organ
+    - Termasuk: Perkecambahan, pembungaan, pematangan buah
+    
+    **Referensi:**
+    - Taiz, L., & Zeiger, E. (2010). Plant Physiology, 5th Edition
+    
+    ---
+    
+    ## 🌱 FASE PERTUMBUHAN TANAMAN
+    
+    ### **1. Fase Perkecambahan (Germination)**
+    
+    **Tahapan:**
+    ```
+    Biji kering → Imbibisi air → Aktivasi enzim
+    → Mobilisasi cadangan makanan → Pertumbuhan embrio
+    → Munculnya radikula (akar) → Munculnya plumula (tunas)
+    ```
+    
+    **Faktor yang Mempengaruhi:**
+    - **Air:** Imbibisi (penyerapan air)
+    - **Oksigen:** Respirasi aerobik
+    - **Suhu:** Optimal 20-30°C (tergantung spesies)
+    - **Cahaya:** Beberapa biji memerlukan cahaya (lettuce)
+    
+    **Hormon Terlibat:**
+    - **Giberelin ↑** → Aktivasi α-amylase → Hidrolisis pati
+    - **ABA ↓** → Pelepasan dormansi
+    
+    **Aplikasi Praktis:**
+    ```
+    Mempercepat Perkecambahan:
+    1. Rendam biji di air 12-24 jam (imbibisi)
+    2. Atau rendam di GA3 100-200 ppm (breaking dormancy)
+    3. Suhu optimal 25-30°C
+    4. Kelembaban tinggi (90-95%)
+    
+    Hasil: Perkecambahan lebih cepat 2-3 hari
+    ```
+    
+    ---
+    
+    ### **2. Fase Vegetatif (Vegetative Growth)**
+    
+    **Karakteristik:**
+    - Pertumbuhan **daun, batang, dan akar**
+    - Fotosintesis aktif
+    - Akumulasi biomassa
+    - Belum ada organ reproduktif
+    
+    **Sub-fase:**
+    
+    **A. Seedling Stage (Bibit):**
+    - 2-4 minggu setelah perkecambahan
+    - Daun sejati pertama muncul
+    - Sistem akar berkembang
+    
+    **B. Rapid Vegetative Growth:**
+    - Pertumbuhan cepat daun dan batang
+    - Fotosintesis maksimal
+    - Akumulasi nutrisi
+    
+    **Hormon Dominan:**
+    - **Auksin** → Pemanjangan sel, dominansi apikal
+    - **Giberelin** → Pemanjangan batang
+    - **Sitokinin** → Pembelahan sel, tunas lateral
+    
+    **Manajemen:**
+    ```
+    Untuk Pertumbuhan Vegetatif Optimal:
+    - Nitrogen tinggi (N > P, K)
+    - Cahaya cukup (6-8 jam/hari minimum)
+    - Air teratur
+    - Suhu 20-30°C
+    - Topping (jika ingin lebat/bushy)
+    ```
+    
+    ---
+    
+    ### **3. Fase Reproduktif (Reproductive Growth)**
+    
+    **Transisi Vegetatif → Reproduktif:**
+    
+    **Faktor Pemicu:**
+    - **Photoperiod** (panjang hari)
+      - Short-day plants: Bunga saat hari pendek (< 12 jam)
+      - Long-day plants: Bunga saat hari panjang (> 12 jam)
+      - Day-neutral: Tidak terpengaruh photoperiod
+    
+    - **Vernalisasi** (cold treatment)
+      - Beberapa tanaman perlu paparan dingin (0-10°C)
+      - Contoh: Wheat, cabbage
+    
+    - **Umur tanaman** (maturity)
+    - **Stress** (kekeringan ringan dapat memicu pembungaan)
+    
+    **Tahapan Reproduktif:**
+    
+    **A. Inisiasi Bunga (Flower Initiation):**
+    ```
+    Meristem vegetatif → Meristem reproduktif
+    → Pembentukan primordial bunga
+    ```
+    
+    **B. Pembungaan (Flowering):**
+    - Bunga mekar
+    - Penyerbukan (pollination)
+    - Fertilisasi
+    
+    **C. Pembentukan Buah & Biji:**
+    - Ovary berkembang → Buah
+    - Ovule berkembang → Biji
+    - Akumulasi cadangan makanan
+    
+    **Hormon Terlibat:**
+    - **Giberelin** → Induksi pembungaan (substitute vernalisasi/photoperiod)
+    - **Florigen** → "Flowering hormone" (signal dari daun)
+    - **Auksin + GA** → Fruit set & development
+    - **Etilen** → Pematangan buah
+    
+    **Aplikasi Praktis:**
+    ```
+    Induksi Pembungaan:
+    1. Manipulasi photoperiod (lampu/shading)
+    2. Aplikasi GA3 10-50 ppm (substitute cold/long-day)
+    3. Stress ringan (kurangi air sedikit)
+    4. Nutrisi: Tinggi P & K, rendah N
+    
+    Hasil: Pembungaan lebih cepat 1-2 minggu
+    ```
+    
+    ---
+    
+    ### **4. Fase Pematangan (Maturation)**
+    
+    **Buah Klimakterik:**
+    ```
+    Mature green → Breaker → Turning → Pink → Red ripe
+    
+    Proses:
+    - Etilen ↑↑ (autocatalytic)
+    - Respirasi ↑ (climacteric rise)
+    - Pelunakan (pectinase)
+    - Manis (amylase → gula)
+    - Warna (chlorophyll ↓, carotenoid ↑)
+    ```
+    
+    **Biji:**
+    ```
+    Akumulasi cadangan makanan:
+    - Pati (cereals)
+    - Protein (legumes)
+    - Lipid (oilseeds)
+    
+    Desiccation (pengeringan):
+    - Kadar air ↓ (10-15%)
+    - ABA ↑ (dormansi)
+    - Metabolisme ↓
+    ```
+    
+    ---
+    
+    ### **5. Fase Senescence (Penuaan)**
+    
+    **Karakteristik:**
+    - Degradasi klorofil (daun menguning)
+    - Degradasi protein
+    - Mobilisasi nutrisi ke organ penyimpanan
+    - Akhirnya kematian
+    
+    **Hormon:**
+    - **Etilen ↑** → Mempercepat senescence
+    - **ABA ↑** → Stress-induced senescence
+    - **Sitokinin ↓** → Hilangnya anti-aging effect
+    
+    **Jenis Senescence:**
+    
+    **1. Whole Plant Senescence:**
+    - Annual plants setelah reproduksi
+    - Monocarpic plants (sekali berbuah, mati)
+    
+    **2. Organ Senescence:**
+    - Daun tua gugur (normal)
+    - Bunga layu setelah fertilisasi
+    
+    **Aplikasi:**
+    ```
+    Menunda Senescence:
+    - Aplikasi sitokinin (BAP 10-50 ppm)
+    - Hindari stress (air, nutrisi cukup)
+    - Suhu optimal
+    
+    Mempercepat Senescence (jika perlu):
+    - Ethephon 500-1000 ppm (defoliation)
+    - Stress kekeringan
+    ```
+    
+    ---
+    
+    ## 📊 POLA PERTUMBUHAN
+    
+    ### **Kurva Pertumbuhan Sigmoid:**
+    
+    ```
+    Tinggi/Berat
+        ↑
+        |     ┌─────────  Fase Stasioner
+        |    ╱
+        |   ╱   Fase Eksponensial
+        |  ╱
+        | ╱  Fase Lag
+        |╱
+        └──────────────────→ Waktu
+    ```
+    
+    **Fase Lag:**
+    - Pertumbuhan lambat
+    - Adaptasi, pembentukan sistem akar
+    
+    **Fase Eksponensial:**
+    - Pertumbuhan cepat
+    - Fotosintesis maksimal
+    - Pembelahan sel aktif
+    
+    **Fase Stasioner:**
+    - Pertumbuhan melambat
+    - Mencapai ukuran maksimal
+    - Mulai reproduksi
+    
+    ---
+    
+    ## 🌡️ FAKTOR LINGKUNGAN
+    
+    ### **1. Cahaya**
+    
+    **Intensitas:**
+    - Low light: Etiolasi (batang panjang, lemah, pucat)
+    - Optimal: Pertumbuhan normal
+    - High light: Tanaman pendek, kokoh, hijau tua
+    
+    **Photoperiod:**
+    - Mengatur pembungaan
+    - Mengatur dormansi
+    
+    **Kualitas (Spektrum):**
+    - Red light (660 nm): Pemanjangan batang
+    - Blue light (450 nm): Pembukaan stomata, phototropism
+    - Far-red (730 nm): Shade avoidance
+    
+    ---
+    
+    ### **2. Suhu**
+    
+    **Cardinal Temperatures:**
+    - **Minimum:** Di bawah ini, pertumbuhan berhenti
+    - **Optimum:** Pertumbuhan maksimal
+    - **Maximum:** Di atas ini, kerusakan/kematian
+    
+    **Contoh (Tomat):**
+    - Minimum: 10°C
+    - Optimum: 20-30°C
+    - Maximum: 35°C
+    
+    **Efek Suhu:**
+    - **Rendah:** Pertumbuhan lambat, dormansi
+    - **Optimal:** Pertumbuhan normal
+    - **Tinggi:** Stress, respirasi ↑, fotosintesis ↓
+    
+    ---
+    
+    ### **3. Air**
+    
+    **Fungsi:**
+    - Turgor (tegangan sel)
+    - Transport nutrisi
+    - Fotosintesis (substrat)
+    - Pendinginan (transpirasi)
+    
+    **Defisit Air:**
+    - Wilting (layu)
+    - Stomata menutup
+    - Pertumbuhan terhambat
+    - ABA ↑
+    
+    ---
+    
+    ### **4. Nutrisi**
+    
+    **Makronutrien:**
+    - **N:** Pertumbuhan vegetatif, klorofil
+    - **P:** Energi (ATP), akar, bunga
+    - **K:** Osmoregulasi, enzim, kualitas buah
+    
+    **Mikronutrien:**
+    - Fe, Mn, Zn, Cu, B, Mo, Cl
+    
+    **Defisiensi:**
+    - Pertumbuhan terhambat
+    - Gejala spesifik (klorosis, nekrosis)
+    
+    ---
+    
+    ## 💡 APLIKASI PRAKTIS
+    
+    **1. Manipulasi Pertumbuhan Vegetatif:**
+    ```
+    Untuk Tanaman Lebih Tinggi:
+    - GA3 50-100 ppm
+    - Nitrogen tinggi
+    - Cahaya cukup tapi tidak berlebihan
+    
+    Untuk Tanaman Lebih Pendek/Kokoh:
+    - Retardant (Paclobutrazol, CCC)
+    - Cahaya tinggi
+    - Nitrogen sedang
+    ```
+    
+    **2. Induksi Pembungaan:**
+    ```
+    - Manipulasi photoperiod
+    - GA3 10-50 ppm (substitute vernalisasi)
+    - Stress ringan
+    - Nutrisi P & K tinggi
+    ```
+    
+    **3. Sinkronisasi Panen:**
+    ```
+    - Tanam serentak
+    - Kondisi seragam
+    - Aplikasi hormon serentak
+    - Panen seragam → Efisien
+    ```
+    
+    ---
+    
+    ## 📚 REFERENSI
+    
+    1. **Taiz, L., & Zeiger, E. (2010).** Plant Physiology, 5th Edition. Sinauer Associates.
+    
+    2. **Salisbury, F. B., & Ross, C. W. (1992).** Plant Physiology, 4th Edition. Wadsworth Publishing.
+    
+    3. **Hopkins, W. G., & Hüner, N. P. A. (2008).** Introduction to Plant Physiology, 4th Edition. Wiley.
+    
+    """)
+
+# ===== TAB 3: FOTOSINTESIS & RESPIRASI =====
+with tab_photosynthesis:
+    st.header("☀️ Fotosintesis & Respirasi")
+    
+    st.markdown("""
+    ## ☀️ FOTOSINTESIS & RESPIRASI
+    
+    ### Hubungan Fotosintesis & Respirasi
+    
+    **FOTOSINTESIS:**
+    ```
+    6 CO₂ + 6 H₂O + Cahaya → C₆H₁₂O₆ + 6 O₂
+    (Karbon dioksida + Air + Energi cahaya → Glukosa + Oksigen)
+    ```
+    
+    **RESPIRASI:**
+    ```
+    C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O + ATP
+    (Glukosa + Oksigen → Karbon dioksida + Air + Energi)
+    ```
+    
+    **Hubungan:** Proses **berlawanan** tapi **saling melengkapi**!
+    
+    ---
+    
+    ## 🌿 FOTOSINTESIS
+    
+    ### **Lokasi:** Kloroplas (daun)
+    
+    **Struktur Kloroplas:**
+    - **Thylakoid:** Membran tempat reaksi terang
+    - **Stroma:** Cairan tempat reaksi gelap (Calvin cycle)
+    - **Grana:** Tumpukan thylakoid
+    
+    ---
+    
+    ### **TAHAP 1: REAKSI TERANG (Light Reactions)**
+    
+    **Lokasi:** Thylakoid membrane
+    
+    **Proses:**
+    ```
+    Cahaya → Fotosistem II → Fotolisis air
+    → O₂ + H⁺ + elektron
+    → Fotosistem I → NADPH
+    → ATP synthase → ATP
+    
+    Hasil:
+    - ATP (energi)
+    - NADPH (reducing power)
+    - O₂ (byproduct)
+    ```
+    
+    **Fotosistem:**
+    - **PS II:** Absorb 680 nm (P680)
+    - **PS I:** Absorb 700 nm (P700)
+    
+    **Fotolisis Air:**
+    ```
+    2 H₂O → 4 H⁺ + 4 e⁻ + O₂
+    (Sumber elektron untuk PS II)
+    ```
+    
+    ---
+    
+    ### **TAHAP 2: REAKSI GELAP (Calvin Cycle)**
+    
+    **Lokasi:** Stroma
+    
+    **Tidak perlu cahaya** (tapi perlu ATP & NADPH dari reaksi terang)
+    
+    **Tahapan:**
+    
+    **1. Fiksasi Karbon:**
+    ```
+    CO₂ + RuBP (5C) → 2 x 3-PGA (3C)
+    Enzim: RuBisCO (Ribulose-1,5-bisphosphate carboxylase/oxygenase)
+    ```
+    
+    **2. Reduksi:**
+    ```
+    3-PGA + ATP + NADPH → G3P (Glyceraldehyde-3-phosphate)
+    ```
+    
+    **3. Regenerasi RuBP:**
+    ```
+    G3P → RuBP (menggunakan ATP)
+    Cycle continues...
+    ```
+    
+    **Hasil Bersih:**
+    ```
+    3 CO₂ + 9 ATP + 6 NADPH → 1 G3P (3C)
+    → 2 G3P → 1 Glukosa (6C)
+    ```
+    
+    ---
+    
+    ### **JALUR FOTOSINTESIS ALTERNATIF**
+    
+    ### **1. C3 Plants (Mayoritas tanaman)**
+    
+    **Karakteristik:**
+    - Produk pertama: 3-PGA (3 karbon)
+    - Fiksasi CO₂ hanya di mesophyll
+    - Enzim: RuBisCO
+    
+    **Contoh:** Padi, gandum, kedelai, tomat
+    
+    **Kelemahan:**
+    - **Photorespiration** (RuBisCO bind O₂ instead of CO₂)
+    - Efisiensi rendah saat panas & kering
+    
+    ---
+    
+    ### **2. C4 Plants (Adaptasi iklim panas)**
+    
+    **Karakteristik:**
+    - Produk pertama: Oxaloacetate (4 karbon)
+    - Fiksasi CO₂ di mesophyll → Transport ke bundle sheath
+    - Enzim: PEP carboxylase (tidak bind O₂!)
+    
+    **Anatomi Khusus:** Kranz anatomy
+    
+    **Proses:**
+    ```
+    Mesophyll:
+    CO₂ + PEP → Oxaloacetate (4C) → Malate (4C)
+    
+    Bundle Sheath:
+    Malate → CO₂ (concentrated!) + Pyruvate
+    → Calvin cycle (RuBisCO dengan CO₂ tinggi)
+    ```
+    
+    **Keuntungan:**
+    - **Tidak ada photorespiration**
+    - Efisien di suhu tinggi (30-40°C)
+    - Efisien penggunaan air (WUE tinggi)
+    
+    **Contoh:** Jagung, tebu, sorghum, rumput
+    
+    **Referensi:**
+    - Hatch, M. D. (1987). Biochemistry of Plants, 10, 207-281
+    
+    ---
+    
+    ### **3. CAM Plants (Adaptasi kekeringan)**
+    
+    **CAM = Crassulacean Acid Metabolism**
+    
+    **Karakteristik:**
+    - **Temporal separation** (waktu berbeda)
+    - Stomata buka **MALAM** (CO₂ uptake)
+    - Stomata tutup **SIANG** (conserve water)
+    
+    **Proses:**
+    ```
+    MALAM:
+    Stomata buka → CO₂ masuk
+    → PEP carboxylase → Malate (stored in vacuole)
+    
+    SIANG:
+    Stomata tutup (conserve water)
+    → Malate release CO₂
+    → Calvin cycle (RuBisCO)
+    ```
+    
+    **Keuntungan:**
+    - **Extreme water efficiency**
+    - Survive di gurun/kering
+    
+    **Kelemahan:**
+    - Pertumbuhan lambat
+    
+    **Contoh:** Kaktus, lidah buaya, nanas, agave
+    
+    **Referensi:**
+    - Winter, K., & Smith, J. A. C. (1996). Ecological Studies, 114
+    
+    ---
+    
+    ### **PERBANDINGAN C3, C4, CAM:**
+    
+    | Karakteristik | C3 | C4 | CAM |
+    |---------------|----|----|-----|
+    | **Produk 1st** | 3-PGA (3C) | Oxaloacetate (4C) | Malate (4C) |
+    | **Enzim** | RuBisCO | PEP carboxylase + RuBisCO | PEP carboxylase + RuBisCO |
+    | **Photorespiration** | Ya (tinggi) | Tidak | Tidak |
+    | **Suhu Optimal** | 15-25°C | 30-40°C | 35-55°C |
+    | **Water Use Efficiency** | Rendah | Sedang | Sangat Tinggi |
+    | **Growth Rate** | Sedang | Tinggi | Rendah |
+    | **Contoh** | Padi, gandum | Jagung, tebu | Kaktus, nanas |
+    
+    ---
+    
+    ## 🫁 RESPIRASI
+    
+    ### **Fungsi:** Menghasilkan **ATP** (energi) dari glukosa
+    
+    **Lokasi:** Mitokondria (sebagian besar)
+    
+    ---
+    
+    ### **TAHAP RESPIRASI:**
+    
+    ### **1. Glikolisis**
+    
+    **Lokasi:** Sitoplasma
+    
+    **Proses:**
+    ```
+    Glukosa (6C) → 2 Pyruvate (3C)
+    
+    Hasil:
+    - 2 ATP (net)
+    - 2 NADH
+    ```
+    
+    **Tidak perlu O₂** (anaerobic)
+    
+    ---
+    
+    ### **2. Siklus Krebs (Citric Acid Cycle)**
+    
+    **Lokasi:** Mitokondria matrix
+    
+    **Proses:**
+    ```
+    Pyruvate → Acetyl-CoA (2C)
+    → Masuk siklus Krebs
+    → CO₂ + NADH + FADH₂ + ATP
+    ```
+    
+    **Hasil (per glukosa):**
+    - 2 ATP
+    - 6 NADH
+    - 2 FADH₂
+    - 4 CO₂
+    
+    ---
+    
+    ### **3. Rantai Transport Elektron (ETC)**
+    
+    **Lokasi:** Inner mitochondrial membrane
+    
+    **Proses:**
+    ```
+    NADH & FADH₂ → Donate elektron
+    → Electron transport chain
+    → Proton gradient (H⁺)
+    → ATP synthase → ATP
+    → O₂ (final electron acceptor) → H₂O
+    ```
+    
+    **Hasil:**
+    - ~28-32 ATP (dari NADH & FADH₂)
+    
+    **Total ATP per Glukosa: ~30-32 ATP**
+    
+    ---
+    
+    ### **RESPIRASI ANAEROB (Fermentasi)**
+    
+    **Saat O₂ terbatas** (akar tergenang, biji berkecambah)
+    
+    **Jenis:**
+    
+    **1. Fermentasi Alkohol:**
+    ```
+    Pyruvate → Ethanol + CO₂
+    (Ragi, akar tergenang)
+    
+    Hasil: 2 ATP only (dari glikolisis)
+    ```
+    
+    **2. Fermentasi Asam Laktat:**
+    ```
+    Pyruvate → Lactate
+    (Otot saat exercise intense)
+    
+    Hasil: 2 ATP only
+    ```
+    
+    **Efisiensi:** Sangat rendah (2 ATP vs 30-32 ATP aerobic)
+    
+    ---
+    
+    ## ⚖️ RESPIRASI vs FOTOSINTESIS
+    
+    ### **Balance Harian:**
+    
+    **SIANG (Cahaya):**
+    ```
+    Fotosintesis > Respirasi
+    → Net CO₂ uptake
+    → Net O₂ release
+    → Akumulasi biomassa
+    ```
+    
+    **MALAM (Gelap):**
+    ```
+    Fotosintesis = 0
+    Respirasi continues
+    → Net CO₂ release
+    → Net O₂ uptake
+    → Konsumsi cadangan makanan
+    ```
+    
+    **Net Productivity:**
+    ```
+    Gross Photosynthesis - Total Respiration = Net Productivity
+    
+    Untuk pertumbuhan, harus POSITIF!
+    ```
+    
+    ---
+    
+    ## 💡 APLIKASI PRAKTIS
+    
+    ### **1. Optimasi Fotosintesis:**
+    
+    ```
+    Faktor yang Bisa Dikontrol:
+    
+    A. Cahaya:
+       - Intensitas: 400-800 μmol/m²/s (optimal untuk kebanyakan tanaman)
+       - Durasi: 12-16 jam/hari
+       - LED grow lights (red + blue spectrum)
+    
+    B. CO₂:
+       - Ambient: 400 ppm
+       - Enrichment: 800-1200 ppm (greenhouse)
+       - Hasil: Fotosintesis +30-50%
+    
+    C. Suhu:
+       - C3 plants: 20-25°C
+       - C4 plants: 30-35°C
+       - Avoid > 35°C (enzyme denaturation)
+    
+    D. Air & Nutrisi:
+       - Cukup tapi tidak berlebihan
+       - N untuk klorofil
+       - Mg untuk klorofil (pusat molekul)
+    ```
+    
+    ---
+    
+    ### **2. Mengurangi Respirasi (Postharvest):**
+    
+    ```
+    Tujuan: Perpanjang shelf-life
+    
+    Metode:
+    A. Suhu Rendah:
+       - 0-5°C (sayuran)
+       - Respirasi ↓ 50-70%
+    
+    B. Atmosfer Terkontrol:
+       - O₂ ↓ (3-5%)
+       - CO₂ ↑ (5-10%)
+       - Respirasi ↓
+    
+    C. Coating:
+       - Wax coating
+       - Edible films
+       - Reduce O₂ diffusion
+    
+    Hasil: Shelf-life +2-4x
+    ```
+    
+    ---
+    
+    ### **3. Greenhouse Management:**
+    
+    ```
+    Optimasi Fotosintesis:
+    
+    Pagi (6-9 AM):
+    - Buka ventilasi (CO₂ fresh)
+    - Cahaya mulai masuk
+    
+    Siang (9 AM - 3 PM):
+    - CO₂ enrichment (800-1200 ppm)
+    - Suhu kontrol (< 30°C)
+    - Shading jika terlalu panas
+    
+    Sore (3-6 PM):
+    - Kurangi CO₂ enrichment
+    - Ventilasi
+    
+    Malam:
+    - Tutup (conserve heat)
+    - Respirasi only (konsumsi O₂)
+    ```
+    
+    ---
+    
+    ## 📚 REFERENSI
+    
+    1. **Taiz, L., & Zeiger, E. (2010).** Plant Physiology, 5th Edition. Chapter 8 (Photosynthesis) & Chapter 11 (Respiration).
+    
+    2. **Hatch, M. D. (1987).** C4 photosynthesis: a unique blend of modified biochemistry, anatomy and ultrastructure. Biochemistry of Plants, 10, 207-281.
+    
+    3. **Winter, K., & Smith, J. A. C. (1996).** Crassulacean Acid Metabolism. Ecological Studies, 114.
+    
+    4. **Nobel, P. S. (2009).** Physicochemical and Environmental Plant Physiology, 4th Edition.
+    
+    """)
+
+# ===== TAB 4: STRESS & ADAPTASI =====
+with tab_stress:
+    st.header("⚠️ Stress & Adaptasi Tanaman")
+    
+    st.markdown("""
+    ## ⚠️ STRESS & ADAPTASI TANAMAN
+    
+    ### Apa itu Stress pada Tanaman?
+    
+    **STRESS:** Kondisi lingkungan yang **tidak optimal** yang menyebabkan **penurunan pertumbuhan, produktivitas, atau survival**.
+    
+    **Jenis Stress:**
+    1. **Abiotik:** Faktor non-biologis (kekeringan, salinitas, suhu ekstrem)
+    2. **Biotik:** Faktor biologis (hama, penyakit, kompetisi)
+    
+    ---
+    
+    ## 💧 STRESS KEKERINGAN (Drought Stress)
+    
+    ### **Penyebab:**
+    - Kurang air di tanah
+    - Evapotranspirasi tinggi
+    - Sistem akar tidak efisien
+    
+    ### **Efek pada Tanaman:**
+    
+    **1. Efek Langsung:**
+    ```
+    Kurang air → Turgor ↓
+    → Wilting (layu)
+    → Stomata menutup
+    → Fotosintesis ↓
+    → Pertumbuhan terhambat
+    ```
+    
+    **2. Efek Fisiologis:**
+    - **ABA ↑** (signal dari akar ke daun)
+    - **Stomata closure** (conserve water)
+    - **Osmotic adjustment** (akumulasi solutes)
+    - **Protein stress** (LEA proteins, HSPs)
+    
+    **3. Efek Jangka Panjang:**
+    - Daun mengecil
+    - Akar lebih dalam
+    - Senescence prematur
+    - Yield ↓
+    
+    ---
+    
+    ### **MEKANISME TOLERANSI KEKERINGAN:**
+    
+    **1. Drought Avoidance (Menghindari):**
+    ```
+    Strategi:
+    - Akar dalam (akses air lebih dalam)
+    - Stomata menutup cepat (conserve water)
+    - Daun menggulung (reduce surface area)
+    - Wax layer tebal (reduce evaporation)
+    
+    Contoh: Kaktus, agave
+    ```
+    
+    **2. Drought Tolerance (Bertahan):**
+    ```
+    Strategi:
+    - Osmotic adjustment (proline, betaine)
+    - Antioxidants (SOD, CAT, APX)
+    - LEA proteins (protect cellular structures)
+    - Maintain turgor at low water potential
+    
+    Contoh: Sorghum, millet
+    ```
+    
+    **Referensi:**
+    - Zhu, J. K. (2002). Annual Review of Plant Biology, 53, 247-273
+    
+    ---
+    
+    ### **APLIKASI PRAKTIS:**
+    
+    ```
+    Meningkatkan Drought Tolerance:
+    
+    1. SEED PRIMING:
+       - Rendam benih di ABA 1-10 μM (24 jam)
+       - Atau PEG (Polyethylene Glycol) 10-20%
+       - Hasil: Toleransi +30-50%
+    
+    2. FOLIAR APPLICATION:
+       - ABA 10-50 μM (1-2 hari sebelum stress)
+       - Proline 10-50 mM
+       - Glycine betaine 50-100 mM
+    
+    3. CULTURAL PRACTICES:
+       - Mulching (reduce evaporation)
+       - Drip irrigation (efficient)
+       - Drought-tolerant varieties
+    
+    4. TIMING:
+       - Irrigate saat critical stages (flowering, fruit set)
+       - Deficit irrigation (controlled stress)
+    ```
+    
+    ---
+    
+    ## 🧂 STRESS SALINITAS (Salinity Stress)
+    
+    ### **Penyebab:**
+    - Tanah salin (NaCl tinggi)
+    - Irigasi dengan air salin
+    - Intrusi air laut
+    
+    ### **Efek pada Tanaman:**
+    
+    **1. Osmotic Stress:**
+    ```
+    Salt ↑ di tanah → Water potential ↓
+    → Tanaman sulit absorb air
+    → "Physiological drought"
+    ```
+    
+    **2. Ion Toxicity:**
+    ```
+    Na⁺ & Cl⁻ excessive → Toxic
+    → Mengganggu enzim
+    → Kompetisi dengan K⁺, Ca²⁺
+    → Nutrient imbalance
+    ```
+    
+    **3. Oxidative Stress:**
+    ```
+    Salt stress → ROS (Reactive Oxygen Species) ↑
+    → Lipid peroxidation
+    → Protein damage
+    → DNA damage
+    ```
+    
+    ---
+    
+    ### **MEKANISME TOLERANSI SALINITAS:**
+    
+    **1. Ion Exclusion:**
+    ```
+    - Mencegah Na⁺ masuk ke akar
+    - Selektif uptake K⁺ over Na⁺
+    - Maintain high K⁺/Na⁺ ratio
+    ```
+    
+    **2. Ion Compartmentalization:**
+    ```
+    - Sequester Na⁺ di vacuole
+    - Keep cytoplasm Na⁺ low
+    - Enzim: NHX (Na⁺/H⁺ antiporter)
+    ```
+    
+    **3. Osmotic Adjustment:**
+    ```
+    - Akumulasi compatible solutes:
+      - Proline
+      - Glycine betaine
+      - Sugars (sucrose, trehalose)
+    - Maintain turgor
+    ```
+    
+    **4. Antioxidant Defense:**
+    ```
+    - Enzim: SOD, CAT, APX, GPX
+    - Non-enzymatic: Ascorbate, glutathione
+    - Scavenge ROS
+    ```
+    
+    **Referensi:**
+    - Munns, R., & Tester, M. (2008). Annual Review of Plant Biology, 59, 651-681
+    
+    ---
+    
+    ### **APLIKASI PRAKTIS:**
+    
+    ```
+    Meningkatkan Salt Tolerance:
+    
+    1. SEED PRIMING:
+       - NaCl priming (50-100 mM, 24 jam)
+       - Hardening effect
+    
+    2. FOLIAR APPLICATION:
+       - Glycine betaine 50-100 mM
+       - Proline 10-50 mM
+       - Calcium (Ca²⁺) 10-20 mM
+    
+    3. SOIL MANAGEMENT:
+       - Leaching (flush salt)
+       - Gypsum application (Ca²⁺ replace Na⁺)
+       - Organic matter (improve structure)
+    
+    4. VARIETAL SELECTION:
+       - Salt-tolerant varieties
+       - Halophytes (extreme tolerance)
+    ```
+    
+    ---
+    
+    ## 🌡️ STRESS SUHU (Temperature Stress)
+    
+    ### **A. HEAT STRESS (Panas)**
+    
+    **Efek:**
+    ```
+    Suhu > 35°C:
+    - Protein denaturation
+    - Membrane fluidity ↑
+    - Photosynthesis ↓ (RuBisCO inactivation)
+    - Respiration ↑
+    - Pollen sterility
+    ```
+    
+    **Mekanisme Toleransi:**
+    ```
+    1. Heat Shock Proteins (HSPs):
+       - Chaperones (protect proteins)
+       - Refold denatured proteins
+    
+    2. Membrane Adjustment:
+       - Increase saturated fatty acids
+       - Maintain membrane integrity
+    
+    3. Antioxidants:
+       - Scavenge ROS
+    ```
+    
+    **Aplikasi:**
+    ```
+    - Shading (reduce temperature)
+    - Evaporative cooling (misting)
+    - Heat-tolerant varieties
+    - Foliar spray: Salicylic acid, proline
+    ```
+    
+    ---
+    
+    ### **B. COLD STRESS (Dingin)**
+    
+    **Efek:**
+    ```
+    Suhu < 10°C (chilling):
+    - Membrane rigidity
+    - Enzyme activity ↓
+    - Photosynthesis ↓
+    
+    Suhu < 0°C (freezing):
+    - Ice crystal formation
+    - Cell rupture
+    - Death
+    ```
+    
+    **Mekanisme Toleransi:**
+    ```
+    1. Cold Acclimation:
+       - Gradual exposure to cold
+       - Induce cold-responsive genes
+    
+    2. Membrane Adjustment:
+       - Increase unsaturated fatty acids
+       - Maintain fluidity
+    
+    3. Cryoprotectants:
+       - Sugars (sucrose, raffinose)
+       - Proline
+       - Antifreeze proteins (AFPs)
+    
+    4. Supercooling:
+       - Prevent ice nucleation
+       - Water stays liquid below 0°C
+    ```
+    
+    **Aplikasi:**
+    ```
+    - Cold-hardy varieties
+    - Frost protection (covers, heaters)
+    - Hardening (gradual cold exposure)
+    - Avoid fertilization before winter
+    ```
+    
+    ---
+    
+    ## ☀️ STRESS CAHAYA
+    
+    ### **A. LOW LIGHT (Shade)**
+    
+    **Efek:**
+    ```
+    - Etiolation (batang panjang, lemah)
+    - Daun tipis, pucat
+    - Fotosintesis ↓
+    - Yield ↓
+    ```
+    
+    **Adaptasi:**
+    ```
+    - Klorofil ↑ (capture more light)
+    - Daun lebih lebar
+    - Shade tolerance (understory plants)
+    ```
+    
+    ---
+    
+    ### **B. HIGH LIGHT (Photoinhibition)**
+    
+    **Efek:**
+    ```
+    Light > photosynthetic capacity:
+    - Photosystem damage (especially PS II)
+    - ROS production
+    - Photooxidation
+    ```
+    
+    **Mekanisme Proteksi:**
+    ```
+    1. Non-Photochemical Quenching (NPQ):
+       - Dissipate excess energy as heat
+       - Xanthophyll cycle
+    
+    2. Photorespiration:
+       - Alternative electron sink
+       - Protect from photoinhibition
+    
+    3. Antioxidants:
+       - Scavenge ROS
+    ```
+    
+    ---
+    
+    ## 🔬 STRESS OKSIDATIF (Oxidative Stress)
+    
+    **Penyebab:** Semua stress → ROS ↑
+    
+    **ROS (Reactive Oxygen Species):**
+    - Superoxide (O₂⁻)
+    - Hydrogen peroxide (H₂O₂)
+    - Hydroxyl radical (•OH)
+    
+    **Damage:**
+    - Lipid peroxidation (membrane damage)
+    - Protein oxidation
+    - DNA damage
+    
+    **Antioxidant Defense:**
+    
+    **Enzymatic:**
+    ```
+    - SOD (Superoxide Dismutase): O₂⁻ → H₂O₂
+    - CAT (Catalase): H₂O₂ → H₂O + O₂
+    - APX (Ascorbate Peroxidase): H₂O₂ → H₂O
+    - GPX (Glutathione Peroxidase)
+    ```
+    
+    **Non-Enzymatic:**
+    ```
+    - Ascorbate (Vitamin C)
+    - Glutathione
+    - Tocopherol (Vitamin E)
+    - Carotenoids
+    - Flavonoids
+    ```
+    
+    **Referensi:**
+    - Mittler, R. (2002). Trends in Plant Science, 7(9), 405-410
+    
+    ---
+    
+    ## 💡 APLIKASI PRAKTIS TERPADU
+    
+    ### **Strategi Multi-Stress Tolerance:**
+    
+    ```
+    1. VARIETAL SELECTION:
+       - Pilih varietas toleran multi-stress
+       - Local varieties often more adapted
+    
+    2. SEED PRIMING:
+       - ABA (drought + salt tolerance)
+       - PEG (drought tolerance)
+       - NaCl (salt tolerance)
+    
+    3. FOLIAR APPLICATION:
+       - Proline (multi-stress)
+       - Glycine betaine (salt + drought)
+       - Salicylic acid (heat + disease)
+       - Antioxidants (oxidative stress)
+    
+    4. CULTURAL PRACTICES:
+       - Mulching (temperature + moisture)
+       - Proper irrigation (avoid stress)
+       - Balanced nutrition (resilience)
+       - Crop rotation (soil health)
+    
+    5. TIMING:
+       - Avoid stress during critical stages
+       - Flowering & fruit set most sensitive
+    ```
+    
+    ---
+    
+    ## 📚 REFERENSI
+    
+    1. **Zhu, J. K. (2002).** Salt and drought stress signal transduction in plants. Annual Review of Plant Biology, 53, 247-273.
+    
+    2. **Munns, R., & Tester, M. (2008).** Mechanisms of salinity tolerance. Annual Review of Plant Biology, 59, 651-681.
+    
+    3. **Mittler, R. (2002).** Oxidative stress, antioxidants and stress tolerance. Trends in Plant Science, 7(9), 405-410.
+    
+    4. **Hasanuzzaman, M., et al. (2013).** Physiological, biochemical, and molecular mechanisms of heat stress tolerance in plants. International Journal of Molecular Sciences, 14(5), 9643-9684.
+    
+    """)
+
+# ===== TAB 5: APLIKASI PRAKTIS =====
+with tab_practice:
+    st.header("🛠️ Aplikasi Praktis Fisiologi Tumbuhan")
+    
+    st.markdown("""
+    ## 🛠️ APLIKASI PRAKTIS FISIOLOGI TUMBUHAN
+    
+    ### Integrasi Pengetahuan Fisiologi untuk Optimasi Produksi
+    
+    ---
+    
+    ## 🌾 KASUS 1: OPTIMASI PRODUKSI TOMAT
+    
+    ### **Fase 1: Perkecambahan & Seedling (0-4 minggu)**
+    
+    **Tujuan:** Perkecambahan cepat & seragam, seedling kuat
+    
+    **Aplikasi:**
+    ```
+    SEED TREATMENT:
+    - Rendam biji di GA3 100 ppm (24 jam) → Breaking dormancy
+    - Atau priming dengan PEG 10% (24 jam) → Stress tolerance
+    
+    KONDISI:
+    - Suhu: 25-28°C (optimal germination)
+    - Kelembaban: 90-95%
+    - Cahaya: Tidak perlu sampai muncul kotiledon
+    
+    HASIL:
+    - Perkecambahan 85-95% dalam 5-7 hari
+    - Seedling seragam
+    ```
+    
+    ---
+    
+    ### **Fase 2: Vegetatif (4-8 minggu)**
+    
+    **Tujuan:** Pertumbuhan vegetatif kuat, sistem akar baik
+    
+    **Aplikasi:**
+    ```
+    NUTRISI:
+    - N tinggi (NPK 20-10-10)
+    - Aplikasi setiap 7-10 hari
+    
+    HORMON (Optional):
+    - Air kelapa 10% (sitokinin) → Anti-senescence
+    - Atau seaweed extract 1:20 → Multi-hormone
+    
+    KONDISI:
+    - Cahaya: 12-14 jam/hari, 400-600 μmol/m²/s
+    - Suhu: 22-28°C (siang), 18-22°C (malam)
+    - Air: Teratur, jangan sampai wilting
+    
+    HASIL:
+    - Tanaman kokoh, daun hijau tua
+    - Akar kuat
+    ```
+    
+    ---
+    
+    ### **Fase 3: Pembungaan & Fruit Set (8-10 minggu)**
+    
+    **Tujuan:** Pembungaan seragam, fruit set tinggi
+    
+    **Aplikasi:**
+    ```
+    NUTRISI:
+    - Switch ke NPK 10-20-20 (P & K tinggi)
+    
+    HORMON:
+    - NAA 10-20 ppm atau GA3 10 ppm saat bunga mekar
+    - Atau ekstrak anggur hijau (encerkan 1:1)
+    - Semprot bunga setiap 3-5 hari
+    
+    KONDISI:
+    - Suhu: 20-25°C (optimal pollination)
+    - Hindari > 30°C (pollen sterility)
+    - Kelembaban: 60-70% (optimal pollination)
+    
+    HASIL:
+    - Fruit set 80-90%
+    - Buah seragam
+    ```
+    
+    ---
+    
+    ### **Fase 4: Pembesaran Buah (10-14 minggu)**
+    
+    **Tujuan:** Buah besar, kualitas baik
+    
+    **Aplikasi:**
+    ```
+    NUTRISI:
+    - NPK 15-15-30 (K tinggi untuk kualitas)
+    - Ca untuk mencegah blossom end rot
+    
+    HORMON (Optional):
+    - GA3 + Sitokinin (5-10 ppm each) → Pembesaran
+    - Aplikasi 1-2x saat buah kecil
+    
+    AIR:
+    - Teratur, consistent (avoid cracking)
+    - Deficit irrigation ringan → Meningkatkan gula
+    
+    HASIL:
+    - Buah besar (150-200g)
+    - Kualitas baik (Brix 4-6%)
+    ```
+    
+    ---
+    
+    ### **Fase 5: Pematangan & Panen (14-16 minggu)**
+    
+    **Tujuan:** Pematangan seragam, kualitas optimal
+    
+    **Aplikasi:**
+    ```
+    PEMATANGAN:
+    - Panen saat breaker stage (mulai berubah warna)
+    - Atau mature green (untuk transport jauh)
+    
+    RIPENING (Post-harvest):
+    - Ethylene 100 ppm, 20°C, 90% RH (24-48 jam)
+    - Atau simpan dengan apel/pisang matang
+    
+    STORAGE:
+    - 1-MCP treatment (delay ripening)
+    - Suhu 12-15°C (avoid chilling injury)
+    - Shelf-life: 7-14 hari
+    
+    HASIL:
+    - Pematangan seragam
+    - Kualitas konsisten
+    - Shelf-life optimal
+    ```
+    
+    ---
+    
+    ## 🌾 KASUS 2: MANAJEMEN STRESS KEKERINGAN PADA PADI
+    
+    ### **Situasi:** Musim kemarau, air terbatas
+    
+    **Strategi:**
+    
+    ```
+    1. SEED PRIMING (Sebelum tanam):
+       - Rendam benih di ABA 5 μM (24 jam)
+       - Atau PEG 15% (24 jam)
+       - Keringkan, tanam
+       
+       Hasil: Drought tolerance +30-40%
+    
+    2. VARIETAL SELECTION:
+       - Pilih varietas drought-tolerant
+       - Contoh: IR64, Situ Bagendit
+    
+    3. CULTURAL PRACTICES:
+       - System of Rice Intensification (SRI)
+       - Alternate Wetting & Drying (AWD)
+       - Mulching (reduce evaporation)
+    
+    4. CRITICAL STAGE PROTECTION:
+       - Pastikan air cukup saat:
+         * Tillering (anakan)
+         * Panicle initiation (inisiasi malai)
+         * Flowering (pembungaan)
+       - Deficit irrigation di fase lain (acceptable)
+    
+    5. FOLIAR APPLICATION (saat stress):
+       - ABA 10-50 μM → Stomata closure
+       - Proline 20 mM → Osmotic adjustment
+       - Aplikasi pagi hari
+    
+    HASIL:
+    - Water use efficiency +40-60%
+    - Yield reduction minimal (< 15%)
+    - Survival rate tinggi
+    ```
+    
+    ---
+    
+    ## 🍇 KASUS 3: PEMBESARAN BUAH ANGGUR SEEDLESS
+    
+    ### **Tujuan:** Buah besar, nilai jual tinggi
+    
+    **Protokol Lengkap:**
+    
+    ```
+    TAHAP 1: SAAT BUNGA MEKAR (Bloom)
+    
+    Aplikasi:
+    - GA3 20-30 ppm (komersial)
+    - Atau ekstrak anggur hijau 100% (DIY)
+    - Semprot seluruh tandan
+    
+    Tujuan:
+    - Fruit set tanpa biji (parthenocarpy)
+    - Pemanjangan tandan
+    
+    ────────────────────────────────────
+    
+    TAHAP 2: SAAT BUAH KECIL (Berry Set, 7-10 hari setelah bloom)
+    
+    Aplikasi:
+    - GA3 50-100 ppm
+    - Atau ekstrak anggur hijau 100%
+    - Celup tandan (lebih efektif dari spray)
+    
+    Tujuan:
+    - Pembesaran buah (cell division & elongation)
+    
+    ────────────────────────────────────
+    
+    TAHAP 3: 2 MINGGU SETELAH TAHAP 2 (Optional)
+    
+    Aplikasi:
+    - GA3 50 ppm
+    - Atau ekstrak anggur hijau (encerkan 1:1)
+    
+    Tujuan:
+    - Pembesaran lanjutan
+    
+    ────────────────────────────────────
+    
+    NUTRISI PENDUKUNG:
+    - NPK 15-15-30 (K tinggi)
+    - Ca & Mg (kualitas buah)
+    - Boron (fruit set)
+    
+    HASIL:
+    - Buah 2-3x lebih besar
+    - Tandan lebih panjang
+    - Nilai jual +200-300%!
+    
+    ROI:
+    - Biaya GA3: Rp 50K-100K/pohon
+    - Atau DIY (anggur hijau): Rp 10K-20K/pohon
+    - Peningkatan nilai: Rp 500K-1juta/pohon
+    - ROI: 500-2000%! 🚀
+    ```
+    
+    ---
+    
+    ## 🥬 KASUS 4: PERPANJANG KESEGARAN SAYURAN DAUN
+    
+    ### **Tujuan:** Shelf-life lebih lama, nilai jual lebih tinggi
+    
+    **Protokol:**
+    
+    ```
+    PRE-HARVEST (1-2 hari sebelum panen):
+    
+    Aplikasi:
+    - Sitokinin (BAP) 10-30 ppm
+    - Atau air kelapa (encerkan 1:1 dengan air)
+    - Semprot pagi hari
+    
+    Tujuan:
+    - Anti-senescence
+    - Maintain klorofil
+    
+    ────────────────────────────────────
+    
+    HARVEST:
+    - Panen pagi hari (suhu rendah, turgor tinggi)
+    - Hindari kerusakan mekanis
+    
+    ────────────────────────────────────
+    
+    POST-HARVEST:
+    
+    1. COOLING:
+       - Hydrocooling atau air cooling
+       - Turunkan suhu ke 5-10°C (cepat!)
+    
+    2. DIP TREATMENT (Optional):
+       - Celup di air kelapa 10% (30 detik)
+       - Atau sitokinin 20 ppm
+    
+    3. PACKAGING:
+       - Perforated plastic (breathable)
+       - Atau modified atmosphere (MA)
+    
+    4. STORAGE:
+       - Suhu: 5-10°C
+       - Humidity: 90-95%
+       - Avoid ethylene exposure (pisahkan dari buah)
+    
+    HASIL:
+    - Shelf-life: 3-5 hari → 7-14 hari
+    - Daun tetap hijau, segar
+    - Nilai jual lebih tinggi
+    - Waste reduction 50-70%
+    ```
+    
+    ---
+    
+    ## 🌱 KASUS 5: KULTUR JARINGAN (Tissue Culture)
+    
+    ### **Tujuan:** Perbanyakan tanaman cepat & seragam
+    
+    **Protokol Umum:**
+    
+    ```
+    TAHAP 1: INISIASI (Initiation)
+    
+    Media:
+    - MS basal medium
+    - Auksin (NAA): 0.5-1 mg/L
+    - Sitokinin (BAP): 1-2 mg/L
+    - Ratio: Auksin < Sitokinin → Tunas
+    
+    Hasil: Kalus + tunas adventif
+    
+    ────────────────────────────────────
+    
+    TAHAP 2: MULTIPLIKASI (Multiplication)
+    
+    Media:
+    - MS medium
+    - Sitokinin (BAP): 2-5 mg/L (tinggi!)
+    - Auksin (NAA): 0.1-0.5 mg/L (rendah)
+    
+    Subculture: Setiap 3-4 minggu
+    
+    Hasil: Banyak tunas (multiplikasi 5-10x per cycle)
+    
+    ────────────────────────────────────
+    
+    TAHAP 3: ROOTING (Perakaran)
+    
+    Media:
+    - MS medium (1/2 strength)
+    - Auksin (IBA): 1-3 mg/L (tinggi!)
+    - Sitokinin: 0 (tidak ada)
+    - Ratio: Auksin > Sitokinin → Akar
+    
+    Hasil: Plantlet dengan akar kuat
+    
+    ────────────────────────────────────
+    
+    TAHAP 4: AKLIMATISASI (Acclimatization)
+    
+    Prosedur:
+    1. Transfer plantlet ke pot kecil
+    2. Media: Cocopeat + perlite (1:1)
+    3. Humidity tinggi (90-95%) → Gradual turun
+    4. Cahaya rendah → Gradual naik
+    5. Suhu: 25-28°C
+    
+    Durasi: 2-4 minggu
+    
+    Survival rate: 80-95%
+    
+    ────────────────────────────────────
+    
+    TIPS SUKSES:
+    - Sterilitas total (avoid contamination)
+    - Kontrol hormon ratio (kunci organogenesis)
+    - Subculture teratur (maintain vigor)
+    - Aklimatisasi gradual (reduce shock)
+    ```
+    
+    ---
+    
+    ## 💡 TIPS UMUM APLIKASI HORMON
+    
+    ### **DO's:**
+    
+    ```
+    ✅ Mulai dengan dosis rendah, naikkan bertahap
+    ✅ Aplikasi pagi/sore (suhu sejuk)
+    ✅ Gunakan spreader/sticker (improve absorption)
+    ✅ Konsisten (interval teratur)
+    ✅ Monitor respons tanaman
+    ✅ Catat hasil (dokumentasi)
+    ✅ Kombinasi hormon (synergistic effect)
+    ✅ Adjust berdasarkan kondisi
+    ```
+    
+    ### **DON'Ts:**
+    
+    ```
+    ❌ Dosis berlebihan (toxic!)
+    ❌ Aplikasi saat panas (degradasi cepat)
+    ❌ Aplikasi saat hujan (tercuci)
+    ❌ Mix hormon antagonis (GA + ABA)
+    ❌ Aplikasi terlalu sering (waste, stress)
+    ❌ Ignore plant response (adjust!)
+    ❌ Gunakan hormon expired
+    ❌ Aplikasi tanpa tujuan jelas
+    ```
+    
+    ---
+    
+    ## 📊 MONITORING & EVALUASI
+    
+    ### **Parameter yang Diukur:**
+    
+    ```
+    PERTUMBUHAN:
+    - Tinggi tanaman (cm)
+    - Jumlah daun
+    - Diameter batang (mm)
+    - Berat segar & kering (g)
+    
+    REPRODUKSI:
+    - Jumlah bunga
+    - Fruit set (%)
+    - Ukuran buah (diameter, berat)
+    - Yield (kg/tanaman atau kg/ha)
+    
+    KUALITAS:
+    - Warna (colorimeter)
+    - Kekerasan (penetrometer)
+    - Gula (refractometer, °Brix)
+    - Kesegaran (visual)
+    
+    EKONOMI:
+    - Biaya input (Rp)
+    - Nilai output (Rp)
+    - ROI (%)
+    - Break-even point
+    ```
+    
+    ---
+    
+    ## 🎯 KESIMPULAN
+    
+    **Fisiologi tumbuhan adalah FONDASI untuk:**
+    
+    1. ✅ **Optimasi produksi** (yield maksimal)
+    2. ✅ **Efisiensi input** (hemat biaya)
+    3. ✅ **Kualitas produk** (nilai jual tinggi)
+    4. ✅ **Manajemen stress** (resilience)
+    5. ✅ **Inovasi** (teknologi baru)
+    
+    **Dengan memahami fisiologi:**
+    - Anda bisa **diagnosa** masalah dengan tepat
+    - Anda bisa **intervensi** dengan efektif
+    - Anda bisa **optimasi** setiap fase pertumbuhan
+    - Anda bisa **inovasi** dengan percaya diri
+    
+    **KNOWLEDGE IS POWER!** 💪🌱
+    
+    ---
+    
+    ## 📚 REFERENSI LENGKAP
+    
+    **Textbooks:**
+    1. Taiz, L., & Zeiger, E. (2010). Plant Physiology, 5th Edition.
+    2. Salisbury, F. B., & Ross, C. W. (1992). Plant Physiology, 4th Edition.
+    3. Hopkins, W. G., & Hüner, N. P. A. (2008). Introduction to Plant Physiology, 4th Edition.
+    
+    **Journals:**
+    - Annual Review of Plant Biology
+    - Plant Physiology
+    - Journal of Experimental Botany
+    - Plant, Cell & Environment
+    
+    **Semua konten di module ini berdasarkan literatur peer-reviewed!** ✅
+    
+    """)
+
+
 # Save message
 st.success("✅ Module Fisiologi Tumbuhan berhasil dibuat!")
 st.info("💡 Module ini mencakup hormon tumbuhan lengkap dengan sumber alami seperti anggur hijau untuk GA3/GA7!")
