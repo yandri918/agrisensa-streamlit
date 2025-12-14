@@ -1586,8 +1586,6 @@ with tab_propagation:
     st.header("🌿 Metode Perbanyakan Tanaman")
     
     st.markdown("""
-    ## 🌿 METODE PERBANYAKAN TANAMAN
-    
     ### Definisi
     
     **Perbanyakan tanaman** adalah proses **memproduksi tanaman baru** dari tanaman induk untuk **mempertahankan sifat unggul** dan **meningkatkan populasi**.
@@ -2201,8 +2199,6 @@ with tab_tools:
     st.header("🛠️ Tools & Database Varietas")
     
     st.markdown("""
-    ## 🛠️ INTERACTIVE TOOLS & DATABASE
-    
     ### Fitur yang Tersedia:
     - 🔍 Variety Comparison Tool
     - 📊 Breeding Program Planner
