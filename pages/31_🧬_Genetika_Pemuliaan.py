@@ -30,8 +30,6 @@ with tab_principles:
     st.header("📚 Prinsip Dasar Pemuliaan Tanaman")
     
     st.markdown("""
-    ## 📚 PRINSIP DASAR PEMULIAAN TANAMAN
-    
     ### Definisi Pemuliaan Tanaman
     
     **Pemuliaan tanaman** adalah **seni dan ilmu** untuk **meningkatkan sifat genetik** tanaman agar lebih **produktif, berkualitas, dan adaptif**.
