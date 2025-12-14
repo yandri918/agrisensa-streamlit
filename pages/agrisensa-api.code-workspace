@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../web bahasa jepang"
+		}
+	],
+	"settings": {
+		"powershell.cwd": "web bahasa jepang"
+	}
+}

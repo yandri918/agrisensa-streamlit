@@ -24,7 +24,7 @@ bapanas_service = BapanasService()
 
 # ========== ML FUNCTIONS ==========
 def predict_prices_advanced(df, days_ahead=30, model_type='random_forest'):
-    """Advanced price prediction with multiple models"""
+    """Advanced price prediction with multiple models - Returns predictions AND model coefficients"""
     if len(df) < 3: # Not enough data for prediction
         # Return dummy prediction for visual if data is too scarce
         last_price = df['price'].iloc[-1]
@@ -34,7 +34,7 @@ def predict_prices_advanced(df, days_ahead=30, model_type='random_forest'):
             'predicted_price': [last_price] * days_ahead,
             'lower_bound': [last_price * 0.95] * days_ahead,
             'upper_bound': [last_price * 1.05] * days_ahead
-        })
+        }), None, None, None  # No coefficients for insufficient data
         
     df = df.sort_values('date')
     df['days'] = (df['date'] - df['date'].min()).dt.days
@@ -50,22 +50,35 @@ def predict_prices_advanced(df, days_ahead=30, model_type='random_forest'):
         predictions = model.predict(future_days)
         std_error = np.std(y - model.predict(X)) if len(y) > 1 else y[0] * 0.05
         
+        # Extract coefficients for linear model
+        intercept = model.intercept_
+        slope = model.coef_[0]
+        r2 = model.score(X, y)
+        
     elif model_type == 'random_forest':
         model = RandomForestRegressor(n_estimators=100, random_state=42)
         model.fit(X, y)
         future_days = np.array([[df['days'].max() + i] for i in range(1, days_ahead + 1)])
         predictions = model.predict(future_days)
         std_error = np.std(y - model.predict(X))
+        
+        # For Random Forest, we don't have simple coefficients
+        intercept = None
+        slope = None
+        r2 = model.score(X, y)
     
     last_date = df['date'].max()
     future_dates = [last_date + timedelta(days=i) for i in range(1, days_ahead + 1)]
     
-    return pd.DataFrame({
+    pred_df = pd.DataFrame({
         'date': future_dates,
         'predicted_price': predictions,
         'lower_bound': predictions - 1.96 * std_error,
         'upper_bound': predictions + 1.96 * std_error
     })
+    
+    return pred_df, intercept, slope, r2
+
 
 def calculate_statistics(df):
     """Calculate comprehensive price statistics"""
@@ -170,7 +183,30 @@ if 'price_data' in st.session_state:
             st.metric("Status Data", "Official ✅", "Real-time")
             
         # Prediction & Chart
-        df_pred = predict_prices_advanced(df_comm, days_ahead=prediction_days, model_type=model_type)
+        df_pred, intercept, slope, r2 = predict_prices_advanced(df_comm, days_ahead=prediction_days, model_type=model_type)
+        
+        # Display Regression Equation (if linear model)
+        if intercept is not None and slope is not None:
+            st.success(f"""
+            **📐 Persamaan Regresi Linear:**
+            
+            Harga = {intercept:.2f} + {slope:.2f} × Hari
+            
+            **Metrik Akurasi:**
+            - R² = {r2:.4f} ({r2*100:.2f}% variasi harga dijelaskan oleh waktu)
+            - RMSE = {np.sqrt(np.mean((df_comm['price'] - (intercept + slope * (df_comm['date'] - df_comm['date'].min()).dt.days))**2)):.2f}
+            
+            **💡 Interpretasi Bisnis:**
+            - **Slope ({slope:.2f})**: Harga {'naik' if slope > 0 else 'turun'} rata-rata Rp {abs(slope):.2f} per hari
+            - **Tren Bulanan**: {'Kenaikan' if slope > 0 else 'Penurunan'} sekitar Rp {abs(slope * 30):.0f} per bulan
+            """)
+        else:
+            st.info(f"""
+            **🤖 Model Random Forest:**
+            - R² = {r2:.4f} ({r2*100:.2f}% akurasi prediksi)
+            - Model non-linear, tidak ada persamaan sederhana
+            - Lebih akurat untuk pola kompleks
+            """)
         
         st.subheader("📊 Grafik Tren & Prediksi")
         
@@ -184,11 +220,34 @@ if 'price_data' in st.session_state:
             marker=dict(size=8)
         ))
         
+        # Plot regression line (if linear)
+        if intercept is not None and slope is not None:
+            # Create regression line for historical data
+            days_historical = (df_comm['date'] - df_comm['date'].min()).dt.days
+            price_regression = intercept + slope * days_historical
+            
+            fig.add_trace(go.Scatter(
+                x=df_comm['date'], y=price_regression,
+                mode='lines', name='Garis Regresi',
+                line=dict(color='#ef4444', width=2, dash='dot')
+            ))
+        
         # Plot prediction
         fig.add_trace(go.Scatter(
             x=df_pred['date'], y=df_pred['predicted_price'],
             mode='lines', name=f'Prediksi AI ({model_type})',
-            line=dict(color='#10b981', dash='dash')
+            line=dict(color='#10b981', dash='dash', width=2)
+        ))
+        
+        # Add confidence interval
+        fig.add_trace(go.Scatter(
+            x=df_pred['date'].tolist() + df_pred['date'].tolist()[::-1],
+            y=df_pred['upper_bound'].tolist() + df_pred['lower_bound'].tolist()[::-1],
+            fill='toself',
+            fillcolor='rgba(16, 185, 129, 0.2)',
+            line=dict(color='rgba(255,255,255,0)'),
+            name='Confidence Interval (95%)',
+            hoverinfo='skip'
         ))
         
         fig.update_layout(

@@ -228,7 +228,11 @@ st.title("🔬 Asisten Penelitian Agronomi")
 st.markdown("**Platform Analisis Data Pertanian Terpadu: Machine Learning & Statistika**")
 
 # MAIN TABS
-tab_ml, tab_stat = st.tabs(["🤖 Mode Machine Learning (Prediksi)", "📊 Mode Statistika (RAL/RAK)"])
+tab_ml, tab_stat, tab_regression = st.tabs([
+    "🤖 Mode Machine Learning (Prediksi)", 
+    "📊 Mode Statistika (RAL/RAK)",
+    "📚 Teori Regresi & Visualisasi"
+])
 
 # -----------------
 # TAB 1: MACHINE LEARNING
@@ -559,3 +563,731 @@ with tab_stat:
                 )
             else:
                 st.warning("⚠️ Tidak ada hasil analisis yang berhasil dihitung. Periksa visualisasi error di atas.")
+
+# -----------------
+# TAB 3: TEORI REGRESI
+# -----------------
+with tab_regression:
+    st.header("📚 Teori Regresi Linear & Aplikasi Ekonomi Pertanian")
+    st.info("Tab ini menjelaskan konsep regresi linear, visualisasi garis regresi, dan interpretasi dalam konteks ekonomi & bisnis pertanian.")
+    
+    # Sub-tabs for organization
+    subtab_theory, subtab_viz, subtab_practice = st.tabs([
+        "📖 Teori Dasar", 
+        "📊 Visualisasi & Fitting", 
+        "🌾 Aplikasi Pertanian"
+    ])
+    
+    # ===== SUB-TAB 1: TEORI DASAR =====
+    with subtab_theory:
+        st.subheader("📐 Konsep Regresi Linear")
+        
+        st.markdown("""
+        ### Apa itu Analisis Regresi?
+        
+        **Analisis regresi** adalah metode statistik untuk memodelkan hubungan antara:
+        - **Variabel Dependen (Y)**: Variabel yang ingin diprediksi/dijelaskan
+        - **Variabel Independen (X)**: Variabel yang digunakan untuk memprediksi
+        
+        ### Model Regresi Linear Sederhana
+        
+        Persamaan matematisnya:
+        
+        $$Y = \\alpha + \\beta X + \\varepsilon$$
+        
+        Dimana:
+        - **Y** = Variabel dependen (contoh: Hasil Panen)
+        - **X** = Variabel independen (contoh: Dosis Pupuk N)
+        - **α (alpha)** = Intercept (konstanta) - nilai Y ketika X = 0
+        - **β (beta)** = Slope (kemiringan) - perubahan Y untuk setiap kenaikan 1 unit X
+        - **ε (epsilon)** = Error term (residual) - perbedaan antara nilai aktual dan prediksi
+        
+        ---
+        
+        ### Metode Least Squares (Kuadrat Terkecil)
+        
+        Untuk menemukan garis regresi terbaik, kita menggunakan **metode kuadrat terkecil** yang meminimalkan:
+        
+        $$\\text{SSE} = \\sum_{i=1}^{n} (Y_i - \\hat{Y}_i)^2$$
+        
+        Dimana:
+        - **SSE** = Sum of Squared Errors (Jumlah Kuadrat Galat)
+        - **Y_i** = Nilai aktual observasi ke-i
+        - **Ŷ_i** = Nilai prediksi observasi ke-i
+        
+        **Rumus untuk menghitung koefisien:**
+        
+        $$\\beta = \\frac{\\sum(X_i - \\bar{X})(Y_i - \\bar{Y})}{\\sum(X_i - \\bar{X})^2}$$
+        
+        $$\\alpha = \\bar{Y} - \\beta \\bar{X}$$
+        
+        ---
+        
+        ### Koefisien Determinasi (R²)
+        
+        **R²** mengukur seberapa baik model menjelaskan variasi dalam data:
+        
+        $$R^2 = 1 - \\frac{\\text{SSE}}{\\text{SST}} = 1 - \\frac{\\sum(Y_i - \\hat{Y}_i)^2}{\\sum(Y_i - \\bar{Y})^2}$$
+        
+        **Interpretasi:**
+        - **R² = 0.90** → Model menjelaskan 90% variasi dalam Y
+        - **R² = 0.50** → Model menjelaskan 50% variasi dalam Y
+        - **R² = 0.10** → Model hanya menjelaskan 10% variasi (model lemah)
+        
+        ---
+        
+        ### Asumsi Regresi Linear (BLUE - Best Linear Unbiased Estimator)
+        
+        Agar hasil regresi valid, harus memenuhi asumsi:
+        
+        1. **Linearitas**: Hubungan antara X dan Y harus linear
+        2. **Independensi**: Observasi harus independen satu sama lain
+        3. **Homoskedastisitas**: Varians error harus konstan (tidak heteroskedastik)
+        4. **Normalitas**: Error harus terdistribusi normal
+        5. **No Multicollinearity** (untuk regresi berganda): Variabel X tidak saling berkorelasi tinggi
+        
+        """)
+        
+        # Interactive Example
+        st.divider()
+        st.markdown("### 🧮 Kalkulator Regresi Interaktif")
+        
+        col_calc1, col_calc2 = st.columns(2)
+        
+        with col_calc1:
+            st.markdown("**Input Parameter:**")
+            intercept_demo = st.number_input("Intercept (α)", value=100.0, step=10.0, key='intercept_demo')
+            slope_demo = st.number_input("Slope (β)", value=5.0, step=0.5, key='slope_demo')
+            x_value = st.slider("Nilai X", 0, 100, 50, key='x_demo')
+        
+        with col_calc2:
+            st.markdown("**Output Prediksi:**")
+            y_pred_demo = intercept_demo + slope_demo * x_value
+            st.metric("Prediksi Y", f"{y_pred_demo:.2f}")
+            st.latex(f"Y = {intercept_demo} + {slope_demo} \\times {x_value} = {y_pred_demo:.2f}")
+            
+            st.caption(f"""
+            **Interpretasi:**
+            - Jika X = 0, maka Y = {intercept_demo}
+            - Setiap kenaikan 1 unit X, Y naik {slope_demo} unit
+            - Pada X = {x_value}, prediksi Y = {y_pred_demo:.2f}
+            """)
+    
+    # ===== SUB-TAB 2: VISUALISASI =====
+    with subtab_viz:
+        st.subheader("📊 Visualisasi Garis Regresi & Residual")
+        
+        st.markdown("""
+        Visualisasi adalah kunci untuk memahami regresi. Di sini kita akan melihat:
+        1. **Scatter Plot + Regression Line** - Garis regresi yang fit dengan data
+        2. **Residual Plot** - Untuk cek asumsi homoskedastisitas
+        3. **Q-Q Plot** - Untuk cek asumsi normalitas
+        """)
+        
+        # Generate sample data
+        st.markdown("---")
+        st.markdown("### 🎲 Generate Data Sample")
+        
+        col_gen1, col_gen2, col_gen3 = st.columns(3)
+        
+        with col_gen1:
+            n_samples = st.slider("Jumlah Data", 20, 200, 50, key='n_samples_reg')
+        with col_gen2:
+            noise_level = st.slider("Noise Level", 0.0, 50.0, 10.0, key='noise_reg')
+        with col_gen3:
+            true_slope = st.number_input("True Slope (β)", value=2.5, step=0.1, key='true_slope')
+        
+        # Generate data
+        np.random.seed(42)
+        X_demo = np.random.uniform(10, 100, n_samples)
+        Y_demo = 50 + true_slope * X_demo + np.random.normal(0, noise_level, n_samples)
+        
+        # Fit regression
+        from sklearn.linear_model import LinearRegression
+        model_demo = LinearRegression()
+        model_demo.fit(X_demo.reshape(-1, 1), Y_demo)
+        
+        Y_pred_demo = model_demo.predict(X_demo.reshape(-1, 1))
+        residuals = Y_demo - Y_pred_demo
+        
+        r2_demo = r2_score(Y_demo, Y_pred_demo)
+        rmse_demo = np.sqrt(mean_squared_error(Y_demo, Y_pred_demo))
+        
+        # Display equation
+        st.success(f"""
+        **Persamaan Regresi yang Ditemukan:**
+        
+        Y = {model_demo.intercept_:.2f} + {model_demo.coef_[0]:.2f} × X
+        
+        **Metrik Akurasi:**
+        - R² = {r2_demo:.4f} ({r2_demo*100:.2f}% variasi dijelaskan)
+        - RMSE = {rmse_demo:.2f}
+        """)
+        
+        # Plot 1: Scatter + Regression Line
+        st.markdown("#### 1️⃣ Scatter Plot + Garis Regresi")
+        
+        fig_scatter = go.Figure()
+        
+        # Scatter points
+        fig_scatter.add_trace(go.Scatter(
+            x=X_demo, y=Y_demo,
+            mode='markers',
+            name='Data Aktual',
+            marker=dict(size=8, color='#3b82f6', opacity=0.6)
+        ))
+        
+        # Regression line
+        X_line = np.linspace(X_demo.min(), X_demo.max(), 100)
+        Y_line = model_demo.intercept_ + model_demo.coef_[0] * X_line
+        
+        fig_scatter.add_trace(go.Scatter(
+            x=X_line, y=Y_line,
+            mode='lines',
+            name='Garis Regresi',
+            line=dict(color='#ef4444', width=3)
+        ))
+        
+        # Add residual lines
+        for i in range(min(10, len(X_demo))):  # Show first 10 residuals
+            fig_scatter.add_trace(go.Scatter(
+                x=[X_demo[i], X_demo[i]],
+                y=[Y_demo[i], Y_pred_demo[i]],
+                mode='lines',
+                line=dict(color='gray', width=1, dash='dot'),
+                showlegend=False,
+                hoverinfo='skip'
+            ))
+        
+        fig_scatter.update_layout(
+            title=f"Regresi Linear: Y = {model_demo.intercept_:.2f} + {model_demo.coef_[0]:.2f}X (R² = {r2_demo:.3f})",
+            xaxis_title="X (Variabel Independen)",
+            yaxis_title="Y (Variabel Dependen)",
+            height=450,
+            hovermode='closest'
+        )
+        
+        st.plotly_chart(fig_scatter, use_container_width=True)
+        
+        st.caption("""
+        **Penjelasan:**
+        - **Titik biru** = Data observasi aktual
+        - **Garis merah** = Garis regresi (prediksi model)
+        - **Garis putus-putus abu-abu** = Residual (jarak vertikal dari titik ke garis)
+        """)
+        
+        # Plot 2: Residual Plot
+        st.markdown("#### 2️⃣ Residual Plot (Cek Homoskedastisitas)")
+        
+        fig_resid = go.Figure()
+        
+        fig_resid.add_trace(go.Scatter(
+            x=Y_pred_demo, y=residuals,
+            mode='markers',
+            marker=dict(size=8, color='#8b5cf6', opacity=0.6)
+        ))
+        
+        # Add zero line
+        fig_resid.add_hline(y=0, line_dash="dash", line_color="red", annotation_text="Zero Line")
+        
+        fig_resid.update_layout(
+            title="Residual Plot - Cek Asumsi Homoskedastisitas",
+            xaxis_title="Predicted Values (Ŷ)",
+            yaxis_title="Residuals (Y - Ŷ)",
+            height=400
+        )
+        
+        st.plotly_chart(fig_resid, use_container_width=True)
+        
+        st.caption("""
+        **Interpretasi:**
+        - **Pola acak** di sekitar garis nol = ✅ Asumsi homoskedastisitas terpenuhi
+        - **Pola corong/funnel** = ❌ Heteroskedastisitas (varians tidak konstan)
+        - **Pola kurva** = ❌ Hubungan non-linear
+        """)
+        
+        # Plot 3: Q-Q Plot
+        st.markdown("#### 3️⃣ Q-Q Plot (Cek Normalitas Residual)")
+        
+        from scipy import stats as sp_stats
+        
+        # Calculate theoretical quantiles
+        sorted_residuals = np.sort(residuals)
+        theoretical_quantiles = sp_stats.norm.ppf(np.linspace(0.01, 0.99, len(sorted_residuals)))
+        
+        fig_qq = go.Figure()
+        
+        fig_qq.add_trace(go.Scatter(
+            x=theoretical_quantiles,
+            y=sorted_residuals,
+            mode='markers',
+            name='Residuals',
+            marker=dict(size=8, color='#10b981', opacity=0.6)
+        ))
+        
+        # Add diagonal line
+        min_val = min(theoretical_quantiles.min(), sorted_residuals.min())
+        max_val = max(theoretical_quantiles.max(), sorted_residuals.max())
+        fig_qq.add_trace(go.Scatter(
+            x=[min_val, max_val],
+            y=[min_val, max_val],
+            mode='lines',
+            name='Normal Line',
+            line=dict(color='red', dash='dash')
+        ))
+        
+        fig_qq.update_layout(
+            title="Q-Q Plot - Cek Normalitas Residual",
+            xaxis_title="Theoretical Quantiles",
+            yaxis_title="Sample Quantiles (Residuals)",
+            height=400
+        )
+        
+        st.plotly_chart(fig_qq, use_container_width=True)
+        
+        st.caption("""
+        **Interpretasi:**
+        - **Titik mengikuti garis diagonal** = ✅ Residual terdistribusi normal
+        - **Titik menyimpang dari garis** = ❌ Residual tidak normal (perlu transformasi)
+        """)
+    
+    # ===== SUB-TAB 3: APLIKASI PERTANIAN =====
+    with subtab_practice:
+        st.subheader("🌾 Aplikasi Regresi dalam Ekonomi & Bisnis Pertanian")
+        
+        st.markdown("""
+        Regresi sangat berguna dalam analisis ekonomi pertanian untuk:
+        1. **Prediksi Hasil Panen** berdasarkan input produksi
+        2. **Analisis Harga** - hubungan harga dengan supply/demand
+        3. **Fungsi Produksi** - hubungan input (pupuk, tenaga kerja) dengan output
+        4. **Analisis Biaya** - hubungan volume produksi dengan biaya
+        5. **Elastisitas** - sensitivitas permintaan terhadap harga
+        """)
+        
+        st.divider()
+        
+        # Case Study Selector
+        case_study = st.selectbox(
+            "Pilih Studi Kasus:",
+            [
+                "📈 Regresi Harga vs Produksi (Supply Curve)",
+                "🌾 Fungsi Produksi Padi (Yield vs Pupuk N)",
+                "💰 Analisis Biaya (Cost Function)",
+                "📊 Elastisitas Permintaan Harga"
+            ]
+        )
+        
+        if case_study == "📈 Regresi Harga vs Produksi (Supply Curve)":
+            st.markdown("### Studi Kasus: Kurva Penawaran (Supply Curve)")
+            
+            st.info("""
+            **Teori Ekonomi:**
+            Hukum penawaran menyatakan bahwa ketika harga naik, produsen cenderung meningkatkan produksi.
+            Kita akan menggunakan regresi untuk memodelkan hubungan ini.
+            """)
+            
+            # Generate supply data
+            np.random.seed(123)
+            harga = np.array([5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000])
+            produksi = 50 + 0.003 * harga + np.random.normal(0, 5, len(harga))
+            
+            # Fit model
+            model_supply = LinearRegression()
+            model_supply.fit(harga.reshape(-1, 1), produksi)
+            produksi_pred = model_supply.predict(harga.reshape(-1, 1))
+            
+            r2_supply = r2_score(produksi, produksi_pred)
+            
+            # Display results
+            col_supply1, col_supply2 = st.columns(2)
+            
+            with col_supply1:
+                st.markdown("**📊 Data Observasi:**")
+                df_supply = pd.DataFrame({
+                    'Harga (Rp/kg)': harga,
+                    'Produksi (ton)': produksi.round(1),
+                    'Prediksi (ton)': produksi_pred.round(1)
+                })
+                st.dataframe(df_supply, use_container_width=True)
+            
+            with col_supply2:
+                st.markdown("**📐 Hasil Regresi:**")
+                st.success(f"""
+                **Persamaan Supply:**
+                
+                Produksi = {model_supply.intercept_:.2f} + {model_supply.coef_[0]:.6f} × Harga
+                
+                **Metrik:**
+                - R² = {r2_supply:.4f}
+                - Slope (β) = {model_supply.coef_[0]:.6f}
+                """)
+                
+                st.markdown(f"""
+                **💡 Interpretasi Bisnis:**
+                
+                - **Intercept ({model_supply.intercept_:.2f})**: Produksi dasar ketika harga = 0 (secara teoritis)
+                - **Slope ({model_supply.coef_[0]:.6f})**: Setiap kenaikan harga Rp 1.000/kg, produksi naik {model_supply.coef_[0]*1000:.2f} ton
+                - **Elastisitas Penawaran**: Positif (sesuai hukum penawaran)
+                
+                **🎯 Rekomendasi:**
+                - Jika target produksi 80 ton, harga optimal = Rp {((80 - model_supply.intercept_) / model_supply.coef_[0]):.0f}/kg
+                """)
+            
+            # Plot
+            fig_supply = go.Figure()
+            
+            fig_supply.add_trace(go.Scatter(
+                x=harga, y=produksi,
+                mode='markers',
+                name='Data Aktual',
+                marker=dict(size=10, color='#3b82f6')
+            ))
+            
+            fig_supply.add_trace(go.Scatter(
+                x=harga, y=produksi_pred,
+                mode='lines',
+                name='Supply Curve (Regresi)',
+                line=dict(color='#ef4444', width=3)
+            ))
+            
+            fig_supply.update_layout(
+                title="Kurva Penawaran (Supply Curve) - Harga vs Produksi",
+                xaxis_title="Harga (Rp/kg)",
+                yaxis_title="Produksi (ton)",
+                height=450
+            )
+            
+            st.plotly_chart(fig_supply, use_container_width=True)
+        
+        elif case_study == "🌾 Fungsi Produksi Padi (Yield vs Pupuk N)":
+            st.markdown("### Studi Kasus: Fungsi Produksi Padi")
+            
+            st.info("""
+            **Teori Agronomi:**
+            Hasil panen padi dipengaruhi oleh dosis pupuk Nitrogen (N). Kita akan mencari dosis optimal.
+            """)
+            
+            # Generate production function data
+            np.random.seed(456)
+            dosis_n = np.array([0, 50, 100, 150, 200, 250, 300, 350, 400])
+            # Quadratic relationship (diminishing returns)
+            yield_padi = 2000 + 15*dosis_n - 0.025*dosis_n**2 + np.random.normal(0, 200, len(dosis_n))
+            
+            # Fit linear model (for comparison)
+            model_linear = LinearRegression()
+            model_linear.fit(dosis_n.reshape(-1, 1), yield_padi)
+            yield_pred_linear = model_linear.predict(dosis_n.reshape(-1, 1))
+            
+            # Fit polynomial model (better fit)
+            from sklearn.preprocessing import PolynomialFeatures
+            poly = PolynomialFeatures(degree=2)
+            dosis_n_poly = poly.fit_transform(dosis_n.reshape(-1, 1))
+            model_poly = LinearRegression()
+            model_poly.fit(dosis_n_poly, yield_padi)
+            yield_pred_poly = model_poly.predict(dosis_n_poly)
+            
+            r2_linear = r2_score(yield_padi, yield_pred_linear)
+            r2_poly = r2_score(yield_padi, yield_pred_poly)
+            
+            # Display
+            col_prod1, col_prod2 = st.columns(2)
+            
+            with col_prod1:
+                st.markdown("**📊 Data Eksperimen:**")
+                df_prod = pd.DataFrame({
+                    'Dosis N (kg/ha)': dosis_n,
+                    'Yield Aktual (kg/ha)': yield_padi.round(0),
+                    'Prediksi Linear': yield_pred_linear.round(0),
+                    'Prediksi Polynomial': yield_pred_poly.round(0)
+                })
+                st.dataframe(df_prod, use_container_width=True)
+            
+            with col_prod2:
+                st.markdown("**📐 Perbandingan Model:**")
+                
+                st.metric("R² Linear", f"{r2_linear:.4f}")
+                st.metric("R² Polynomial (deg=2)", f"{r2_poly:.4f}", delta=f"+{(r2_poly-r2_linear):.4f}")
+                
+                st.success(f"""
+                **Model Terbaik: Polynomial Regression**
+                
+                Yield = {model_poly.intercept_:.2f} + {model_poly.coef_[1]:.2f}×N + {model_poly.coef_[2]:.4f}×N²
+                
+                **💡 Interpretasi:**
+                - Hubungan **non-linear** (diminishing returns)
+                - Ada titik optimal dimana tambahan pupuk tidak efektif
+                - Model polynomial lebih akurat (R² lebih tinggi)
+                """)
+            
+            # Plot
+            fig_prod = go.Figure()
+            
+            fig_prod.add_trace(go.Scatter(
+                x=dosis_n, y=yield_padi,
+                mode='markers',
+                name='Data Aktual',
+                marker=dict(size=12, color='#10b981')
+            ))
+            
+            fig_prod.add_trace(go.Scatter(
+                x=dosis_n, y=yield_pred_linear,
+                mode='lines',
+                name=f'Linear (R²={r2_linear:.3f})',
+                line=dict(color='#3b82f6', dash='dash')
+            ))
+            
+            fig_prod.add_trace(go.Scatter(
+                x=dosis_n, y=yield_pred_poly,
+                mode='lines',
+                name=f'Polynomial (R²={r2_poly:.3f})',
+                line=dict(color='#ef4444', width=3)
+            ))
+            
+            fig_prod.update_layout(
+                title="Fungsi Produksi Padi - Yield vs Dosis Pupuk N",
+                xaxis_title="Dosis Pupuk N (kg/ha)",
+                yaxis_title="Yield Padi (kg/ha)",
+                height=450
+            )
+            
+            st.plotly_chart(fig_prod, use_container_width=True)
+            
+            st.warning("""
+            **⚠️ Pelajaran Penting:**
+            - Tidak semua hubungan adalah linear!
+            - Dalam agronomi, sering ada **diminishing returns** (hasil marginal menurun)
+            - Polynomial regression lebih cocok untuk kasus seperti ini
+            - Dosis optimal bisa dihitung dengan mencari titik maksimum kurva
+            """)
+        
+        elif case_study == "💰 Analisis Biaya (Cost Function)":
+            st.markdown("### Studi Kasus: Fungsi Biaya Produksi")
+            
+            st.info("""
+            **Teori Ekonomi:**
+            Total biaya produksi terdiri dari biaya tetap (fixed cost) dan biaya variabel (variable cost).
+            Model: TC = FC + VC×Q
+            """)
+            
+            # Generate cost data
+            np.random.seed(789)
+            quantity = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+            fixed_cost = 5000000  # Rp 5 juta
+            variable_cost_per_unit = 50000  # Rp 50 ribu per unit
+            total_cost = fixed_cost + variable_cost_per_unit * quantity + np.random.normal(0, 200000, len(quantity))
+            
+            # Fit model
+            model_cost = LinearRegression()
+            model_cost.fit(quantity.reshape(-1, 1), total_cost)
+            cost_pred = model_cost.predict(quantity.reshape(-1, 1))
+            
+            r2_cost = r2_score(total_cost, cost_pred)
+            
+            # Calculate average cost
+            avg_cost = total_cost / quantity
+            avg_cost_pred = cost_pred / quantity
+            
+            # Display
+            col_cost1, col_cost2 = st.columns(2)
+            
+            with col_cost1:
+                st.markdown("**📊 Data Biaya:**")
+                df_cost = pd.DataFrame({
+                    'Quantity (unit)': quantity,
+                    'Total Cost (Rp)': total_cost.round(0),
+                    'Avg Cost (Rp/unit)': avg_cost.round(0)
+                })
+                st.dataframe(df_cost, use_container_width=True)
+            
+            with col_cost2:
+                st.markdown("**📐 Hasil Analisis:**")
+                st.success(f"""
+                **Fungsi Biaya:**
+                
+                TC = {model_cost.intercept_:.0f} + {model_cost.coef_[0]:.0f} × Q
+                
+                **Interpretasi:**
+                - **Fixed Cost (FC)** = Rp {model_cost.intercept_:,.0f}
+                - **Variable Cost (VC)** = Rp {model_cost.coef_[0]:,.0f} per unit
+                - **R²** = {r2_cost:.4f}
+                
+                **💡 Insight Bisnis:**
+                - Break-even jika harga jual > Rp {model_cost.coef_[0]:,.0f}/unit
+                - Economies of scale: Average cost turun seiring volume naik
+                """)
+            
+            # Plot Total Cost
+            fig_cost = go.Figure()
+            
+            fig_cost.add_trace(go.Scatter(
+                x=quantity, y=total_cost,
+                mode='markers',
+                name='Total Cost Aktual',
+                marker=dict(size=10, color='#f59e0b')
+            ))
+            
+            fig_cost.add_trace(go.Scatter(
+                x=quantity, y=cost_pred,
+                mode='lines',
+                name='Total Cost (Regresi)',
+                line=dict(color='#ef4444', width=3)
+            ))
+            
+            fig_cost.update_layout(
+                title="Fungsi Biaya Total (Total Cost Function)",
+                xaxis_title="Quantity (unit)",
+                yaxis_title="Total Cost (Rp)",
+                height=400
+            )
+            
+            st.plotly_chart(fig_cost, use_container_width=True)
+            
+            # Plot Average Cost
+            fig_avg = go.Figure()
+            
+            fig_avg.add_trace(go.Scatter(
+                x=quantity, y=avg_cost,
+                mode='markers+lines',
+                name='Average Cost',
+                marker=dict(size=8, color='#8b5cf6'),
+                line=dict(color='#8b5cf6', dash='dash')
+            ))
+            
+            fig_avg.update_layout(
+                title="Average Cost (Economies of Scale)",
+                xaxis_title="Quantity (unit)",
+                yaxis_title="Average Cost (Rp/unit)",
+                height=400
+            )
+            
+            st.plotly_chart(fig_avg, use_container_width=True)
+        
+        else:  # Elastisitas
+            st.markdown("### Studi Kasus: Elastisitas Permintaan Harga")
+            
+            st.info("""
+            **Teori Ekonomi:**
+            Elastisitas permintaan mengukur sensitivitas quantity demanded terhadap perubahan harga.
+            
+            Formula: **E = (ΔQ/Q) / (ΔP/P) = (dQ/dP) × (P/Q)**
+            
+            - **E > 1**: Elastis (permintaan sangat sensitif terhadap harga)
+            - **E = 1**: Unit elastic
+            - **E < 1**: Inelastis (permintaan tidak terlalu sensitif)
+            """)
+            
+            # Generate demand data
+            np.random.seed(999)
+            price = np.array([15000, 14000, 13000, 12000, 11000, 10000, 9000, 8000, 7000, 6000])
+            quantity_demanded = 100 - 0.005 * price + np.random.normal(0, 3, len(price))
+            
+            # Fit model
+            model_demand = LinearRegression()
+            model_demand.fit(price.reshape(-1, 1), quantity_demanded)
+            qty_pred = model_demand.predict(price.reshape(-1, 1))
+            
+            r2_demand = r2_score(quantity_demanded, qty_pred)
+            
+            # Calculate elasticity at mean price
+            mean_price = price.mean()
+            mean_qty = quantity_demanded.mean()
+            slope = model_demand.coef_[0]
+            elasticity = slope * (mean_price / mean_qty)
+            
+            # Display
+            col_elas1, col_elas2 = st.columns(2)
+            
+            with col_elas1:
+                st.markdown("**📊 Data Permintaan:**")
+                df_demand = pd.DataFrame({
+                    'Harga (Rp/kg)': price,
+                    'Qty Demanded (ton)': quantity_demanded.round(1),
+                    'Prediksi (ton)': qty_pred.round(1)
+                })
+                st.dataframe(df_demand, use_container_width=True)
+            
+            with col_elas2:
+                st.markdown("**📐 Hasil Analisis:**")
+                st.success(f"""
+                **Fungsi Permintaan:**
+                
+                Q = {model_demand.intercept_:.2f} + {model_demand.coef_[0]:.6f} × P
+                
+                **Elastisitas (pada harga rata-rata):**
+                
+                E = {elasticity:.3f}
+                
+                **Interpretasi:**
+                - Slope negatif = Hukum permintaan terpenuhi ✅
+                - |E| = {abs(elasticity):.3f} {'> 1 (Elastis)' if abs(elasticity) > 1 else '< 1 (Inelastis)'}
+                - Kenaikan harga 1% → Penurunan qty {abs(elasticity):.2f}%
+                """)
+                
+                if abs(elasticity) > 1:
+                    st.warning("**Strategi:** Turunkan harga untuk meningkatkan revenue (permintaan elastis)")
+                else:
+                    st.info("**Strategi:** Naikkan harga untuk meningkatkan revenue (permintaan inelastis)")
+            
+            # Plot
+            fig_demand = go.Figure()
+            
+            fig_demand.add_trace(go.Scatter(
+                x=price, y=quantity_demanded,
+                mode='markers',
+                name='Data Aktual',
+                marker=dict(size=10, color='#ec4899')
+            ))
+            
+            fig_demand.add_trace(go.Scatter(
+                x=price, y=qty_pred,
+                mode='lines',
+                name='Demand Curve (Regresi)',
+                line=dict(color='#ef4444', width=3)
+            ))
+            
+            fig_demand.update_layout(
+                title="Kurva Permintaan (Demand Curve) - Harga vs Quantity",
+                xaxis_title="Harga (Rp/kg)",
+                yaxis_title="Quantity Demanded (ton)",
+                height=450
+            )
+            
+            st.plotly_chart(fig_demand, use_container_width=True)
+            
+            st.markdown(f"""
+            **💡 Aplikasi Bisnis:**
+            
+            1. **Pricing Strategy**: 
+               - Jika elastis (|E| > 1): Turunkan harga → Volume naik signifikan → Revenue naik
+               - Jika inelastis (|E| < 1): Naikkan harga → Volume turun sedikit → Revenue naik
+            
+            2. **Revenue Maximization**:
+               - Revenue = P × Q
+               - Optimal price bisa dicari dengan turunan pertama = 0
+            
+            3. **Market Segmentation**:
+               - Produk premium (inelastis) → Fokus pada kualitas, bisa harga tinggi
+               - Produk komoditas (elastis) → Fokus pada efisiensi biaya, harga kompetitif
+            """)
+        
+        st.divider()
+        st.markdown("""
+        ### 📚 Kesimpulan: Kekuatan Regresi dalam Agribisnis
+        
+        Analisis regresi adalah alat yang sangat powerful untuk:
+        
+        ✅ **Prediksi** - Memprediksi hasil, harga, biaya berdasarkan data historis
+        
+        ✅ **Optimasi** - Menemukan dosis pupuk optimal, harga optimal, dll
+        
+        ✅ **Decision Making** - Data-driven decisions untuk strategi bisnis
+        
+        ✅ **Risk Management** - Memahami sensitivitas dan volatilitas
+        
+        ✅ **Policy Analysis** - Evaluasi dampak kebijakan (subsidi, tarif, dll)
+        
+        **🎯 Next Steps:**
+        - Kembali ke tab "Mode Machine Learning" untuk praktek langsung
+        - Upload data Anda sendiri dan coba berbagai model regresi
+        - Bandingkan Linear vs Polynomial vs Random Forest
+        """)
