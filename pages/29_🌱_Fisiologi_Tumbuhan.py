@@ -156,8 +156,6 @@ with tab_hormone:
         st.subheader("🌿 Auksin (Auxin)")
         
         st.markdown("""
-        ## 🌿 AUKSIN (AUXIN)
-        
         ### Apa itu Auksin?
         
         **Auksin** adalah hormon tumbuhan pertama yang ditemukan (1928) dan paling banyak dipelajari.
@@ -339,8 +337,6 @@ with tab_hormone:
         st.subheader("🌾 Giberelin (Gibberellin)")
         
         st.markdown("""
-        ## 🌾 GIBERELIN (GIBBERELLIN)
-        
         ### Apa itu Giberelin?
         
         **Giberelin** adalah kelompok hormon tumbuhan yang ditemukan dari jamur *Gibberella fujikuroi* (1926) 
@@ -671,8 +667,6 @@ with tab_hormone:
         st.subheader("🌱 Sitokinin (Cytokinin)")
         
         st.markdown("""
-        ## 🌱 SITOKININ (CYTOKININ)
-        
         ### Apa itu Sitokinin?
         
         **Sitokinin** adalah hormon tumbuhan yang merangsang **pembelahan sel (cytokinesis)** dan **penundaan penuaan (anti-senescence)**.
@@ -1045,8 +1039,6 @@ with tab_hormone:
         st.subheader("🍎 Etilen (Ethylene)")
         
         st.markdown("""
-        ## 🍎 ETILEN (ETHYLENE)
-        
         ### Apa itu Etilen?
         
         **Etilen (C₂H₄)** adalah hormon tumbuhan berbentuk **GAS** yang mengatur pematangan buah, penuaan, dan abscission.
