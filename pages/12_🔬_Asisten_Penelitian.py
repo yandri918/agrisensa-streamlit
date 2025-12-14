@@ -569,17 +569,18 @@ with tab_stat:
 # -----------------
 with tab_regression:
     st.header("📚 Teori Regresi Linear & Aplikasi Ekonomi Pertanian")
-    st.info("Tab ini menjelaskan konsep regresi linear, visualisasi garis regresi, dan interpretasi dalam konteks ekonomi & bisnis pertanian.")
+    st.info("Tab ini menjelaskan konsep regresi linear, dari dasar hingga lanjutan, dengan visualisasi dan aplikasi praktis dalam ekonomi & bisnis pertanian.")
     
-    # Sub-tabs for organization
-    subtab_theory, subtab_viz, subtab_practice = st.tabs([
-        "📖 Teori Dasar", 
-        "📊 Visualisasi & Fitting", 
-        "🌾 Aplikasi Pertanian"
+    # Sub-tabs for better organization (4 sub-tabs)
+    subtab_simple, subtab_multiple, subtab_inference, subtab_viz = st.tabs([
+        "📖 Regresi Sederhana", 
+        "🔢 Regresi Berganda",
+        "📊 Inferensia OLS",
+        "📈 Visualisasi & Praktik"
     ])
     
-    # ===== SUB-TAB 1: TEORI DASAR =====
-    with subtab_theory:
+    # ===== SUB-TAB 1: REGRESI SEDERHANA =====
+    with subtab_simple:
         st.subheader("📐 Konsep Regresi Linear")
         
         st.markdown("""
@@ -752,8 +753,13 @@ with tab_regression:
         4. **Normalitas**: Error harus terdistribusi normal
         5. **No Multicollinearity** (untuk regresi berganda): Variabel X tidak saling berkorelasi tinggi
         
-        ---
+        """)  # End of Simple Regression sub-tab
+    
+    # ===== SUB-TAB 2: REGRESI BERGANDA =====
+    with subtab_multiple:
+        st.subheader("🔢 Regresi Linear Berganda")
         
+        st.markdown("""
         ## 🔢 REGRESI LINEAR BERGANDA (Multiple Linear Regression)
         
         ### Apa itu Regresi Berganda?
@@ -1023,9 +1029,13 @@ with tab_regression:
            - Model hanya valid dalam range observasi
         
         5. **Asumsi:**
+        """)  # End of Multiple Regression sub-tab
+    
+    # ===== SUB-TAB 3: INFERENSIA OLS =====
+    with subtab_inference:
+        st.subheader("📊 Inferensia Regresi OLS")
         
-        ---
-        
+        st.markdown("""
         ## 📊 INFERENSIA REGRESI OLS (Statistical Inference)
         
         ### Apa itu Inferensia Statistik dalam Regresi?
@@ -1553,7 +1563,7 @@ with tab_regression:
         """)
 
     
-    # ===== SUB-TAB 2: VISUALISASI =====
+    # ===== SUB-TAB 4: VISUALISASI & PRAKTIK =====
     with subtab_viz:
         st.subheader("📊 Visualisasi Garis Regresi & Residual")
         
@@ -1730,9 +1740,9 @@ with tab_regression:
         - **Titik mengikuti garis diagonal** = ✅ Residual terdistribusi normal
         - **Titik menyimpang dari garis** = ❌ Residual tidak normal (perlu transformasi)
         """)
-    
-    # ===== SUB-TAB 3: APLIKASI PERTANIAN =====
-    with subtab_practice:
+        
+        # ===== APLIKASI PERTANIAN (Merged into Visualization tab) =====
+        st.divider()
         st.subheader("🌾 Aplikasi Regresi dalam Ekonomi & Bisnis Pertanian")
         
         st.markdown("""
