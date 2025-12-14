@@ -16,11 +16,12 @@ st.title("🧬 Genetika & Pemuliaan Tanaman")
 st.markdown("**Prinsip Genetika, Seleksi Varietas, dan Teknologi Pemuliaan Modern**")
 
 # Main tabs
-tab_principles, tab_selection, tab_hybrid, tab_biotech, tab_tools = st.tabs([
+tab_principles, tab_selection, tab_hybrid, tab_biotech, tab_propagation, tab_tools = st.tabs([
     "📚 Prinsip Pemuliaan",
     "🌱 Seleksi Varietas",
     "🌾 Hybrid vs Open-Pollinated",
     "🔬 GMO & Bioteknologi",
+    "🌿 Perbanyakan Tanaman",
     "🛠️ Tools & Database"
 ])
 
@@ -538,8 +539,6 @@ with tab_selection:
     st.header("🌱 Seleksi Varietas & Kriteria Pemilihan")
     
     st.markdown("""
-    ## 🌱 SELEKSI VARIETAS & KRITERIA PEMILIHAN
-    
     ### Pentingnya Pemilihan Varietas
     
     **Varietas yang tepat** = **50% keberhasilan budidaya**!
@@ -947,8 +946,6 @@ with tab_hybrid:
     st.header("🌾 Hybrid vs Open-Pollinated")
     
     st.markdown("""
-    ## 🌾 HYBRID VS OPEN-POLLINATED
-    
     ### Perbedaan Fundamental
     
     **Hybrid (F1 Hybrid):**
@@ -1193,8 +1190,6 @@ with tab_biotech:
     st.header("🔬 GMO & Bioteknologi")
     
     st.markdown("""
-    ## 🔬 GMO & BIOTEKNOLOGI
-    
     ### Definisi
     
     **GMO (Genetically Modified Organism):**
@@ -1586,7 +1581,622 @@ with tab_biotech:
     
     """)
 
-# ===== TAB 5: TOOLS & DATABASE =====
+# ===== TAB 5: PERBANYAKAN TANAMAN =====
+with tab_propagation:
+    st.header("🌿 Metode Perbanyakan Tanaman")
+    
+    st.markdown("""
+    ## 🌿 METODE PERBANYAKAN TANAMAN
+    
+    ### Definisi
+    
+    **Perbanyakan tanaman** adalah proses **memproduksi tanaman baru** dari tanaman induk untuk **mempertahankan sifat unggul** dan **meningkatkan populasi**.
+    
+    **Jenis Perbanyakan:**
+    - 🌱 **Generatif (Sexual):** Melalui biji
+    - 🌿 **Vegetatif (Asexual):** Tanpa biji (stek, cangkok, okulasi, dll)
+    
+    ---
+    
+    ## 🌱 PERBANYAKAN GENERATIF (BIJI)
+    
+    ### **Karakteristik:**
+    
+    ```
+    Keuntungan:
+    ✅ Mudah (tanam biji)
+    ✅ Murah
+    ✅ Jumlah banyak
+    ✅ Bebas penyakit (biasanya)
+    ✅ Variasi genetik (breeding)
+    
+    Kekurangan:
+    ❌ Tidak identik dengan induk (kecuali self-pollinated)
+    ❌ Lama berbuah (3-10 tahun untuk pohon)
+    ❌ Kualitas tidak terjamin (segregasi)
+    ```
+    
+    **Cocok untuk:**
+    - Tanaman self-pollinated (padi, gandum, kedelai)
+    - Tanaman semusim (sayuran)
+    - Breeding program
+    
+    **TIDAK cocok untuk:**
+    - Hybrid (F2 segregasi)
+    - Tanaman cross-pollinated (variasi tinggi)
+    - Tanaman yang sulit berbunga/biji
+    
+    ---
+    
+    ## 🌿 PERBANYAKAN VEGETATIF
+    
+    ### **Karakteristik:**
+    
+    ```
+    Keuntungan:
+    ✅ Identik dengan induk (klonal)
+    ✅ Cepat berbuah (1-3 tahun)
+    ✅ Kualitas terjamin
+    ✅ Pertahankan sifat unggul
+    
+    Kekurangan:
+    ❌ Lebih sulit
+    ❌ Lebih mahal
+    ❌ Jumlah terbatas
+    ❌ Risiko penyakit (jika induk sakit)
+    ```
+    
+    ---
+    
+    ## ✂️ STEK (Cutting)
+    
+    ### **Prinsip:**
+    ```
+    Potong bagian tanaman → Tanam → Tumbuh akar & tunas baru
+    → Tanaman baru identik dengan induk
+    ```
+    
+    ### **Jenis Stek:**
+    
+    **1. STEK BATANG (Stem Cutting):**
+    
+    **A. Stek Pucuk (Tip Cutting):**
+    ```
+    Bagian: Ujung batang muda (10-15 cm)
+    
+    Cocok untuk:
+    - Tanaman hias (Gelombang Cinta, Sirih Gading)
+    - Sayuran (Kangkung, Bayam)
+    - Buah (Anggur, Markisa)
+    
+    Protokol:
+    1. Pilih pucuk sehat, tidak terlalu muda/tua
+    2. Potong 10-15 cm (3-4 ruas)
+    3. Buang daun bawah, sisakan 2-3 daun atas
+    4. Potong daun atas 1/2 (kurangi transpirasi)
+    5. Celup pangkal ke rootone (hormon akar)
+    6. Tanam di media (pasir/sekam/cocopeat)
+    7. Jaga kelembaban (sungkup plastik)
+    8. Akar tumbuh 2-4 minggu
+    9. Pindah ke pot/lahan
+    
+    Keberhasilan: 70-90%
+    ```
+    
+    **B. Stek Batang (Stem Cutting):**
+    ```
+    Bagian: Batang tengah (15-30 cm)
+    
+    Cocok untuk:
+    - Singkong
+    - Tebu
+    - Ubi jalar
+    
+    Protokol:
+    1. Pilih batang sehat, diameter 1-2 cm
+    2. Potong 20-30 cm (3-5 ruas)
+    3. Tanam miring (45°) atau horizontal
+    4. Kubur 2/3 bagian
+    5. Siram rutin
+    6. Tunas muncul 1-2 minggu
+    
+    Keberhasilan: 80-95%
+    ```
+    
+    **C. Stek Akar (Root Cutting):**
+    ```
+    Bagian: Akar
+    
+    Cocok untuk:
+    - Sukun
+    - Raspberry
+    - Horseradish
+    
+    Protokol:
+    1. Gali akar lateral (diameter 0.5-1 cm)
+    2. Potong 5-10 cm
+    3. Tanam horizontal, kedalaman 2-3 cm
+    4. Tunas muncul dari akar
+    
+    Keberhasilan: 50-70%
+    ```
+    
+    ---
+    
+    **2. STEK DAUN (Leaf Cutting):**
+    
+    ```
+    Bagian: Daun
+    
+    Cocok untuk:
+    - Begonia
+    - Sansevieria (lidah mertua)
+    - African Violet
+    - Succulent
+    
+    Protokol:
+    1. Pilih daun sehat, dewasa
+    2. Potong dengan tangkai (jika ada)
+    3. Tanam tangkai di media
+    4. Atau: Potong daun jadi beberapa bagian
+    5. Tancapkan di media
+    6. Akar & tunas muncul dari pangkal daun
+    
+    Waktu: 4-8 minggu
+    Keberhasilan: 60-80%
+    ```
+    
+    ---
+    
+    ### **Tips Sukses Stek:**
+    
+    ```
+    1. WAKTU:
+       - Pagi hari (turgor tinggi)
+       - Musim hujan (kelembaban tinggi)
+    
+    2. ALAT:
+       - Pisau/gunting tajam (clean cut)
+       - Steril (alkohol/api)
+    
+    3. HORMON PERANGSANG AKAR:
+       - Rootone (IBA/NAA)
+       - Atau: Air kelapa muda
+       - Celup pangkal stek 5-10 detik
+    
+    4. MEDIA:
+       - Steril, porous, drainase baik
+       - Campuran: Pasir + Sekam + Cocopeat (1:1:1)
+    
+    5. KELEMBABAN:
+       - Tinggi (80-90%)
+       - Sungkup plastik/greenhouse
+       - Semprot air 2-3x/hari
+    
+    6. CAHAYA:
+       - Terang tapi tidak langsung
+       - Hindari sinar matahari penuh (layu)
+    
+    7. SUHU:
+       - Optimal: 25-30°C
+    ```
+    
+    ---
+    
+    ## 🌳 CANGKOK (Air Layering)
+    
+    ### **Prinsip:**
+    ```
+    Luka batang → Tutup media lembab → Akar tumbuh
+    → Potong & tanam → Tanaman baru
+    ```
+    
+    ### **Protokol:**
+    
+    ```
+    1. PILIH CABANG:
+       - Sehat, diameter 1-2 cm
+       - Umur 1-2 tahun
+       - Tidak terlalu muda/tua
+    
+    2. KELUPAS KULIT:
+       - Sayat melingkar (2 sayatan, jarak 3-5 cm)
+       - Kelupas kulit & kambium
+       - Bersihkan getah (jika ada)
+    
+    3. APLIKASI HORMON (Optional):
+       - Oleskan rootone di bagian atas luka
+    
+    4. TUTUP MEDIA:
+       - Bungkus dengan media lembab:
+         * Tanah + Kompos + Sekam (1:1:1)
+         * Atau: Cocopeat + Kompos
+       - Bungkus dengan plastik (transparan)
+       - Ikat atas & bawah (kedap air)
+    
+    5. PERAWATAN:
+       - Cek kelembaban (seminggu sekali)
+       - Semprot air jika kering
+       - Jangan terlalu basah (busuk)
+    
+    6. AKAR TUMBUH:
+       - Waktu: 1-3 bulan (tergantung spesies)
+       - Akar terlihat di plastik
+    
+    7. POTONG & TANAM:
+       - Potong di bawah akar
+       - Buka plastik hati-hati
+       - Tanam di pot/lahan
+       - Pangkas daun 50% (kurangi transpirasi)
+       - Naungi 1-2 minggu
+    
+    Keberhasilan: 80-95%
+    ```
+    
+    **Cocok untuk:**
+    - Mangga
+    - Jambu
+    - Rambutan
+    - Lengkeng
+    - Leci
+    - Tanaman hias (Kamboja, Bougenville)
+    
+    **Keuntungan:**
+    ```
+    ✅ Keberhasilan tinggi (akar tumbuh sebelum dipotong)
+    ✅ Tanaman besar langsung
+    ✅ Cepat berbuah (1-2 tahun)
+    ```
+    
+    **Kekurangan:**
+    ```
+    ❌ Lambat (1-3 bulan)
+    ❌ Jumlah terbatas (1 cangkok/cabang)
+    ❌ Merusak pohon induk
+    ```
+    
+    ---
+    
+    ## 🌱 OKULASI & SAMBUNG (Grafting & Budding)
+    
+    ### **Prinsip:**
+    ```
+    Gabungkan 2 tanaman berbeda:
+    - Batang bawah (rootstock): Akar kuat, tahan penyakit
+    - Batang atas (scion/entres): Varietas unggul
+    
+    → Tumbuh jadi 1 tanaman dengan sifat gabungan
+    ```
+    
+    ### **Jenis:**
+    
+    **1. OKULASI (Budding):**
+    
+    **A. Okulasi Mata Tidur (T-Budding):**
+    ```
+    Bagian: Mata tunas (bud)
+    
+    Protokol:
+    1. BATANG BAWAH:
+       - Diameter 0.5-1 cm
+       - Umur 6-12 bulan
+       - Sayat bentuk T (2-3 cm vertikal, 1 cm horizontal)
+       - Buka kulit
+    
+    2. MATA TUNAS:
+       - Pilih dari cabang sehat
+       - Potong perisai (shield) 2-3 cm
+       - Sisipkan ke sayatan T
+    
+    3. IKAT:
+       - Plastik okulasi (atas-bawah)
+       - Mata tunas terbuka
+    
+    4. PERAWATAN:
+       - Cek 2-3 minggu (mata hijau = berhasil)
+       - Buka ikatan setelah 1 bulan
+       - Potong batang bawah di atas mata (setelah tunas tumbuh)
+    
+    Waktu: Tunas tumbuh 3-4 minggu
+    Keberhasilan: 70-90%
+    
+    Cocok untuk: Jeruk, Mangga, Jambu, Mawar
+    ```
+    
+    **B. Okulasi Chip (Chip Budding):**
+    ```
+    Mirip T-budding, tapi:
+    - Sayatan bentuk chip (potongan kecil)
+    - Bisa untuk batang lebih besar
+    
+    Cocok untuk: Apel, Pir, Cherry
+    ```
+    
+    ---
+    
+    **2. SAMBUNG (Grafting):**
+    
+    **A. Sambung Pucuk (Cleft Grafting):**
+    ```
+    Protokol:
+    1. BATANG BAWAH:
+       - Diameter 2-5 cm
+       - Potong horizontal
+       - Belah tengah (2-3 cm)
+    
+    2. ENTRES (Scion):
+       - Pucuk sehat, diameter 0.5-1 cm
+       - Panjang 10-15 cm (3-4 mata)
+       - Runcing kedua sisi (bentuk V)
+    
+    3. SAMBUNG:
+       - Sisipkan entres ke belahan batang bawah
+       - Kambium bertemu kambium (PENTING!)
+    
+    4. IKAT & TUTUP:
+       - Ikat dengan tali rafia
+       - Tutup dengan lilin/plastik (cegah kering)
+    
+    5. PERAWATAN:
+       - Tunas tumbuh 2-4 minggu
+       - Buka ikatan setelah 2-3 bulan
+    
+    Keberhasilan: 60-80%
+    
+    Cocok untuk: Mangga, Durian, Alpukat
+    ```
+    
+    **B. Sambung Sisip (Side Grafting):**
+    ```
+    - Entres disisipkan di sisi batang bawah
+    - Tidak perlu potong batang bawah
+    - Cocok untuk: Kaktus, tanaman hias
+    ```
+    
+    ---
+    
+    ### **Keuntungan Okulasi/Sambung:**
+    
+    ```
+    ✅ Gabungkan sifat unggul:
+       - Akar kuat + Buah berkualitas
+       - Tahan penyakit + Produktif
+    
+    ✅ Cepat berbuah (2-3 tahun vs 5-10 tahun dari biji)
+    
+    ✅ Kualitas terjamin (identik dengan induk)
+    
+    ✅ Adaptasi:
+       - Batang bawah lokal (adaptasi tanah/iklim)
+       - Batang atas varietas unggul
+    
+    ✅ Rejuvenasi pohon tua (top working)
+    ```
+    
+    **Aplikasi:**
+    - Buah: Jeruk, Mangga, Durian, Apel
+    - Hias: Mawar, Kaktus, Adenium
+    
+    ---
+    
+    ## 🌿 MERUNDUK (Layering)
+    
+    ### **Prinsip:**
+    ```
+    Cabang dibengkokkan ke tanah → Kubur sebagian
+    → Akar tumbuh → Potong dari induk → Tanaman baru
+    ```
+    
+    ### **Jenis:**
+    
+    **1. Simple Layering:**
+    ```
+    Protokol:
+    1. Pilih cabang fleksibel (dekat tanah)
+    2. Bengkokkan ke tanah
+    3. Luka bagian bawah (sayat/kelupas sedikit)
+    4. Kubur 5-10 cm
+    5. Timbun tanah, beri pemberat
+    6. Ujung cabang tetap di atas tanah
+    7. Akar tumbuh 2-6 bulan
+    8. Potong dari induk, pindahkan
+    
+    Cocok untuk: Anggur, Melati, Mawar
+    ```
+    
+    **2. Air Layering (Cangkok):**
+    ```
+    Sudah dijelaskan di atas
+    ```
+    
+    **3. Mound Layering:**
+    ```
+    - Timbun pangkal tanaman dengan tanah
+    - Banyak cabang berakar
+    - Cocok untuk: Apel, Gooseberry
+    ```
+    
+    ---
+    
+    ## 🌱 PEMISAHAN (Division)
+    
+    ### **Prinsip:**
+    ```
+    Pisahkan anakan/rumpun dari induk
+    → Tanam terpisah → Tanaman baru
+    ```
+    
+    ### **Jenis:**
+    
+    **1. Pemisahan Anakan:**
+    ```
+    Cocok untuk:
+    - Pisang (bonggol)
+    - Nanas (crown, sucker)
+    - Strawberry (runner)
+    - Bambu (rumpun)
+    
+    Protokol:
+    1. Pilih anakan sehat (1/3-1/2 ukuran induk)
+    2. Gali hati-hati
+    3. Potong dari induk (pisau tajam)
+    4. Tanam di lahan baru
+    5. Siram rutin
+    
+    Keberhasilan: 90-95%
+    ```
+    
+    **2. Pemisahan Umbi:**
+    ```
+    Cocok untuk:
+    - Kentang (umbi batang)
+    - Ubi jalar (umbi akar)
+    - Bawang (umbi lapis)
+    - Jahe (rimpang)
+    
+    Protokol:
+    1. Pilih umbi sehat, ada mata tunas
+    2. Potong (1 umbi jadi 2-4 bagian)
+    3. Setiap bagian minimal 1 mata tunas
+    4. Keringkan luka (1-2 hari)
+    5. Tanam
+    
+    Keberhasilan: 85-95%
+    ```
+    
+    ---
+    
+    ## 🧬 KULTUR JARINGAN (Tissue Culture)
+    
+    ### **Prinsip:**
+    ```
+    Ambil jaringan kecil (eksplan) → Kultur in vitro
+    → Regenerasi → Ribuan tanaman identik
+    ```
+    
+    ### **Tahapan:**
+    
+    ```
+    1. INISIASI:
+       - Ambil eksplan (pucuk, mata tunas, daun)
+       - Sterilisasi (alkohol, klorox)
+       - Kultur di media MS + hormon
+    
+    2. MULTIPLIKASI:
+       - Tunas berkembang
+       - Sub-kultur (pindah media baru)
+       - Tunas berlipat ganda
+       - Ulangi 3-5x → Ribuan tunas
+    
+    3. PERAKARAN:
+       - Pindah ke media perakaran
+       - Hormon auxin (IBA, NAA)
+       - Akar tumbuh
+    
+    4. AKLIMATISASI:
+       - Pindah ke pot (ex vitro)
+       - Naungi, jaga kelembaban
+       - Adaptasi bertahap
+       - Siap tanam
+    
+    Waktu: 3-6 bulan (dari eksplan ke tanaman)
+    ```
+    
+    **Keuntungan:**
+    ```
+    ✅ Jumlah sangat banyak (ribuan dari 1 eksplan)
+    ✅ Cepat
+    ✅ Bebas penyakit
+    ✅ Seragam (klonal)
+    ✅ Bisa sepanjang tahun (tidak tergantung musim)
+    ```
+    
+    **Kekurangan:**
+    ```
+    ❌ Investasi tinggi (lab steril)
+    ❌ Skill tinggi
+    ❌ Biaya per tanaman tinggi (untuk skala kecil)
+    ```
+    
+    **Aplikasi:**
+    ```
+    - Tanaman hias: Anggrek, Anthurium
+    - Buah: Pisang, Strawberry, Nanas
+    - Kehutanan: Jati, Mahoni
+    - Konservasi: Tanaman langka
+    ```
+    
+    ---
+    
+    ## 📊 PERBANDINGAN METODE
+    
+    | Metode | Waktu | Keberhasilan | Jumlah | Biaya | Skill | Cocok untuk |
+    |--------|-------|--------------|--------|-------|-------|-------------|
+    | **Biji** | 3-10 tahun | 80-95% | Banyak | Murah | Mudah | Semusim, breeding |
+    | **Stek** | 2-4 minggu | 70-90% | Sedang | Murah | Mudah | Hias, sayuran |
+    | **Cangkok** | 1-3 bulan | 80-95% | Sedikit | Murah | Sedang | Buah, hias |
+    | **Okulasi** | 3-4 minggu | 70-90% | Sedang | Murah | Tinggi | Buah, mawar |
+    | **Sambung** | 2-4 minggu | 60-80% | Sedang | Murah | Tinggi | Buah besar |
+    | **Merunduk** | 2-6 bulan | 80-90% | Sedikit | Murah | Mudah | Anggur, melati |
+    | **Pemisahan** | Langsung | 90-95% | Sedang | Murah | Mudah | Pisang, nanas |
+    | **Kultur Jaringan** | 3-6 bulan | 85-95% | Sangat banyak | Mahal | Sangat tinggi | Anggrek, pisang |
+    
+    ---
+    
+    ## 💡 TIPS PEMILIHAN METODE
+    
+    **Pilih BIJI jika:**
+    ```
+    ✅ Tanaman self-pollinated (padi, kedelai)
+    ✅ Breeding program (butuh variasi)
+    ✅ Skala besar, murah
+    ✅ Tidak terburu-buru
+    ```
+    
+    **Pilih STEK jika:**
+    ```
+    ✅ Tanaman mudah berakar (kangkung, singkong)
+    ✅ Butuh banyak, cepat
+    ✅ Murah, mudah
+    ```
+    
+    **Pilih CANGKOK jika:**
+    ```
+    ✅ Tanaman sulit stek (mangga, jambu)
+    ✅ Ingin tanaman besar langsung
+    ✅ Cepat berbuah (1-2 tahun)
+    ✅ Keberhasilan tinggi penting
+    ```
+    
+    **Pilih OKULASI/SAMBUNG jika:**
+    ```
+    ✅ Ingin gabungkan sifat (akar kuat + buah unggul)
+    ✅ Buah berkualitas (jeruk, mangga)
+    ✅ Cepat berbuah
+    ✅ Punya skill
+    ```
+    
+    **Pilih KULTUR JARINGAN jika:**
+    ```
+    ✅ Butuh jumlah sangat banyak (ribuan)
+    ✅ Bebas penyakit penting (pisang, anggrek)
+    ✅ Tanaman langka/sulit perbanyak
+    ✅ Punya akses lab/modal
+    ```
+    
+    ---
+    
+    ## 📚 REFERENSI
+    
+    1. **Hartmann, H. T., et al. (2011).** Hartmann & Kester's Plant Propagation: Principles and Practices, 8th Edition. Prentice Hall.
+    
+    2. **Dirr, M. A., & Heuser, C. W. (2006).** The Reference Manual of Woody Plant Propagation. Timber Press.
+    
+    3. **George, E. F., et al. (2008).** Plant Propagation by Tissue Culture, 3rd Edition. Springer.
+    
+    """)
+
+# ===== TAB 6: TOOLS & DATABASE =====
 with tab_tools:
     st.header("🛠️ Tools & Database Varietas")
     
