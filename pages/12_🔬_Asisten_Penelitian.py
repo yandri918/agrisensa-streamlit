@@ -571,14 +571,15 @@ with tab_regression:
     st.header("📚 Teori Regresi Linear & Aplikasi Ekonomi Pertanian")
     st.info("Tab ini menjelaskan konsep regresi linear, dari dasar hingga lanjutan, dengan visualisasi dan aplikasi praktis dalam ekonomi & bisnis pertanian.")
     
-    # Sub-tabs for better organization (7 sub-tabs)
-    subtab_simple, subtab_multiple, subtab_inference, subtab_timeseries, subtab_chisquare, subtab_bayes, subtab_viz = st.tabs([
+    # Sub-tabs for better organization (8 sub-tabs)
+    subtab_simple, subtab_multiple, subtab_inference, subtab_timeseries, subtab_chisquare, subtab_bayes, subtab_decision, subtab_viz = st.tabs([
         "📖 Regresi Sederhana", 
         "🔢 Regresi Berganda",
         "📊 Inferensia OLS",
         "📈 Analisis Runtun Waktu",
         "🔲 Uji Chi-Square",
         "🎲 Teorema Bayes",
+        "🎯 Teori Keputusan",
         "🎨 Visualisasi & Praktik"
     ])
     
@@ -3445,7 +3446,602 @@ with tab_regression:
         
         """)  # End of Bayes' Theorem sub-tab
     
-    # ===== SUB-TAB 7: VISUALISASI & PRAKTIK =====
+    # ===== SUB-TAB 7: TEORI KEPUTUSAN =====
+    with subtab_decision:
+        st.subheader("🎯 Teori Keputusan (Decision Theory)")
+        
+        st.markdown("""
+        ## 🎯 TEORI KEPUTUSAN
+        
+        ### Apa itu Teori Keputusan?
+        
+        **Teori Keputusan** adalah framework sistematis untuk membuat **keputusan optimal** dalam kondisi **ketidakpastian** atau **risiko**.
+        
+        **Komponen Keputusan:**
+        
+        1. **Decision Alternatives** (Alternatif keputusan)
+        2. **States of Nature** (Kondisi alam/kejadian)
+        3. **Payoffs** (Hasil/konsekuensi)
+        4. **Decision Criteria** (Kriteria keputusan)
+        
+        **Contoh Pertanian:**
+        
+        ```
+        Keputusan: Tanaman apa yang ditanam?
+        Alternatif: Padi, Jagung, Kedelai
+        States of Nature: Cuaca (Baik, Sedang, Buruk)
+        Payoffs: Profit (juta rupiah)
+        Kriteria: Maksimalkan profit
+        ```
+        
+        ---
+        
+        ### Payoff Matrix (Matriks Hasil)
+        
+        **Format:**
+        
+        | Alternatif | State 1 | State 2 | State 3 |
+        |------------|---------|---------|---------|
+        | A1         | Payoff  | Payoff  | Payoff  |
+        | A2         | Payoff  | Payoff  | Payoff  |
+        | A3         | Payoff  | Payoff  | Payoff  |
+        
+        **Contoh:**
+        
+        | Tanaman | Cuaca Baik | Cuaca Sedang | Cuaca Buruk |
+        |---------|------------|--------------|-------------|
+        | Padi    | 50 juta    | 30 juta      | 10 juta     |
+        | Jagung  | 60 juta    | 25 juta      | 5 juta      |
+        | Kedelai | 40 juta    | 35 juta      | 20 juta     |
+        
+        ---
+        
+        ## A. PENGAMBILAN KEPUTUSAN PADA KONDISI TIDAK PASTI
+        
+        ### Karakteristik
+        
+        - **Tidak ada informasi** tentang probabilitas states of nature
+        - **Pure uncertainty** (ketidakpastian murni)
+        - Hanya tahu **kemungkinan** yang bisa terjadi
+        - **Tidak bisa** hitung expected value
+        
+        **Kapan terjadi:**
+        - Situasi baru (no historical data)
+        - Perubahan drastis (paradigm shift)
+        - Black swan events
+        
+        ---
+        
+        ### 1. MAXIMIN CRITERION (Pessimistic/Conservative)
+        
+        **Prinsip:** "Pilih alternatif dengan **worst-case terbaik**"
+        
+        **Langkah:**
+        1. Untuk setiap alternatif, cari payoff **minimum**
+        2. Pilih alternatif dengan **maksimum** dari minimum tersebut
+        
+        **Filosofi:** **Risk-averse** (hindari risiko)
+        
+        **Contoh:**
+        
+        | Tanaman | Cuaca Baik | Cuaca Sedang | Cuaca Buruk | **MIN** |
+        |---------|------------|--------------|-------------|---------|
+        | Padi    | 50         | 30           | 10          | **10**  |
+        | Jagung  | 60         | 25           | 5           | **5**   |
+        | Kedelai | 40         | 35           | 20          | **20** ✅|
+        
+        **Keputusan:** Tanam **Kedelai** (worst-case = 20 juta, paling tinggi)
+        
+        **Interpretasi:**
+        - Jika cuaca buruk, Kedelai masih untung 20 juta
+        - Padi worst-case 10 juta, Jagung hanya 5 juta
+        - **Cocok untuk:** Petani risk-averse, modal terbatas
+        
+        ---
+        
+        ### 2. MAXIMAX CRITERION (Optimistic/Aggressive)
+        
+        **Prinsip:** "Pilih alternatif dengan **best-case terbaik**"
+        
+        **Langkah:**
+        1. Untuk setiap alternatif, cari payoff **maksimum**
+        2. Pilih alternatif dengan **maksimum** dari maksimum tersebut
+        
+        **Filosofi:** **Risk-seeking** (cari peluang maksimal)
+        
+        **Contoh:**
+        
+        | Tanaman | Cuaca Baik | Cuaca Sedang | Cuaca Buruk | **MAX** |
+        |---------|------------|--------------|-------------|---------|
+        | Padi    | 50         | 30           | 10          | **50**  |
+        | Jagung  | 60         | 25           | 5           | **60** ✅|
+        | Kedelai | 40         | 35           | 20          | **40**  |
+        
+        **Keputusan:** Tanam **Jagung** (best-case = 60 juta, paling tinggi)
+        
+        **Interpretasi:**
+        - Jika cuaca baik, Jagung untung 60 juta (tertinggi)
+        - Abaikan worst-case (optimis cuaca akan baik)
+        - **Cocok untuk:** Petani risk-taker, modal besar
+        
+        ---
+        
+        ### 3. MINIMAX REGRET CRITERION
+        
+        **Prinsip:** "Minimalisir **penyesalan maksimum**"
+        
+        **Regret (Opportunity Loss):** Selisih antara payoff terbaik dengan payoff yang dipilih
+        
+        **Langkah:**
+        
+        1. **Buat Regret Matrix:**
+           - Untuk setiap state, cari payoff maksimum
+           - Regret = Max Payoff - Actual Payoff
+        
+        2. **Untuk setiap alternatif, cari regret maksimum**
+        
+        3. **Pilih alternatif dengan minimum regret maksimum**
+        
+        **Contoh:**
+        
+        **Payoff Matrix:**
+        
+        | Tanaman | Cuaca Baik | Cuaca Sedang | Cuaca Buruk |
+        |---------|------------|--------------|-------------|
+        | Padi    | 50         | 30           | 10          |
+        | Jagung  | 60         | 25           | 5           |
+        | Kedelai | 40         | 35           | 20          |
+        | **MAX** | **60**     | **35**       | **20**      |
+        
+        **Regret Matrix:**
+        
+        | Tanaman | Cuaca Baik | Cuaca Sedang | Cuaca Buruk | **MAX Regret** |
+        |---------|------------|--------------|-------------|----------------|
+        | Padi    | 60-50=10   | 35-30=5      | 20-10=10    | **10** ✅      |
+        | Jagung  | 60-60=0    | 35-25=10     | 20-5=15     | **15**         |
+        | Kedelai | 60-40=20   | 35-35=0      | 20-20=0     | **20**         |
+        
+        **Keputusan:** Tanam **Padi** (max regret = 10 juta, paling kecil)
+        
+        **Interpretasi:**
+        - Padi: Penyesalan maksimum hanya 10 juta
+        - Jagung: Bisa menyesal 15 juta (jika cuaca buruk)
+        - Kedelai: Bisa menyesal 20 juta (jika cuaca baik)
+        - **Cocok untuk:** Petani yang tidak mau menyesal banyak
+        
+        ---
+        
+        ### 4. LAPLACE CRITERION (Equal Likelihood)
+        
+        **Prinsip:** "Semua states **equally likely**" (probabilitas sama)
+        
+        **Langkah:**
+        1. Hitung rata-rata payoff untuk setiap alternatif
+        2. Pilih alternatif dengan rata-rata tertinggi
+        
+        **Formula:**
+        
+        $$\\text{Average Payoff} = \\frac{\\sum \\text{Payoffs}}{n}$$
+        
+        **Contoh:**
+        
+        | Tanaman | Cuaca Baik | Cuaca Sedang | Cuaca Buruk | **Average** |
+        |---------|------------|--------------|-------------|-------------|
+        | Padi    | 50         | 30           | 10          | 30.0        |
+        | Jagung  | 60         | 25           | 5           | 30.0        |
+        | Kedelai | 40         | 35           | 20          | **31.7** ✅ |
+        
+        ```
+        Padi: (50 + 30 + 10) / 3 = 30.0
+        Jagung: (60 + 25 + 5) / 3 = 30.0
+        Kedelai: (40 + 35 + 20) / 3 = 31.7
+        ```
+        
+        **Keputusan:** Tanam **Kedelai** (rata-rata tertinggi)
+        
+        **Interpretasi:**
+        - Kedelai paling **konsisten** di semua kondisi
+        - Padi dan Jagung rata-rata sama tapi lebih **volatile**
+        - **Cocok untuk:** Tidak ada informasi probabilitas
+        
+        ---
+        
+        ### 5. HURWICZ CRITERION (Realism)
+        
+        **Prinsip:** "Kombinasi **optimism** dan **pessimism**"
+        
+        **Formula:**
+        
+        $$H = \\alpha \\times \\text{MAX} + (1-\\alpha) \\times \\text{MIN}$$
+        
+        Dimana:
+        - **α** = Coefficient of optimism (0 ≤ α ≤ 1)
+        - **α = 1** → Maximax (sangat optimis)
+        - **α = 0** → Maximin (sangat pesimis)
+        - **α = 0.5** → Moderate (balanced)
+        
+        **Contoh (α = 0.6):**
+        
+        | Tanaman | MAX | MIN | **H (α=0.6)** |
+        |---------|-----|-----|---------------|
+        | Padi    | 50  | 10  | 0.6×50 + 0.4×10 = **34** |
+        | Jagung  | 60  | 5   | 0.6×60 + 0.4×5 = **38** ✅|
+        | Kedelai | 40  | 20  | 0.6×40 + 0.4×20 = **32** |
+        
+        **Keputusan:** Tanam **Jagung** (H = 38, tertinggi)
+        
+        **Interpretasi:**
+        - Dengan α = 0.6 (cukup optimis), Jagung terbaik
+        - Jika α = 0.3 (pesimis) → Kedelai menang
+        - **Cocok untuk:** Adjust sesuai risk appetite
+        
+        ---
+        
+        ## B. PENGAMBILAN KEPUTUSAN PADA KONDISI BERESIKO
+        
+        ### Karakteristik
+        
+        - **Ada informasi probabilitas** states of nature
+        - **Risk** (bukan pure uncertainty)
+        - Bisa hitung **expected value**
+        - Lebih **objektif** (data-driven)
+        
+        **Kapan terjadi:**
+        - Ada historical data
+        - Bisa estimasi probabilitas
+        - Situasi berulang
+        
+        ---
+        
+        ### 1. EXPECTED MONETARY VALUE (EMV)
+        
+        **Prinsip:** "Pilih alternatif dengan **expected value tertinggi**"
+        
+        **Formula:**
+        
+        $$EMV = \\sum (\\text{Payoff}_i \\times P_i)$$
+        
+        **Langkah:**
+        1. Tentukan probabilitas setiap state
+        2. Hitung EMV untuk setiap alternatif
+        3. Pilih alternatif dengan EMV maksimum
+        
+        **Contoh:**
+        
+        **Probabilitas:** P(Baik) = 0.5, P(Sedang) = 0.3, P(Buruk) = 0.2
+        
+        | Tanaman | Baik (0.5) | Sedang (0.3) | Buruk (0.2) | **EMV** |
+        |---------|------------|--------------|-------------|---------|
+        | Padi    | 50         | 30           | 10          | **37**  |
+        | Jagung  | 60         | 25           | 5           | **39** ✅|
+        | Kedelai | 40         | 35           | 20          | **34.5**|
+        
+        **Perhitungan:**
+        ```
+        EMV(Padi) = 50×0.5 + 30×0.3 + 10×0.2 = 25 + 9 + 2 = 37
+        EMV(Jagung) = 60×0.5 + 25×0.3 + 5×0.2 = 30 + 7.5 + 1 = 38.5
+        EMV(Kedelai) = 40×0.5 + 35×0.3 + 20×0.2 = 20 + 10.5 + 4 = 34.5
+        ```
+        
+        **Keputusan:** Tanam **Jagung** (EMV = 38.5 juta)
+        
+        **Interpretasi:**
+        - Dalam jangka panjang, Jagung rata-rata untung 38.5 juta
+        - Lebih tinggi dari Padi (37) dan Kedelai (34.5)
+        - **Cocok untuk:** Decision berulang, risk-neutral
+        
+        ---
+        
+        ### 2. EXPECTED OPPORTUNITY LOSS (EOL)
+        
+        **Prinsip:** "Minimalisir **expected regret**"
+        
+        **Langkah:**
+        1. Buat regret matrix (seperti minimax regret)
+        2. Hitung EOL = Σ(Regret × Probability)
+        3. Pilih alternatif dengan EOL minimum
+        
+        **Regret Matrix:**
+        
+        | Tanaman | Baik (0.5) | Sedang (0.3) | Buruk (0.2) | **EOL** |
+        |---------|------------|--------------|-------------|---------|
+        | Padi    | 10         | 5            | 10          | **8.5** ✅|
+        | Jagung  | 0          | 10           | 15          | **8.5** ✅|
+        | Kedelai | 20         | 0            | 0           | **10**  |
+        
+        **Perhitungan:**
+        ```
+        EOL(Padi) = 10×0.5 + 5×0.3 + 10×0.2 = 5 + 1.5 + 2 = 8.5
+        EOL(Jagung) = 0×0.5 + 10×0.3 + 15×0.2 = 0 + 3 + 3 = 6
+        EOL(Kedelai) = 20×0.5 + 0×0.3 + 0×0.2 = 10 + 0 + 0 = 10
+        ```
+        
+        **Keputusan:** Tanam **Jagung** (EOL = 6, terendah)
+        
+        **Note:** EMV dan EOL **selalu konsisten** (pilih alternatif sama)
+        
+        ---
+        
+        ### 3. EXPECTED VALUE OF PERFECT INFORMATION (EVPI)
+        
+        **Definisi:** Nilai maksimum yang layak dibayar untuk **informasi sempurna**
+        
+        **Formula:**
+        
+        $$EVPI = EV_{\\text{with PI}} - EV_{\\text{without PI}}$$
+        
+        Atau:
+        
+        $$EVPI = \\text{Best EMV} - \\text{EMV of best alternative}$$
+        
+        **Langkah:**
+        
+        1. **EV with Perfect Information:**
+           - Untuk setiap state, pilih payoff terbaik
+           - Hitung expected value
+        
+        2. **EV without Perfect Information:**
+           - EMV dari alternatif terbaik
+        
+        3. **EVPI = Selisihnya**
+        
+        **Contoh:**
+        
+        **EV with Perfect Information:**
+        
+        | State | Best Payoff | Probability | Weighted |
+        |-------|-------------|-------------|----------|
+        | Baik  | 60 (Jagung) | 0.5         | 30       |
+        | Sedang| 35 (Kedelai)| 0.3         | 10.5     |
+        | Buruk | 20 (Kedelai)| 0.2         | 4        |
+        | **Total** |         |             | **44.5** |
+        
+        **EV without Perfect Information:**
+        - Best EMV = 38.5 (Jagung)
+        
+        **EVPI:**
+        ```
+        EVPI = 44.5 - 38.5 = 6 juta
+        ```
+        
+        **Interpretasi:**
+        - Maksimal bayar **6 juta** untuk informasi cuaca sempurna
+        - Jika ramalan cuaca harga > 6 juta → Tidak worth it
+        - Jika harga ≤ 6 juta → Beli informasi
+        
+        ---
+        
+        ### 4. DECISION TREE (Pohon Keputusan)
+        
+        **Komponen:**
+        - **Decision Node** (□) - Keputusan yang kita kontrol
+        - **Chance Node** (○) - Kejadian acak (states of nature)
+        - **Branches** - Alternatif atau outcomes
+        - **Payoffs** - Hasil akhir
+        
+        **Contoh Sederhana:**
+        
+        ```
+        □ Pilih Tanaman
+        ├─ Padi
+        │  ├─ ○ Cuaca
+        │  │  ├─ Baik (0.5) → 50
+        │  │  ├─ Sedang (0.3) → 30
+        │  │  └─ Buruk (0.2) → 10
+        │  └─ EMV = 37
+        │
+        ├─ Jagung
+        │  ├─ ○ Cuaca
+        │  │  ├─ Baik (0.5) → 60
+        │  │  ├─ Sedang (0.3) → 25
+        │  │  └─ Buruk (0.2) → 5
+        │  └─ EMV = 38.5 ✅
+        │
+        └─ Kedelai
+           ├─ ○ Cuaca
+           │  ├─ Baik (0.5) → 40
+           │  ├─ Sedang (0.3) → 35
+           │  └─ Buruk (0.2) → 20
+           └─ EMV = 34.5
+        ```
+        
+        **Analisis:** Pilih Jagung (EMV tertinggi)
+        
+        ---
+        
+        ## 📊 PERBANDINGAN KRITERIA
+        
+        ### Decision Under Uncertainty
+        
+        | Kriteria | Filosofi | Cocok Untuk | Hasil (Contoh) |
+        |----------|----------|-------------|----------------|
+        | **Maximin** | Pessimistic | Risk-averse | Kedelai |
+        | **Maximax** | Optimistic | Risk-seeker | Jagung |
+        | **Minimax Regret** | Minimize regret | Avoid regret | Padi |
+        | **Laplace** | Equal probability | No info | Kedelai |
+        | **Hurwicz** | Balanced | Flexible | Depends on α |
+        
+        ### Decision Under Risk
+        
+        | Kriteria | Formula | Interpretasi |
+        |----------|---------|--------------|
+        | **EMV** | Σ(Payoff × P) | Expected profit |
+        | **EOL** | Σ(Regret × P) | Expected regret |
+        | **EVPI** | Best - EMV | Value of info |
+        
+        ---
+        
+        ## 💡 APLIKASI DALAM AGRIBISNIS
+        
+        ### 1. Pemilihan Komoditas
+        
+        **Keputusan:** Tanaman apa yang ditanam musim ini?
+        
+        **Factors:**
+        - Harga pasar (uncertain)
+        - Cuaca (risky)
+        - Hama/penyakit (uncertain)
+        
+        **Approach:**
+        - Jika ada data historis → EMV
+        - Jika no data → Maximin/Laplace
+        
+        ### 2. Investasi Teknologi
+        
+        **Keputusan:** Beli traktor atau tidak?
+        
+        **States:**
+        - Luas lahan bertambah (opportunity)
+        - Luas lahan tetap
+        - Luas lahan berkurang (risk)
+        
+        **Approach:**
+        - Hitung EMV dengan/tanpa traktor
+        - Hitung EVPI (value of market research)
+        
+        ### 3. Timing Penjualan
+        
+        **Keputusan:** Jual sekarang atau tunggu?
+        
+        **States:**
+        - Harga naik
+        - Harga stabil
+        - Harga turun
+        
+        **Approach:**
+        - Decision tree multi-period
+        - Sequential decision making
+        
+        ### 4. Asuransi Pertanian
+        
+        **Keputusan:** Beli asuransi atau tidak?
+        
+        **States:**
+        - Gagal panen (low probability, high loss)
+        - Panen normal
+        
+        **Approach:**
+        - EMV dengan/tanpa asuransi
+        - Risk premium calculation
+        
+        ### 5. Diversifikasi
+        
+        **Keputusan:** Monokultur atau diversifikasi?
+        
+        **Approach:**
+        - Portfolio theory
+        - Risk-return tradeoff
+        - Correlation analysis
+        
+        ---
+        
+        ## ⚠️ PERINGATAN PENTING
+        
+        ### 1. EMV ≠ Actual Outcome
+        
+        - EMV adalah **rata-rata jangka panjang**
+        - Actual outcome bisa jauh berbeda
+        - **Jangan** gunakan EMV untuk one-time decision besar
+        
+        ### 2. Probability Estimation
+        
+        - Garbage in, garbage out
+        - Probabilitas salah → Keputusan salah
+        - **Solusi:** Sensitivity analysis
+        
+        ### 3. Risk Attitude Matters
+        
+        - EMV assume **risk-neutral**
+        - Petani kecil biasanya **risk-averse**
+        - **Solusi:** Gunakan utility theory
+        
+        ### 4. Non-Monetary Factors
+        
+        - Tidak semua bisa diukur dengan uang
+        - Kesehatan, lingkungan, sosial
+        - **Solusi:** Multi-criteria decision analysis
+        
+        ### 5. Dynamic Environment
+        
+        - Kondisi berubah seiring waktu
+        - Decision tree bisa kompleks
+        - **Solusi:** Adaptive decision making
+        
+        ---
+        
+        ## 🎯 TIPS PRAKTIS
+        
+        ### 1. Start Simple
+        
+        - Mulai dengan payoff matrix sederhana
+        - Jangan terlalu banyak alternatif/states
+        - 3-5 alternatif, 3-4 states cukup
+        
+        ### 2. Sensitivity Analysis
+        
+        **Test berbagai skenario:**
+        - Bagaimana jika probabilitas berubah?
+        - Bagaimana jika payoff berbeda?
+        - Apakah keputusan tetap sama?
+        
+        ### 3. Combine Criteria
+        
+        Jangan hanya pakai satu kriteria:
+        - Cek EMV (expected value)
+        - Cek Maximin (worst-case)
+        - Cek Minimax Regret (regret)
+        - **Pilih yang konsisten** di beberapa kriteria
+        
+        ### 4. Use Decision Tree for Complex Decisions
+        
+        - Sequential decisions
+        - Multiple stages
+        - Learning opportunities
+        
+        ### 5. Document Assumptions
+        
+        Selalu catat:
+        - Sumber probabilitas
+        - Asumsi payoff
+        - Risk attitude
+        - Time horizon
+        
+        ---
+        
+        ## 📚 KESIMPULAN
+        
+        **Decision Theory membantu:**
+        
+        1. **Struktur** keputusan kompleks
+        2. **Kuantifikasi** uncertainty dan risk
+        3. **Objektif** dalam decision making
+        4. **Konsisten** dengan goals
+        5. **Defensible** (bisa dijelaskan)
+        
+        **Key Takeaways:**
+        
+        - **Uncertainty:** Gunakan Maximin (conservative) atau Laplace (balanced)
+        - **Risk:** Gunakan EMV (jika risk-neutral) atau utility (jika risk-averse)
+        - **EVPI:** Hitung value of information sebelum beli data
+        - **Sensitivity:** Selalu test robustness keputusan
+        
+        **Dalam Agribisnis:**
+        
+        Decision theory sangat berguna untuk:
+        - **Crop selection** (pilih tanaman)
+        - **Investment decisions** (beli alat/teknologi)
+        - **Marketing decisions** (timing penjualan)
+        - **Risk management** (asuransi, hedging)
+        - **Strategic planning** (diversifikasi, ekspansi)
+        
+        **Remember:**
+        
+        > "The best decision is not always the one with the highest expected value,
+        > but the one that aligns with your risk tolerance and objectives."
+        
+        """)  # End of Decision Theory sub-tab
+    
+    # ===== SUB-TAB 8: VISUALISASI & PRAKTIK =====
     with subtab_viz:
         st.subheader("📊 Visualisasi Garis Regresi & Residual")
         
