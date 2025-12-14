@@ -942,8 +942,6 @@ with tab_selection:
     
     """)
 
-    """)
-
 # ===== TAB 3: HYBRID VS OPEN-POLLINATED =====
 with tab_hybrid:
     st.header("🌾 Hybrid vs Open-Pollinated")
