@@ -571,12 +571,13 @@ with tab_regression:
     st.header("📚 Teori Regresi Linear & Aplikasi Ekonomi Pertanian")
     st.info("Tab ini menjelaskan konsep regresi linear, dari dasar hingga lanjutan, dengan visualisasi dan aplikasi praktis dalam ekonomi & bisnis pertanian.")
     
-    # Sub-tabs for better organization (4 sub-tabs)
-    subtab_simple, subtab_multiple, subtab_inference, subtab_viz = st.tabs([
+    # Sub-tabs for better organization (5 sub-tabs)
+    subtab_simple, subtab_multiple, subtab_inference, subtab_timeseries, subtab_viz = st.tabs([
         "📖 Regresi Sederhana", 
         "🔢 Regresi Berganda",
         "📊 Inferensia OLS",
-        "📈 Visualisasi & Praktik"
+        "📈 Analisis Runtun Waktu",
+        "🎨 Visualisasi & Praktik"
     ])
     
     # ===== SUB-TAB 1: REGRESI SEDERHANA =====
@@ -1946,7 +1947,508 @@ with tab_regression:
         """)  # End of OLS Assumptions section
     
     
-    # ===== SUB-TAB 4: VISUALISASI & PRAKTIK =====
+    # ===== SUB-TAB 4: ANALISIS RUNTUN WAKTU =====
+    with subtab_timeseries:
+        st.subheader("📈 Analisis Runtun Waktu (Time Series Analysis)")
+        
+        st.markdown("""
+        ## 📈 ANALISIS RUNTUN WAKTU
+        
+        ### Apa itu Data Runtun Waktu?
+        
+        **Data runtun waktu (time series)** adalah data yang dikumpulkan **secara berurutan dalam waktu** dengan interval tertentu.
+        
+        **Karakteristik:**
+        - Observasi diurutkan berdasarkan waktu (t)
+        - Interval waktu konsisten (harian, mingguan, bulanan, tahunan)
+        - Nilai saat ini dipengaruhi oleh nilai masa lalu
+        
+        **Contoh dalam Pertanian:**
+        - Harga komoditas bulanan (2020-2024)
+        - Produksi padi tahunan (1990-2023)
+        - Curah hujan harian
+        - Harga saham perusahaan agribisnis
+        - Konsumsi pupuk per kuartal
+        
+        ---
+        
+        ### Komponen Data Runtun Waktu
+        
+        Data time series terdiri dari 4 komponen utama:
+        
+        #### 1. **Trend (T)** - Kecenderungan Jangka Panjang
+        
+        **Definisi:** Pola pergerakan jangka panjang (naik, turun, atau stabil)
+        
+        **Contoh:**
+        - Produksi padi Indonesia cenderung **naik** dari tahun ke tahun
+        - Luas lahan pertanian cenderung **turun** karena urbanisasi
+        
+        **Jenis Trend:**
+        - **Linear:** Y = a + bt (garis lurus)
+        - **Non-linear:** Eksponensial, kuadratik, logaritmik
+        
+        #### 2. **Seasonal (S)** - Pola Musiman
+        
+        **Definisi:** Pola yang **berulang** dalam periode tertentu (< 1 tahun)
+        
+        **Contoh:**
+        - Harga cabai **naik** menjelang Ramadan & Natal
+        - Produksi padi **tinggi** saat musim panen (Maret-April, Sept-Okt)
+        - Curah hujan **tinggi** di musim hujan
+        
+        **Periode:**
+        - Bulanan: 12 bulan
+        - Kuartalan: 4 kuartal
+        - Mingguan: 52 minggu
+        
+        #### 3. **Cyclical (C)** - Pola Siklis
+        
+        **Definisi:** Fluktuasi jangka panjang (> 1 tahun) yang tidak teratur
+        
+        **Contoh:**
+        - Siklus bisnis (boom-recession)
+        - Siklus harga komoditas global
+        - El Niño / La Niña (3-7 tahun)
+        
+        **Perbedaan dengan Seasonal:**
+        - Seasonal: Periode tetap (12 bulan)
+        - Cyclical: Periode tidak tetap (bisa 3-10 tahun)
+        
+        #### 4. **Irregular (I)** - Komponen Acak
+        
+        **Definisi:** Fluktuasi acak yang tidak bisa diprediksi
+        
+        **Contoh:**
+        - Bencana alam (banjir, kekeringan)
+        - Wabah penyakit tanaman
+        - Kebijakan mendadak (impor/ekspor)
+        - Shock harga global
+        
+        ---
+        
+        ### Model Dekomposisi
+        
+        **Tujuan:** Memisahkan komponen T, S, C, I untuk analisis
+        
+        #### Model Aditif:
+        
+        $$Y_t = T_t + S_t + C_t + I_t$$
+        
+        **Kapan digunakan:**
+        - Amplitudo seasonal **konstan** (tidak berubah seiring waktu)
+        - Contoh: Curah hujan (variasi musiman relatif tetap)
+        
+        #### Model Multiplikatif:
+        
+        $$Y_t = T_t \\times S_t \\times C_t \\times I_t$$
+        
+        **Kapan digunakan:**
+        - Amplitudo seasonal **meningkat** seiring trend
+        - Contoh: Harga komoditas (variasi musiman membesar saat harga naik)
+        
+        **Transformasi ke Aditif:**
+        
+        $$\\log(Y_t) = \\log(T_t) + \\log(S_t) + \\log(C_t) + \\log(I_t)$$
+        
+        ---
+        
+        ## 📊 ANALISIS TREND
+        
+        ### A. TREND LINEAR
+        
+        **Model:**
+        
+        $$Y_t = \\alpha + \\beta t + \\varepsilon_t$$
+        
+        Dimana:
+        - **Y_t** = Nilai pada waktu t
+        - **t** = Waktu (1, 2, 3, ..., n)
+        - **α** = Intercept (nilai awal)
+        - **β** = Slope (perubahan per periode)
+        - **ε_t** = Error
+        
+        **Interpretasi:**
+        - **β > 0** → Trend naik (pertumbuhan)
+        - **β < 0** → Trend turun (penurunan)
+        - **β ≈ 0** → Tidak ada trend (stasioner)
+        
+        **Estimasi:** Gunakan OLS (sama seperti regresi biasa)
+        
+        **Contoh: Produksi Padi Indonesia**
+        
+        ```
+        Data: 2010-2023 (14 tahun)
+        
+        Model: Produksi = α + β × Tahun
+        
+        Hasil:
+        Produksi = 50,000 + 1,200 × t
+        
+        Interpretasi:
+        - Produksi awal (2010): 50,000 ton
+        - Pertumbuhan: 1,200 ton per tahun
+        - Prediksi 2024 (t=15): 50,000 + 1,200×15 = 68,000 ton
+        ```
+        
+        **Kelebihan:**
+        - Sederhana
+        - Mudah interpretasi
+        - Cocok untuk trend yang relatif stabil
+        
+        **Kekurangan:**
+        - Tidak bisa capture perubahan kecepatan pertumbuhan
+        - Asumsi pertumbuhan konstan
+        
+        ---
+        
+        ### B. TREND NON-LINEAR
+        
+        #### 1. **Trend Kuadratik (Quadratic)**
+        
+        **Model:**
+        
+        $$Y_t = \\alpha + \\beta_1 t + \\beta_2 t^2 + \\varepsilon_t$$
+        
+        **Kapan digunakan:**
+        - Trend berubah arah (naik lalu turun, atau sebaliknya)
+        - Ada titik maksimum/minimum
+        
+        **Contoh:**
+        - Produksi yang naik cepat lalu melambat (diminishing returns)
+        - Harga yang turun lalu naik kembali
+        
+        **Interpretasi:**
+        - **β₂ > 0** → Kurva cembung (U-shape)
+        - **β₂ < 0** → Kurva cekung (inverted U)
+        
+        **Contoh: Adopsi Teknologi**
+        
+        ```
+        Model: Adopsi = 5 + 10t - 0.5t²
+        
+        Interpretasi:
+        - Awalnya adopsi naik cepat (β₁ = 10)
+        - Lama-lama melambat (β₂ = -0.5)
+        - Titik maksimum: t = -β₁/(2β₂) = -10/(2×-0.5) = 10
+        ```
+        
+        #### 2. **Trend Eksponensial**
+        
+        **Model:**
+        
+        $$Y_t = \\alpha e^{\\beta t}$$
+        
+        Atau dalam bentuk log-linear:
+        
+        $$\\log(Y_t) = \\log(\\alpha) + \\beta t + \\varepsilon_t$$
+        
+        **Kapan digunakan:**
+        - Pertumbuhan **proporsional** (compound growth)
+        - Growth rate konstan
+        
+        **Contoh:**
+        - Populasi (pertumbuhan eksponensial)
+        - Harga dengan inflasi konstan
+        - Penyebaran penyakit
+        
+        **Interpretasi β:**
+        
+        $$\\text{Growth rate} = (e^\\beta - 1) \\times 100\\%$$
+        
+        **Contoh: Harga Lahan**
+        
+        ```
+        Model: log(Harga) = 10 + 0.05t
+        
+        Interpretasi:
+        - β = 0.05
+        - Growth rate = (e^0.05 - 1) × 100% = 5.13% per tahun
+        - Harga naik 5.13% per tahun (compound)
+        ```
+        
+        #### 3. **Trend Logaritmik**
+        
+        **Model:**
+        
+        $$Y_t = \\alpha + \\beta \\log(t) + \\varepsilon_t$$
+        
+        **Kapan digunakan:**
+        - Pertumbuhan cepat awalnya, lalu melambat
+        - Approaching saturation
+        
+        **Contoh:**
+        - Hasil panen dengan pupuk (diminishing returns)
+        - Adopsi teknologi (S-curve awal)
+        
+        #### 4. **Trend Logistik (S-Curve)**
+        
+        **Model:**
+        
+        $$Y_t = \\frac{K}{1 + e^{-r(t-t_0)}}$$
+        
+        Dimana:
+        - **K** = Carrying capacity (nilai maksimum)
+        - **r** = Growth rate
+        - **t₀** = Titik infleksi
+        
+        **Kapan digunakan:**
+        - Pertumbuhan dengan batas atas
+        - Adopsi teknologi (S-curve penuh)
+        - Penyebaran inovasi
+        
+        **Contoh:**
+        - Adopsi varietas baru (0% → 100%)
+        - Market share (ada batas maksimum)
+        
+        ---
+        
+        ### Pemilihan Model Trend
+        
+        **Langkah-langkah:**
+        
+        1. **Plot data** → Lihat pola visual
+        2. **Coba beberapa model** (linear, kuadratik, eksponensial)
+        3. **Bandingkan R²** → Pilih yang tertinggi
+        4. **Cek residual** → Harus acak (tidak ada pola)
+        5. **Interpretasi** → Pilih yang paling masuk akal
+        
+        **Kriteria Pemilihan:**
+        
+        | Pola Data | Model Terbaik |
+        |-----------|---------------|
+        | Garis lurus | Linear |
+        | Kurva cembung/cekung | Kuadratik |
+        | Naik cepat terus | Eksponensial |
+        | Naik cepat lalu lambat | Logaritmik |
+        | S-curve | Logistik |
+        
+        ---
+        
+        ## 🔄 METODE DEKOMPOSISI
+        
+        ### Tujuan Dekomposisi
+        
+        1. **Memahami** komponen-komponen time series
+        2. **Menghilangkan** seasonal untuk lihat trend murni
+        3. **Forecasting** yang lebih akurat
+        4. **Deteksi** anomali (irregular component)
+        
+        ---
+        
+        ### Metode 1: MOVING AVERAGE (Rata-rata Bergerak)
+        
+        **Tujuan:** Smoothing data untuk lihat trend
+        
+        **Formula (MA sederhana):**
+        
+        $$MA_t = \\frac{Y_{t-k} + Y_{t-k+1} + ... + Y_t + ... + Y_{t+k}}{2k+1}$$
+        
+        **Contoh: MA(3) - Moving Average 3 periode**
+        
+        ```
+        Data: 10, 12, 15, 14, 16, 18, 20
+        
+        MA₃(t=2) = (10 + 12 + 15) / 3 = 12.33
+        MA₃(t=3) = (12 + 15 + 14) / 3 = 13.67
+        MA₃(t=4) = (15 + 14 + 16) / 3 = 15.00
+        ...
+        ```
+        
+        **Pemilihan k:**
+        - **k kecil** (3, 5) → Mengikuti data lebih dekat
+        - **k besar** (12, 24) → Lebih smooth, hilangkan seasonal
+        - **Seasonal data:** k = periode seasonal (12 untuk bulanan)
+        
+        **Kelebihan:**
+        - Sederhana
+        - Mudah dipahami
+        - Efektif hilangkan noise
+        
+        **Kekurangan:**
+        - Hilang data di awal dan akhir
+        - Lag (tertinggal dari data aktual)
+        
+        ---
+        
+        ### Metode 2: CENTERED MOVING AVERAGE
+        
+        **Untuk seasonal adjustment:**
+        
+        **Langkah (untuk data bulanan):**
+        
+        1. **MA(12)** → Hilangkan seasonal
+        2. **Center** → Rata-rata 2 MA berurutan
+        3. **Deseasonalize** → Y / CMA (untuk multiplikatif)
+        
+        **Contoh:**
+        
+        ```
+        Bulan | Y   | MA(12) | CMA   | Y/CMA
+        ------|-----|--------|-------|------
+        Jan   | 100 |   -    |   -   |  -
+        ...   | ... |  ...   |  ...  | ...
+        Jul   | 120 | 105.0  | 105.5 | 1.14  ← 14% di atas trend
+        Aug   | 110 | 106.0  | 105.5 | 1.04
+        ...
+        ```
+        
+        ---
+        
+        ### Metode 3: CLASSICAL DECOMPOSITION
+        
+        **Langkah-langkah (Model Multiplikatif):**
+        
+        **Step 1: Estimasi Trend (T)**
+        - Gunakan MA atau regresi
+        
+        **Step 2: Detrend**
+        - Hitung: Y / T (untuk multiplikatif)
+        - Atau: Y - T (untuk aditif)
+        
+        **Step 3: Estimasi Seasonal (S)**
+        - Rata-rata untuk setiap periode (bulan/kuartal)
+        - Normalisasi agar total = 12 (untuk multiplikatif)
+        
+        **Step 4: Deseasonalize**
+        - Hitung: Y / S
+        
+        **Step 5: Estimasi Irregular (I)**
+        - I = Y / (T × S)
+        
+        **Contoh Output:**
+        
+        ```
+        Bulan | Y   | T    | S     | I     | Ŷ = T×S
+        ------|-----|------|-------|-------|--------
+        Jan   | 95  | 100  | 0.90  | 1.06  | 90
+        Feb   | 88  | 101  | 0.85  | 1.03  | 86
+        Mar   | 110 | 102  | 1.05  | 1.03  | 107
+        Apr   | 125 | 103  | 1.20  | 1.01  | 124
+        ...
+        ```
+        
+        **Interpretasi:**
+        - **S = 0.90** → Januari 10% di bawah rata-rata
+        - **S = 1.20** → April 20% di atas rata-rata
+        
+        ---
+        
+        ### Metode 4: STL DECOMPOSITION
+        
+        **STL = Seasonal and Trend decomposition using Loess**
+        
+        **Kelebihan:**
+        - Lebih robust terhadap outliers
+        - Bisa handle seasonal yang berubah
+        - Lebih fleksibel
+        
+        **Kapan digunakan:**
+        - Data dengan outliers banyak
+        - Seasonal pattern berubah seiring waktu
+        - Perlu dekomposisi yang lebih akurat
+        
+        ---
+        
+        ## 📊 APLIKASI DALAM PERTANIAN
+        
+        ### Contoh 1: Analisis Harga Cabai
+        
+        **Data:** Harga cabai bulanan 2020-2023
+        
+        **Analisis:**
+        
+        1. **Trend:** Linear naik (inflasi)
+           - Model: Harga = 25,000 + 500t
+           - Harga naik Rp 500/kg per bulan
+        
+        2. **Seasonal:** Pola musiman jelas
+           - Tinggi: Ramadan (bulan 4), Natal (bulan 12)
+           - Rendah: Pasca panen (bulan 2-3, 8-9)
+        
+        3. **Dekomposisi:**
+           - Seasonal index Ramadan: 1.35 (35% di atas trend)
+           - Seasonal index Februari: 0.75 (25% di bawah trend)
+        
+        **Rekomendasi:**
+        - **Petani:** Tanam agar panen sebelum Ramadan/Natal
+        - **Pedagang:** Stok sebelum peak season
+        - **Konsumen:** Beli saat off-season (lebih murah)
+        
+        ### Contoh 2: Forecasting Produksi Padi
+        
+        **Data:** Produksi padi tahunan 1990-2023
+        
+        **Analisis:**
+        
+        1. **Trend:** Kuadratik
+           - Model: Produksi = 40,000 + 2,000t - 50t²
+           - Pertumbuhan melambat (diminishing returns)
+        
+        2. **Forecast 2024-2026:**
+           - 2024: 68,500 ton
+           - 2025: 69,400 ton
+           - 2026: 70,200 ton
+        
+        3. **Interpretasi:**
+           - Pertumbuhan masih positif tapi melambat
+           - Perlu inovasi untuk akselerasi
+        
+        ---
+        
+        ## ⚠️ PERINGATAN PENTING
+        
+        1. **Stationarity:**
+           - Time series harus stasioner untuk analisis lanjutan (ARIMA)
+           - Cek dengan Augmented Dickey-Fuller test
+        
+        2. **Autocorrelation:**
+           - Residual time series sering berkorelasi
+           - Gunakan Durbin-Watson test
+           - Jika ada autokorelasi → Gunakan ARIMA, bukan OLS
+        
+        3. **Structural Breaks:**
+           - Perubahan kebijakan, bencana → Trend berubah
+           - Cek dengan Chow test
+           - Jika ada break → Model terpisah untuk setiap periode
+        
+        4. **Extrapolation:**
+           - Jangan forecast terlalu jauh (max 10-20% dari data)
+           - Uncertainty meningkat eksponensial
+        
+        5. **Seasonal Adjustment:**
+           - Gunakan data deseasonalized untuk analisis trend
+           - Tapi gunakan data asli untuk forecast
+        
+        ---
+        
+        ## 💡 TIPS PRAKTIS
+        
+        1. **Selalu Plot Data Dulu:**
+           - Visual inspection sangat penting
+           - Lihat pola, outliers, breaks
+        
+        2. **Gunakan Multiple Models:**
+           - Coba linear, kuadratik, eksponensial
+           - Pilih yang paling fit (R² tinggi, residual acak)
+        
+        3. **Validasi Forecast:**
+           - Hold-out sample (20% data terakhir)
+           - Compare forecast vs actual
+           - Hitung MAPE (Mean Absolute Percentage Error)
+        
+        4. **Dokumentasi:**
+           - Catat asumsi yang digunakan
+           - Jelaskan pemilihan model
+           - Report uncertainty (confidence interval)
+        
+        5. **Update Berkala:**
+           - Re-estimate model dengan data baru
+           - Trend bisa berubah seiring waktu
+        
+        """)  # End of Time Series sub-tab
+    
+    # ===== SUB-TAB 5: VISUALISASI & PRAKTIK =====
     with subtab_viz:
         st.subheader("📊 Visualisasi Garis Regresi & Residual")
         
