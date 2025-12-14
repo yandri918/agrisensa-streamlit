@@ -1411,8 +1411,6 @@ with tab_hormone:
         st.subheader("💧 Asam Absisat (ABA)")
         
         st.markdown("""
-        ## 💧 ASAM ABSISAT (ABA - Abscisic Acid)
-        
         ### Apa itu ABA?
         
         **ABA (Abscisic Acid)** adalah hormon "stress" yang membantu tanaman bertahan dalam kondisi tidak menguntungkan.
@@ -1800,8 +1798,6 @@ with tab_hormone:
         st.subheader("🍇 Sumber Hormon Alami")
         
         st.markdown("""
-        ## 🍇 SUMBER HORMON TUMBUHAN ALAMI
-        
         ### Mengapa Gunakan Sumber Alami?
         
         **Keuntungan:**
