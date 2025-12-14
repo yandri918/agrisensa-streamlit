@@ -636,6 +636,112 @@ with tab_regression:
         
         ---
         
+        ### Koefisien Korelasi (r) - Pearson Correlation
+        
+        **Koefisien korelasi (r)** mengukur **kekuatan dan arah** hubungan linear antara dua variabel:
+        
+        $$r = \\frac{\\sum(X_i - \\bar{X})(Y_i - \\bar{Y})}{\\sqrt{\\sum(X_i - \\bar{X})^2 \\sum(Y_i - \\bar{Y})^2}}$$
+        
+        Atau dalam bentuk lain:
+        
+        $$r = \\frac{\\text{Cov}(X,Y)}{\\sigma_X \\sigma_Y}$$
+        
+        **Rentang Nilai:**
+        - **r = +1** → Korelasi positif sempurna (X naik, Y naik proporsional)
+        - **r = 0** → Tidak ada korelasi linear
+        - **r = -1** → Korelasi negatif sempurna (X naik, Y turun proporsional)
+        
+        **Interpretasi Kekuatan Korelasi:**
+        - **|r| > 0.8** → Korelasi sangat kuat
+        - **0.6 < |r| ≤ 0.8** → Korelasi kuat
+        - **0.4 < |r| ≤ 0.6** → Korelasi sedang
+        - **0.2 < |r| ≤ 0.4** → Korelasi lemah
+        - **|r| ≤ 0.2** → Korelasi sangat lemah/tidak ada
+        
+        **Contoh Interpretasi:**
+        - **r = 0.85** → Korelasi positif sangat kuat (X dan Y bergerak searah)
+        - **r = -0.65** → Korelasi negatif kuat (X naik, Y cenderung turun)
+        - **r = 0.25** → Korelasi positif lemah (hubungan tidak terlalu jelas)
+        
+        ---
+        
+        ### 🔗 Hubungan antara r dan R²
+        
+        **Untuk regresi linear sederhana (1 variabel X):**
+        
+        $$R^2 = r^2$$
+        
+        **Artinya:**
+        - Jika **r = 0.9**, maka **R² = 0.81** (81% variasi dijelaskan)
+        - Jika **r = -0.9**, maka **R² = 0.81** (sama! R² selalu positif)
+        - Jika **r = 0.5**, maka **R² = 0.25** (hanya 25% variasi dijelaskan)
+        
+        **Perbedaan Penting:**
+        
+        | Aspek | Korelasi (r) | Determinasi (R²) |
+        |-------|--------------|------------------|
+        | **Rentang** | -1 hingga +1 | 0 hingga 1 |
+        | **Arah** | Menunjukkan arah (+ atau -) | Tidak menunjukkan arah |
+        | **Interpretasi** | Kekuatan & arah hubungan | Proporsi variasi yang dijelaskan |
+        | **Regresi Berganda** | Tidak berlaku | Berlaku (R² multiple) |
+        
+        **Contoh Praktis:**
+        
+        Misalkan kita analisis hubungan **Dosis Pupuk N (X)** dengan **Hasil Panen (Y)**:
+        
+        - **r = 0.85** → Ada korelasi positif kuat (semakin banyak pupuk, hasil cenderung naik)
+        - **R² = 0.72** → 72% variasi hasil panen dijelaskan oleh dosis pupuk
+        - **Sisanya 28%** → Dijelaskan oleh faktor lain (cuaca, varietas, dll)
+        
+        ---
+        
+        ### 📊 Visualisasi Korelasi
+        
+        **Korelasi Positif Kuat (r ≈ 0.9):**
+        ```
+        Y |        ●
+          |      ●
+          |    ●
+          |  ●
+          |●___________X
+        ```
+        
+        **Korelasi Negatif Kuat (r ≈ -0.9):**
+        ```
+        Y |●
+          |  ●
+          |    ●
+          |      ●
+          |        ●___X
+        ```
+        
+        **Tidak Ada Korelasi (r ≈ 0):**
+        ```
+        Y |  ●   ●
+          |●   ●   ●
+          |  ●   ●
+          |___________X
+        ```
+        
+        ---
+        
+        ### ⚠️ Peringatan Penting
+        
+        1. **Korelasi ≠ Kausalitas**
+           - r = 0.9 TIDAK berarti X menyebabkan Y
+           - Bisa ada variabel ketiga yang mempengaruhi keduanya
+           - Contoh: Es krim dan kasus tenggelam berkorelasi (keduanya naik di musim panas)
+        
+        2. **Korelasi hanya mengukur hubungan LINEAR**
+           - Bisa ada hubungan non-linear yang kuat tapi r = 0
+           - Contoh: Y = X² memiliki hubungan sempurna tapi r ≠ 1
+        
+        3. **Outlier sangat mempengaruhi r**
+           - Satu data ekstrem bisa mengubah r secara signifikan
+           - Selalu cek scatter plot, jangan hanya lihat angka r
+        
+        ---
+        
         ### Asumsi Regresi Linear (BLUE - Best Linear Unbiased Estimator)
         
         Agar hasil regresi valid, harus memenuhi asumsi:
@@ -672,6 +778,129 @@ with tab_regression:
             - Setiap kenaikan 1 unit X, Y naik {slope_demo} unit
             - Pada X = {x_value}, prediksi Y = {y_pred_demo:.2f}
             """)
+        
+        # Correlation Calculator
+        st.divider()
+        st.markdown("### 📊 Kalkulator Korelasi & R²")
+        
+        st.info("""
+        **Demonstrasi Hubungan r dan R²**
+        
+        Kalkulator ini menunjukkan bagaimana koefisien korelasi (r) berhubungan dengan koefisien determinasi (R²).
+        Anda bisa generate data dengan korelasi tertentu dan lihat hasilnya!
+        """)
+        
+        col_corr1, col_corr2 = st.columns(2)
+        
+        with col_corr1:
+            st.markdown("**Input Parameter:**")
+            target_r = st.slider("Target Korelasi (r)", -1.0, 1.0, 0.8, 0.05, key='target_r')
+            n_points = st.slider("Jumlah Data", 20, 100, 50, key='n_points_corr')
+            noise_factor = st.slider("Noise Level", 0.0, 2.0, 0.3, 0.1, key='noise_corr')
+        
+        # Generate correlated data
+        np.random.seed(42)
+        X_corr = np.random.uniform(0, 100, n_points)
+        
+        # Generate Y with target correlation
+        # Using Cholesky decomposition for exact correlation
+        mean = [50, 50]
+        cov = [[100, target_r * 100], [target_r * 100, 100]]
+        data_corr = np.random.multivariate_normal(mean, cov, n_points)
+        X_corr = data_corr[:, 0]
+        Y_corr = data_corr[:, 1] + np.random.normal(0, noise_factor, n_points)
+        
+        # Calculate actual correlation and R²
+        correlation = np.corrcoef(X_corr, Y_corr)[0, 1]
+        r_squared = correlation ** 2
+        
+        # Fit regression for comparison
+        from sklearn.linear_model import LinearRegression
+        model_corr = LinearRegression()
+        model_corr.fit(X_corr.reshape(-1, 1), Y_corr)
+        r2_sklearn = model_corr.score(X_corr.reshape(-1, 1), Y_corr)
+        
+        with col_corr2:
+            st.markdown("**Hasil Perhitungan:**")
+            
+            col_metric1, col_metric2 = st.columns(2)
+            with col_metric1:
+                st.metric("Korelasi (r)", f"{correlation:.4f}")
+                if abs(correlation) > 0.8:
+                    st.caption("✅ Korelasi sangat kuat")
+                elif abs(correlation) > 0.6:
+                    st.caption("✅ Korelasi kuat")
+                elif abs(correlation) > 0.4:
+                    st.caption("⚠️ Korelasi sedang")
+                else:
+                    st.caption("❌ Korelasi lemah")
+            
+            with col_metric2:
+                st.metric("R² (dari r²)", f"{r_squared:.4f}")
+                st.caption(f"R² (sklearn): {r2_sklearn:.4f}")
+        
+        # Verification
+        st.success(f"""
+        **✅ Verifikasi Hubungan r dan R²:**
+        
+        - r = {correlation:.4f}
+        - r² = {correlation**2:.4f}
+        - R² (sklearn) = {r2_sklearn:.4f}
+        - **Selisih:** {abs(r_squared - r2_sklearn):.6f} (seharusnya ≈ 0)
+        
+        **Interpretasi:**
+        - {abs(r_squared * 100):.1f}% variasi Y dijelaskan oleh X
+        - {abs((1 - r_squared) * 100):.1f}% dijelaskan oleh faktor lain
+        """)
+        
+        # Plot correlation
+        fig_corr = go.Figure()
+        
+        fig_corr.add_trace(go.Scatter(
+            x=X_corr, y=Y_corr,
+            mode='markers',
+            name='Data Points',
+            marker=dict(size=8, color='#3b82f6', opacity=0.6)
+        ))
+        
+        # Add regression line
+        Y_pred_corr = model_corr.predict(X_corr.reshape(-1, 1))
+        fig_corr.add_trace(go.Scatter(
+            x=X_corr, y=Y_pred_corr,
+            mode='lines',
+            name='Regression Line',
+            line=dict(color='#ef4444', width=2)
+        ))
+        
+        fig_corr.update_layout(
+            title=f"Scatter Plot: r = {correlation:.3f}, R² = {r_squared:.3f}",
+            xaxis_title="X",
+            yaxis_title="Y",
+            height=400
+        )
+        
+        st.plotly_chart(fig_corr, use_container_width=True)
+        
+        # Interpretation guide
+        st.markdown("""
+        **💡 Panduan Interpretasi:**
+        
+        1. **Korelasi Positif (r > 0):**
+           - Garis regresi naik dari kiri ke kanan
+           - X naik → Y cenderung naik
+           - Contoh: Dosis pupuk vs Hasil panen
+        
+        2. **Korelasi Negatif (r < 0):**
+           - Garis regresi turun dari kiri ke kanan
+           - X naik → Y cenderung turun
+           - Contoh: Suhu vs Kualitas produk tertentu
+        
+        3. **Tidak Ada Korelasi (r ≈ 0):**
+           - Garis regresi hampir horizontal
+           - X tidak mempengaruhi Y
+           - R² mendekati 0 (model tidak berguna)
+        """)
+
     
     # ===== SUB-TAB 2: VISUALISASI =====
     with subtab_viz:
