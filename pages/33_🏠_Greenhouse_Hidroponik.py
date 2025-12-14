@@ -256,8 +256,6 @@ with tab_greenhouse:
     
     """)
 
-    """)
-
 # ===== TAB 2: SISTEM HIDROPONIK =====
 with tab_hydro:
     st.header("💧 Sistem Hidroponik")
