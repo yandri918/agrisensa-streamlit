@@ -1023,8 +1023,385 @@ with tab_regression:
            - Model hanya valid dalam range observasi
         
         5. **Asumsi:**
-           - Tetap harus cek asumsi BLUE
-           - Gunakan residual plot untuk diagnostik
+        
+        ---
+        
+        ## 📊 INFERENSIA REGRESI OLS (Statistical Inference)
+        
+        ### Apa itu Inferensia Statistik dalam Regresi?
+        
+        **Inferensia statistik** memungkinkan kita untuk:
+        1. **Menguji hipotesis** tentang parameter populasi (β)
+        2. **Membuat interval kepercayaan** untuk estimasi parameter
+        3. **Memprediksi** nilai Y baru dengan tingkat kepercayaan tertentu
+        4. **Menilai signifikansi** model secara keseluruhan
+        
+        Ingat: Data yang kita punya adalah **sampel** dari **populasi**. Inferensia membantu kita menarik kesimpulan tentang populasi berdasarkan sampel.
+        
+        ---
+        
+        ### A. PENGUJIAN PARAMETER REGRESI & INTERVAL KEPERCAYAAN
+        
+        #### 1. Uji Hipotesis untuk Koefisien Individual (Uji t)
+        
+        **Tujuan:** Menguji apakah variabel Xⱼ berpengaruh signifikan terhadap Y
+        
+        **Hipotesis:**
+        - **H₀: βⱼ = 0** (variabel Xⱼ tidak berpengaruh)
+        - **H₁: βⱼ ≠ 0** (variabel Xⱼ berpengaruh)
+        
+        **Statistik Uji:**
+        
+        $$t = \\frac{\\hat{\\beta}_j - 0}{SE(\\hat{\\beta}_j)}$$
+        
+        Dimana:
+        - **β̂ⱼ** = Estimasi koefisien dari sampel
+        - **SE(β̂ⱼ)** = Standard error dari β̂ⱼ
+        
+        **Standard Error:**
+        
+        $$SE(\\hat{\\beta}_j) = \\sqrt{\\frac{MSE}{\\sum(X_{ij} - \\bar{X}_j)^2}}$$
+        
+        Dimana MSE (Mean Squared Error) = SSE/(n-k-1)
+        
+        **Distribusi:** t mengikuti distribusi t-Student dengan df = n-k-1
+        
+        **Keputusan:**
+        - Jika **|t| > t_critical** atau **p-value < α** → Tolak H₀ (signifikan)
+        - Jika **|t| ≤ t_critical** atau **p-value ≥ α** → Terima H₀ (tidak signifikan)
+        
+        **Contoh Output:**
+        ```
+        Variabel: Pupuk_N
+        Koefisien (β̂): 15.5
+        Standard Error: 2.3
+        t-statistic: 6.74
+        p-value: 0.000
+        
+        Kesimpulan: Pupuk N berpengaruh signifikan (p < 0.05) ✅
+        ```
+        
+        ---
+        
+        #### 2. Interval Kepercayaan untuk Koefisien (Confidence Interval)
+        
+        **Tujuan:** Estimasi range nilai β yang mungkin dengan tingkat kepercayaan tertentu (biasanya 95%)
+        
+        **Formula:**
+        
+        $$CI_{95\\%}(\\beta_j) = \\hat{\\beta}_j \\pm t_{\\alpha/2, df} \\times SE(\\hat{\\beta}_j)$$
+        
+        Dimana:
+        - **t_{α/2, df}** = Nilai kritis t untuk α = 0.05 dan df = n-k-1
+        - Untuk 95% CI: α = 0.05, α/2 = 0.025
+        
+        **Interpretasi:**
+        
+        "Kita 95% yakin bahwa nilai β yang sebenarnya berada dalam interval ini"
+        
+        **Contoh:**
+        ```
+        Pupuk N:
+        β̂ = 15.5
+        SE = 2.3
+        t_critical (df=97, α=0.025) = 1.984
+        
+        CI_95% = 15.5 ± 1.984 × 2.3
+               = 15.5 ± 4.56
+               = [10.94, 20.06]
+        
+        Interpretasi:
+        Kita 95% yakin bahwa setiap kenaikan 1 kg/ha pupuk N akan
+        meningkatkan yield antara 10.94 hingga 20.06 kg/ha
+        ```
+        
+        **Hubungan CI dengan Uji t:**
+        - Jika **CI tidak mengandung 0** → Variabel signifikan
+        - Jika **CI mengandung 0** → Variabel tidak signifikan
+        
+        ---
+        
+        #### 3. Uji Signifikansi Model Keseluruhan (Uji F)
+        
+        **Tujuan:** Menguji apakah model secara keseluruhan berguna
+        
+        **Hipotesis:**
+        - **H₀: β₁ = β₂ = ... = βₖ = 0** (semua variabel tidak berpengaruh)
+        - **H₁: Minimal ada satu βⱼ ≠ 0** (minimal satu variabel berpengaruh)
+        
+        **Statistik Uji:**
+        
+        $$F = \\frac{MSR}{MSE} = \\frac{SSR/k}{SSE/(n-k-1)} = \\frac{R^2/k}{(1-R^2)/(n-k-1)}$$
+        
+        Dimana:
+        - **SSR** = Sum of Squares Regression (variasi dijelaskan model)
+        - **SSE** = Sum of Squares Error (variasi tidak dijelaskan)
+        - **MSR** = Mean Square Regression = SSR/k
+        - **MSE** = Mean Square Error = SSE/(n-k-1)
+        
+        **Distribusi:** F mengikuti distribusi F dengan df₁ = k dan df₂ = n-k-1
+        
+        **Tabel ANOVA:**
+        
+        | Source | SS | df | MS | F | p-value |
+        |--------|----|----|----|----|---------|
+        | Regression | SSR | k | MSR | F | p |
+        | Residual | SSE | n-k-1 | MSE | - | - |
+        | Total | SST | n-1 | - | - | - |
+        
+        **Contoh:**
+        ```
+        ANOVA Table:
+        Source      | SS      | df  | MS     | F      | p-value
+        ------------|---------|-----|--------|--------|--------
+        Regression  | 450.5   | 3   | 150.17 | 112.5  | <0.001
+        Residual    | 128.3   | 96  | 1.34   |        |
+        Total       | 578.8   | 99  |        |        |
+        
+        Kesimpulan: Model signifikan (F = 112.5, p < 0.001) ✅
+        ```
+        
+        ---
+        
+        #### 4. Interval Prediksi (Prediction Interval)
+        
+        **Perbedaan CI vs PI:**
+        
+        | Aspek | Confidence Interval | Prediction Interval |
+        |-------|---------------------|---------------------|
+        | **Untuk** | Estimasi rata-rata E(Y) | Prediksi nilai individual Y |
+        | **Lebar** | Lebih sempit | Lebih lebar |
+        | **Interpretasi** | Rata-rata populasi | Nilai individual baru |
+        
+        **Formula Prediction Interval:**
+        
+        $$PI_{95\\%}(Y_{new}) = \\hat{Y}_{new} \\pm t_{\\alpha/2, df} \\times SE_{pred}$$
+        
+        Dimana:
+        
+        $$SE_{pred} = \\sqrt{MSE \\times (1 + \\frac{1}{n} + \\frac{(X_{new} - \\bar{X})^2}{\\sum(X_i - \\bar{X})^2})}$$
+        
+        **Contoh:**
+        ```
+        Prediksi yield untuk petani baru dengan Pupuk N = 150 kg/ha:
+        
+        Ŷ = 2000 + 15 × 150 = 4,250 kg/ha
+        
+        SE_pred = 85.3
+        t_critical = 1.984
+        
+        PI_95% = 4,250 ± 1.984 × 85.3
+               = 4,250 ± 169.2
+               = [4,080.8, 4,419.2]
+        
+        Interpretasi:
+        Kita 95% yakin bahwa petani baru dengan pupuk N = 150 kg/ha
+        akan memiliki yield antara 4,081 hingga 4,419 kg/ha
+        ```
+        
+        ---
+        
+        ### B. KOEFISIEN DETERMINASI BERGANDA & OUTPUT SPSS
+        
+        #### 1. R² dan Adjusted R² (Review)
+        
+        **R² (Coefficient of Multiple Determination):**
+        
+        $$R^2 = \\frac{SSR}{SST} = 1 - \\frac{SSE}{SST}$$
+        
+        **Interpretasi:** Proporsi variasi Y yang dijelaskan oleh semua variabel X secara bersama-sama
+        
+        **Adjusted R²:**
+        
+        $$R^2_{adj} = 1 - \\frac{(1-R^2)(n-1)}{n-k-1}$$
+        
+        **Kapan Gunakan:**
+        - **R²**: Untuk menilai goodness of fit satu model
+        - **R²adj**: Untuk membandingkan model dengan jumlah variabel berbeda
+        
+        ---
+        
+        #### 2. Interpretasi Output Regresi (SPSS-Style)
+        
+        **Contoh Output Lengkap:**
+        
+        ```
+        ═══════════════════════════════════════════════════════════
+        MODEL SUMMARY
+        ═══════════════════════════════════════════════════════════
+        R                    : 0.883
+        R Square             : 0.780
+        Adjusted R Square    : 0.773
+        Std. Error of Est.   : 1.157
+        
+        ═══════════════════════════════════════════════════════════
+        ANOVA
+        ═══════════════════════════════════════════════════════════
+        Source          | SS      | df  | MS     | F      | Sig.
+        ----------------|---------|-----|--------|--------|-------
+        Regression      | 450.5   | 3   | 150.17 | 112.5  | .000
+        Residual        | 128.3   | 96  | 1.34   |        |
+        Total           | 578.8   | 99  |        |        |
+        
+        ═══════════════════════════════════════════════════════════
+        COEFFICIENTS
+        ═══════════════════════════════════════════════════════════
+        Variable    | B      | SE    | Beta  | t     | Sig.  | VIF
+        ------------|--------|-------|-------|-------|-------|-----
+        (Constant)  | 2.500  | 0.350 |       | 7.14  | .000  |
+        Pupuk_NPK   | 0.015  | 0.002 | 0.520 | 8.20  | .000  | 1.2
+        Pestisida   | 0.800  | 0.157 | 0.380 | 5.10  | .000  | 1.5
+        Tenaga_Kerja| 0.050  | 0.022 | 0.160 | 2.30  | .024  | 1.3
+        
+        ═══════════════════════════════════════════════════════════
+        ```
+        
+        **Cara Membaca Output:**
+        
+        **1. Model Summary:**
+        - **R = 0.883**: Korelasi multiple (kekuatan hubungan)
+        - **R² = 0.780**: 78% variasi yield dijelaskan oleh 3 variabel
+        - **R²adj = 0.773**: Adjusted untuk kompleksitas model
+        - **Std. Error = 1.157**: Rata-rata deviasi prediksi dari aktual
+        
+        **2. ANOVA:**
+        - **F = 112.5, Sig. = .000**: Model signifikan (p < 0.001) ✅
+        - Minimal ada satu variabel yang berpengaruh
+        
+        **3. Coefficients:**
+        
+        **Pupuk NPK:**
+        - **B = 0.015**: Setiap +1 kg/ha NPK → yield +0.015 ton/ha (15 kg/ha)
+        - **SE = 0.002**: Standard error estimasi
+        - **Beta = 0.520**: Standardized coefficient (paling kuat!)
+        - **t = 8.20, Sig. = .000**: Sangat signifikan ✅
+        - **VIF = 1.2**: Tidak ada multikolinearitas ✅
+        
+        **Pestisida:**
+        - **B = 0.800**: Setiap +1 liter/ha → yield +0.8 ton/ha
+        - **Beta = 0.380**: Faktor kedua terkuat
+        - **t = 5.10, Sig. = .000**: Signifikan ✅
+        - **VIF = 1.5**: OK ✅
+        
+        **Tenaga Kerja:**
+        - **B = 0.050**: Setiap +1 HOK/ha → yield +0.05 ton/ha
+        - **Beta = 0.160**: Faktor terlemah (tapi tetap signifikan)
+        - **t = 2.30, Sig. = .024**: Signifikan ✅
+        - **VIF = 1.3**: OK ✅
+        
+        ---
+        
+        #### 3. Langkah-langkah Analisis Regresi (Praktis)
+        
+        **Step 1: Estimasi Model**
+        - Jalankan regresi OLS
+        - Dapatkan koefisien β̂
+        
+        **Step 2: Uji Signifikansi Model (F-test)**
+        - Cek ANOVA table
+        - Jika p < 0.05 → Lanjut
+        - Jika p ≥ 0.05 → Model tidak berguna, STOP
+        
+        **Step 3: Uji Signifikansi Individual (t-test)**
+        - Cek p-value setiap variabel
+        - Hapus variabel dengan p ≥ 0.05 (tidak signifikan)
+        - Re-run model tanpa variabel tersebut
+        
+        **Step 4: Cek Multikolinearitas (VIF)**
+        - Jika VIF ≥ 10 → Ada masalah
+        - Hapus salah satu variabel yang berkorelasi tinggi
+        
+        **Step 5: Cek Asumsi (Diagnostik)**
+        - Residual plot → Cek linearitas & homoskedastisitas
+        - Q-Q plot → Cek normalitas
+        - Jika asumsi dilanggar → Transformasi atau model lain
+        
+        **Step 6: Interpretasi**
+        - Interpretasi koefisien dalam konteks bisnis
+        - Buat rekomendasi praktis
+        
+        **Step 7: Prediksi (Opsional)**
+        - Gunakan model untuk prediksi nilai baru
+        - Hitung prediction interval
+        
+        ---
+        
+        ### C. CONTOH LENGKAP: ANALISIS REGRESI STEP-BY-STEP
+        
+        **Kasus:** Prediksi Harga Tomat (Rp/kg) berdasarkan:
+        - X₁ = Kualitas (1-10)
+        - X₂ = Jarak ke Pasar (km)
+        - X₃ = Musim (0=off-season, 1=peak)
+        
+        **Data:** 80 observasi
+        
+        **Hasil Regresi:**
+        
+        ```
+        Harga = 5,200 + 350×Kualitas - 45×Jarak + 120×Musim
+        
+        R² = 0.72, R²adj = 0.71, F = 68.5 (p < 0.001)
+        
+        Koefisien:
+        - Kualitas: β = 350, SE = 45, t = 7.8, p < 0.001 ✅
+        - Jarak: β = -45, SE = 12, t = -3.75, p < 0.001 ✅
+        - Musim: β = 120, SE = 85, t = 1.41, p = 0.163 ❌
+        
+        VIF: Kualitas = 1.1, Jarak = 1.2, Musim = 1.05 ✅
+        ```
+        
+        **Interpretasi:**
+        
+        1. **Model Valid:**
+           - F-test signifikan → Model berguna ✅
+           - R²adj = 0.71 → 71% variasi harga dijelaskan
+           - VIF < 5 → Tidak ada multikolinearitas ✅
+        
+        2. **Variabel Signifikan:**
+           - **Kualitas** (p < 0.001): Setiap +1 poin → harga +Rp 350/kg
+           - **Jarak** (p < 0.001): Setiap +1 km → harga -Rp 45/kg
+           - **Musim** (p = 0.163): TIDAK signifikan ❌
+        
+        3. **Rekomendasi:**
+           - Hapus variabel "Musim" (tidak signifikan)
+           - Re-run model hanya dengan Kualitas dan Jarak
+           - Fokus pada peningkatan kualitas (efek terbesar)
+           - Minimalisir jarak transportasi
+        
+        4. **Prediksi:**
+           ```
+           Untuk tomat dengan Kualitas = 8, Jarak = 10 km:
+           
+           Harga = 5,200 + 350×8 - 45×10
+                 = 5,200 + 2,800 - 450
+                 = 7,550 Rp/kg
+           
+           PI_95% = [6,850, 8,250] Rp/kg
+           ```
+        
+        ---
+        
+        ### ⚠️ Peringatan Penting Inferensia
+        
+        1. **Sample Size:**
+           - Minimal n ≥ 30 untuk asumsi normalitas (CLT)
+           - Minimal n ≥ 10k untuk regresi berganda
+        
+        2. **Outliers:**
+           - Satu outlier bisa mengubah hasil drastis
+           - Selalu cek scatter plot dan residual plot
+        
+        3. **P-value Bukan Segalanya:**
+           - p < 0.05 tidak berarti efek besar atau penting
+           - Lihat juga magnitude koefisien dan R²
+        
+        4. **Multiple Testing:**
+           - Jika test banyak variabel, gunakan Bonferroni correction
+           - α_adjusted = α / jumlah_test
+        
+        5. **Causation:**
+           - Signifikansi statistik ≠ kausalitas
+           - Perlu eksperimen atau teori kuat
         
         """)
         
