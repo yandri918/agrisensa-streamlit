@@ -17,11 +17,12 @@ st.markdown("**Panduan Lengkap Modernisasi dan Efisiensi Alat Mesin Pertanian (A
 st.info("💡 Modul ini membantu Anda memilih teknologi yang tepat, mulai dari metode tradisional hingga presisi tinggi untuk skala industri.")
 
 # Main tabs
-tab_land, tab_plant, tab_maintenance, tab_harvest, tab_recommendation, tab_safety = st.tabs([
+tab_land, tab_plant, tab_maintenance, tab_harvest, tab_greenhouse, tab_recommendation, tab_safety = st.tabs([
     "🌱 Pengolahan Lahan",
     "🚜 Penanaman",
     "🛡️ Pemeliharaan",
     "🌾 Pemanenan",
+    "🏠 Greenhouse & Hidroponik",
     "💡 Rekomendasi Pintar",
     "⚙️ Perawatan & K3"
 ])
@@ -204,7 +205,53 @@ with tab_harvest:
     *   **Cane Harvester:** Mesin panen tebu otomatis (chopper).
     """)
 
-# ===== TAB 5: REKOMENDASI =====
+# ===== TAB 5: GREENHOUSE & HIDROPONIK =====
+with tab_greenhouse:
+    st.header("🏠 Mekanisasi Greenhouse & Hidroponik")
+    st.markdown("Modernisasi pertanian presisi di lingkungan terkendali (Controlled Environment Agriculture).")
+    
+    col_gh1, col_gh2 = st.columns(2)
+    
+    with col_gh1:
+        st.subheader("1. Pengendalian Iklim (Climate Control)")
+        st.markdown("""
+        Menjaga suhu dan kelembaban optimal di dalam greenhouse.
+        *   **Exhaust Fan:** Kipas besar (biasanya 50 inch) untuk membuang udara panas.
+        *   **Cooling Pad (Cellideck):** Bantalan basah di sisi berseberangan dengan kipas untuk menurunkan suhu (Evaporative Cooling).
+        *   **Mist Maker / Fogging:** Pengabut untuk meningkatkan kelembaban (RH) secara instan.
+        *   **Shading Net Otomatis:** Jaring peneduh yang bisa buka-tutup dengan motor elektrik sesuai intensitas matahari.
+        """)
+        
+    with col_gh2:
+        st.subheader("2. Fertigasi Otomatis (Fertigation)")
+        st.markdown("""
+        Pemberian air dan nutrisi (pupuk) secara bersamaan dan presisi.
+        *   **Venturi Injector:** Alat sederhana hisap pupuk dengan prinsip perbedaan tekanan air. Murah & efektif.
+        *   **Dosing Pump (Dosatron):** Pompa khusus yang mencampur nutrisi dengan rasio sangat akurat tanpa listrik (tenaga air).
+        *   **Drip Irrigation (Tetes):** Tetesan air langsung ke akar. Hemat air hingga 70%.
+        *   **NFT/DFT System:** Untuk selada/sayur daun, pompa sirkulasi 24 jam.
+        """)
+    
+    st.divider()
+    
+    st.subheader("🤖 IoT & Automation")
+    st.info("Level tertinggi mekanisasi greenhouse adalah otomatisasi penuh berbasis sensor.")
+    
+    col_iot1, col_iot2, col_iot3 = st.columns(3)
+    
+    with col_iot1:
+        st.markdown("#### 🌡️ Sensor")
+        st.markdown("- Suhu & Kelembaban (DHT/SHT)\n- Intensitas Cahaya (Lux)\n- pH & EC Air (Nutrisi)")
+    
+    with col_iot2:
+        st.markdown("#### 🧠 Controller")
+        st.markdown("- Mikrokontroler (ESP32/Arduino)\n- PLC (Industrial Grade)\n- Mengambil keputusan (e.g., *Jika suhu > 30°C, nyalakan kipas*)")
+        
+    with col_iot3:
+        st.markdown("#### 📱 Monitoring")
+        st.markdown("- Dashboard di HP/Laptop\n- Notifikasi via WA/Telegram jika air habis atau listrik mati.")
+
+# ===== TAB 6: REKOMENDASI =====
 with tab_recommendation:
     st.header("💡 Rekomendasi Pintar Alsintan")
     st.markdown("Dapatkan rekomendasi paket mekanisasi sesuai kondisi Anda.")
