@@ -15,12 +15,13 @@ st.title("🧬 Teknologi Propagasi & Pembibitan")
 st.markdown("**Plant Propagation: Seni & Sains Menggandakan Tanaman**")
 
 # Main tabs
-tab_intro, tab_vegetatif, tab_kultur, tab_nursery, tab_kalkulator = st.tabs([
+tab_intro, tab_vegetatif, tab_kultur, tab_nursery, tab_kalkulator, tab_bonsai = st.tabs([
     "📖 Prinsip Dasar",
     "🌿 Vegetatif Makro",
     "🧪 Kultur Jaringan",
     "🏡 Manajemen Nursery",
-    "🧮 Kalkulator Bibit"
+    "🧮 Kalkulator Bibit",
+    "🌳 Seni Bonsai"
 ])
 
 # ===== TAB 1: PRINSIP DASAR =====
@@ -231,3 +232,80 @@ with tab_kalkulator:
         st.info(f"Jika menanam dari biji:")
         st.metric("Estimasi Berat Benih Dibutuhkan", f"{berat_benih_kg:.2f} kg")
         st.caption(f"Asumsi: Daya kecambah {daya_kecambah}%, Bobot 1000 butir {bobot_1000_butir}g")
+
+# ===== TAB 6: SENI BONSAI =====
+with tab_bonsai:
+    st.header("🌳 Seni & Sains Bonsai")
+    
+    st.markdown("""
+    **Bonsai (盆栽)** adalah seni mengerdilkan tanaman dalam pot dangkal dengan tujuan meniru bentuk pohon tua di alam bebas.
+    
+    ---
+    
+    ### 5 Gaya Dasar (Basic Styles)
+    
+    1.  **Chokkan (Formal Upright):**
+        *   Batang tegak lurus, meruncing ke atas (tapering).
+        *   Dahan kiri-kanan seimbang.
+        *   Kesan: Agung, kokoh, resmi.
+    
+    2.  **Moyogi (Informal Upright):**
+        *   Batang tegak tapi berliuk (S-shape).
+        *   Puncak pohon (apex) segaris dengan pangkal batang.
+        *   Gaya paling populer dan natural.
+    
+    3.  **Shakan (Slanting):**
+        *   Batang miring (45 derajat) seperti tertiup angin.
+        *   Akar dominan di sisi berlawanan arah miring (penyeimbang).
+    
+    4.  **Kengai (Cascade):**
+        *   Batang menjuntai ke bawah pot, seperti pohon di tebing curam.
+        *   Apex berada di bawah dasar pot.
+    
+    5.  **Bunjin (Literati):**
+        *   Batang kurus, tinggi, meliuk, minim dahan.
+        *   Meniru lukisan tinta Cina kuno.
+        *   Kesan: Elegan, puitis, struggle for life.
+    
+    ---
+    
+    ### Teknik Pembentukan
+    
+    #### 1. Pruning (Pemangkasan)
+    *   **Maintenance Pruning:** Menjaga bentuk, membuang tunas liar.
+    *   **Structural Pruning:** Memotong dahan besar untuk membentuk rangka dasar.
+    *   *Tips:* Selalu gunakan gunting tajam (konkave cutter) agar luka cepat menutup kambium.
+    
+    #### 2. Wiring (Pengawatan)
+    *   Membelitkan kawat (Aluminium/Tembaga) ke dahan untuk mengubah arah tumbuhnya.
+    *   *Aturan:* Sudut kawat 45 derajat. Jangan menjepit dahan (implant). Lepas kawat sebelum melukai kulit (3-6 bulan).
+    
+    #### 3. Deadwood (Kayu Mati)
+    *   **Jin:** Dahan yang dikupas kulitnya (kesan dahan mati tersambar petir).
+    *   **Shari:** Batang yang dikupas sebagian kulitnya (kesan pohon tua lapuk).
+    *   Gunakan Lime Sulfur untuk memutihkan dan mengawetkan kayu mati.
+    
+    ---
+    
+    ### Manajemen Akar & Repotting
+    
+    Bonsai bisa hidup ratusan tahun di pot kecil karena teknik **Repotting**.
+    
+    *   **Kapan:** Setiap 1-3 tahun (tergantung spesies & umur), saat akar sudah penuh (pot-bound).
+    *   **Caranya:**
+        1.  Keluarkan pohon.
+        2.  Urai akar.
+        3.  Potong 30% akar (terutama akar tunggang tebal). Sisakan akar serabut halus (feeder roots).
+        4.  Ganti media baru (Akadama/Pasir Malang + Humus).
+    
+    *   **Fungsi:** Meremajakan sistem perakaran, memberi ruang tumbuh baru.
+    
+    ---
+    
+    ### Kriteria Tanaman Bonsai
+    1.  **Berkayu keras (Woody):** Kambium aktif.
+    2.  **Daun bisa mengecil:** Makin sering pruning, daun makin kecil.
+    3.  **Umur panjang.**
+    4.  **Spesies Populer:** Beringin (*Ficus*), Santigi (*Pemphis acidula*), Anting Putri (*Wrightia religiosa*), Cemara Udang (*Casuarina*).
+    """)
+
