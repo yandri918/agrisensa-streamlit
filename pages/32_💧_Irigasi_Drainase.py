@@ -867,8 +867,6 @@ with tab_japanese:
     st.header("🇯🇵 Teknologi Manajemen Air Gaya Jepang")
     
     st.markdown("""
-    ## 🇯🇵 TEKNOLOGI MANAJEMEN AIR GAYA JEPANG
-    
     ### Filosofi Jepang: "Mizu wa Inochi" (水は命)
     
     **"Air adalah Kehidupan"**
