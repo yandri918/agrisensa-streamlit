@@ -10,13 +10,14 @@ st.title("🧴 Laboratorium Pupuk Organik")
 st.markdown("**pusat Panduan Pembuatan Pupuk, Bioaktivator, dan Ramuan Organik Tanaman**")
 
 # Tabs
-tab_bio, tab_poc, tab_padat, tab_mol, tab_herb, tab_zpt = st.tabs([
+tab_bio, tab_poc, tab_padat, tab_mol, tab_herb, tab_zpt, tab_sawit = st.tabs([
     "🧪 Bioaktivator & Decomposer",
     "💧 Pupuk Cair (POC)",
     "🍂 Pupuk Padat (Kompos)",
     "🦠 MOL (Mikro Organisme Lokal)",
     "🌿 Herbisida Alami",
-    "🚀 ZPT Alami"
+    "🚀 ZPT Alami",
+    "🌴 Spesial Sawit"
 ])
 
 # ===== TAB 1: BIOAKTIVATOR =====
@@ -668,6 +669,75 @@ with tab_zpt:
             *   **Target Semprot:** Semprotkan hormon sesuai target. Hormon akar siram ke tanah/akar. Hormon tunas semprot ke daun bawah permukaan.
             *   **Waktu:** Pagi hari (stomata terbuka) atau sore hari.
             *   **Campuran:** Boleh dicampur dengan pupuk daun/POC, gula/molase, dan perekat organik.
+            """)
+
+# ===== TAB 7: SAWIT SPESIAL =====
+with tab_sawit:
+    st.header("🌴 Solusi Spesial Kelapa Sawit (By Ayah Manjel)")
+    st.info("Kumpulan trik lapangan teruji untuk mengatasi masalah spesifik pada kebun Sawit.")
+    
+    with st.expander("♂️ Mengatasi Sawit Jantan Dominan (Sex Ratio Balance)", expanded=True):
+        st.markdown("""
+        **Masalah:** Tanaman sawit dominan bunga jantan, sedikit/tidak ada bunga betina.
+        **Ilmiahnya:** Tanaman mengalami stres energi atau ketidakseimbangan nutrisi (biasanya C/N ratio rendah atau defisit air), sehingga "mencari jalan aman" dengan hanya memproduksi bunga jantan yang murah energi.
+        """)
+        
+        st.warning("⚠️ **Solusi Lapangan (Ayah Manjel):** Memperbaiki nutrisi vegetatif & generatif secara kejut.")
+        
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            st.markdown("#### 🧪 Ramuan Kocor (Akar)")
+            st.markdown("""
+            **Dosis per 10 Liter Air (Untuk 1 Pohon):**
+            1.  **MOL Daun Hijau:** 1 Liter (Sumber Nitrogen/Vegetatif - Pakai Mol Gamal/Rumput Teki/Gajah).
+            2.  **ROTAN Generatif (POC):** 200 cc (2 Gelas Aqua).
+            3.  **Air:** 10 Liter.
+            
+            **Cara Aplikasi:**
+            *   Siramkan (Kocor) di sekeliling piringan.
+            *   Jarak 0.5 - 1 meter dari pangkal batang.
+            """)
+            
+        with col_s2:
+            st.markdown("#### 🚿 Ramuan Semprot (Daun)")
+            st.markdown("""
+            **Dosis per Tangki (15 Liter):**
+            1.  **ROTAN Generatif (POC):** 250 cc (1 Gelas Aqua Besar).
+            2.  **Air:** 15 Liter.
+            
+            **Cara Aplikasi:**
+            *   Semprot basah merata ke: **Bunga Jantan, Batang, dan Pelepah Daun**.
+            """)
+            
+        st.success("""
+        ✅ **Hasil yang Diharapkan:**
+        *   **15 Hari:** Bunga jantan rontok/mudah dicabut.
+        *   **Berikutnya:** Muncul bunga betina pada pelepah baru.
+        *   *Catatan:* Untuk pohon tinggi, gunakan sistem **TUGAL** (Lubang 30cm) untuk aplikasi kocor.
+        """)
+        
+    st.markdown("---")
+    
+    with st.expander("💎 Meningkatkan Kualitas Buah (Berat & Mengkilap)", expanded=False):
+        st.info("Trik meningkatkan Berat Tandan (BJR) dan Rendemen Minyak.")
+        
+        col_q1, col_q2 = st.columns([1, 2])
+        
+        with col_q1:
+            st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Elaeis_guineensis_fruit.jpg/320px-Elaeis_guineensis_fruit.jpg", caption="Buah Sawit Berkualitas")
+            
+        with col_q2:
+            st.markdown("#### 🚜 Teknik Aplikasi")
+            st.markdown("""
+            1.  **Ramuan:** ROTAN Generatif (POC) **250 cc** + Air **15 Liter** (1 Tangki).
+            2.  **Target:** Semprotkan langsung ke **Tandan Buah Sawit** secara merata.
+            3.  **Waktu:** Lakukan **30 Hari sebelum panen**.
+            """)
+            
+            st.success("""
+            **Manfaat:**
+            *   📈 **Berat Naik:** Kenaikan berat 30% - 50%.
+            *   ✨ **Visual:** Buah lebih mengkilap dan besar.
             """)
 
 
