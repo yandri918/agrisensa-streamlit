@@ -94,6 +94,41 @@ with tab_bio:
             
             *InsyaAllah menjadi Probiotik "SEMPURNA" untuk POC, POP, dan Decomposer.*
             """)
+            
+    st.markdown("---")
+    
+    with st.expander("🍄 Trichoderma sp. (Jamur Keberuntungan)", expanded=False):
+        st.info("Cara memancing dan memperbanyak jamur Trichoderma sp. dari alam (Hutan Bambu). Trichoderma adalah fungisida alami yang ampuh.")
+        
+        col_t1, col_t2 = st.columns(2)
+        
+        with col_t1:
+            st.markdown("#### 🍚 Bahan-Bahan")
+            st.markdown("""
+            1.  **Nasi Basi:** 1 Mangkuk (Minimal sudah 1 hari 1 malam).
+            2.  **Bambu:** 3 Ruas (Baru ditebang lebih bagus).
+            3.  **Pengikat:** Tali atau Karet ban.
+            """)
+            
+        with col_t2:
+            st.markdown("#### 🥣 Cara Pembuatan")
+            st.markdown("""
+            1.  **Siapkan Bambu:** Potong bambu 3 ruas. Belah dua. Gunakan bagian ruas tengah saja (beri jarak 10cm dari batas ruas kiri-kanan).
+            2.  **Lubangi:** Buat lubang seukuran kelingking di batas ruas kiri dan kanan.
+            3.  **Cuci Bersih:** Cuci ruas bambu dengan **Air Mengalir** (Sungai/Kran air sumur). **JANGAN** pakai Air PDAM (Kaporit mematikan jamur).
+            4.  **Isi Nasi:** Masukkan nasi basi ke dalam belahan ruas bagian tengah.
+            5.  **Tutup:** Satukan kembali belahan bambu, ikat erat dengan tali/karet.
+            """)
+            
+        st.markdown("#### 🚜 Cara Pemeraman (Inkubasi)")
+        st.markdown("""
+        1.  **Lokasi:** Cari hutan bambu atau dapuran pohon bambu yang tanahnya subur/berhumus.
+        2.  **Kubur:** Tanam bambu berisi nasi tadi sedalam **7-10 cm**.
+        3.  **Tandai:** Beri tanda agar tidak lupa lokasi penguburan.
+        4.  **Biarkan:** Tunggu selama **7-10 Hari**.
+        5.  **Panen:** Buka bambu. Jika terdapat **Jamur Putih seperti Kapas** (Trichoderma sp.), selamat Anda berhasil!
+        """)
+        st.success("✅ **Hasil:** Nasi yang ditumbuhi jamur putih ini adalah biang Trichoderma yang siap diperbanyak.")
 
 # ===== TAB 2: POC =====
 with tab_poc:
