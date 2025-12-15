@@ -281,7 +281,67 @@ with tab_poc:
             """)
             
         st.success("💉 **Dosis Aplikasi:** 250 cc per 14 Liter Air (1 Tangki).")
+
         st.caption("Aplikasi Pagi (06.00-09.00) atau Sore (15.00-17.00).")
+
+    st.markdown("---")
+    
+    # === POC 3: EMPON-EMPON (IMUN BOOSTER) ===
+    with st.expander("🛡️ POC Empon-Empon Plus (Imun Booster & Bio-Pestisida)", expanded=False):
+        st.markdown("""
+        **Fungsi Ganda (2-in-1):** Selain sebagai pupuk (Nutrisi), ramuan ini berfungsi sebagai **"Vaksin Tanaman"** untuk meningkatkan kekebalan terhadap jamur dan bakteri.
+        
+        **🔬 Konsep Modern:**
+        *   **Analgesik & Antibiotik Alami:** Kandungan Kurkumin & Minyak Atsiri dari empon-empon (Jahe, Kunyit, Temulawak) menghambat pertumbuhan patogen.
+        *   **Pasteurisasi Media:** Teknik perebusan (elemen listrik) digunakan untuk mensterilkan media dari telur lalat/hama sebelum difermentasi dengan mikroba baik (EM4).
+        """)
+        
+        col_emp1, col_emp2 = st.columns(2)
+        
+        with col_emp1:
+            st.markdown("#### 🥦 Bahan-Bahan (Skala Besar)")
+            st.warning("💡 **Tips:** Bahan banyak! Ajak 3 orang teman untuk patungan modal & tenaga.")
+            st.markdown("""
+            | Bahan | Jumlah (Kg) | Fungsi Utama |
+            | :--- | :--- | :--- |
+            | **Jahe** | 1 Kg | Hangat, Antijamur |
+            | **Lengkuas** | 1 Kg | Antibakteri |
+            | **Kunyit** | 1 Kg | Kurkumin (Imun) |
+            | **Temulawak** | 1 Kg | Nafsu makan (Serap nutrisi) |
+            | **Temu Ireng** | 1 Kg | Anti-helminth (Cacing) |
+            | **Puyang** | 1 Kg | Pestisida Nabati |
+            | **Kencur** | 1 Kg | Aroma Repellent |
+            | **Batang Pisang** | 1 Kg | Kalium & Fosfor |
+            | **Nanas** | 1 Kg | Enzim Bromelain (Dekomposer) |
+            | **Tauge (Kecambah)** | 1 Kg | Hormon Auksin (Tumbuh) |
+            | **Buah Maja** | 2-5 Buah | Hormon & Gula Alami |
+            | **Ampas Jus Buah** | 10 Liter | Media Glukosa |
+            | **Urine Sapi** | 125-150 L | Nitrogen (Vegetatif) |
+            | **Decomposer** | EM4 / ROTAN | Bakteri Starter |
+            """)
+            
+        with col_emp2:
+            st.markdown("#### ⚙️ Cara Pembuatan Modern")
+            st.markdown("""
+            1.  **Penggilingan:** Giling halus semua bahan padat (1-10) di penggilingan tepung/bumbu.
+            2.  **Pencampuran:** Masukkan semua bahan gilingan + ampas jus + urine sapi ke dalam drum besar.
+            3.  **Pasteurisasi (PENTING):**
+                *   Didihkan campuran menggunakan **Elemen Pemanas Listrik** (Immersion Heater).
+                *   *Tujuan:* Membunuh telur lalat/larva jahat agar tidak jadi belatung liar.
+            4.  **Pendinginan:** Tutup rapat dan biarkan dingin alami (Suhu ruang).
+            5.  **Inokulasi:** Setelah dingin, masukkan **Decomposer (EM4/ROTAN)**. Aduk rata.
+            6.  **Fermentasi Anaerob:** Tutup drum rapat-rapat (udara tidak boleh masuk).
+            7.  **Indikator Panen:**
+                *   Tunggu sampai bau **"Pesing"** (Amonia) hilang.
+                *   Berubah menjadi bau **"Jamu Segar/Tape"**.
+            """)
+            
+        st.info("""
+        **🧬 Dosis & Aplikasi:**
+        *   **Fase Vegetatif (0 - 30 HST):** 1 Minggu sekali.
+        *   **Fase Generatif (50 HST - Pengisian Bulir):** 1 Minggu sekali.
+        *   **Cara:** Semprot kabut pada daun (Pagi/Sore).
+        """)
 
 # ===== TAB 3: PADAT =====
 with tab_padat:
