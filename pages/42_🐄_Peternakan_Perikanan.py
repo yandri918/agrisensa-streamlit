@@ -135,206 +135,272 @@ with tab_poultry:
 
 # ===== TAB 3: PERIKANAN =====
 with tab_fish:
-    st.header("🐟 Perikanan (Intensif & Bioflok)")
+    st.header("🐟 Perikanan (Komoditas & Pakan)")
+    st.markdown("Panduan teknis budidaya, pakan alternatif berbasis jurnal, dan manajemen kualitas air.")
     
-    st.subheader("🧪 Kalkulator C/N Ratio (Bioflok)")
-    st.markdown("""
-    Dalam sistem bioflok, kita perlu menambahkan sumber karbon (molase/gula) untuk menyeimbangkan nitrogen dari sisa pakan/kotoran.
-    **Target C/N Ratio ideal: 15:1 s/d 20:1**
-    """)
-    
-    col_f1, col_f2 = st.columns(2)
-    with col_f1:
-        pakan_ikan = st.number_input("Jumlah Pakan per Hari (kg)", value=10.0)
-        protein_pakan = st.number_input("Kandungan Protein Pakan (%)", value=30.0)
-    
-    with col_f2:
-        st.info("**Logika Perhitungan:**")
-        st.markdown("""
-        1. N dalam pakan = Protein / 6.25
-        2. N terlarut (amonia) ≈ 50% dari N total pakan
-        3. Butuh C organik untuk mengikat N tersebut.
-        """)
-        
-    if st.button("Hitung Kebutuhan Molase"):
-        # Rumus Sederhana (Ebeling et al., 2006)
-        # N added = Pakan * (Protein/100) * 0.16
-        # Amonia (TAN) excreted estimate ~ 50% of N input logic variant
-        
-        # Simplified practical formula (Avnimelech): 
-        # Untuk menetralkan 1 kg N butuh 15-20 kg C.
-        # Protein 30% -> 1 kg pakan = 300g protein = 48g N (16% N in protein).
-        # Assume 50% excretion -> 24g N emitted.
-        # Need C/N 15 -> 24g N * 15 = 360g Carbon needed.
-        # Molase content ~50% Carbon.
-        # So need 360g / 0.5 = 720g Molase per kg pakan??
-        
-        # Practical Field Rule of Thumb (BOS): 
-        # Tambahkan C organik 50% dari jumlah pakan (jika protein 30%) untuk maintenance.
-        
-        n_content = pakan_ikan * (protein_pakan/100) * 0.16 # Total N input kg
-        tan_excreted = n_content * 0.5 # Estimasi TAN dibuang ke air (50%)
-        
-        target_cn = 15
-        needed_c = tan_excreted * target_cn # Carbon murni dibutuhkan
-        
-        # Molase roughly 50% Carbon
-        molase_needed = needed_c / 0.5 
-        
-        st.write(f"Total N Masuk: {n_content:.3f} kg")
-        st.write(f"Estimasi Amonia (N) Terlarut: {tan_excreted:.3f} kg")
-        st.write(f"Kebutuhan Carbon Murni (Target C/N 15): {needed_c:.3f} kg")
-        
-        st.success(f"🍯 **Tambahkan Molase:** ± {molase_needed:.2f} kg / hari")
-        st.caption("Catatan: Ini adalah estimasi teoritis. Selalu cek kualitas air (TAN/Nitrit) aktual.")
+    # --- SUB TABS PERIKANAN ---
+    stab_lele, stab_nila, stab_gurame, stab_unagi, stab_bioflok, stab_pakan = st.tabs([
+        "🐟 Lele (Catfish)",
+        "🐠 Nila (Tilapia)",
+        "🐡 Gurame (Gourami)",
+        "🐍 Sidat (Unagi)",
+        "🧪 Bioflok & Air",
+        "🦗 Database Pakan Alami"
+    ])
 
-    st.markdown("---")
-    
-    # --- NEW SECTION: BUDIDAYA LELE & PAKAN ---
-    st.subheader("😺 Budidaya Lele & Pakan Alternatif")
-    
-    tab_lele, tab_alt = st.tabs(["🐟 Pakan Lele", "🐛 Pakan Alternatif (Maggot/Cacing)"])
-    
-    with tab_lele:
-        st.markdown("**Kalkulator Pakan Harian Lele**")
-        
+    # === 1. LELE ===
+    with stab_lele:
+        st.subheader("😺 Budidaya Lele Intensif")
         col_l1, col_l2 = st.columns(2)
-        
         with col_l1:
-            jumlah_ikan = st.number_input("Jumlah Ikan (ekor)", value=1000, step=100)
+            st.info("**Kunci Sukses:** Manajemen pakan dan grading (penyortiran) rutin.")
+            jumlah_ikan = st.number_input("Jumlah Tebar (ekor)", value=1000, step=100)
             bobot_rata = st.number_input("Bobot Rata-rata per Ekor (gram)", value=50.0, step=1.0)
-            fr_pct = st.number_input("Feeding Rate (%)", value=3.0, step=0.1, help="Biasanya 3-5% dari bobot biomasa")
+            fr_pct = st.number_input("Feeding Rate (%)", value=3.0, step=0.1, help="3-5% dari bobot biomasa")
             
         with col_l2:
-            st.info("ℹ️ **Feeding Rate (FR)**")
             st.markdown("""
-            *   Bibit (<10g): 5-7%
-            *   Pembesaran (10-100g): 3-5%
-            *   Konsumsi (>100g): 2-3%
+            **Rekomendasi Feeding Rate (FR):**
+            *   Bibit (<10g): **5-7%** (Cepat tumbuh)
+            *   Pembesaran (10-100g): **3-5%**
+            *   Konsumsi (>100g): **2-3%** (Maintenance)
             """)
             
         biomasa_kg = (jumlah_ikan * bobot_rata) / 1000
         pakan_harian = biomasa_kg * (fr_pct / 100)
         
-        st.write(f"**Total Biomasa Ikan:** {biomasa_kg:.2f} kg")
+        st.success(f"📦 **Kebutuhan Pakan Harian:** {pakan_harian:.2f} kg (Biomasa: {biomasa_kg:.1f} kg)")
         
-        st.success(f"📦 **Kebutuhan Pakan Harian:** {pakan_harian:.2f} kg")
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Pagi (08:00)", f"{pakan_harian*0.3:.2f} kg")
+        c2.metric("Sore (16:00)", f"{pakan_harian*0.4:.2f} kg")
+        c3.metric("Malam (21:00)", f"{pakan_harian*0.3:.2f} kg")
         
-        col_fr1, col_fr2, col_fr3 = st.columns(3)
-        with col_fr1:
-            st.metric("Pagi (30%)", f"{pakan_harian*0.3:.2f} kg")
-        with col_fr2:
-            st.metric("Sore/Malam (40%)", f"{pakan_harian*0.4:.2f} kg")
-        with col_fr3:
-            st.metric("Malam/Tambahan (30%)", f"{pakan_harian*0.3:.2f} kg")
+    # === 2. NILA ===
+    with stab_nila:
+        st.subheader("🐠 Budidaya Nila (Tilapia)")
+        st.info("Nila adalah raja Bioflok. Tahan banting, omnivora, dan tumbuh cepat.")
+        
+        col_n1, col_n2 = st.columns(2)
+        with col_n1:
+            st.markdown("#### 🌟 Sistem Monosex Jantan")
+            st.markdown("""
+            **Kenapa Monosex?**
+            *   Nila jantan tumbuh **40% lebih cepat** dari betina.
+            *   Mencegah perkimpoian liar di kolam yang membuat populasi over (ikan kerdil).
+            *   **Teknik:** Gunakan hormon *17α-methyltestosterone* pada larva usia dini (Panduan khusus).
+            """)
+        with col_n2:
+            st.markdown("#### 🌊 Parameter Kritis")
+            st.markdown("""
+            *   **Oksigen (DO):** Wajib > 3 mg/L (Gunakan Aerator/Kincir).
+            *   **pH Air:** 6.5 - 8.5.
+            *   **Suhu:** 25 - 30°C (Nila mogok makan di bawah 20°C).
+            """)
             
-    with tab_alt:
-        st.markdown("**Substitusi Pakan dengan Pakan Alternatif (Maggot BSF / Cacing)**")
-        st.info("💡 Substitusi pakan pelet dengan pakan alami dapat menghemat biaya hingga 30-50%.")
+    # === 3. GURAME ===
+    with stab_gurame:
+        st.subheader("🐡 Budidaya Gurame (Si Santai)")
+        st.warning("⚠️ **Karakter:** Tumbuh lambat, rentan jamur, tapi harga jual tinggi & stabil.")
         
-        pakan_total = st.number_input("Total Pakan Komersil Harian (kg)", value=pakan_harian if 'pakan_harian' in locals() else 5.0)
-        substitusi_pct = st.slider("Persentase Substitusi (%)", 0, 100, 20)
+        tab_g1, tab_g2 = st.tabs(["🍃 Pakan & Nutrisi", "🏥 Kesehatan"])
         
-        jenis_alt = st.selectbox("Jenis Pakan Alternatif", ["Maggot BSF (Segar)", "Maggot BSF (Kering)", "Cacing Tanah (Lumbricus)", "Azolla"])
-        
-        # Data Nutrisi (Estimasi Protein & Konversi)
-        # Faktor konversi: berapa kg pakan alternatif setara 1 kg pelet (berdasarkan kadar air & protein)
-        # Pelet: ~30% PK, Kering (10% air)
-        # Maggot Segar: ~15% PK (karena air tinggi 60-70%). Jadi butuh ~2kg maggot segar utk ganti 1kg pelet protein-wise?
-        
-        conv_factor = 1.0
-        note = ""
-        
-        if jenis_alt == "Maggot BSF (Segar)":
-            conv_factor = 2.5 # Butuh 2.5kg segar utk setara nutrisi 1kg pelet (basah vs kering)
-            note = "Maggot segar mengandung air tinggi (~70%). Berikan lebih banyak."
-        elif jenis_alt == "Maggot BSF (Kering)":
-            conv_factor = 0.9 # Protein tinggi (~40-45%), sedikit lebih irit dari pelet
-            note = "Maggot kering sangat padat nutrisi."
-        elif jenis_alt == "Cacing Tanah (Lumbricus)":
-            conv_factor = 3.0 # Segar, air tinggi
-            note = "Cacing segar sangat disukai, tapi kadar air tinggi."
-        elif jenis_alt == "Azolla":
-            conv_factor = 4.0 # Protein ~25% BK, tapi air sangat tinggi
-            note = "Azolla segar memiliki kadar air sangat tinggi (>90%)."
+        with tab_g1:
+            st.markdown("#### Strategi Pakan Hemat (Herbivora)")
+            st.markdown("""
+            Gurame dewasa punya usus panjang yang mampu mencerna serat kasar. **Manfaatkan pakan alami!**
+            1.  **Daun Sente (Lompong):** Pakan favorit, tinggi serat.
+            2.  **Daun Pepaya:** Mengandung papain (bantu pencernaan) & antimikroba alami.
+            3.  **Daun Mengkudu:** Meningkatkan kekebalan tubuh.
+            """)
             
-        pakan_pelet_sisa = pakan_total * (1 - substitusi_pct/100)
-        pakan_diganti = pakan_total * (substitusi_pct/100)
+        with tab_g2:
+            st.success("✅ **Probiotik Wajib:** Gunakan probiotik (Lactobacillus) pada pakan untuk mencegah kembung.")
+            st.error("❌ **Musuh Utama:** Jamur Saprolegnia (Bercak Putih). Jaga suhu stabil, berikan garam krosok 500g/m³ saat hujan.")
+
+    # === 4. UNAGI (SIDAT) ===
+    with stab_unagi:
+        st.subheader("🐍 Budidaya Sidat (Unagi) - Emas Berlendir")
+        st.info("Komoditas ekspor premium (Jepang). Membutuhkan air jernih dan protein tinggi.")
         
-        alt_needed = pakan_diganti * conv_factor
+        col_u1, col_u2 = st.columns(2)
+        with col_u1:
+            st.markdown("#### 🍣 Pakan Pasta (Dough Feed)")
+            st.markdown("""
+            Sidat tidak suka pelet keras. Pakan harus berbentuk **Pasta**.
+            *   **Resep:** Pelet powder (Tepung) + Air + Minyak Ikan + Vitamin Mix.
+            *   **Protein Target:**
+                *   Glass Eel: **50 - 55%**
+                *   Elver: **45 - 50%**
+                *   Market Size: **40 - 45%**
+            """)
+        with col_u2:
+            st.markdown("#### 🏠 Habitat Gelap")
+            st.markdown("""
+            *   **Sifat:** Nokturnal & Fotofobik (Takut Cahaya).
+            *   **Setting Kolam:** Wajib diberi naungan/shelter (paralon/gelap).
+            *   **Salinitas:** Glass eel butuh adaptasi dari air payau ke tawar (Aklimatisasi perlahan).
+            """)
+
+    # === 5. BIOFLOK & AIR (Calculator preserved) ===
+    with stab_bioflok:
+        st.subheader("🧪 Kalkulator C/N Ratio (Bioflok)")
+        st.markdown("**Target C/N Ratio ideal: 15:1 s/d 20:1**")
         
-        st.markdown("#### 📋 Rekomendasi Pemberian")
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            pakan_ikan_bf = st.number_input("Jumlah Pakan per Hari (kg)", value=10.0, key="bf_pakan")
+            protein_pakan_bf = st.number_input("Kandungan Protein Pakan (%)", value=30.0, key="bf_prot")
         
-        c1, c2 = st.columns(2)
-        with c1:
-            st.metric("Pakan Pelet (Tetap)", f"{pakan_pelet_sisa:.2f} kg", f"-{pakan_diganti:.2f} kg")
-        with c2:
-            st.metric(f"Tambahan {jenis_alt}", f"{alt_needed:.2f} kg", f"Faktor: {conv_factor}x")
-            
-        if note:
-            st.caption(f"📝 {note}")
-            
-        st.warning("⚠️ Perhatian: Selalu lakukan adaptasi pakan secara bertahap (misal: 10% -> 20% -> 30%) dalam waktu 1-2 minggu.")
+        with col_f2:
+            if st.button("Hitung Kebutuhan Molase"):
+                n_content = pakan_ikan_bf * (protein_pakan_bf/100) * 0.16 
+                tan_excreted = n_content * 0.5 
+                target_cn = 15
+                needed_c = tan_excreted * target_cn
+                molase_needed = needed_c / 0.5 
+                
+                st.success(f"🍯 **Tambahkan Molase:** ± {molase_needed:.2f} kg / hari")
+                st.caption(f"Basis: TAN terbuang {tan_excreted:.3f} kg. Dibutuhkan Carbon {needed_c:.3f} kg.")
+
+    # === 6. DATABASE PAKAN ALAMI ===
+    with stab_pakan:
+        st.subheader("🦗 Database Nutrisi Pakan Alternatif (Jurnal Ilmiah)")
+        st.info("Referensi nutrisi untuk formulasi pakan mandiri.")
+        
+        # Scientific Data Dictionary
+        # Source: Jurnal Akuakultur Indonesia, FAO
+        pakan_alami = [
+            {"Nama": "Tepung Ikan (Lokal)", "Protein": "45-55%", "Lemak": "5-10%", "Fungsi": "Sumber Protein Utama", "Ket": "Mahal, hati-hati pemalsuan"},
+            {"Nama": "Maggot BSF (Kering)", "Protein": "40-44%", "Lemak": "15-25%", "Fungsi": "Substitusi Tepung Ikan", "Ket": "High Fat, Antimikroba"},
+            {"Nama": "Maggot BSF (Segar)", "Protein": "15% (Basah)", "Lemak": "6% (Basah)", "Fungsi": "Pakan Tambahan", "Ket": "Kadar air ~70%"},
+            {"Nama": "Cacing Sutera (Tubifex)", "Protein": "57%", "Lemak": "13%", "Fungsi": "Pakan Larva (Benih)", "Ket": "Terbaik untuk burayak"},
+            {"Nama": "Cacing Tanah (Lumbricus)", "Protein": "60-70% (BK)", "Lemak": "7-10%", "Fungsi": "Atraktan & Protein", "Ket": "Enzim lumbricin (obat)"},
+            {"Nama": "Azolla microphylla", "Protein": "23-30% (BK)", "Lemak": "3%", "Fungsi": "Sumber Protein Nabati", "Ket": "Hemat, mudah kultur"},
+            {"Nama": "Lemna sp. (Duckweed)", "Protein": "20-40% (BK)", "Lemak": "4%", "Fungsi": "Pakan Nila/Gurame", "Ket": "Menyerap amonia air"},
+            {"Nama": "Tepung Keong Mas", "Protein": "50-52%", "Lemak": "6%", "Fungsi": "Sumber Protein Hewani", "Ket": "Hama sawit jadi pakan"},
+            {"Nama": "Bungkil Kedelai (SBM)", "Protein": "40-48%", "Lemak": "1-2%", "Fungsi": "Protein Nabati Utama", "Ket": "Asam amino lengkap"},
+            {"Nama": "Dedak Padi (Halus)", "Protein": "11-13%", "Lemak": "7-12%", "Fungsi": "Sumber Energi (Karbo)", "Ket": "Perekat pelet"},
+        ]
+        
+        st.dataframe(pd.DataFrame(pakan_alami))
+        
+        st.markdown("### 💡 Tips Formulasi:")
+        st.markdown("""
+        *   **Keseimbangan:** Jangan andalkan 1 jenis saja. Campur protein hewani (Ikan/Maggot) dan nabati (Kedelai/Azolla).
+        *   **Lemak:** Hati-hati penggunaan Maggot Penuh > 30% karena lemak tinggi bisa bikin ikan berlemak (gajih).
+        *   **Binder:** Gunakan Tepung Tapioka/Terigu (5-10%) agar pelet tidak mudah hancur di air.
+        """)
 
 # ===== TAB 4: RANSUM =====
+# ===== TAB 4: RANSUM =====
 with tab_feed:
-    st.header("🧮 Formulasi Ransum (Metode Segi Empat Pearson)")
-    st.markdown("Metode sederhana untuk mencampur 2 bahan pakan agar mencapai target Protein Kasar (PK).")
+    st.header("🧮 Kalkulator Formulasi Ransum Mandiri")
+    st.markdown("Buat pakan ikan/ternak sendiri dengan formulasi multi-bahan untuk mencapai target protein.")
     
-    col_fd1, col_fd2 = st.columns(2)
+    # Init Session State untuk Pakan
+    if "feed_ingredients" not in st.session_state:
+        st.session_state.feed_ingredients = [
+            {"nama": "Tepung Ikan", "pk": 50.0, "porsi": 30.0},
+            {"nama": "Dedak Padi", "pk": 11.0, "porsi": 30.0},
+            {"nama": "Bungkil Kedelai", "pk": 44.0, "porsi": 40.0}
+        ]
+        
+    col_fc1, col_fc2 = st.columns([1, 1.5])
     
-    with col_fd1:
-        st.subheader("Target & Bahan")
-        target_pk = st.number_input("Target Protein (%)", value=16.0)
+    with col_fc1:
+        st.subheader("🛠️ Atur Komposisi")
+        target_pk = st.number_input("Target Protein Kasar (%)", value=30.0, step=1.0)
+        total_pakan = st.number_input("Rencana Total Pakan (kg)", value=100.0, step=10.0)
         
-        st.markdown("**Bahan 1 (Sumber Energi - PK Rendah)**")
-        nama_b1 = st.text_input("Nama Bahan 1", value="Jagung Giling")
-        pk_b1 = st.number_input("Protein Bahan 1 (%)", value=9.0)
+        st.divider()
+        st.write("**Daftar Bahan:**")
         
-        st.markdown("**Bahan 2 (Sumber Protein - PK Tinggi)**")
-        nama_b2 = st.text_input("Nama Bahan 2", value="Konsentrat/Bungkil Kedelai")
-        pk_b2 = st.number_input("Protein Bahan 2 (%)", value=36.0)
+        # Editor Bahan
+        updated_ingredients = []
+        total_porsi = 0.0
         
-        total_mix = st.number_input("Total Campuran yang diinginkan (kg)", value=100.0)
-
-    with col_fd2:
-        st.subheader("Hasil Formulasi")
+        for i, item in enumerate(st.session_state.feed_ingredients):
+            c_nama, c_pk, c_pct = st.columns([2, 1, 1])
+            with c_nama:
+                nama = st.text_input(f"Bahan {i+1}", value=item['nama'], key=f"n_{i}")
+            with c_pk:
+                pk = st.number_input(f"PK% {i+1}", value=item['pk'], key=f"p_{i}")
+            with c_pct:
+                porsi = st.number_input(f"Porsi% {i+1}", value=item['porsi'], key=f"r_{i}")
+            
+            updated_ingredients.append({"nama": nama, "pk": pk, "porsi": porsi})
+            total_porsi += porsi
+            
+        st.session_state.feed_ingredients = updated_ingredients
         
-        if pk_b1 < target_pk < pk_b2:
-            # Pearson Square Math
-            #    B1(a) ---------> (c) |Target - B2|
-            #          Target
-            #    B2(b) ---------> (d) |Target - B1|
+        # Tools Add/Remove
+        b_add, b_reset = st.columns(2)
+        if b_add.button("➕ Tambah Bahan"):
+            st.session_state.feed_ingredients.append({"nama": "Bahan Baru", "pk": 0.0, "porsi": 0.0})
+            st.rerun()
             
-            selisih_b1 = abs(target_pk - pk_b2) # Bagian B1
-            selisih_b2 = abs(target_pk - pk_b1) # Bagian B2
-            total_bagian = selisih_b1 + selisih_b2
+        if b_reset.button("🔄 Reset Default"):
+            st.session_state.feed_ingredients = [
+                {"nama": "Tepung Ikan", "pk": 50.0, "porsi": 30.0},
+                {"nama": "Dedak Padi", "pk": 11.0, "porsi": 30.0},
+                {"nama": "Bungkil Kedelai", "pk": 44.0, "porsi": 40.0}
+            ]
+            st.rerun()
             
-            pct_b1 = (selisih_b1 / total_bagian) * 100
-            pct_b2 = (selisih_b2 / total_bagian) * 100
-            
-            kg_b1 = (pct_b1 / 100) * total_mix
-            kg_b2 = (pct_b2 / 100) * total_mix
-            
-            st.write(f"**Proporsi Campuran:**")
-            
-            df_result = pd.DataFrame({
-                "Bahan": [nama_b1, nama_b2, "TOTAL"],
-                "Protein Asli (%)": [pk_b1, pk_b2, target_pk],
-                "Proporsi (%)": [f"{pct_b1:.1f}%", f"{pct_b2:.1f}%", "100%"],
-                "Berat (kg)": [f"{kg_b1:.2f}", f"{kg_b2:.2f}", f"{total_mix:.2f}"]
-            })
-            st.table(df_result)
-            
-            st.success("✅ Formulasi Mungkin Dilakukan")
-            
-            # Chart
-            fig = px.pie(names=[nama_b1, nama_b2], values=[kg_b1, kg_b2], title="Komposisi Ransum")
-            st.plotly_chart(fig, use_container_width=True)
-            
+    with col_fc2:
+        st.subheader("📊 Analisis Nutrisi")
+        
+        # Real-time Calculation
+        calc_pk = 0.0
+        details = []
+        
+        for item in st.session_state.feed_ingredients:
+            # Contribution PK = (Porsi / Total Porsi) * PK Bahan
+            if total_porsi > 0:
+                real_pct = (item['porsi'] / total_porsi) * 100
+                contrib_pk = (real_pct / 100) * item['pk']
+                real_kg = (real_pct / 100) * total_pakan
+                
+                calc_pk += contrib_pk
+                details.append({
+                    "Bahan": item['nama'],
+                    "PK Bahan (%)": item['pk'],
+                    "Proporsi (%)": f"{real_pct:.1f}%",
+                    "Berat (kg)": f"{real_kg:.2f}",
+                    "Sumbangan PK (%)": f"{contrib_pk:.2f}"
+                })
+        
+        # Display Gauge
+        delta_pk = calc_pk - target_pk
+        st.metric("Total Protein Kasar (Calculated)", f"{calc_pk:.2f} %", f"{delta_pk:.2f} % dari Target")
+        
+        # Logic Check
+        if abs(total_porsi - 100.0) > 0.1:
+            st.error(f"⚠️ Total Proporsi belum 100% (Saat ini: {total_porsi:.1f}%). Harap sesuaikan porsi bahan.")
         else:
-            st.error("❌ Target Protein harus berada DI ANTARA Protein Bahan 1 dan Bahan 2.")
-            st.info(f"Target ({target_pk}%) tidak bisa dicapai dengan {nama_b1} ({pk_b1}%) dan {nama_b2} ({pk_b2}%) saja.")
+            if calc_pk >= target_pk - 1.0 and calc_pk <= target_pk + 1.0:
+                st.success("✅ **Formulasi Ideal!** Sesuai dengan target protein.")
+            elif calc_pk < target_pk:
+                st.warning("⚠️ **Protein Kurang.** Tambahkan porsi bahan protein tinggi (Tepung Ikan/Kedelai).")
+            else:
+                st.info("ℹ️ **Protein Tinggi.** Bisa dikurangi untuk hemat biaya.")
+                
+            st.table(pd.DataFrame(details))
+            
+            # Recommendation Chart
+            fig_feed = px.pie(
+                names=[d['Bahan'] for d in details],
+                values=[float(d['Berat (kg)']) for d in details],
+                title=f"Komposisi untuk {total_pakan} kg Pakan"
+            )
+            st.plotly_chart(fig_feed, use_container_width=True)
+            
+            st.info("""
+            **Tips Formulasi:**
+            *   Gunakan **Metode Trial & Error** dengan mengubah angka 'Porsi%' di sebelah kiri sampai Total Proporsi 100% dan Target Protein tercapai.
+            *   PK = Protein Kasar (Crude Protein).
+            """)
 
 # ===== TAB 5: DOKTER HEWAN AI =====
 with tab_vet:
