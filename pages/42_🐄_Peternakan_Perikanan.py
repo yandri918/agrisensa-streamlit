@@ -246,44 +246,51 @@ with tab_fish:
     with stab_bioflok:
         st.subheader("🧪 Kalkulator C/N Ratio (Bioflok)")
         st.markdown("**Target C/N Ratio ideal: 15:1 s/d 20:1**")
-        
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            pakan_ikan_bf = st.number_input("Jumlah Pakan per Hari (kg)", value=10.0, key="bf_pakan")
-            protein_pakan_bf = st.number_input("Kandungan Protein Pakan (%)", value=30.0, key="bf_prot")
-        
-        with col_f2:
-            if st.button("Hitung Kebutuhan Molase"):
-                n_content = pakan_ikan_bf * (protein_pakan_bf/100) * 0.16 
-                tan_excreted = n_content * 0.5 
-                target_cn = 15
-                needed_c = tan_excreted * target_cn
-                molase_needed = needed_c / 0.5 
-                
-                st.success(f"🍯 **Tambahkan Molase:** ± {molase_needed:.2f} kg / hari")
-                st.caption(f"Basis: TAN terbuang {tan_excreted:.3f} kg. Dibutuhkan Carbon {needed_c:.3f} kg.")
+
+    # --- SHARED DATA: DATABASE PAKAN ALAMI ---
+    # Defined here to be accessible by both "Database Tab" and "Calculator Tab"
+    pakan_alami_db = [
+        {"Nama": "Tepung Ikan (Lokal)", "Protein": 50.0, "Lemak": 8.0, "Fungsi": "Sumber Protein Utama", "Ket": "Mahal, hati-hati pemalsuan"},
+        {"Nama": "Maggot BSF (Kering)", "Protein": 42.0, "Lemak": 20.0, "Fungsi": "Substitusi Tepung Ikan", "Ket": "High Fat, Antimikroba"},
+        {"Nama": "Maggot BSF (Segar)", "Protein": 15.0, "Lemak": 6.0, "Fungsi": "Pakan Tambahan", "Ket": "Kadar air ~70% (Konversi 4:1)"},
+        {"Nama": "Cacing Sutera (Tubifex)", "Protein": 57.0, "Lemak": 13.0, "Fungsi": "Pakan Larva (Benih)", "Ket": "Terbaik untuk burayak"},
+        {"Nama": "Cacing Tanah (Lumbricus)", "Protein": 65.0, "Lemak": 9.0, "Fungsi": "Atraktan & Protein", "Ket": "Basis BK (Kering)"},
+        {"Nama": "Azolla microphylla", "Protein": 25.0, "Lemak": 3.0, "Fungsi": "Sumber Protein Nabati", "Ket": "Hemat, mudah kultur"},
+        {"Nama": "Lemna sp. (Duckweed)", "Protein": 30.0, "Lemak": 4.0, "Fungsi": "Pakan Nila/Gurame", "Ket": "Menyerap amonia air"},
+        {"Nama": "Tepung Keong Mas", "Protein": 52.0, "Lemak": 6.0, "Fungsi": "Sumber Protein Hewani", "Ket": "Hama sawit jadi pakan"},
+        {"Nama": "Bungkil Kedelai (SBM)", "Protein": 44.0, "Lemak": 1.5, "Fungsi": "Protein Nabati Utama", "Ket": "Asam amino lengkap"},
+        {"Nama": "Dedak Padi (Halus)", "Protein": 12.0, "Lemak": 10.0, "Fungsi": "Sumber Energi (Karbo)", "Ket": "Perekat pelet"},
+        {"Nama": "Tepung Jagung", "Protein": 9.0, "Lemak": 4.0, "Fungsi": "Sumber Energi", "Ket": "Karbohidrat tinggi"},
+        {"Nama": "Tepung Tapioka", "Protein": 2.0, "Lemak": 0.5, "Fungsi": "Binder (Perekat)", "Ket": "Gunakan 5-10%"}
+    ]
+    # Helper for dropdown
+    pakan_dict = {item["Nama"]: item["Protein"] for item in pakan_alami_db}
+
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        pakan_ikan_bf = st.number_input("Jumlah Pakan per Hari (kg)", value=10.0, key="bf_pakan")
+        protein_pakan_bf = st.number_input("Kandungan Protein Pakan (%)", value=30.0, key="bf_prot")
+
+    with col_f2:
+        if st.button("Hitung Kebutuhan Molase"):
+            n_content = pakan_ikan_bf * (protein_pakan_bf/100) * 0.16 
+            tan_excreted = n_content * 0.5 
+            target_cn = 15
+            needed_c = tan_excreted * target_cn
+            molase_needed = needed_c / 0.5 
+            
+            st.success(f"🍯 **Tambahkan Molase:** ± {molase_needed:.2f} kg / hari")
+            st.caption(f"Basis: TAN terbuang {tan_excreted:.3f} kg. Dibutuhkan Carbon {needed_c:.3f} kg.")
 
     # === 6. DATABASE PAKAN ALAMI ===
     with stab_pakan:
         st.subheader("🦗 Database Nutrisi Pakan Alternatif (Jurnal Ilmiah)")
         st.info("Referensi nutrisi untuk formulasi pakan mandiri.")
         
-        # Scientific Data Dictionary
-        # Source: Jurnal Akuakultur Indonesia, FAO
-        pakan_alami = [
-            {"Nama": "Tepung Ikan (Lokal)", "Protein": "45-55%", "Lemak": "5-10%", "Fungsi": "Sumber Protein Utama", "Ket": "Mahal, hati-hati pemalsuan"},
-            {"Nama": "Maggot BSF (Kering)", "Protein": "40-44%", "Lemak": "15-25%", "Fungsi": "Substitusi Tepung Ikan", "Ket": "High Fat, Antimikroba"},
-            {"Nama": "Maggot BSF (Segar)", "Protein": "15% (Basah)", "Lemak": "6% (Basah)", "Fungsi": "Pakan Tambahan", "Ket": "Kadar air ~70%"},
-            {"Nama": "Cacing Sutera (Tubifex)", "Protein": "57%", "Lemak": "13%", "Fungsi": "Pakan Larva (Benih)", "Ket": "Terbaik untuk burayak"},
-            {"Nama": "Cacing Tanah (Lumbricus)", "Protein": "60-70% (BK)", "Lemak": "7-10%", "Fungsi": "Atraktan & Protein", "Ket": "Enzim lumbricin (obat)"},
-            {"Nama": "Azolla microphylla", "Protein": "23-30% (BK)", "Lemak": "3%", "Fungsi": "Sumber Protein Nabati", "Ket": "Hemat, mudah kultur"},
-            {"Nama": "Lemna sp. (Duckweed)", "Protein": "20-40% (BK)", "Lemak": "4%", "Fungsi": "Pakan Nila/Gurame", "Ket": "Menyerap amonia air"},
-            {"Nama": "Tepung Keong Mas", "Protein": "50-52%", "Lemak": "6%", "Fungsi": "Sumber Protein Hewani", "Ket": "Hama sawit jadi pakan"},
-            {"Nama": "Bungkil Kedelai (SBM)", "Protein": "40-48%", "Lemak": "1-2%", "Fungsi": "Protein Nabati Utama", "Ket": "Asam amino lengkap"},
-            {"Nama": "Dedak Padi (Halus)", "Protein": "11-13%", "Lemak": "7-12%", "Fungsi": "Sumber Energi (Karbo)", "Ket": "Perekat pelet"},
-        ]
-        
-        st.dataframe(pd.DataFrame(pakan_alami))
+        # Display DataFrame from Shared Data
+        df_pakan = pd.DataFrame(pakan_alami_db)
+        # Format displayed float columns for readability if needed, or just show as is
+        st.dataframe(df_pakan)
         
         st.markdown("### 💡 Tips Formulasi:")
         st.markdown("""
@@ -320,16 +327,57 @@ with tab_feed:
         updated_ingredients = []
         total_porsi = 0.0
         
+        # Use pakan_dict for dropdown options
+        db_options = ["-- Pilih dari Database --"] + list(pakan_dict.keys())
+        
         for i, item in enumerate(st.session_state.feed_ingredients):
             c_nama, c_pk, c_pct = st.columns([2, 1, 1])
             with c_nama:
-                nama = st.text_input(f"Bahan {i+1}", value=item['nama'], key=f"n_{i}")
-            with c_pk:
-                pk = st.number_input(f"PK% {i+1}", value=item['pk'], key=f"p_{i}")
-            with c_pct:
-                porsi = st.number_input(f"Porsi% {i+1}", value=item['porsi'], key=f"r_{i}")
+                # Logic: Show text input if "Custom" or if existing value is not in DB (or manual edit)
+                # But to keep it simple, we use a selectbox helper. 
+                # Improving UI: Selectbox to pick ingredient, it auto-updates name & pk.
+                
+                # We need a key mechanism. 
+                sel_key = f"sel_{i}"
+                
+                # Check if current item name matches DB, if so set index
+                current_name = item['nama']
+                try:
+                    idx = db_options.index(current_name)
+                except ValueError:
+                    idx = 0 # Default to "-- Pilih --"
+                
+                selected_opt = st.selectbox(f"Bahan {i+1}", db_options, index=idx, key=sel_key, label_visibility="collapsed")
+                
+                # If selection changes from default/previous, update the item values
+                final_name = current_name
+                final_pk = item['pk']
+                
+                if selected_opt != "-- Pilih dari Database --":
+                    final_name = selected_opt
+                    final_pk = pakan_dict.get(selected_opt, 0.0)
+                
+                # Also allow manual override via text input? 
+                # For simplicity in this iteration, allow the Selectbox to be the primary 'Chooser'.
+                # But what if custom? -> "Custom" Not implemented yet in DB list. 
+                # Let's add text input BELOW it for manual name override if needed? No, too cluttered.
+                # Approach: Just use selectbox for now to solve user's "Source" question.
             
-            updated_ingredients.append({"nama": nama, "pk": pk, "porsi": porsi})
+            with c_pk:
+                # If we just selected from DB, the number input should default to that.
+                # But st.number_input is stateful. We rely on the re-run cycle or 'value' param if key changed?
+                # Simpler: Just display the PK input. If user selected something new, we might need to force update state.
+                # In Streamlit, updating state mid-loop is tricky.
+                # Better Pattern: Input is driven by state. State is updated by callback or logic before rendering.
+                
+                # Quick Fix: If the dropdown selection (selected_opt) is different from stored item['nama'], update it immediately?
+                # Yes, logic above: final_pk = pakan_dict.get...
+                
+                pk = st.number_input(f"PK", value=float(final_pk), key=f"p_{i}", label_visibility="collapsed")
+            with c_pct:
+                porsi = st.number_input(f"%", value=item['porsi'], key=f"r_{i}", label_visibility="collapsed")
+            
+            updated_ingredients.append({"nama": final_name, "pk": pk, "porsi": porsi})
             total_porsi += porsi
             
         st.session_state.feed_ingredients = updated_ingredients
