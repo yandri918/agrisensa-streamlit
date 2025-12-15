@@ -595,4 +595,79 @@ with tab_zpt:
             
         st.success("💉 **Aplikasi:** Semprot daun (Foliar Spray) pagi hari. Dosis 1:10 (1 Bagian Ekstrak : 10 Bagian Air).")
 
+    st.markdown("---")
+    
+    with st.expander("📚 Panduan Lengkap Ilmu Hormon (ZPT) - Oleh Edhi Sandra", expanded=False):
+        st.markdown("""
+        **Penting:** Hormon bukanlah nutrisi/makanan. Hormon adalah *"Provokator"* yang memerintah tanaman untuk tumbuh. 
+        Tanpa nutrisi (pupuk) yang cukup, hormon tidak akan bekerja efektif.
+        """)
+        
+        tab_konsep, tab_sumber, tab_tips = st.tabs(["🧠 Konsep Dasar", "🌿 Sumber Alami", "⚠️ Aturan Pakai"])
+        
+        with tab_konsep:
+            st.markdown("#### 1. Tiga Raja Hormon")
+            col_k1, col_k2, col_k3 = st.columns(3)
+            with col_k1:
+                st.info("🌱 **AUKSIN (Akar)**")
+                st.markdown("""
+                *   **Fungsi:** Memacu pertumbuhan **AKAR**.
+                *   **Sifat:** Menghambat tunas & bunga.
+                *   **Lokasi:** Diproduksi di pucuk, turun ke akar.
+                """)
+            with col_k2:
+                st.success("🌿 **SITOKININ (Tunas)**")
+                st.markdown("""
+                *   **Fungsi:** Memacu pertumbuhan **TUNAS/DAUN**.
+                *   **Sifat:** Menghambat akar & penuaan.
+                *   **Lokasi:** Diproduksi di ujung akar, naik ke tunas.
+                """)
+            with col_k3:
+                st.warning("🌺 **GIBERELIN (Bunga)**")
+                st.markdown("""
+                *   **Fungsi:** Memacu **BUNGA & BUAH**.
+                *   **Sifat:** Memperbesar sel, memecah dormansi biji.
+                *   **Lokasi:** Di daun dan buah.
+                """)
+                
+            st.markdown("#### 2. Hukum Konsentrasi")
+            st.markdown("""
+            *   **Dosis Tepat:** Memacu pertumbuhan.
+            *   **Dosis Berlebih:** Menghambat pertumbuhan (Kerdil).
+            *   **Dosis Tinggi Sekali:** Mematikan (Herbisida).
+            *   *Kunci: Lebih baik dosis rendah tapi rutin, daripada dosis tinggi sekali semprot.*
+            """)
+
+        with tab_sumber:
+            st.markdown("#### 🧬 Sumber Hormon Organik di Sekitar Kita")
+            st.markdown("""
+            | Sumber Bahan | Kandungan Dominan |
+            | :--- | :--- |
+            | **Air Kelapa** | Auksin, Sitokinin, Giberelin (Lengkap) |
+            | **Urine Ternak** | Auksin (Tinggi) |
+            | **Kecambah (Tauge)** | Auksin |
+            | **Bawang Merah** | Auksin |
+            | **Rebung Bambu** | Giberelin (untuk pertumbuhan cepat) |
+            | **Bonggol Pisang** | Sitokinin |
+            | **Jagung Muda** | Sitokinin (Zeatin) |
+            | **Eceng Gondok** | Giberelin |
+            | **Daun Kelor** | Sitokinin (Zeatin) |
+            | **Air Cucian Beras** | Vitamin B1 & Hormon pertumbuhan |
+            """)
+            
+        with tab_tips:
+            st.error("⛔ **Jangan Lakukan (Pantangan):**")
+            st.markdown("""
+            1.  **Salah Fase:** Jangan semprot Hormon Akar (Auksin) saat tanaman sedang berbunga/berbuah -> **Bunga bisa rontok!**
+            2.  **Duplikasi:** Jika ingin memacu tunas (Sitokinin), jangan campur dengan hormon akar (Auksin) dosis tinggi, karena akan saling meniadakan.
+            3.  **Tanpa Makan:** Jangan beri hormon jika tanaman kurus/kurang pupuk. Beri makan (pupuk) dulu, baru provokasi (hormon).
+            """)
+            
+            st.success("✅ **Tips Aplikasi:**")
+            st.markdown("""
+            *   **Target Semprot:** Semprotkan hormon sesuai target. Hormon akar siram ke tanah/akar. Hormon tunas semprot ke daun bawah permukaan.
+            *   **Waktu:** Pagi hari (stomata terbuka) atau sore hari.
+            *   **Campuran:** Boleh dicampur dengan pupuk daun/POC, gula/molase, dan perekat organik.
+            """)
+
 
