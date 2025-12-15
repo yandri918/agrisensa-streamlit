@@ -8,9 +8,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# DEBUG VERSION TAG
-st.warning("🟢 SYSTEM UPDATE: FDRS ADVANCED VERSION (LIVE)")
-
 # Custom CSS for aesthetics
 st.markdown("""
 <style>
@@ -365,29 +362,53 @@ with tab6:
         st.warning("⚠️ **Terbatas.** Pertimbangkan memilih rumput varietas unggul (Odot/Zanzibar) tahan naungan.")
 
 with tab7:
-    st.subheader("💧 Kalkulator Getah Pinus & HHBK")
-    st.markdown("Estimasi produksi Hasil Hutan Bukan Kayu (HHBK) utama Perhutani.")
+    st.subheader("💧 Kalkulator Getah & HHBK (Pinus / Karet)")
+    st.markdown("Estimasi produksi hasil sadapan (Oleoresin & Lateks).")
     
-    st.write("#### 🌲 Prediksi Panen Getah Pinus")
-    col_g1, col_g2 = st.columns(2)
+    # Selector Komoditas
+    komoditas_hhbk = st.radio("Pilih Komoditas:", ["🌲 Pinus (Gondorukem)", "🌳 Karet (Lateks/Lump)"], horizontal=True)
     
-    with col_g1:
-        jml_pohon_sadap = st.number_input("Jumlah Pohon Siap Sadap:", value=500, step=50)
-        jml_koarekan = st.slider("Jumlah Koarekan (Luka) per Pohon:", 1, 4, 2)
+    if "Pinus" in komoditas_hhbk:
+        st.write("#### 🌲 Prediksi Panen Getah Pinus")
+        col_g1, col_g2 = st.columns(2)
         
-    with col_g2:
-        # Yield assumption: 15-20 gram / koarekan / 3 hari (panen) -> e.g. 5 gram/day/koarekan
-        # Standard: 15-30 gram per quare per tree per harvest (every 3 days).
-        yield_per_harvest = st.number_input("Estimasi Getah per Koarekan (gram/panen):", value=20.0, help="Rata-rata 15-25 gram per pembaharuan luka (3 harian).")
-        freq_panen = st.selectbox("Frekuensi Panen:", ["3 Hari Sekali (10x sebulan)", "Seminggu Sekali (4x sebulan)"])
+        with col_g1:
+            jml_pohon_sadap = st.number_input("Jumlah Pohon Siap Sadap:", value=500, step=50)
+            jml_koarekan = st.slider("Jumlah Koarekan (Luka) per Pohon:", 1, 4, 2)
+            
+        with col_g2:
+            yield_per_harvest = st.number_input("Estimasi Getah per Koarekan (gram/panen):", value=20.0, help="Rata-rata 15-25 gram per pembaharuan luka.")
+            freq_panen = st.selectbox("Frekuensi Panen:", ["3 Hari Sekali (10x sebulan)", "Seminggu Sekali (4x sebulan)"], key="freq_pinus")
+            
+        freq_num = 10 if "3 Hari" in freq_panen else 4
         
-    freq_num = 10 if "3 Hari" in freq_panen else 4
-    
-    # Calc
-    total_gram_per_panen = jml_pohon_sadap * jml_koarekan * yield_per_harvest
-    total_kg_bulan = (total_gram_per_panen * freq_num) / 1000
-    
-    harga_getah = st.number_input("Harga Jual Getah (Rp/Kg):", value=4000, step=100, help="Harga pasar saat ini (tergantung kualitas).")
+        # Calc Pinus
+        total_gram_per_panen = jml_pohon_sadap * jml_koarekan * yield_per_harvest
+        total_kg_bulan = (total_gram_per_panen * freq_num) / 1000
+        default_price = 4000
+        
+    else: # KARET
+        st.write("#### 🌳 Prediksi Panen Karet (Lump Mangkok)")
+        col_k1, col_k2 = st.columns(2)
+        
+        with col_k1:
+            jml_pohon_sadap = st.number_input("Jumlah Pohon Karet:", value=500, step=50, key="jml_karet")
+            # Karet biasanya 1 irisan sadap spiral
+            st.info("Asumsi: Sistem sadap 1/2 Spiral (S/2).")
+            
+        with col_k2:
+            yield_per_harvest = st.number_input("Yield per Pohon (gram Basah/sadap):", value=35.0, help="Lump mangkok basah rata-rata 30-50 gram per sadap.")
+            freq_panen = st.selectbox("Frekuensi Sadap:", ["2 Hari Sekali (d2) - 15x/bln", "3 Hari Sekali (d3) - 10x/bln"], key="freq_karet")
+        
+        freq_num = 15 if "2 Hari" in freq_panen else 10
+        
+        # Calc Karet
+        total_gram_per_panen = jml_pohon_sadap * yield_per_harvest
+        total_kg_bulan = (total_gram_per_panen * freq_num) / 1000
+        default_price = 9000 # Harga lump karet basah variatif, misal 7rb - 10rb
+        
+    # Output Section (Shared Logic)
+    harga_getah = st.number_input(f"Harga Jual ({'Gondorukem' if 'Pinus' in komoditas_hhbk else 'Lump Karet'}) (Rp/Kg):", value=default_price, step=100)
     omzet_getah = total_kg_bulan * harga_getah
     
     st.markdown("---")
@@ -395,7 +416,10 @@ with tab7:
     cmg1.metric("Potensi Produksi (Bulan)", f"{total_kg_bulan:,.1f} Kg")
     cmg2.metric("Estimasi Pendapatan Kotor", f"Rp {omzet_getah:,.0f}", help=f"Asumsi harga Rp {harga_getah:,.0f}/kg")
     
-    st.caption("**Tips:** Gunakan stimulan (ETHEPHON) secara bijak untuk meningkatkan getah tanpa merusak pohon.")
+    if "Pinus" in komoditas_hhbk:
+        st.caption("**Tips:** Gunakan stimulan (ETHEPHON) secara bijak untuk meningkatkan getah tanpa merusak pohon.")
+    else:
+        st.caption("**Tips:** Jaga kebersihan mangkok sadap untuk kualitas DRC (Kadar Karet Kering) terbaik.")
 
 with tab8:
     st.subheader("🔥 Sistem Peringatan Dini Kebakaran (FDRS Advanced)")
