@@ -10,11 +10,12 @@ st.title("🧴 Laboratorium Pupuk Organik")
 st.markdown("**pusat Panduan Pembuatan Pupuk, Bioaktivator, dan Ramuan Organik Tanaman**")
 
 # Tabs
-tab_bio, tab_poc, tab_padat, tab_mol = st.tabs([
+tab_bio, tab_poc, tab_padat, tab_mol, tab_herb = st.tabs([
     "🧪 Bioaktivator & Decomposer",
     "💧 Pupuk Cair (POC)",
     "🍂 Pupuk Padat (Kompos)",
-    "🦠 MOL (Mikro Organisme Lokal)"
+    "🦠 MOL (Mikro Organisme Lokal)",
+    "🌿 Herbisida Alami"
 ])
 
 # ===== TAB 1: BIOAKTIVATOR =====
@@ -455,5 +456,52 @@ with tab_mol:
                 6.  Peras airnya (MOL).
                 """)
             st.success("💉 **Dosis:** 1 Liter MOL : 100 Liter Air (1:100). Semprot pagi/sore.")
+
+# ===== TAB 5: HERBISIDA =====
+with tab_herb:
+    st.header("🌿 Herbisida Alami (Pembasmi Gulma)")
+    st.info("Resep herbisida kontak ramah lingkungan untuk membasmi gulma/rumput liar.")
+    
+    with st.expander("🔥 Herbisida Garam + Cuka + Belerang", expanded=True):
+        st.warning("⚠️ **Perhatian:** Herbisida ini bersifat **Kontak** (mematikan bagian yang terkena) dan **Non-Selektif** (mematikan semua tumbuhan hijau). Jangan semprotkan ke tanaman budidaya!")
+        
+        col_h1, col_h2 = st.columns(2)
+        
+        with col_h1:
+            st.markdown("#### 🧪 Bahan-Bahan")
+            st.markdown("""
+            1.  **Garam:** 1 kg
+            2.  **Cuka (80%):** 1 Botol
+            3.  **Belerang / Sulfur:** 1.5 Ons
+            4.  **Air:** 2 Liter
+            """)
+            
+        with col_h2:
+            st.markdown("#### 🥣 Cara Pembuatan")
+            st.markdown("""
+            1.  **Rebus Air:** Didihkan 2 liter air bersama **Garam** sampai larut.
+            2.  **Tumbuk Halus:** Tumbuk belerang sampai benar-benar halus.
+            3.  **Pencampuran:** Campurkan air garam panas dengan Cuka dan Belerang halus.
+            4.  **Wadah:** Masukkan dalam jerigen/wadah tertutup.
+            5.  **Kocok:** Kocok sampai tercampur rata.
+            6.  **Diamkan:** Simpan selama **3 Hari** sebelum digunakan.
+            """)
+            
+        st.markdown("---")
+        st.markdown("#### 🚜 Cara Aplikasi")
+        
+        c_dose, c_time = st.columns(2)
+        with c_dose:
+            st.success("💉 **Dosis:**")
+            st.markdown("""
+            *   Campur **1 Liter Herbisida** dengan **1 Liter Air** (1:1).
+            *   Atau 5 Liter campuran untuk areal luas (sesuaikan konsentrasi).
+            """)
+        with c_time:
+            st.info("⏳ **Waktu Aplikasi:**")
+            st.markdown("""
+            *   Semprotkan ke lahan **minimal 2 Minggu** sebelum ditanami.
+            *   Semprot saat cuaca cerah (panas terik) agar reaksi cepat.
+            """)
 
 
