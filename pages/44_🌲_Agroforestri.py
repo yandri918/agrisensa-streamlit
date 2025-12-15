@@ -383,13 +383,14 @@ with tab7:
     # Calc
     total_gram_per_panen = jml_pohon_sadap * jml_koarekan * yield_per_harvest
     total_kg_bulan = (total_gram_per_panen * freq_num) / 1000
-    harga_getah = 4000 # Asumsi
+    
+    harga_getah = st.number_input("Harga Jual Getah (Rp/Kg):", value=4000, step=100, help="Harga pasar saat ini (tergantung kualitas).")
     omzet_getah = total_kg_bulan * harga_getah
     
     st.markdown("---")
     cmg1, cmg2 = st.columns(2)
     cmg1.metric("Potensi Produksi (Bulan)", f"{total_kg_bulan:,.1f} Kg")
-    cmg2.metric("Estimasi Pendapatan Kotor", f"Rp {omzet_getah:,.0f}", help="Asumsi harga Rp 4.000/kg")
+    cmg2.metric("Estimasi Pendapatan Kotor", f"Rp {omzet_getah:,.0f}", help=f"Asumsi harga Rp {harga_getah:,.0f}/kg")
     
     st.caption("**Tips:** Gunakan stimulan (ETHEPHON) secara bijak untuk meningkatkan getah tanpa merusak pohon.")
 
