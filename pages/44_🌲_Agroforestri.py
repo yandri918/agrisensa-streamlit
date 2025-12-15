@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import requests
 
 # Page Config
 st.set_page_config(
@@ -428,11 +429,36 @@ with tab8:
     
     col_f1, col_f2, col_f3 = st.columns(3)
     
+    # Init Session State for FDRS
+    if "f_temp" not in st.session_state: st.session_state["f_temp"] = 33
+    if "f_hum" not in st.session_state: st.session_state["f_hum"] = 50
+    if "f_wind" not in st.session_state: st.session_state["f_wind"] = 20
+
     with col_f1:
         st.markdown("#### 1. Cuaca")
-        f_temp = st.slider("Suhu (°C)", 20, 40, 33)
-        f_hum = st.slider("Kelembaban (%)", 10, 100, 50)
-        f_wind = st.slider("Kecepatan Angin (km/jam)", 0, 60, 20, help="Angin kencang mempercepat sebaran api.")
+        
+        # Weather Integration
+        with st.expander("📍 Ambil Data Satelit (Real-time)", expanded=False):
+            lat_in = st.number_input("Lat:", value=-7.15, step=0.01, format="%.4f")
+            lon_in = st.number_input("Lon:", value=110.14, step=0.01, format="%.4f")
+            if st.button("📡 Tarik Data Live"):
+                try:
+                    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat_in}&longitude={lon_in}&current=temperature_2m,relative_humidity_2m,wind_speed_10m&wind_speed_unit=kmh"
+                    res = requests.get(url, timeout=5).json()
+                    curr = res['current']
+                    
+                    st.session_state["f_temp"] = int(curr['temperature_2m'])
+                    st.session_state["f_hum"] = int(curr['relative_humidity_2m'])
+                    st.session_state["f_wind"] = int(curr['wind_speed_10m'])
+                    st.success(f"Data: {st.session_state['f_temp']}°C, {st.session_state['f_hum']}%, {st.session_state['f_wind']}km/h")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Gagal koneksi: {e}")
+
+        f_temp = st.slider("Suhu (°C)", 20, 45, st.session_state["f_temp"], key="slider_temp")
+        f_hum = st.slider("Kelembaban (%)", 10, 100, st.session_state["f_hum"], key="slider_hum")
+        f_wind = st.slider("Kecepatan Angin (km/jam)", 0, 100, st.session_state["f_wind"], help="Angin kencang mempercepat sebaran api.", key="slider_wind")
+
         
     with col_f2:
         st.markdown("#### 2. Bahan Bakar")
