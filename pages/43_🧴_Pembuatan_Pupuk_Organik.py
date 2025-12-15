@@ -10,14 +10,15 @@ st.title("🧴 Laboratorium Pupuk Organik")
 st.markdown("**pusat Panduan Pembuatan Pupuk, Bioaktivator, dan Ramuan Organik Tanaman**")
 
 # Tabs
-tab_bio, tab_poc, tab_padat, tab_mol, tab_herb, tab_zpt, tab_sawit = st.tabs([
+tab_bio, tab_poc, tab_padat, tab_mol, tab_herb, tab_zpt, tab_sawit, tab_kalkulator = st.tabs([
     "🧪 Bioaktivator & Decomposer",
     "💧 Pupuk Cair (POC)",
     "🍂 Pupuk Padat (Kompos)",
     "🦠 MOL (Mikro Organisme Lokal)",
     "🌿 Herbisida Alami",
     "🚀 ZPT Alami",
-    "🌴 Spesial Sawit"
+    "🌴 Spesial Sawit",
+    "🧮 Kalkulator Organik"
 ])
 
 # ===== TAB 1: BIOAKTIVATOR =====
@@ -343,6 +344,40 @@ with tab_poc:
         *   **Cara:** Semprot kabut pada daun (Pagi/Sore).
         """)
 
+    st.markdown("---")
+
+    # === POC 4: URINE KELINCI (LIQUID GOLD) ===
+    with st.expander("🐇 POC Urine Kelinci (Liquid Gold)", expanded=False):
+        st.markdown("""
+        **Kenapa Urine Kelinci?**
+        Urine kelinci memiliki kandungan **N (Nitrogen) tertinggi** dibandingkan ternak lain (Sapi/Kambing). Dijuluki *"Liquid Gold"* karena efeknya yang instan menghijaukan daun.
+        """)
+        
+        col_uk1, col_uk2 = st.columns(2)
+        
+        with col_uk1:
+            st.markdown("#### 🧪 Bahan-Bahan")
+            st.markdown("""
+            1.  **Urine Kelinci Murni:** 10 Liter
+            2.  **Starter (EM4/MOL):** 2 Tutup Botol / 200 ml
+            3.  **Molase/Gula Merah:** 200 ml (Makanan Bakteri)
+            4.  **Air Kelapa (Opsional):** 1 Liter (Untuk ZPT tambahan)
+            5.  **Rempah (Opsional):** Jahe/Lengkuas (Untuk pestisida nabati)
+            """)
+            
+        with col_uk2:
+            st.markdown("#### ⚙️ Cara Fermentasi")
+            st.markdown("""
+            1.  Masukkan Urine Kelinci ke dalam jerigen.
+            2.  Larutkan Gula + Starter, lalu masukkan ke jerigen.
+            3.  Tutup rapat (Anaerob).
+            4.  **Gas:** Buka tutup setiap pagi untuk buang gas.
+            5.  **Panen:** Siap pakai setelah **7-14 Hari**.
+            6.  *Ciri:* Bau menyengat hilang, wangi fermentasi.
+            """)
+            
+        st.success("💉 **Dosis:** 1 Bagian Urine : 10 Bagian Air (Kocor) atau 1:20 (Semprot Daun).")
+
 # ===== TAB 3: PADAT =====
 with tab_padat:
     st.header("🍂 Pupuk Organik Padat (Kompos/Bokashi)")
@@ -374,6 +409,60 @@ with tab_padat:
             5.  **Fermentasi:** Tutup tumpukan dengan terpal.
             6.  **Waktu:** Fermentasi selama **5 - 7 Hari**.
             7.  **Panen:** Pupuk siap digunakan jika suhu sudah turun/dingin dan berbau harum fermentasi.
+            """)
+
+    st.divider()
+
+    # === KOMPOS SPESIFIK: AYAM, PUYUH, GUANO, SAPI ===
+    with st.expander("🐔🦇🐄 Panduan Bokashi Spesifik (Ayam, Puyuh, Guano, Sapi)", expanded=False):
+        st.info("Setiap kotoran ternak memiliki 'Karakter' unik. Sesuaikan resep untuk hasil maksimal.")
+        
+        tab_ayam, tab_puyuh, tab_guano, tab_sapi = st.tabs([
+            "🐔 Ayam (Broiler/Petelur)", 
+            "🐦 Burung Puyuh",
+            "🦇 Guano (Kelelawar)",
+            "🐄 Sapi/Kerbau"
+        ])
+        
+        with tab_ayam:
+            st.markdown("### 🐔 Bokashi Kotoran Ayam (Manure)")
+            st.warning("**Karakter:** Panas tinggi, Amonia tinggi, C/N Ratio rendah (butuh banyak karbon).")
+            col_a1, col_a2 = st.columns(2)
+            with col_a1: 
+                st.markdown("**Resep Khusus:**")
+                st.markdown("""
+                *   **Kohe Ayam:** 1 Ton
+                *   **Sekam Mentah/Gergaji Kayu:** 500 Kg (Wajib Tinggi! Untuk serap amonia).
+                *   **Dolomit:** 100 Kg (Netralkan asam).
+                """)
+            with col_a2:
+                st.success("**Cocok Untuk:** Sayuran Daun (Bayam, Kangkung) karena **Nitrogen Tinggi**.")
+                
+        with tab_puyuh:
+            st.markdown("### 🐦 Bokashi Kotoran Puyuh")
+            st.warning("**Karakter:** Nutrisi sangat pekat (Lebih tinggi dari ayam), mudah 'membakar' tanaman jika belum matang.")
+            st.markdown("""
+            *   **Tips Fermentasi:** Wajib fermentasi minimal **21-30 Hari** (lebih lama dari sapi).
+            *   **Campuran:** Perbanyak Dedak (Nutrisi Mikroba) agar penguraian sempurna.
+            *   **Penggunaan:** Sangat irit! Gunakan separuh dosis pupuk kandang biasa.
+            """)
+            
+        with tab_guano:
+            st.markdown("### 🦇 Bokashi Guano (Kelelawar)")
+            st.info("**Karakter:** Emas Hitam! Kaya **Fosfor (P)** dan Nitrogen.")
+            st.markdown("""
+            *   **Spesialis:** Pembuahan (Generatif).
+            *   **Mix:** Sangat bagus dicampur dengan **Arang Sekam**.
+            *   **Tanaman:** Durian, Kelengkeng, Cabai (Fase Bunga).
+            """)
+            
+        with tab_sapi:
+            st.markdown("### 🐄 Bokashi Sapi/Kerbau")
+            st.success("**Karakter:** Pupuk Dingin, Serat Tinggi, Memperbaiki Struktur Tanah.")
+            st.markdown("""
+            *   **Fungsi Utama:** *Soil Conditioner* (Pembenah Tanah) untuk tanah keras/liat.
+            *   **Fermentasi:** Lebih lambat karena serat kasar. Bakteri butuh waktu.
+            *   **Rekomendasi:** Tambahkan **Trichoderma** saat proses pematangan untuk anti-jamur akar.
             """)
 
 # ===== TAB 4: M O L =====
@@ -799,5 +888,235 @@ with tab_sawit:
             *   📈 **Berat Naik:** Kenaikan berat 30% - 50%.
             *   ✨ **Visual:** Buah lebih mengkilap dan besar.
             """)
+
+# ===== TAB 8: KALKULATOR ORGANIK =====
+with tab_kalkulator:
+    st.header("🧮 Kalkulator Estimasi NPK Pupuk Organik")
+    st.info("Hitung estimasi kandungan NPK dari campuran bahan organik Anda berdasarkan referensi ilmiah.")
+    
+    # --- Database Kandungan Hara (Scientific References - Range Average) ---
+    # Values are approximate percentages of Dry Weight
+    # Source refs: FAO, Dept. Pertanian, Jurnal Ilmu Tanah
+    bahan_organik = {
+        "Kotoran Ayam (Murni)": {"N": 3.0, "P": 2.5, "K": 1.5, "C_N": 10, "Desc": "Panas, Cepat Terurai, Kaya N & P"},
+        "Kotoran Kambing/Domba": {"N": 1.5, "P": 1.0, "K": 1.5, "C_N": 25, "Desc": "Seimbang, Bagus untuk Buah"},
+        "Kotoran Sapi": {"N": 1.0, "P": 0.5, "K": 1.0, "C_N": 18, "Desc": "Dingin, Pembenah Tanah"},
+        "Kotoran Kelinci (Padat)": {"N": 2.0, "P": 1.4, "K": 0.6, "C_N": 12, "Desc": "Kualitas Tinggi"},
+        "Guano (Kelelawar)": {"N": 1.0, "P": 10.0, "K": 1.0, "C_N": 10, "Desc": "Sangat Kaya Fosfor (P)"},
+        "Urine Sapi": {"N": 1.0, "P": 0.1, "K": 1.0, "C_N": 0.8, "Desc": "Cepat Serap"},
+        "Urine Kelinci": {"N": 2.5, "P": 0.2, "K": 1.5, "C_N": 0.8, "Desc": "High Nitrogen Liquid"},
+        "Dedak Padi (Halus)": {"N": 2.0, "P": 1.0, "K": 1.0, "C_N": 20, "Desc": "Sumber Makanan Mikroba (Karb)"},
+        "Sekam Padi (Mentah)": {"N": 0.5, "P": 0.2, "K": 0.5, "C_N": 80, "Desc": "Prositias Tinggi, Lambat Terurai"},
+        "Arang Sekam": {"N": 0.3, "P": 0.2, "K": 1.0, "C_N": 100, "Desc": "Media Tanam, Sumber K, Hama"},
+        "Jerami Padi": {"N": 0.6, "P": 0.2, "K": 1.4, "C_N": 60, "Desc": "Sumber Kalium (K) Tinggi"},
+        "Hijauan (Leguminosa/Kacangan)": {"N": 3.5, "P": 0.5, "K": 2.0, "C_N": 15, "Desc": "Sumber Nitrogen Hijau"},
+        "Dolomit (Kapur)": {"N": 0.0, "P": 0.0, "K": 0.0, "Mg": 18.0, "Ca": 30.0, "C_N": 0, "Desc": "Netralisir pH, Sumber Ca & Mg"},
+        "Abu Dapur (Kayu)": {"N": 0.0, "P": 1.5, "K": 7.0, "C_N": 0, "Desc": "Sangat Kaya Kalium (K)"},
+        "Cangkang Telur": {"N": 0.5, "P": 0.1, "K": 0.1, "Ca": 90.0, "C_N": 0, "Desc": "Sumber Kalsium (Ca)"}
+    }
+
+    # --- UI Input ---
+    col_k1, col_k2 = st.columns([1, 2])
+    
+    with col_k1:
+        st.markdown("### 📝 Pilih Bahan")
+        options = list(bahan_organik.keys())
+        selected_materials = st.multiselect("Tambahkan bahan ke resep:", options, default=["Kotoran Sapi", "Dedak Padi (Halus)"])
+        
+        inputs = {}
+        st.markdown("---")
+        for mat in selected_materials:
+            inputs[mat] = st.number_input(f"Berat {mat} (kg/L):", min_value=0.1, value=10.0, step=1.0, key=mat)
+
+    # --- Calculation Engine ---
+    total_weight = 0
+    total_n_kg = 0
+    total_p_kg = 0
+    total_k_kg = 0
+    
+    mix_details = []
+
+    for mat, weight in inputs.items():
+        data = bahan_organik[mat]
+        n_content = data.get("N", 0)
+        p_content = data.get("P", 0)
+        k_content = data.get("K", 0)
+        
+        n_mass = weight * (n_content / 100)
+        p_mass = weight * (p_content / 100)
+        k_mass = weight * (k_content / 100)
+        
+        total_weight += weight
+        total_n_kg += n_mass
+        total_p_kg += p_mass
+        total_k_kg += k_mass
+        
+        mix_details.append({
+            "Bahan": mat,
+            "Berat (kg)": weight,
+            "N (%)": n_content,
+            "P (%)": p_content,
+            "K (%)": k_content,
+            "Fungsi": data.get("Desc", "-")
+        })
+
+    # --- Results Display ---
+    with col_k2:
+        st.markdown("### 📊 Hasil Analisis Campuran")
+        
+        if total_weight > 0:
+            final_n_percent = (total_n_kg / total_weight) * 100
+            final_p_percent = (total_p_kg / total_weight) * 100
+            final_k_percent = (total_k_kg / total_weight) * 100
+            
+            # Display Metrics
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("Total Berat", f"{total_weight:.1f} kg")
+            m2.metric("Nitrogen (N)", f"{final_n_percent:.2f} %", f"{total_n_kg:.2f} kg Real")
+            m3.metric("Fosfor (P)", f"{final_p_percent:.2f} %", f"{total_p_kg:.2f} kg Real")
+            m4.metric("Kalium (K)", f"{final_k_percent:.2f} %", f"{total_k_kg:.2f} kg Real")
+            
+            # Analysis
+            st.success(f"**Estimasi NPK Mix:** {final_n_percent:.1f} - {final_p_percent:.1f} - {final_k_percent:.1f}")
+            
+            # Interpretation logic
+            note = []
+            if final_n_percent > 2.0: note.append("✅ **Tinggi Nitrogen:** Bagus untuk pertumbuhan Daun/Vegetatif.")
+            if final_p_percent > 2.0: note.append("✅ **Tinggi Fosfor:** Bagus untuk Akar & Bunga.")
+            if final_k_percent > 2.0: note.append("✅ **Tinggi Kalium:** Bagus untuk Kualitas Buah & Kekebalan.")
+            if final_n_percent < 1.0 and final_p_percent < 1.0 and final_k_percent < 1.0:
+                note.append("⚠️ **Kandungan Rendah:** Ini tipikal Kompos 'Pembenah Tanah', bukan pupuk utama. Berfungsi memperbaiki fisik tanah.")
+            
+            for n in note:
+                st.info(n)
+
+            # Disclaimer
+            st.caption("""
+            **Catatan Ilmiah:** 
+            Angka ini adalah *estimasi matematis* berdasarkan rata-rata literatur. 
+            Proses fermentasi dapat **meningkatkan** ketersediaan nutrisi (N-Fixing Bacteria) atau **menurunkan** (penguapan Amonia jika terlalu panas). 
+            Selalu jaga C/N rasio dan suhu fermentasi.
+            """)
+            
+            # Show Table detail
+            with st.expander("🔍 Lihat Detail Kontribusi Bahan"):
+                st.dataframe(mix_details)
+        else:
+            st.warning("Masukkan berat bahan untuk melihat hasil.")
+
+# ===== TAB 8: KALKULATOR ORGANIK =====
+with tab_kalkulator:
+    st.header("🧮 Kalkulator Estimasi NPK Pupuk Organik")
+    st.info("Hitung estimasi kandungan NPK dari campuran bahan organik Anda berdasarkan referensi ilmiah.")
+    
+    # --- Database Kandungan Hara (Scientific References - Range Average) ---
+    # Values are approximate percentages of Dry Weight
+    # Source refs: FAO, Dept. Pertanian, Jurnal Ilmu Tanah
+    bahan_organik = {
+        "Kotoran Ayam (Murni)": {"N": 3.0, "P": 2.5, "K": 1.5, "C_N": 10, "Desc": "Panas, Cepat Terurai, Kaya N & P"},
+        "Kotoran Kambing/Domba": {"N": 1.5, "P": 1.0, "K": 1.5, "C_N": 25, "Desc": "Seimbang, Bagus untuk Buah"},
+        "Kotoran Sapi": {"N": 1.0, "P": 0.5, "K": 1.0, "C_N": 18, "Desc": "Dingin, Pembenah Tanah"},
+        "Kotoran Kelinci (Padat)": {"N": 2.0, "P": 1.4, "K": 0.6, "C_N": 12, "Desc": "Kualitas Tinggi"},
+        "Guano (Kelelawar)": {"N": 1.0, "P": 10.0, "K": 1.0, "C_N": 10, "Desc": "Sangat Kaya Fosfor (P)"},
+        "Urine Sapi": {"N": 1.0, "P": 0.1, "K": 1.0, "C_N": 0.8, "Desc": "Cepat Serap"},
+        "Urine Kelinci": {"N": 2.5, "P": 0.2, "K": 1.5, "C_N": 0.8, "Desc": "High Nitrogen Liquid"},
+        "Dedak Padi (Halus)": {"N": 2.0, "P": 1.0, "K": 1.0, "C_N": 20, "Desc": "Sumber Makanan Mikroba (Karb)"},
+        "Sekam Padi (Mentah)": {"N": 0.5, "P": 0.2, "K": 0.5, "C_N": 80, "Desc": "Prositias Tinggi, Lambat Terurai"},
+        "Arang Sekam": {"N": 0.3, "P": 0.2, "K": 1.0, "C_N": 100, "Desc": "Media Tanam, Sumber K, Hama"},
+        "Jerami Padi": {"N": 0.6, "P": 0.2, "K": 1.4, "C_N": 60, "Desc": "Sumber Kalium (K) Tinggi"},
+        "Hijauan (Leguminosa/Kacangan)": {"N": 3.5, "P": 0.5, "K": 2.0, "C_N": 15, "Desc": "Sumber Nitrogen Hijau"},
+        "Dolomit (Kapur)": {"N": 0.0, "P": 0.0, "K": 0.0, "Mg": 18.0, "Ca": 30.0, "C_N": 0, "Desc": "Netralisir pH, Sumber Ca & Mg"},
+        "Abu Dapur (Kayu)": {"N": 0.0, "P": 1.5, "K": 7.0, "C_N": 0, "Desc": "Sangat Kaya Kalium (K)"},
+        "Cangkang Telur": {"N": 0.5, "P": 0.1, "K": 0.1, "Ca": 90.0, "C_N": 0, "Desc": "Sumber Kalsium (Ca)"}
+    }
+
+    # --- UI Input ---
+    col_k1, col_k2 = st.columns([1, 2])
+    
+    with col_k1:
+        st.markdown("### 📝 Pilih Bahan")
+        options = list(bahan_organik.keys())
+        selected_materials = st.multiselect("Tambahkan bahan ke resep:", options, default=["Kotoran Sapi", "Dedak Padi (Halus)"])
+        
+        inputs = {}
+        st.markdown("---")
+        for mat in selected_materials:
+            inputs[mat] = st.number_input(f"Berat {mat} (kg/L):", min_value=0.1, value=10.0, step=1.0, key=mat)
+
+    # --- Calculation Engine ---
+    total_weight = 0
+    total_n_kg = 0
+    total_p_kg = 0
+    total_k_kg = 0
+    
+    mix_details = []
+
+    for mat, weight in inputs.items():
+        data = bahan_organik[mat]
+        n_content = data.get("N", 0)
+        p_content = data.get("P", 0)
+        k_content = data.get("K", 0)
+        
+        n_mass = weight * (n_content / 100)
+        p_mass = weight * (p_content / 100)
+        k_mass = weight * (k_content / 100)
+        
+        total_weight += weight
+        total_n_kg += n_mass
+        total_p_kg += p_mass
+        total_k_kg += k_mass
+        
+        mix_details.append({
+            "Bahan": mat,
+            "Berat (kg)": weight,
+            "N (%)": n_content,
+            "P (%)": p_content,
+            "K (%)": k_content,
+            "Fungsi": data.get("Desc", "-")
+        })
+
+    # --- Results Display ---
+    with col_k2:
+        st.markdown("### 📊 Hasil Analisis Campuran")
+        
+        if total_weight > 0:
+            final_n_percent = (total_n_kg / total_weight) * 100
+            final_p_percent = (total_p_kg / total_weight) * 100
+            final_k_percent = (total_k_kg / total_weight) * 100
+            
+            # Display Metrics
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("Total Berat", f"{total_weight:.1f} kg")
+            m2.metric("Nitrogen (N)", f"{final_n_percent:.2f} %", f"{total_n_kg:.2f} kg Real")
+            m3.metric("Fosfor (P)", f"{final_p_percent:.2f} %", f"{total_p_kg:.2f} kg Real")
+            m4.metric("Kalium (K)", f"{final_k_percent:.2f} %", f"{total_k_kg:.2f} kg Real")
+            
+            # Analysis
+            st.success(f"**Estimasi NPK Mix:** {final_n_percent:.1f} - {final_p_percent:.1f} - {final_k_percent:.1f}")
+            
+            # Interpretation logic
+            note = []
+            if final_n_percent > 2.0: note.append("✅ **Tinggi Nitrogen:** Bagus untuk pertumbuhan Daun/Vegetatif.")
+            if final_p_percent > 2.0: note.append("✅ **Tinggi Fosfor:** Bagus untuk Akar & Bunga.")
+            if final_k_percent > 2.0: note.append("✅ **Tinggi Kalium:** Bagus untuk Kualitas Buah & Kekebalan.")
+            if final_n_percent < 1.0 and final_p_percent < 1.0 and final_k_percent < 1.0:
+                note.append("⚠️ **Kandungan Rendah:** Ini tipikal Kompos 'Pembenah Tanah', bukan pupuk utama. Berfungsi memperbaiki fisik tanah.")
+            
+            for n in note:
+                st.info(n)
+
+            # Disclaimer
+            st.caption("""
+            **Catatan Ilmiah:** 
+            Angka ini adalah *estimasi matematis* berdasarkan rata-rata literatur. 
+            Proses fermentasi dapat **meningkatkan** ketersediaan nutrisi (N-Fixing Bacteria) atau **menurunkan** (penguapan Amonia jika terlalu panas). 
+            Selalu jaga C/N rasio dan suhu fermentasi.
+            """)
+            
+            # Show Table detail
+            with st.expander("🔍 Lihat Detail Kontribusi Bahan"):
+                st.dataframe(mix_details)
+        else:
+            st.warning("Masukkan berat bahan untuk melihat hasil.")
 
 
