@@ -8,6 +8,9 @@ st.set_page_config(
     layout="wide"
 )
 
+# DEBUG VERSION TAG
+st.warning("🟢 SYSTEM UPDATE: FDRS ADVANCED VERSION (LIVE)")
+
 # Custom CSS for aesthetics
 st.markdown("""
 <style>
@@ -395,38 +398,96 @@ with tab7:
     st.caption("**Tips:** Gunakan stimulan (ETHEPHON) secara bijak untuk meningkatkan getah tanpa merusak pohon.")
 
 with tab8:
-    st.subheader("🔥 Mitigasi Kebakaran Hutan (Karhutla)")
-    st.error("🛑 **STOP Pembakaran Lahan!** Sanksi Pidana Penjara Maks. 10 Tahun.")
+    st.subheader("🔥 Sistem Peringatan Dini Kebakaran (FDRS Advanced)")
+    st.markdown("Model: **Fire Warning System** berbasis cuaca mikro dan kondisi bahan bakar.")
+    st.error("🛑 **STOP MEMBAKAR!** Cuaca ekstrem + kelalaian = Bencana.")
     
-    col_fire1, col_fire2 = st.columns(2)
-    with col_fire1:
-        st.markdown("#### 🌡️ Cek Resiko Harian (FDRS Simple)")
-        temp_now = st.slider("Suhu Lokasi (°C):", 20, 40, 32)
-        hum_now = st.slider("Kelembaban Udara (%):", 20, 100, 60)
-        daun_kering = st.checkbox("Banyak Serasah/Daun Kering di Lantai Hutan?")
+    col_f1, col_f2, col_f3 = st.columns(3)
+    
+    with col_f1:
+        st.markdown("#### 1. Cuaca")
+        f_temp = st.slider("Suhu (°C)", 20, 40, 33)
+        f_hum = st.slider("Kelembaban (%)", 10, 100, 50)
+        f_wind = st.slider("Kecepatan Angin (km/jam)", 0, 60, 20, help="Angin kencang mempercepat sebaran api.")
         
-    with col_fire2:
-        risk_score = 0
-        if temp_now > 33: risk_score += 2
-        elif temp_now > 30: risk_score += 1
+    with col_f2:
+        st.markdown("#### 2. Bahan Bakar")
+        f_hth = st.number_input("Hari Tanpa Hujan (HTH)", 0, 60, 5, help="Jumlah hari berturut-turut tidak hujan.")
+        f_fuel = st.selectbox("Jenis Bahan Bakar (Serasah)", 
+                              ["Daun Lebar (Jati/Mahoni)", "Semak Belukar", "Serasah Pinus (Mudah Terbakar)"])
         
-        if hum_now < 50: risk_score += 2
-        elif hum_now < 70: risk_score += 1
+    # --- LOGIC HITUNG (FDRS Simplified Model) ---
+    # Skor Dasar Cuaca (0-100 Scale concept mapped to simplified points)
+    
+    score_temp = 0
+    if f_temp > 35: score_temp = 30
+    elif f_temp > 30: score_temp = 20
+    elif f_temp > 25: score_temp = 10
+    
+    score_hum = 0
+    if f_hum < 40: score_hum = 30
+    elif f_hum < 60: score_hum = 20
+    elif f_hum < 80: score_hum = 10
+    
+    score_wind = 0
+    if f_wind > 30: score_wind = 30   # Badai
+    elif f_wind > 15: score_wind = 20 # Kencang
+    elif f_wind > 5: score_wind = 10
+    
+    score_hth = 0
+    if f_hth > 14: score_hth = 30     # Kering Kerontang
+    elif f_hth > 7: score_hth = 20    # Kering
+    elif f_hth > 3: score_hth = 10
+    
+    base_index = score_temp + score_hum + score_wind + score_hth
+    
+    # Fuel Factor Multiplier
+    fuel_factor = 1.0
+    if "Semak" in f_fuel: fuel_factor = 1.2
+    elif "Pinus" in f_fuel: fuel_factor = 1.5 # Resin = Flammable
+    
+    final_fdrs = base_index * fuel_factor
+    
+    # --- OUTPUT ---
+    with col_f3:
+        st.markdown("#### 3. Status Bahaya")
         
-        if daun_kering: risk_score += 2
+        # Color coding & Level
+        level_text = ""
+        level_color = ""
+        action_msg = ""
         
-        st.markdown("### Status Bahaya:")
-        if risk_score >= 5:
-            st.error("EXTREME / SANGAT BAHAYA 🔴")
-            st.markdown("**DILARANG KERAS MENYALAKAN API APAPUN!**")
-        elif risk_score >= 3:
-            st.warning("TINGGI / WASPADA 🟠")
-            st.markdown("Hindari membuang puntung rokok sembarangan.")
+        if final_fdrs >= 100:
+            level_text = "EXTREME (SANGAT EKSTREM)"
+            level_color = "#000000" # Black
+            action_msg = "⛔ AKTIVITAS HUTAN DITUTUP TOTAL."
+            st.markdown(f"<h1 style='color:red; text-align:center;'>🔥 {final_fdrs:.0f}</h1>", unsafe_allow_html=True)
+        elif final_fdrs >= 70:
+            level_text = "VERY HIGH (SANGAT TINGGI)"
+            level_color = "#d32f2f" # Red
+            action_msg = "🚫 Dilarang menyalakan api. Siaga 1."
+            st.markdown(f"<h1 style='color:#d32f2f; text-align:center;'>{final_fdrs:.0f}</h1>", unsafe_allow_html=True)
+        elif final_fdrs >= 40:
+            level_text = "HIGH (TINGGI)"
+            level_color = "#f57c00" # Orange
+            action_msg = "⚠️ Waspada puntung rokok & loncatan api."
+            st.markdown(f"<h1 style='color:#f57c00; text-align:center;'>{final_fdrs:.0f}</h1>", unsafe_allow_html=True)
+        elif final_fdrs >= 20:
+            level_text = "MODERATE (SEDANG)"
+            level_color = "#fbc02d" # Yellow
+            action_msg = "✅ Patroli rutin."
+            st.markdown(f"<h1 style='color:#fbc02d; text-align:center;'>{final_fdrs:.0f}</h1>", unsafe_allow_html=True)
         else:
-            st.success("RENDAH / AMAN 🟢")
-            st.markdown("Tetap waspada.")
+            level_text = "LOW (RENDAH)"
+            level_color = "#388e3c" # Green
+            action_msg = "✅ Kondisi Aman."
+            st.markdown(f"<h1 style='color:#388e3c; text-align:center;'>{final_fdrs:.0f}</h1>", unsafe_allow_html=True)
             
-    st.info("💡 **SOP Pencegahan:** Buat sekat bakar (ilaran api) selebar 3-5 meter di batas lahan garapan.")
+        st.markdown(f"<div style='background-color:{level_color}; color:white; padding:10px; text-align:center; border-radius:5px;'><b>{level_text}</b></div>", unsafe_allow_html=True)
+        st.info(f"💡 **SOP:** {action_msg}")
+
+    st.markdown("---")
+    st.caption("**Parameter Kunci:** Kecepatan Angin & Serasah Pinus adalah faktor pengali risiko terbesar.")
 
 # Footer
 st.markdown("---")
