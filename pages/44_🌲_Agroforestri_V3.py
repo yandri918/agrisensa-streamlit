@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import requests
+import folium
+from streamlit_folium import st_folium
 
 # Page Config
 st.set_page_config(
@@ -438,9 +440,27 @@ with tab8:
         st.markdown("#### 1. Cuaca")
         
         # Weather Integration
-        with st.expander("📍 Ambil Data Satelit (Real-time)", expanded=False):
-            lat_in = st.number_input("Lat:", value=-7.15, step=0.01, format="%.4f")
-            lon_in = st.number_input("Lon:", value=110.14, step=0.01, format="%.4f")
+        with st.expander("📍 Ambil Data Satelit (Peta & Real-time)", expanded=False):
+            st.caption("Klik di peta untuk memilih lokasi hutan:")
+            
+            # Map Logic
+            default_lat, default_lon = -7.15, 110.14
+            m = folium.Map(location=[default_lat, default_lon], zoom_start=9)
+            m.add_child(folium.LatLngPopup())
+            
+            map_data = st_folium(m, height=300, width=400)
+            
+            # Coord Logic
+            if map_data and map_data.get("last_clicked"):
+                sel_lat = map_data["last_clicked"]["lat"]
+                sel_lon = map_data["last_clicked"]["lng"]
+            else:
+                sel_lat, sel_lon = default_lat, default_lon
+                
+            col_coord1, col_coord2 = st.columns(2)
+            lat_in = col_coord1.number_input("Lat:", value=sel_lat, format="%.4f")
+            lon_in = col_coord2.number_input("Lon:", value=sel_lon, format="%.4f")
+            
             if st.button("📡 Tarik Data Live"):
                 try:
                     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat_in}&longitude={lon_in}&current=temperature_2m,relative_humidity_2m,wind_speed_10m&wind_speed_unit=kmh"
