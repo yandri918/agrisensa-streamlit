@@ -2,6 +2,8 @@
 import streamlit as st
 import pandas as pd
 import random
+import plotly.express as px
+import datetime
 
 # Page Config
 st.set_page_config(
@@ -87,6 +89,52 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
 
+    # --- BERITA ACARA DIGITAL ---
+    st.markdown("---")
+    with st.expander("📄 Buat Berita Acara (Siap Cetak)", expanded=True):
+        c_ba1, c_ba2 = st.columns(2)
+        with c_ba1:
+            ba_poktan = st.text_input("Nama Kelompok Tani", "Sukamaju I")
+            ba_desa = st.text_input("Desa/Kelurahan", "Sukamakmur")
+            ba_var = st.text_input("Varietas Padi", "Ciherang")
+        with c_ba2:
+            ba_kec = st.text_input("Kecamatan", "Caringin")
+            ba_tanggal = st.date_input("Tanggal Ubinan", datetime.date.today())
+            ba_ka = st.number_input("Kadar Air Saat Panen (%)", 20.0)
+
+        ba_text = f"""BERITA ACARA PENGAMBILAN UBINAN
+-----------------------------------------
+Pada hari ini {ba_tanggal.strftime('%A, %d %B %Y')}, telah dilakukan pengambilan ubinan padi sawah di:
+
+📍 LOKASI
+Kelompok Tani : {ba_poktan}
+Desa/Kel.     : {ba_desa}
+Kecamatan     : {ba_kec}
+
+🌾 DATA TEKNIS
+Varietas      : {ba_var}
+Luas Petak    : {panjang} m x {lebar} m ({luas_ubin} m²)
+Jarak Tanam   : Tegel / Jajar Legowo
+Jumlah Rumpun : {jml_rumpun} rumpun (Sampel)
+
+⚖️ HASIL UBINAN
+Berat Ubinan  : {berat_ubin} kg
+Kadar Air     : {ba_ka} %
+-----------------------------------------
+✅ KONVERSI HASIL (ESTIMASI)
+Produktivitas : {hasil_gkp_ha:.2f} Ton/Ha (GKP)
+Populasi      : {populasi_ha:,.0f} Rumpun/Ha
+
+Demikian berita acara ini dibuat untuk dipergunakan sebagaimana mestinya.
+
+Mengetahui,
+Penyuluh Pertanian (PPL)             Ketua Kelompok Tani
+
+( .................... )             ( .................... )
+"""
+        st.text_area("Salin Teks Ini:", value=ba_text, height=350)
+        st.caption("Tips: Copy teks di atas, paste ke WhatsApp atau Word untuk dicetak.")
+
 # --- TAB 2: E-RDKK ---
 with tab2:
     st.markdown("### 📋 Cek Kuota Pupuk Subsidi (Simulasi)")
@@ -129,6 +177,27 @@ with tab2:
         q2.metric("NPK FORMULA (Subsidi)", f"{quota_npk:,.0f} Kg")
         
         st.caption("*Angka ini adalah simulasi sesuai rekomendasi teknis umum. Realisasi tergantung e-Alokasi daerah.*")
+
+        # Visualisasi
+        st.markdown("---")
+        st.subheader("📊 Proporsi Kebutuhan")
+        
+        # Estimasi kebutuhan ideal (asumsi standar teknis umum lebih tinggi dari subsidi)
+        need_urea_ideal = 250 * luas_lahan if komoditas in ["Padi", "Jagung"] else 150 * luas_lahan
+        
+        subsidi_pct = (quota_urea / need_urea_ideal) * 100 if need_urea_ideal > 0 else 0
+        mandiri_pct = 100 - subsidi_pct
+        
+        df_chart = pd.DataFrame({
+            "Jenis": ["Subsidi (Jatah)", "Mandiri (Kekurangan)"],
+            "Jumlah": [subsidi_pct, mandiri_pct]
+        })
+        
+        fig = px.pie(df_chart, values='Jumlah', names='Jenis', 
+                     title=f"Cakupan Subsidi vs Kebutuhan Ideal ({komoditas})",
+                     color='Jenis',
+                     color_discrete_map={'Subsidi (Jatah)':'#10b981', 'Mandiri (Kekurangan)':'#f59e0b'})
+        st.plotly_chart(fig, use_container_width=True)
 
 # --- TAB 3: MATERI PENYULUHAN ---
 with tab3:
