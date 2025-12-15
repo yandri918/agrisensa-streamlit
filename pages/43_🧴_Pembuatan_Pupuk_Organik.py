@@ -10,12 +10,13 @@ st.title("🧴 Laboratorium Pupuk Organik")
 st.markdown("**pusat Panduan Pembuatan Pupuk, Bioaktivator, dan Ramuan Organik Tanaman**")
 
 # Tabs
-tab_bio, tab_poc, tab_padat, tab_mol, tab_herb = st.tabs([
+tab_bio, tab_poc, tab_padat, tab_mol, tab_herb, tab_zpt = st.tabs([
     "🧪 Bioaktivator & Decomposer",
     "💧 Pupuk Cair (POC)",
     "🍂 Pupuk Padat (Kompos)",
     "🦠 MOL (Mikro Organisme Lokal)",
-    "🌿 Herbisida Alami"
+    "🌿 Herbisida Alami",
+    "🚀 ZPT Alami"
 ])
 
 # ===== TAB 1: BIOAKTIVATOR =====
@@ -538,5 +539,60 @@ with tab_herb:
             *   Semprotkan ke lahan **minimal 2 Minggu** sebelum ditanami.
             *   Semprot saat cuaca cerah (panas terik) agar reaksi cepat.
             """)
+
+# ===== TAB 6: ZPT =====
+with tab_zpt:
+    st.header("🚀 Zat Pengatur Tumbuh (ZPT) Alami")
+    st.info("Kumpulan sumber fitohormon alami untuk memacu pertumbuhan dan hasil panen.")
+    
+    with st.expander("🍃 Ekstrak Daun Kelor (Sumber Sitokinin Alami)", expanded=True):
+        col_sci, col_pr = st.columns([1, 1])
+        
+        with col_sci:
+            st.success("🔬 **Fakta Ilmiah (Science Fact):**")
+            st.markdown("""
+            Ekstrak **Daun Kelor** (*Moringa oleifera*) kaya akan hormon **Zeatin** (salah satu jenis *Cytokinin* paling aktif). 
+            
+            **Manfaat Sitokinin (Cytokinin):**
+            *   **Cell Division:** Memacu pembelahan sel tanaman muda secara cepat.
+            *   **Delay Senescence:** Menunda penuaan daun (daun tetap hijau dan fotosintesis lebih lama).
+            *   **Yield Booster:** Meningkatkan hasil panen 20-35%.
+            *   **Immunity:** Tanaman lebih vigor dan tahan penyakit.
+            
+            *Referensi: Makkar and Becker (1996)*
+            """)
+            
+        with col_pr:
+            st.warning("🧪 **Metode Ekstraksi Laboratorium:**")
+            st.caption("*Metode ini direkomendasikan untuk hasil ekstraksi hormon maksimal.*")
+            st.markdown("""
+            1.  **Bahan:** 20 gram Daun Kelor Segar.
+            2.  **Pelarut:** 675 ml Etanol 80% (Alkohol).
+            3.  **Alat:** Blender (Ultra-turrax) atau Tumbuk.
+            4.  **Proses:** Haluskan daun bersama pelarut, saring ekstraknya.
+            """)
+            
+        st.markdown("---")
+        st.subheader("🥣 Cara Pembuatan (Versi Petani)")
+        st.markdown("Jika Etanol sulit didapat, gunakan metode fermentasi air kelapa yang juga efektif menarik hormon.")
+        
+        col_m1, col_m2 = st.columns(2)
+        with col_m1:
+            st.markdown("#### Bahan:")
+            st.markdown("""
+            *   **Daun Kelor Segar:** 1 kg (Pilih pucuk/daun muda).
+            *   **Air Kelapa:** 1 Liter (Sumber Cytokinin juga).
+            *   **Gula Merah:** 1 Ons.
+            """)
+        with col_m2:
+            st.markdown("#### Cara Buat:")
+            st.markdown("""
+            1.  Blender daun kelor bersama air kelapa sampai halus.
+            2.  Campurkan gula merah cair.
+            3.  Fermentasi selama **24 Jam - 3 Hari** (Jangan terlalu lama untuk ZPT segar).
+            4.  Saring dan ambil airnya.
+            """)
+            
+        st.success("💉 **Aplikasi:** Semprot daun (Foliar Spray) pagi hari. Dosis 1:10 (1 Bagian Ekstrak : 10 Bagian Air).")
 
 
