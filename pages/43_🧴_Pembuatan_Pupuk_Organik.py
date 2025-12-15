@@ -10,10 +10,11 @@ st.title("🧴 Laboratorium Pupuk Organik")
 st.markdown("**pusat Panduan Pembuatan Pupuk, Bioaktivator, dan Ramuan Organik Tanaman**")
 
 # Tabs
-tab_bio, tab_poc, tab_padat = st.tabs([
+tab_bio, tab_poc, tab_padat, tab_mol = st.tabs([
     "🧪 Bioaktivator & Decomposer",
     "💧 Pupuk Cair (POC)",
-    "🍂 Pupuk Padat (Kompos)"
+    "🍂 Pupuk Padat (Kompos)",
+    "🦠 MOL (Mikro Organisme Lokal)"
 ])
 
 # ===== TAB 1: BIOAKTIVATOR =====
@@ -210,6 +211,39 @@ with tab_poc:
                 *   **Dosis:** 100 ml per 14 Liter air.
                 *   **Interval:** 1 Minggu sekali.
                 """)
+                
+    st.markdown("---")
+    
+    with st.expander("🐐 POC Rumen Kambing (By Ayah Manjel)", expanded=False):
+        st.info("Resep alternatif memanfaatkan limbah rumen/usus kambing. Proses cepat (3-7 hari).")
+        
+        col_pk1, col_pk2 = st.columns(2)
+        
+        with col_pk1:
+            st.markdown("#### 🥬 Bahan-Bahan")
+            st.markdown("""
+            1.  **Air Bersih:** 5 Liter
+            2.  **Gula Kelapa:** 1 kg
+            3.  **Kecambah (Tauge):** 1 kg
+            4.  **Dedak:** 2 kg
+            5.  **Susu Murni:** 1 Liter
+            6.  **Rumen/Usus Kambing:** Bagian usus dekat perut besar (kira-kira 12 jari)
+            """)
+            
+        with col_pk2:
+            st.markdown("#### 🥣 Cara Pembuatan")
+            st.markdown("""
+            1.  **Sterilisasi:** Cuci wadah (ember/jerigen) dengan air panas.
+            2.  **Larutan Gula & Dedak:** Seduh Gula dan Dedak dengan **Air Panas**, aduk rata, saring, dan masukkan airnya ke jerigen.
+            3.  **Larutan Susu:** Haluskan/blender Kecambah, campur dengan Susu Murni, saring, dan masukkan ke jerigen.
+            4.  **Rumen:** Cincang Rumen/Usus sampai halus, masukkan ke jerigen.
+            5.  **Fermentasi:** Tutup rapat (anaerob).
+            6.  **Perawatan:** Aduk setiap **Pagi & Sore** (buka sebentar).
+            7.  **Waktu:** Cek hari ke-3. Jika harum = JADI. Biarkan maksimal **7 Hari** untuk pematangan.
+            """)
+            
+        st.success("💉 **Dosis Aplikasi:** 250 cc per 14 Liter Air (1 Tangki).")
+        st.caption("Aplikasi Pagi (06.00-09.00) atau Sore (15.00-17.00).")
 
 # ===== TAB 3: PADAT =====
 with tab_padat:
@@ -243,3 +277,183 @@ with tab_padat:
             6.  **Waktu:** Fermentasi selama **5 - 7 Hari**.
             7.  **Panen:** Pupuk siap digunakan jika suhu sudah turun/dingin dan berbau harum fermentasi.
             """)
+
+# ===== TAB 4: M O L =====
+with tab_mol:
+    st.header("🦠 MOL (Mikro Organisme Lokal)")
+    st.info("Kumpulan resep MOL sederhana menggunakan bahan-bahan lokal.")
+    
+    mol_choice = st.selectbox("Pilih Jenis MOL:", [
+        "MOL Sayuran",
+        "MOL Buah",
+        "MOL Rebung Bambu",
+        "MOL Keong Mas / Bekicot",
+        "MOL Bonggol Pisang",
+        "MOL Sabut Kelapa",
+        "MOL Gedebok / Pelepah Pisang"
+    ])
+    
+    if mol_choice == "MOL Sayuran":
+        with st.expander("🥦 MOL Sayuran (Vegetatif)", expanded=True):
+            st.markdown("**Fungsi:** Pupuk masa Vegetatif.")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("#### Bahan:")
+                st.markdown("""
+                *   Sayur-sayuran (beragam, jangan busuk): 3 kg
+                *   Gula Merah: 0.5 kg
+                *   Garam: 150 gram
+                *   Air Leri (Beras): 3 Liter
+                *   Air Kelapa: 2 Liter
+                """)
+            with c2:
+                st.markdown("#### Cara Buat:")
+                st.markdown("""
+                1.  Cincang halus/blender sayuran.
+                2.  Campur semua bahan, kocok/aduk 3-5 menit.
+                3.  Simpan dalam wadah tertutup di tempat teduh.
+                4.  Fermentasi: **14 Hari**.
+                """)
+            st.success("💉 **Dosis:** 1 Liter MOL : 10 Liter Air (10%). Aplikasi 2 minggu sekali.")
+
+    elif mol_choice == "MOL Buah":
+        with st.expander("🍎 MOL Buah (Generatif)", expanded=True):
+            st.markdown("**Fungsi:** Pupuk masa Generatif (Pembuahan) & BOoster Manis.")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("#### Bahan:")
+                st.markdown("""
+                *   Buah matang (Pepaya, Mangga, Pisang, Tomat, Nanas, dll): 2 kg
+                *   Gula Merah: 0.5 kg
+                *   Air Kelapa: 5 Liter
+                *   Penyedap Rasa (Opsional): 1 sdt
+                """)
+            with c2:
+                st.markdown("#### Cara Buat:")
+                st.markdown("""
+                1.  Cincang halus/blender buah-buahan.
+                2.  Campur semua bahan, kocok/aduk 3-5 menit.
+                3.  Simpan wadah tertutup, tempat teduh.
+                4.  Fermentasi: **14 Hari**.
+                """)
+            st.success("💉 **Dosis:** 1 Liter MOL : 10 Liter Air (10%). Aplikasi 2 minggu sekali.")
+            st.markdown("*Tips: Tambahkan kocokan telur bebek/ayam saat aplikasi agar buah makin manis.*")
+
+    elif mol_choice == "MOL Rebung Bambu":
+        with st.expander("🎍 MOL Rebung Bambu (ZPT Gibberellin)", expanded=True):
+            st.markdown("**Fungsi:** Perangsang Tumbuh (Gibberellin) & Pengurai Kompos.")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("#### Bahan:")
+                st.markdown("""
+                *   Rebung Bambu: 1 kg
+                *   Air Leri (Beras): 5 Liter
+                *   Gula Merah: 0.5 kg
+                """)
+            with c2:
+                st.markdown("#### Cara Buat:")
+                st.markdown("""
+                1.  Iris tipis atau tumbuk rebung bambu.
+                2.  Masukkan ke jerigen bersama Gula Merah dan Air Leri.
+                3.  Kocok hingga tercampur.
+                4.  Buka tutup sebentar setiap pagi (buang gas).
+                5.  Siap pakai setelah **15 Hari**.
+                """)
+            st.info("""
+            **Dosis:**
+            *   **Pengomposan:** 1 MOL : 5 Air. Siramkan ke bahan kompos.
+            *   **Tanaman:** 1 MOL : 15 Air. Semprot/Kocor.
+            """)
+
+    elif mol_choice == "MOL Keong Mas / Bekicot":
+        with st.expander("🐌 MOL Keong Mas (Asam Amino Plus)", expanded=True):
+            st.markdown("**Fungsi:** Sumber Asam Amino & Dekomposer.")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("#### Bahan:")
+                st.markdown("""
+                *   Keong Mas/Bekicot Hidup: 1 kg
+                *   Buah Maja (atau Gula Merah 0.5 kg): 1/2 buah
+                *   Air Kelapa: 5 Liter
+                """)
+            with c2:
+                st.markdown("#### Cara Buat:")
+                st.markdown("""
+                1.  Tumbuk halus Keong Mas (cangkang + daging).
+                2.  Tumbuk halus Buah Maja / Gula Merah.
+                3.  Campur semua dengan Air Kelapa dalam jerigen.
+                4.  Kocok rata. Buka tutup sebentar setiap pagi.
+                5.  Siap pakai setelah **15 Hari**.
+                """)
+            st.info("""
+            **Dosis:**
+            *   **Pengomposan:** 1 MOL : 5 Air (Plus 1 ons Gula Merah).
+            *   **Tanaman:** 1 Liter per Tangki. Semprot pagi/sore.
+            """)
+
+    elif mol_choice == "MOL Bonggol Pisang":
+        with st.expander("🍌 MOL Bonggol Pisang (ZPT Sitokinin)", expanded=True):
+            st.markdown("**Fungsi:** Perangsang akar & tunas (Sitokinin).")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("#### Bahan:")
+                st.markdown("""
+                *   Bonggol Pisang: 1 kg
+                *   Gula Merah: 0.5 ons
+                *   Air Leri (Beras): 5 Liter
+                """)
+            with c2:
+                st.markdown("#### Cara Buat:")
+                st.markdown("""
+                1.  Potong kecil/tumbuk bonggol pisang.
+                2.  Larutkan gula merah dengan air leri.
+                3.  Campur semua dalam jerigen, tutup rapat.
+                4.  Buka tutup setiap 2 hari (buang gas).
+                5.  Fermentasi: **14 Hari**.
+                """)
+            st.success("💉 **Dosis:** 1 Liter MOL : 10 Liter Air (10%). Aplikasi Vegetatif (2 minggu sekali).")
+
+    elif mol_choice == "MOL Sabut Kelapa":
+        with st.expander("🥥 MOL Sabut Kelapa (Kalium Tinggi)", expanded=True):
+            st.markdown("**Fungsi:** Pupuk K (Kalium) untuk pembuahan.")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("#### Bahan:")
+                st.markdown("""
+                *   Sabut Kelapa
+                *   Air Bersih
+                """)
+            with c2:
+                st.markdown("#### Cara Buat:")
+                st.markdown("""
+                1.  Masukkan sabut kelapa ke drum (jangan penuh).
+                2.  Isi air sampai semua terendam.
+                3.  Tutup rapat drum.
+                4.  **Biarkan 2 Minggu**.
+                5.  Air berwarna coklat hitam siap dipakai.
+                """)
+            st.success("💉 **Dosis:** 1 Liter MOL : 10 Liter Air (10%). Aplikasi 2 minggu sekali.")
+
+    elif mol_choice == "MOL Gedebok / Pelepah Pisang":
+        with st.expander("🌿 MOL Gedebok Pisang (Fosfat)", expanded=True):
+            st.markdown("**Fungsi:** Sumber Fosfat & Penguat batang.")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("#### Bahan:")
+                st.markdown("""
+                *   Batang Pisang: 2 kg
+                *   Air Nira (atau Gula Jawa 0.5 kg): 1 Liter
+                """)
+            with c2:
+                st.markdown("#### Cara Buat:")
+                st.markdown("""
+                1.  Potong-potong batang pisang (jangan ditumbuk).
+                2.  Campur dengan 3/4 Air Nira/Gula.
+                3.  Masukkan baskom, padatkan.
+                4.  Siram sisa nira di atasnya.
+                5.  Tutup rapat, biarkan **2 Minggu**.
+                6.  Peras airnya (MOL).
+                """)
+            st.success("💉 **Dosis:** 1 Liter MOL : 100 Liter Air (1:100). Semprot pagi/sore.")
+
+
