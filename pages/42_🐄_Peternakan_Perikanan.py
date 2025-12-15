@@ -188,6 +188,94 @@ with tab_fish:
         st.success(f"🍯 **Tambahkan Molase:** ± {molase_needed:.2f} kg / hari")
         st.caption("Catatan: Ini adalah estimasi teoritis. Selalu cek kualitas air (TAN/Nitrit) aktual.")
 
+    st.markdown("---")
+    
+    # --- NEW SECTION: BUDIDAYA LELE & PAKAN ---
+    st.subheader("😺 Budidaya Lele & Pakan Alternatif")
+    
+    tab_lele, tab_alt = st.tabs(["🐟 Pakan Lele", "🐛 Pakan Alternatif (Maggot/Cacing)"])
+    
+    with tab_lele:
+        st.markdown("**Kalkulator Pakan Harian Lele**")
+        
+        col_l1, col_l2 = st.columns(2)
+        
+        with col_l1:
+            jumlah_ikan = st.number_input("Jumlah Ikan (ekor)", value=1000, step=100)
+            bobot_rata = st.number_input("Bobot Rata-rata per Ekor (gram)", value=50.0, step=1.0)
+            fr_pct = st.number_input("Feeding Rate (%)", value=3.0, step=0.1, help="Biasanya 3-5% dari bobot biomasa")
+            
+        with col_l2:
+            st.info("ℹ️ **Feeding Rate (FR)**")
+            st.markdown("""
+            *   Bibit (<10g): 5-7%
+            *   Pembesaran (10-100g): 3-5%
+            *   Konsumsi (>100g): 2-3%
+            """)
+            
+        biomasa_kg = (jumlah_ikan * bobot_rata) / 1000
+        pakan_harian = biomasa_kg * (fr_pct / 100)
+        
+        st.write(f"**Total Biomasa Ikan:** {biomasa_kg:.2f} kg")
+        
+        st.success(f"📦 **Kebutuhan Pakan Harian:** {pakan_harian:.2f} kg")
+        
+        col_fr1, col_fr2, col_fr3 = st.columns(3)
+        with col_fr1:
+            st.metric("Pagi (30%)", f"{pakan_harian*0.3:.2f} kg")
+        with col_fr2:
+            st.metric("Sore/Malam (40%)", f"{pakan_harian*0.4:.2f} kg")
+        with col_fr3:
+            st.metric("Malam/Tambahan (30%)", f"{pakan_harian*0.3:.2f} kg")
+            
+    with tab_alt:
+        st.markdown("**Substitusi Pakan dengan Pakan Alternatif (Maggot BSF / Cacing)**")
+        st.info("💡 Substitusi pakan pelet dengan pakan alami dapat menghemat biaya hingga 30-50%.")
+        
+        pakan_total = st.number_input("Total Pakan Komersil Harian (kg)", value=pakan_harian if 'pakan_harian' in locals() else 5.0)
+        substitusi_pct = st.slider("Persentase Substitusi (%)", 0, 100, 20)
+        
+        jenis_alt = st.selectbox("Jenis Pakan Alternatif", ["Maggot BSF (Segar)", "Maggot BSF (Kering)", "Cacing Tanah (Lumbricus)", "Azolla"])
+        
+        # Data Nutrisi (Estimasi Protein & Konversi)
+        # Faktor konversi: berapa kg pakan alternatif setara 1 kg pelet (berdasarkan kadar air & protein)
+        # Pelet: ~30% PK, Kering (10% air)
+        # Maggot Segar: ~15% PK (karena air tinggi 60-70%). Jadi butuh ~2kg maggot segar utk ganti 1kg pelet protein-wise?
+        
+        conv_factor = 1.0
+        note = ""
+        
+        if jenis_alt == "Maggot BSF (Segar)":
+            conv_factor = 2.5 # Butuh 2.5kg segar utk setara nutrisi 1kg pelet (basah vs kering)
+            note = "Maggot segar mengandung air tinggi (~70%). Berikan lebih banyak."
+        elif jenis_alt == "Maggot BSF (Kering)":
+            conv_factor = 0.9 # Protein tinggi (~40-45%), sedikit lebih irit dari pelet
+            note = "Maggot kering sangat padat nutrisi."
+        elif jenis_alt == "Cacing Tanah (Lumbricus)":
+            conv_factor = 3.0 # Segar, air tinggi
+            note = "Cacing segar sangat disukai, tapi kadar air tinggi."
+        elif jenis_alt == "Azolla":
+            conv_factor = 4.0 # Protein ~25% BK, tapi air sangat tinggi
+            note = "Azolla segar memiliki kadar air sangat tinggi (>90%)."
+            
+        pakan_pelet_sisa = pakan_total * (1 - substitusi_pct/100)
+        pakan_diganti = pakan_total * (substitusi_pct/100)
+        
+        alt_needed = pakan_diganti * conv_factor
+        
+        st.markdown("#### 📋 Rekomendasi Pemberian")
+        
+        c1, c2 = st.columns(2)
+        with c1:
+            st.metric("Pakan Pelet (Tetap)", f"{pakan_pelet_sisa:.2f} kg", f"-{pakan_diganti:.2f} kg")
+        with c2:
+            st.metric(f"Tambahan {jenis_alt}", f"{alt_needed:.2f} kg", f"Faktor: {conv_factor}x")
+            
+        if note:
+            st.caption(f"📝 {note}")
+            
+        st.warning("⚠️ Perhatian: Selalu lakukan adaptasi pakan secara bertahap (misal: 10% -> 20% -> 30%) dalam waktu 1-2 minggu.")
+
 # ===== TAB 4: RANSUM =====
 with tab_feed:
     st.header("🧮 Formulasi Ransum (Metode Segi Empat Pearson)")
