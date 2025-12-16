@@ -89,7 +89,15 @@ with tab1:
             
             # QR Code Generation
             qr = qrcode.QRCode(version=1, box_size=10, border=4)
-            qr.add_data(f"https://agrisensa.com/verify/{data['id']}") # Dummy Link
+            # Rich Text QR (Offline Compatible)
+            qr_content = f"""AgriSensa Verified Product
+ID: {data['id']}
+Produk: {data['produk']} ({data['varietas']})
+Petani: {data['petani']} @ {data['lokasi']}
+Panen: {data['tgl']}
+Kualitas: {', '.join(data['klaim'])}
+"""
+            qr.add_data(qr_content)
             qr.make(fit=True)
             img_qr = qr.make_image(fill_color="black", back_color="white")
             
