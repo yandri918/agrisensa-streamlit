@@ -53,7 +53,26 @@ with tab1:
     
     with col_in1:
         st.subheader("1. Identitas Produk")
-        jenis_produk = st.selectbox("Jenis Komoditas", ["Beras Premium", "Kopi Robusta", "Sayuran Organik", "Melon Hidroponik", "Madu Murni"])
+        
+        # Extended Commodity Options
+        opsi_komoditas = [
+            "Beras (Pandan Wangi/Rojolele)", "Beras Merah/Hitam", 
+            "Kopi Arabika", "Kopi Robusta", "Kakao (Cokelat)",
+            "Cabai Rawit", "Cabai Merah", "Bawang Merah", "Bawang Putih",
+            "Sayuran Daun (Bayam/Kangkung)", "Selada Hidroponik", "Tomat Cherry",
+            "Melon Premium", "Semangka", "Mangga", "Durian", "Alpukat",
+            "Telur Ayam Kampung", "Madu Murni", "Ikan Nila", "Ikan Lele",
+            "Lainnya (Ketik Manual)..."
+        ]
+        
+        pilihan_awal = st.selectbox("Pilih Komoditas", opsi_komoditas)
+        
+        if pilihan_awal == "Lainnya (Ketik Manual)...":
+            jenis_produk = st.text_input("✍️ Masukkan Nama Komoditas", placeholder="Contoh: Vanili Eksport")
+            if not jenis_produk:
+                jenis_produk = "Produk Tanpa Nama"
+        else:
+            jenis_produk = pilihan_awal
         varietas = st.text_input("Varietas / Grade", "Cianjur Pandan Wangi (Grade A)")
         tgl_panen = st.date_input("Tanggal Panen", datetime.date.today())
         
