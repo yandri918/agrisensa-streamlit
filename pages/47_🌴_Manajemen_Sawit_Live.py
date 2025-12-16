@@ -116,9 +116,16 @@ with tab1:
         m2.metric("Total Produksi (Ton/Thn)", f"{total_tbs:,.0f}")
         m3.metric("Estimasi BJR (kg)", f"{bjr_est:.1f}")
         
+        def get_competition_factor(s):
+            if s > 136: return 1.0 - ((s - 136) * 0.006)
+            elif s < 136: return 1.0 + ((136 - s) * 0.002)
+            return 1.0
+            
         # Plotting the Curve
         ages = list(range(3, 26))
-        yields = [get_std_yield(a) * sph_factor for a in ages]
+        # Use current SPH (constant) for the forecast line
+        current_comp_factor = get_competition_factor(sph)
+        yields = [get_std_yield(a) * current_comp_factor for a in ages]
         
         df_chart = pd.DataFrame({"Umur": ages, "Yield (Ton/Ha)": yields})
         df_chart['Status'] = ["Current" if a == umur else "Forecast" for a in ages]
