@@ -201,12 +201,19 @@ if 'price_data' in st.session_state:
             - **Tren Bulanan**: {'Kenaikan' if slope > 0 else 'Penurunan'} sekitar Rp {abs(slope * 30):.0f} per bulan
             """)
         else:
-            st.info(f"""
-            **🤖 Model Random Forest:**
-            - R² = {r2:.4f} ({r2*100:.2f}% akurasi prediksi)
-            - Model non-linear, tidak ada persamaan sederhana
-            - Lebih akurat untuk pola kompleks
-            """)
+            if r2 is not None:
+                st.info(f"""
+                **🤖 Model Random Forest:**
+                - R² = {r2:.4f} ({r2*100:.2f}% akurasi prediksi)
+                - Model non-linear, tidak ada persamaan sederhana
+                - Lebih akurat untuk pola kompleks
+                """)
+            else:
+                st.warning("""
+                **⚠️ Data Kurang:**
+                - Data histori belum cukup untuk menghitung akurasi (R²).
+                - Prediksi ini adalah estimasi kasar.
+                """)
         
         st.subheader("📊 Grafik Tren & Prediksi")
         
