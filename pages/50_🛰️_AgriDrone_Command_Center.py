@@ -61,9 +61,35 @@ with st.sidebar:
             status.update(label="✅ Misi Selesai! Data NDVI Terupdate.", state="complete", expanded=False)
             st.toast("Data Scan Baru Diterima!", icon="⬇️")
 
-    # 2. IoT Config
+    
+    # 2. Location Selector
     st.divider()
-    st.subheader("2. IoT Sensors")
+    st.subheader("2. Pilih Lokasi Kebun")
+    
+    preset_locations = {
+        "Banyumas, Jawa Tengah": [-7.45, 109.28],
+        "Yogyakarta": [-7.80, 110.36],
+        "Bandung, Jawa Barat": [-6.90, 107.62],
+        "Malang, Jawa Timur": [-7.98, 112.63],
+        "Lampung": [-5.45, 105.27],
+        "Custom (Manual Input)": None
+    }
+    
+    location_choice = st.selectbox("Preset Lokasi", list(preset_locations.keys()))
+    
+    if location_choice == "Custom (Manual Input)":
+        col_lat, col_lon = st.columns(2)
+        with col_lat:
+            custom_lat = st.number_input("Latitude", value=-7.45, format="%.6f")
+        with col_lon:
+            custom_lon = st.number_input("Longitude", value=109.28, format="%.6f")
+        center = [custom_lat, custom_lon]
+    else:
+        center = preset_locations[location_choice]
+    
+    # 3. IoT Config
+    st.divider()
+    st.subheader("3. IoT Sensors")
     st.info("Terhubung ke 12 Titik Sensor")
 
 
@@ -73,9 +99,9 @@ col_map, col_iot = st.columns([2.5, 1])
 with col_map:
     st.subheader(f"🗺️ Peta Kesehatan Tanaman (NDVI) - {region_select}")
     
+    
     # --- FOLIUM MAP SETUP ---
-    # Center Coord (Banyumas approx)
-    center = [-7.45, 109.28]
+    # Center is now dynamic from sidebar selection
     
     m = folium.Map(location=center, zoom_start=16, tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr='Esri')
     
