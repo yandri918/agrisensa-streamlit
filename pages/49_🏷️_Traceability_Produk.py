@@ -108,43 +108,31 @@ Kualitas: {', '.join(data['klaim'])}
             
             # Simple "Sticker" Layout using HTML/CSS for preview
             # Professional Label Layout (Japanese Style Compact)
+            # Professional Label Layout (Table Based for Stability)
             st.markdown(f"""
-            <div style='
-                border: 2px solid #000; 
-                padding: 15px; 
-                background: white; 
-                border-radius: 8px; 
-                display: flex; 
-                flex-direction: row; 
-                align-items: center; 
-                gap: 15px;
-                max-width: 450px;
-                margin: auto;
-                box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            '>
-                <!-- Left: QR Code -->
-                <div style='flex: 0 0 130px;'>
-                    <img src="data:image/png;base64,{base64.b64encode(byte_im).decode()}" width="130" style='border: 1px solid #ddd; padding: 2px;'>
-                </div>
-                
-                <!-- Right: Information -->
-                <div style='text-align: left; flex: 1;'>
-                    <h3 style='margin: 0; color: #111; font-size: 1.2rem; line-height: 1.2;'>{data['produk']}</h3>
-                    <small style='color: #666; display: block; margin-bottom: 5px;'>{data['varietas']}</small>
-                    
-                    <div style='font-size: 0.85rem; color: #333; line-height: 1.4;'>
-                        <b>Petani:</b> {data['petani']}<br>
-                        <b>Lokasi:</b> {data['lokasi']}<br>
-                        <b>Panen:</b> {data['tgl']}
-                    </div>
-                    
-                    <div style='margin-top: 8px;'>
-                         {' '.join([f"<span style='background:#10b981; color:white; padding:1px 6px; border-radius:3px; font-size:0.7rem; font-weight:bold;'>{k}</span>" for k in data['klaim']])}
-                    </div>
-                    <div style='margin-top: 5px; font-size: 0.7rem; color: #888;'>
-                        ID: {data['id']}
-                    </div>
-                </div>
+            <div style='border: 2px solid #000; background: white; border-radius: 8px; max-width: 480px; margin: auto; padding: 10px;'>
+                <table style='width: 100%; border: none;'>
+                    <tr style='border: none;'>
+                        <td style='width: 140px; padding: 5px; border: none; vertical-align: top;'>
+                            <img src="data:image/png;base64,{base64.b64encode(byte_im).decode()}" width="130" style='border: 1px solid #ccc;'>
+                        </td>
+                        <td style='padding: 5px; border: none; vertical-align: top; text-align: left;'>
+                            <h3 style='margin: 0; padding: 0; color: #000; font-size: 20px;'>{data['produk']}</h3>
+                            <p style='margin: 0 0 8px 0; color: #555; font-size: 14px;'>{data['varietas']}</p>
+                            
+                            <p style='margin: 0; font-size: 13px; color: #222; line-height: 1.4;'>
+                                <b>Petani:</b> {data['petani']}<br>
+                                <b>Lokasi:</b> {data['lokasi']}<br>
+                                <b>Panen:</b> {data['tgl']}
+                            </p>
+                            
+                            <div style='margin-top: 8px;'>
+                                {' '.join([f"<span style='background:#10b981; color:white; padding:2px 6px; border-radius:4px; font-size:11px; margin-right:4px;'>{k}</span>" for k in data['klaim']])}
+                            </div>
+                            <p style='margin-top: 5px; font-size: 10px; color: #888;'>ID: {data['id']}</p>
+                        </td>
+                    </tr>
+                </table>
             </div>
             """, unsafe_allow_html=True)
             
