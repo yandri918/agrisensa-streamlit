@@ -63,9 +63,38 @@ with tab1:
     
     col_l1, col_l2 = st.columns(2)
     
+    # Calculate Distance via Coordinates (Haversine)
+    def haversine(lat1, lon1, lat2, lon2):
+        import math
+        R = 6371 # Earth radius in km
+        phi1, phi2 = math.radians(lat1), math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+        a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        return R * c
+        
     with col_l1:
         st.subheader("1. Data Pengiriman")
-        jarak = st.number_input("Jarak Tempuh (km)", 10, 1000, 150)
+        
+        # Auto Distance Feature
+        with st.expander("📍 Hitung Jarak Otomatis (Koordinat)", expanded=False):
+            st.caption("Masukkan Lat/Lon Kebun (Copy dari Google Maps).")
+            kebun_lat = st.number_input("Latitude Kebun", -11.0, 6.0, -6.59, format="%.5f")
+            kebun_lon = st.number_input("Longitude Kebun", 95.0, 141.0, 106.79, format="%.5f")
+            
+            dest_pasar = st.selectbox("Tujuan Otomatis", list(PASAR_INDUK.keys()), key="dest_auto")
+            
+            if st.button("📏 Hitung Jarak"):
+                p_data = PASAR_INDUK[dest_pasar]
+                air_dist = haversine(kebun_lat, kebun_lon, p_data['lat'], p_data['lon'])
+                road_dist = air_dist * 1.4 # Road factor
+                st.session_state['calc_dist'] = int(road_dist)
+                st.success(f"Jarak Udara: {air_dist:.1f} km. Estimasi Jalan Raya (Faktor 1.4x): {road_dist:.1f} km.")
+
+        # Main Distance Input (manual or auto-filled)
+        def_dist = st.session_state.get('calc_dist', 150)
+        jarak = st.number_input("Jarak Tempuh (km)", 10, 1000, def_dist)
         jenis_truk = st.selectbox("Jenis Armada", list(VEHICLES.keys()))
         muatan_kg = st.number_input(f"Total Muatan (kg) - Max {VEHICLES[jenis_truk]['kapasitas']}kg", 100, VEHICLES[jenis_truk]['kapasitas'], int(VEHICLES[jenis_truk]['kapasitas']*0.9))
         
