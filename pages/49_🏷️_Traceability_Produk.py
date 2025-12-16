@@ -108,33 +108,31 @@ Kualitas: {', '.join(data['klaim'])}
             
             # Simple "Sticker" Layout using HTML/CSS for preview
             # Professional Label Layout (Japanese Style Compact)
-            # Professional Label Layout (Table Based for Stability)
-            st.markdown(f"""
-            <div style='border: 2px solid #000; background: white; border-radius: 8px; max-width: 480px; margin: auto; padding: 10px;'>
-                <table style='width: 100%; border: none;'>
-                    <tr style='border: none;'>
-                        <td style='width: 140px; padding: 5px; border: none; vertical-align: top;'>
-                            <img src="data:image/png;base64,{base64.b64encode(byte_im).decode()}" width="130" style='border: 1px solid #ccc;'>
-                        </td>
-                        <td style='padding: 5px; border: none; vertical-align: top; text-align: left;'>
-                            <h3 style='margin: 0; padding: 0; color: #000; font-size: 20px;'>{data['produk']}</h3>
-                            <p style='margin: 0 0 8px 0; color: #555; font-size: 14px;'>{data['varietas']}</p>
-                            
-                            <p style='margin: 0; font-size: 13px; color: #222; line-height: 1.4;'>
-                                <b>Petani:</b> {data['petani']}<br>
-                                <b>Lokasi:</b> {data['lokasi']}<br>
-                                <b>Panen:</b> {data['tgl']}
-                            </p>
-                            
-                            <div style='margin-top: 8px;'>
-                                {' '.join([f"<span style='background:#10b981; color:white; padding:2px 6px; border-radius:4px; font-size:11px; margin-right:4px;'>{k}</span>" for k in data['klaim']])}
-                            </div>
-                            <p style='margin-top: 5px; font-size: 10px; color: #888;'>ID: {data['id']}</p>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            """, unsafe_allow_html=True)
+            # Professional Label Layout (Native Streamlit)
+            st.markdown("---")
+            st.caption("🔍 Preview Label (Layout Rapi):")
+            
+            with st.container(border=True):
+                c_qr, c_info = st.columns([1, 2])
+                
+                with c_qr:
+                    st.image(byte_im, width=150, caption="Scan Me")
+                    
+                with c_info:
+                    st.subheader(data['produk'])
+                    st.caption(f"{data['varietas']} | Panen: {data['tgl']}")
+                    
+                    st.markdown(f"""
+                    **Petani:** {data['petani']}  
+                    **Lokasi:** {data['lokasi']}
+                    """)
+                    
+                    # badges
+                    st.markdown(' '.join([f"![{k}](https://img.shields.io/badge/{k}-Verified-success?style=flat-square)" for k in data['klaim']]))
+                    
+                    st.caption(f"ID: {data['id']}")
+            
+            st.markdown("---")
             
             st.download_button("⬇️ Download Gambar QR", byte_im, f"QR_{data['id']}.png", "image/png")
             st.caption("Tempel stiker ini di kemasan produk Anda untuk masuk Supermarket.")
