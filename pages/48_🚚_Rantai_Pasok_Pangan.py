@@ -190,10 +190,16 @@ with tab2:
         share_petani = (harga_petani / final_p) * 100
         st.info(f"💡 **Farmer's Share:** Petani hanya menikmati **{share_petani:.1f}%** dari harga yang dibayar konsumen akhir.")
 
-# --- TAB 3: MARKET TIMING ---
-with tab3:
-    st.markdown("### ⏱️ Radar Pasar Induk (Golden Hour)")
-    st.info("Ketahui jam emas lelang (harga tertinggi) agar truk tiba tepat waktu.")
+    # Updated Market Operational Hours (Real World Data)
+    PASAR_INDUK = {
+        "PI Kramat Jati (Jakarta)": {"ops_start": 19, "peak_start": 21, "peak_end": 23, "ops_end": 24},
+        "PI Tanah Tinggi (Tangerang)": {"ops_start": 18, "peak_start": 20, "peak_end": 22, "ops_end": 23},
+        # Others keep standard relative trend
+        "PI Cibitung (Bekasi)": {"ops_start": 18, "peak_start": 20, "peak_end": 23, "ops_end": 24},
+    }
+
+    st.markdown("### ⏱️ Radar Pasar Induk (Real-Time Price Trend)")
+    st.info("Analisis Jam Operasional (19.00 - 24.00) & Posisi Lapak.")
     
     col_tm1, col_tm2 = st.columns(2)
     
@@ -202,47 +208,49 @@ with tab3:
         data_pasar = PASAR_INDUK[target_pasar]
         
         jam_est_tempuh = st.slider("Estimasi Lama Perjalanan (Jam)", 1, 24, 6)
+        posisi_lapak = st.selectbox("Posisi Lapak / Bongkar", ["Depan (Strategis)", "Tengah", "Belakang / Pojok"])
         
-        peak_start = data_pasar['peak_start'] # e.g 23 (11 PM)
-        peak_end = data_pasar['peak_end'] # e.g 4 (4 AM)
+        # Logic: Price impact based on stall location
+        lapak_premium = 0
+        if posisi_lapak == "Depan (Strategis)": lapak_premium = 500 # Rp/kg higher
+        elif posisi_lapak == "Belakang / Pojok": lapak_premium = -300 # Discounted
         
-        # Display Info
-        start_str = f"{peak_start}:00"
-        end_str = f"0{peak_end}:00" if peak_end < 10 else f"{peak_end}:00"
-        st.success(f"🔥 **Jam Sibuk (Harga Terbaik):** {start_str} s/d {end_str} WIB")
+        st.write("#### 📊 Profil Harga Pasar:")
+        st.write(f"- **Buka Lapak:** {data_pasar['ops_start']}:00 WIB")
+        st.write(f"- **Harga Puncak (Golden Hour):** {data_pasar['peak_start']}:00 - {data_pasar['peak_end']}:00 WIB")
+        st.write(f"- **Harga Turun (Cuci Gudang):** > {data_pasar['ops_end']}:00 WIB")
         
     with col_tm2:
-        st.subheader("🕑 Rekomendasi Jam Berangkat")
+        st.subheader("🕑 Strategi Keberangkatan")
         
-        # Calculate departure to arrive at start of peak
-        # Logic: Arrive at peak_start.
-        # Dep = Peak - Travel. 
-        # Handle day wrapping (e.g. peak 23, travel 4 -> dep 19. Peak 02, travel 4 -> dep 22 prev day)
-        
-        arrival_target = peak_start
+        # Calculate departure to arrive at start of PEAK (21:00)
+        arrival_target = data_pasar['peak_start']
         dep_hour = arrival_target - jam_est_tempuh
-        day_offset = "Hari yang Sama"
         
+        day_offset = "Hari yang Sama"
         if dep_hour < 0:
             dep_hour += 24
-            day_offset = "Hari Sebelumnya (Kemarin)"
+            day_offset = "Hari Sebelumnya"
             
         st.markdown(f"""
-        <div style='text-align: center; border: 2px dashed #ea580c; padding: 20px; border-radius: 10px;'>
-            <h3>Truk Harus Berangkat Pukul:</h3>
-            <h1 style='font-size: 3rem; color: #ea580c;'>{int(dep_hour):02d}:00 WIB</h1>
-            <p>({day_offset})</p>
-            <hr>
-            <p>Agar tiba pukul <b>{peak_start}:00</b> (Awal Lelang)</p>
+        <div style='text-align: center; border: 2px solid #ea580c; background-color: #fff7ed; padding: 15px; border-radius: 10px;'>
+            <p>Target Tiba: <b>{arrival_target}:00 WIB</b> (Awal Harga Naik)</p>
+            <h3>Truk Berangkat Pukul:</h3>
+            <h1 style='color: #ea580c; margin: 0;'>{int(dep_hour):02d}:00 WIB</h1>
+            <small>({day_offset})</small>
         </div>
         """, unsafe_allow_html=True)
         
-        # Simple Gauge Risk
-        risk_lvl = "Aman"
-        if jam_est_tempuh > 12: risk_lvl = "Tinggi (Sopir Lelah/Macet)"
-        elif jam_est_tempuh > 8: risk_lvl = "Sedang"
-        
-        st.caption(f"Status Risiko Perjalanan: **{risk_lvl}**")
+        st.markdown("---")
+        # Impact Analysis
+        st.markdown(f"**💰 Estimasi Dampak Harga:**")
+        st.markdown(f"- Timing Tepat: **Harga Optimal**")
+        if lapak_premium > 0:
+            st.success(f"- Posisi {posisi_lapak}: Potensi Harga **+Rp {lapak_premium}/kg**")
+        elif lapak_premium < 0:
+            st.error(f"- Posisi {posisi_lapak}: Potensi Harga **{lapak_premium} Rp/kg** (Susah laku)")
+        else:
+            st.info(f"- Posisi {posisi_lapak}: Harga Standar")
 
 # Footer
 st.markdown("---")
