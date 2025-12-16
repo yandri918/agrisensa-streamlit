@@ -190,6 +190,8 @@ with tab2:
         share_petani = (harga_petani / final_p) * 100
         st.info(f"💡 **Farmer's Share:** Petani hanya menikmati **{share_petani:.1f}%** dari harga yang dibayar konsumen akhir.")
 
+# --- TAB 3: MARKET TIMING ---
+with tab3:
     # Updated Market Operational Hours (Real World Data)
     PASAR_INDUK = {
         "PI Kramat Jati (Jakarta)": {"ops_start": 19, "peak_start": 21, "peak_end": 23, "ops_end": 24},
