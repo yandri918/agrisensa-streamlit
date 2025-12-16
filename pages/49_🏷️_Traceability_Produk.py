@@ -5,6 +5,7 @@ import datetime
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
 import io
+import base64
 
 # Page Config
 st.set_page_config(
@@ -104,7 +105,7 @@ with tab1:
                 <p style='color:grey; margin-bottom: 5px;'>{data['varietas']}</p>
                 <hr>
                 <div style='display: flex; justify_content: center; align-items: center; margin: 10px 0;'>
-                    <img src="data:image/png;base64,{pd.io.common.base64.b64encode(byte_im).decode()}" width="150">
+                    <img src="data:image/png;base64,{base64.b64encode(byte_im).decode()}" width="150">
                 </div>
                 <p style='font-weight:bold; color:black;'>ID: {data['id']}</p>
                 <p style='font-size: 0.8rem; color: #555;'>Diproduksi:{data['tgl']} oleh {data['petani']}</p>
