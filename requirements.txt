@@ -14,3 +14,4 @@ matplotlib
 scipy
 xlsxwriter
 openpyxl
+qrcode
