@@ -90,13 +90,22 @@ with tab1:
             
         std_yield_ha = get_std_yield(umur)
         
-        # Adjust by SPH efficiency (too dense = lower yield per tree, but high SPH might compensate/compete)
-        # Simplified: If SPH > 145, Penalty 5%. If SPH < 120, Penalty linear.
-        sph_factor = 1.0
-        if sph > 145: sph_factor = 0.95
-        elif sph < 120: sph_factor = sph / 130.0
+        # LOGIC: Yield adjustments based on SPH (Intra-stand competition)
+        # Standard SPH reference = 136 pokok/ha
+        # If SPH goes up, yield/tree goes down due to canopy competition.
         
-        final_yield_ha = std_yield_ha * sph_factor
+        base_yield_per_tree = std_yield_ha / 136.0 # Ton/tree
+        
+        competition_factor = 1.0
+        if sph > 136:
+            # Overcrowding penalty: Yield per tree drops 0.6% for every 1 extra tree
+            competition_factor = 1.0 - ((sph - 136) * 0.006) 
+        elif sph < 136:
+            # Lower density bonus: Yield per tree increases 0.2% (more light) but capped
+            competition_factor = 1.0 + ((136 - sph) * 0.002)
+            
+        final_yield_per_tree = base_yield_per_tree * competition_factor
+        final_yield_ha = final_yield_per_tree * sph
         total_tbs = final_yield_ha * luas_ha
         bjr_est = 3.5 + (umur * 0.5) if umur < 10 else 10.0 + ((umur-10)*0.2) # Estimasi Berat Janjang
         if bjr_est > 25: bjr_est = 25 # Cap max BJR
