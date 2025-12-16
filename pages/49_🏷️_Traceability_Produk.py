@@ -107,18 +107,43 @@ Kualitas: {', '.join(data['klaim'])}
             byte_im = buf.getvalue()
             
             # Simple "Sticker" Layout using HTML/CSS for preview
+            # Professional Label Layout (Japanese Style Compact)
             st.markdown(f"""
-            <div class="label-preview">
-                <h2 style='margin:0; color:black;'>{data['produk']}</h2>
-                <p style='color:grey; margin-bottom: 5px;'>{data['varietas']}</p>
-                <hr>
-                <div style='display: flex; justify_content: center; align-items: center; margin: 10px 0;'>
-                    <img src="data:image/png;base64,{base64.b64encode(byte_im).decode()}" width="150">
+            <div style='
+                border: 2px solid #000; 
+                padding: 15px; 
+                background: white; 
+                border-radius: 8px; 
+                display: flex; 
+                flex-direction: row; 
+                align-items: center; 
+                gap: 15px;
+                max-width: 450px;
+                margin: auto;
+                box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            '>
+                <!-- Left: QR Code -->
+                <div style='flex: 0 0 130px;'>
+                    <img src="data:image/png;base64,{base64.b64encode(byte_im).decode()}" width="130" style='border: 1px solid #ddd; padding: 2px;'>
                 </div>
-                <p style='font-weight:bold; color:black;'>ID: {data['id']}</p>
-                <p style='font-size: 0.8rem; color: #555;'>Diproduksi:{data['tgl']} oleh {data['petani']}</p>
-                <div style='margin-top:10px;'>
-                    {' '.join([f"<span style='background:#dcfce7; color:#166534; padding:2px 6px; border-radius:4px; font-size:0.8rem;'>{k}</span>" for k in data['klaim']])}
+                
+                <!-- Right: Information -->
+                <div style='text-align: left; flex: 1;'>
+                    <h3 style='margin: 0; color: #111; font-size: 1.2rem; line-height: 1.2;'>{data['produk']}</h3>
+                    <small style='color: #666; display: block; margin-bottom: 5px;'>{data['varietas']}</small>
+                    
+                    <div style='font-size: 0.85rem; color: #333; line-height: 1.4;'>
+                        <b>Petani:</b> {data['petani']}<br>
+                        <b>Lokasi:</b> {data['lokasi']}<br>
+                        <b>Panen:</b> {data['tgl']}
+                    </div>
+                    
+                    <div style='margin-top: 8px;'>
+                         {' '.join([f"<span style='background:#10b981; color:white; padding:1px 6px; border-radius:3px; font-size:0.7rem; font-weight:bold;'>{k}</span>" for k in data['klaim']])}
+                    </div>
+                    <div style='margin-top: 5px; font-size: 0.7rem; color: #888;'>
+                        ID: {data['id']}
+                    </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
