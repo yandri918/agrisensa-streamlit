@@ -61,6 +61,9 @@ with tab1:
         nama_petani = st.text_input("Nama Petani / Kelompok", "Gapoktan Sejahtera")
         lokasi_kebun = st.text_input("Lokasi Kebun", "Banyumas, Jawa Tengah")
         
+        # Photo Upload
+        foto_produk = st.file_uploader("Foto Petani / Kebun (Opsional)", type=['jpg', 'jpeg', 'png'])
+        
         st.subheader("3. Klaim Kualitas")
         is_organik = st.checkbox("✅ Bebas Pestisida / Organik")
         is_halal = st.checkbox("✅ Halal Certified")
@@ -77,6 +80,7 @@ with tab1:
                 "tgl": tgl_panen,
                 "petani": nama_petani,
                 "lokasi": lokasi_kebun,
+                "foto": foto_produk,
                 "klaim": [k for k, v in [("Organik", is_organik), ("Halal", is_halal), ("Premium", is_premium)] if v]
             }
             st.success(f"Batch {batch_id} berhasil dibuat!")
@@ -161,6 +165,7 @@ with tab2:
                     <h1>🌾</h1>
                     <h2>Produk Asli & Aman</h2>
                 </div>
+                """ + (f"<div style='text-align:center; margin:10px;'><img src='data:image/png;base64,{base64.b64encode(data['foto'].getvalue()).decode()}' style='max-width:100%; border-radius:10px;'></div>" if data.get('foto') else "") + """
                 
                 <div style='background:#f0fdfa; padding:15px; border-radius:10px; margin: 15px 0;'>
                     <p><b>📦 Batch ID:</b> <br>""" + data['id'] + """</p>
