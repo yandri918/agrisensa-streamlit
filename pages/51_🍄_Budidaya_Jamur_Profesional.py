@@ -1263,14 +1263,19 @@ with tab_extra:
                 
                 st.markdown("### 🛠️ Langkah-Langkah Pembuatan:")
                 
-                steps_text = (
-                    "1. **Pengayakan Serbuk:** Ayak serbuk gergaji untuk memisahkan potongan tajam.\\n\\n"
-                    "2. **Pencampuran Kering:** Campur semua bahan kering secara merata (minimal 3x aduk).\\n\\n"
-                    "3. **Pemberian Air:** Siram air perlahan sambil diaduk.\\n\\n"
-                    "4. **Tes Kepal:** Genggam adukan. Tidak boleh menetes (terlalu basah) dan tidak boleh buyar (terlalu kering).\\n\\n"
-                    "5. **Pembungkusan:** Masukkan ke plastik PP tahan panas, padatkan.\\n\\n"
-                    "6. **Sterilisasi:** Kukus 95-100°C selama 8 jam atau Autoclave 121°C selama 2 jam."
-                )
+                steps_text = """
+1. **Pengayakan Serbuk:** Ayak serbuk gergaji untuk memisahkan potongan tajam.
+
+2. **Pencampuran Kering:** Campur semua bahan kering secara merata (minimal 3x aduk).
+
+3. **Pemberian Air:** Siram air perlahan sambil diaduk.
+
+4. **Tes Kepal:** Genggam adukan. Tidak boleh menetes (terlalu basah) dan tidak boleh buyar (terlalu kering).
+
+5. **Pembungkusan:** Masukkan ke plastik PP tahan panas, padatkan.
+
+6. **Sterilisasi:** Kukus 95-100°C selama 8 jam atau Autoclave 121°C selama 2 jam.
+"""
                 st.markdown(steps_text)
                 
                 st.warning("⛔ **Pantangan:** Jangan pakai serbuk kayu bergetah (pinus) tanpa fermentasi lama.")
