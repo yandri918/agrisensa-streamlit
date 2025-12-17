@@ -1196,7 +1196,7 @@ with tab9:
 # TAB 10: Extra Tools & Info (Consolidated)
 with tab_extra:
     st.header("📚 Informasi Tambahan & Tools Ekstra")
-    subtab1, subtab2, subtab3 = st.tabs(["📊 Perbandingan", "📚 Referensi Ilmiah", "🧪 Kalkulator Nutrisi"])
+    subtab1, subtab2, subtab3, subtab4 = st.tabs(["📊 Perbandingan", "📚 Referensi Ilmiah", "🧪 Kalkulator Nutrisi", "🚀 Booster ZPT"])
 
     # SUBTAB 1: Comparison Table
     with subtab1:
@@ -1630,6 +1630,44 @@ with tab_commercial:
             st.success(f"**Insight:** Mengolah jamur menjadi **{va_prod}** meningkatkan keuntungan **{profit_processed/profit_fresh:.1f}x lipat** dibanding jual segar!")
         else:
             st.warning("Harga jual olahan terlalu rendah atau biaya terlalu tinggi.")
+            
+    with subtab4:
+        st.subheader("🚀 Booster Pertumbuhan & ZPT Alami")
+        st.caption("Optimalkan bobot dan kecepatan tumbuh jamur dengan hormon organik (Biostimulant).")
+        
+        st.markdown("""
+        ### 🌿 Formula "Digrow" Alami (Ekstrak Rumput Laut)
+        Rumput laut kaya akan **Auxin, Cytokinin, dan Gibberellin** alami serta unsur mikro (Ca, Mg, Fe) yang memacu pembelahan sel jamur.
+        
+        **Manfaat:**
+        - Miselium merambat 20-30% lebih cepat.
+        - Tudung jamur lebih tebal & berat (bobot naik).
+        - Daya simpan panen lebih lama (karena mineral cukup).
+        
+        #### 🥣 Resep DIY (Biang ZPT):
+        1. **Bahan:**
+           - 1 kg Rumput Laut Basah (Sargassum sp. / Gracilaria) - *Cuci bersih garamnya!*
+           - 5 Liter Air Kelapa Tua (Sumber Cytokinin + Kalium).
+           - 200 ml EM4 Pertanian (Bakteri Pengurai).
+           - 500 gram Gula Merah/Molase (Makanan Bakteri).
+           
+        2. **Cara Buat:**
+           - Blender rumput laut dengan 1 liter air kelapa sampai halus (bubur).
+           - Masukkan ke wadah tertutup (jrigen/baskom).
+           - Tambahkan sisa air kelapa, gula, dan EM4. Aduk rata.
+           - **Fermentasi Anaerob (Tutup Rapat):** Selama 14-21 hari.
+           - Buka tutup sebentar setiap pagi untuk buang gas.
+           - Saring ampasnya. Cairan coklat pekat adalah **BIANG ZPT PREMIUN**.
+           
+        #### 🚿 Dosis & Aplikasi:
+        - **Dosis:** 5 - 10 ml Biang per 1 Liter Air (Jangan berlebih!).
+        - **Waktu Semprot:**
+           - **Fase Miselium (Inkubasi):** Semprot kabut (mist) ke mulut baglog sekali sebelum kapas ditaruh (hati-hati kontam).
+           - **Fase Primordia (Pinhead):** Semprot kabut ke udara kumbung (BUKAN langsung ke jamur) untuk memacu kelembaban bernutrisi.
+           - **Habis Panen:** Semprot ke permukaan baglog yang baru dipanen untuk memacu *Flush* berikutnya.
+        """)
+        
+        st.info("💡 **Tips:** Ampas sisa saringan fermentasi bisa dicampur ke media kompos batang jamur (Tab Kalkulator) untuk menambah nutrisi!")
 
 
 # Footer
