@@ -1128,6 +1128,7 @@ with tab11:
     15. **Enoki Cultivation in Controlled Environment**
         - Source: Mycoboutique Research
         - Key Finding: 3-5°C produces hardest, best-shaped mushrooms
+    """)
     
 # TAB 12: Premium Baglog Calculator
 with tab12:
