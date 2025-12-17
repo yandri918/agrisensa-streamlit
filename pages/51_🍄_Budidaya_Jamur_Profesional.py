@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
+import folium
+from streamlit_folium import st_folium
+import requests
 
 # Page Config
 st.set_page_config(
@@ -9,6 +12,29 @@ st.set_page_config(
     page_icon="🍄",
     layout="wide"
 )
+
+# ========== HELPER FUNCTIONS ==========
+def get_elevation(lat, lon):
+    """Get elevation using Open-Meteo API"""
+    try:
+        url = f"https://api.open-meteo.com/v1/elevation?latitude={lat}&longitude={lon}"
+        resp = requests.get(url, timeout=5)
+        if resp.status_code == 200:
+            return resp.json().get('elevation', [0])[0]
+    except:
+        return 0
+    return 0
+
+def get_weather_snapshot(lat, lon):
+    """Get current weather snapshot"""
+    try:
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m&timezone=Asia%2FJakarta"
+        resp = requests.get(url, timeout=5)
+        if resp.status_code == 200:
+            return resp.json().get('current', {})
+    except:
+        return {}
+    return {}
 
 # Custom CSS
 st.markdown("""
@@ -465,91 +491,121 @@ with tab6:
 
 # TAB 7: Location-Based Advisor
 with tab7:
-    st.subheader("📍 Rekomendasi Berdasarkan Lokasi")
+    st.subheader("📍 Rekomendasi Berdasarkan Lokasi (Auto-Detect)")
     
-    user_altitude = st.number_input(
-        "Ketinggian Lokasi Anda (mdpl)",
-        min_value=0,
-        max_value=3000,
-        value=500,
-        step=50,
-        help="Masukkan ketinggian lokasi budidaya Anda"
-    )
+    col_map, col_res = st.columns([1.5, 1])
     
-    st.markdown("---")
-    
-    # Categorize altitude
-    if user_altitude < 700:
-        altitude_category = "Dataran Rendah"
-        temp_estimate = "25-32°C"
-        recommended = ["Jamur Tiram (Pleurotus)", "Jamur Kuping (Auricularia)"]
-        possible = ["Jamur Kancing (Agaricus)"]
-        difficult = ["Jamur Shiitake (Lentinus)", "Jamur Enoki (Flammulina)"]
-    elif user_altitude < 1500:
-        altitude_category = "Dataran Menengah"
-        temp_estimate = "20-28°C"
-        recommended = ["Jamur Tiram (Pleurotus)", "Jamur Shiitake (Lentinus)"]
-        possible = ["Jamur Kuping (Auricularia)", "Jamur Kancing (Agaricus)"]
-        difficult = ["Jamur Enoki (Flammulina)"]
-    else:
-        altitude_category = "Dataran Tinggi"
-        temp_estimate = "15-22°C"
-        recommended = ["Jamur Shiitake (Lentinus)", "Jamur Enoki (Flammulina)"]
-        possible = ["Jamur Kancing (Agaricus)"]
-        difficult = ["Jamur Tiram (Pleurotus)", "Jamur Kuping (Auricularia)"]
-    
-    col_loc1, col_loc2 = st.columns([1, 2])
-    
-    with col_loc1:
-        st.metric("Kategori Lokasi", altitude_category)
-        st.metric("Estimasi Suhu Alami", temp_estimate)
-    
-    with col_loc2:
-        st.markdown(f"### 🎯 Rekomendasi untuk {altitude_category}")
+    with col_map:
+        st.markdown("### 🗺️ Pilih Lokasi Lahan")
+        st.info("Klik pada peta untuk mendapatkan data ketinggian dan cuaca otomatis.")
         
-        st.success("**✅ SANGAT COCOK (Minimal Modifikasi):**")
-        for mushroom in recommended:
-            data = MUSHROOM_DATA[mushroom]
-            st.markdown(f"- {data['emoji']} **{mushroom}** - {data['difficulty_text']}")
+        # Default: Central Java (Agricultural Hub)
+        default_lat, default_lon = -7.3, 110.0
         
-        if possible:
-            st.info("**⚠️ BISA DICOBA (Perlu Modifikasi):**")
-            for mushroom in possible:
-                data = MUSHROOM_DATA[mushroom]
-                st.markdown(f"- {data['emoji']} **{mushroom}** - Perlu penyesuaian suhu")
+        m = folium.Map(location=[default_lat, default_lon], zoom_start=9)
+        m.add_child(folium.LatLngPopup())
         
+        # Display Map
+        map_output = st_folium(m, height=400, use_container_width=True)
+        
+        # Check interaction
+        if map_output and map_output.get("last_clicked"):
+            lat = map_output["last_clicked"]["lat"]
+            lon = map_output["last_clicked"]["lng"]
+            st.success(f"📍 Koordinat: {lat:.4f}, {lon:.4f}")
+            
+            # Fetch Data
+            with st.spinner("Mengambil data topografi & cuaca..."):
+                elevation = get_elevation(lat, lon)
+                weather = get_weather_snapshot(lat, lon)
+                
+                # Update Session State for interactivity
+                st.session_state['loc_elevation'] = elevation
+                st.session_state['loc_temp'] = weather.get('temperature_2m', 26.0)
+                st.session_state['loc_hum'] = weather.get('relative_humidity_2m', 80)
+        else:
+            st.warning("👆 Silakan klik peta untuk analisis otomatis")
+            # Defaults if no click
+            if 'loc_elevation' not in st.session_state:
+                st.session_state['loc_elevation'] = 0.0
+                st.session_state['loc_temp'] = 28.0
+                st.session_state['loc_hum'] = 80
+
+    with col_res:
+        st.markdown("### 📊 Data Lingkungan Real-time")
+        
+        elev = st.session_state.get('loc_elevation', 0)
+        temp_val = st.session_state.get('loc_temp', 0)
+        hum_val = st.session_state.get('loc_hum', 0)
+        
+        met1, met2, met3 = st.columns(3)
+        met1.metric("Ketinggian", f"{elev:.0f} mdpl")
+        met2.metric("Suhu Alami", f"{temp_val}°C")
+        met3.metric("Kelembaban", f"{hum_val}%")
+        
+        st.markdown("---")
+        
+        # LOGIC: Recommendation based on Auto Data
+        user_altitude = elev
+        altitude_category = ""
+        
+        if user_altitude < 700:
+            altitude_category = "Dataran Rendah"
+            recommended = ["Jamur Tiram (Pleurotus)", "Jamur Kuping (Auricularia)"]
+            possible = ["Jamur Kancing (Agaricus)"]
+            difficult = ["Jamur Shiitake (Lentinus)", "Jamur Enoki (Flammulina)"]
+            advise = "Suhu cenderung panas. Perlu humidifier atau kabut buatan untuk menjaga kelembaban."
+        elif user_altitude < 1500:
+            altitude_category = "Dataran Menengah"
+            recommended = ["Jamur Tiram (Pleurotus)", "Jamur Shiitake (Lentinus)"]
+            possible = ["Jamur Kuping (Auricularia)", "Jamur Kancing (Agaricus)"]
+            difficult = ["Jamur Enoki (Flammulina)"]
+            advise = "Lokasi ideal! Suhu alami sejuk. Ventilasi yang baik sudah cukup memadai."
+        else:
+            altitude_category = "Dataran Tinggi"
+            recommended = ["Jamur Shiitake (Lentinus)", "Jamur Enoki (Flammulina)"]
+            possible = ["Jamur Kancing (Agaricus)"]
+            difficult = ["Jamur Tiram (Pleurotus)", "Jamur Kuping (Auricularia)"]
+            advise = "Suhu sangat dingin. Sangat bagus untuk jamur premium (Shiitake/Enoki). Tiram mungkin tumbuh lambat."
+            
+        st.metric("Kategori", altitude_category)
+        
+        st.success("**✅ SANGAT COCOK:**")
+        for r in recommended:
+            st.markdown(f"- {r}")
+            
         if difficult:
-            st.warning("**❌ SULIT (Butuh Investasi Besar):**")
-            for mushroom in difficult:
-                data = MUSHROOM_DATA[mushroom]
-                st.markdown(f"- {data['emoji']} **{mushroom}** - Butuh AC/heater 24/7")
-    
+            st.error("**❌ BUTUH PERALATAN KHUSUS (AC/Heater):**")
+            for d in difficult:
+                st.markdown(f"- {d}")
+                
+        st.info(f"💡 **Saran:** {advise}")
+
     st.markdown("---")
-    st.subheader("💰 Estimasi Investasi Awal")
+    st.subheader("💰 Estimasi Investasi di Lokasi Ini")
     
     investment_data = {
         "Dataran Rendah": {
-            "basic": "Rp 5-10 juta (kumbung sederhana + humidifier)",
-            "advanced": "Rp 20-50 juta (AC untuk shiitake/enoki)"
+            "basic": "Rp 5-10 juta (Fokus: Pendinginan & Kelembaban)",
+            "advanced": "Rp 20-50 juta (AC + Humidifier otomatis)"
         },
         "Dataran Menengah": {
-            "basic": "Rp 3-8 juta (kumbung + ventilasi)",
-            "advanced": "Rp 15-30 juta (cooling system untuk enoki)"
+            "basic": "Rp 3-8 juta (Konstruksi kumbung standar)",
+            "advanced": "Rp 15-30 juta (Otomatisasi ventilasi)"
         },
         "Dataran Tinggi": {
-            "basic": "Rp 2-5 juta (kumbung + heater untuk tiram/kuping)",
-            "advanced": "Rp 10-20 juta (sistem lengkap)"
+            "basic": "Rp 5-10 juta (Isolasi panas/Heater)",
+            "advanced": "Rp 20-40 juta (Climate control system)"
         }
     }
     
-    inv = investment_data[altitude_category]
-    st.markdown(f"""
-    **Investasi Dasar (100 baglog):** {inv['basic']}
+    inv = investment_data.get(altitude_category, investment_data["Dataran Rendah"])
     
-    **Investasi Advanced (500+ baglog):** {inv['advanced']}
-    
-    *Sudah termasuk: Kumbung, rak, alat semprot, thermometer/hygrometer, bibit awal*
-    """)
+    c_inv1, c_inv2 = st.columns(2)
+    with c_inv1:
+        st.markdown(f"**Investasi Awal (Pemula):**\n{inv['basic']}")
+    with c_inv2:
+        st.markdown(f"**Investasi Skala Bisnis:**\n{inv['advanced']}")
 
 # TAB 8: Production Calculator
 with tab8:
