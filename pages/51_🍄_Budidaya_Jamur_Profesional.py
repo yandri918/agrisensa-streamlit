@@ -1124,9 +1124,175 @@ with tab11:
         - Source: CABI Digital Library
         - Key Finding: Low light + high CO2 produces long white stems
     
+
     15. **Enoki Cultivation in Controlled Environment**
         - Source: Mycoboutique Research
         - Key Finding: 3-5°C produces hardest, best-shaped mushrooms
+    
+# TAB 12: Premium Baglog Calculator
+with tab12:
+    st.subheader("🧪 Kalkulator Nutrisi Baglog (Premium Formulation)")
+    st.info("Gunakan kalkulator ini untuk meracik substrat dengan komposisi nutrisi TERBAIK agar panen maksimal (Biological Efficiency >90%).")
+    
+    col_form1, col_form2 = st.columns([1, 1.5])
+    
+    with col_form1:
+        st.markdown("### ⚙️ Input Produksi")
+        
+        target_basis = st.radio(
+            "Basis Perhitungan",
+            ["Total Berat Adukan (kg)", "Jumlah Baglog (pcs)"]
+        )
+        
+        if target_basis == "Total Berat Adukan (kg)":
+            total_mix_weight = st.number_input("Total Berat Adukan Basah (kg)", 10, 5000, 100, step=10)
+            baglog_size = 1.2 # Default assumption
+            est_log_count = int(total_mix_weight / baglog_size)
+            st.caption(f"Estimasi jadi ±{est_log_count} baglog (@1.2kg)")
+        else:
+            target_log_count = st.number_input("Target Jumlah Baglog", 10, 5000, 100, step=10)
+            baglog_size = st.number_input("Berat per Baglog (kg)", 0.8, 2.0, 1.2, step=0.1)
+            total_mix_weight = target_log_count * baglog_size
+            st.caption(f"Total adukan dibutuhkan: {total_mix_weight:.1f} kg")
+
+        formula_type = st.selectbox(
+            "Pilih Jenis Formulasi",
+            ["Standard (Ekonomis)", "Super Yield (Premium) 🚀", "Khusus Shiitake (Hardwood)"]
+        )
+        
+        st.markdown("---")
+        st.markdown("### 📝 Hasil Perhitungan")
+        
+        # FORMULATION LOGIC (Percentage by Dry Weight approx, then hydrated)
+        # Wet mix typically 60-65% water.
+        # Here we calculate based on "Wet Weight Formulation" common in Indo practice
+        
+        recipe = {}
+        tips = ""
+        cn_ratio = 0
+        
+        if formula_type == "Standard (Ekonomis)":
+            # Serbuk 83%, Bekatul 15%, Kapur 2% (Simple)
+            # Moisture management is key. Usually ingredients are dry, water added.
+            # Total Weight = Dry Ingredients + Water.
+            # Target Moisture 60%. -> Dry Mass = 40% of Total Weight.
+            
+            dry_mass = total_mix_weight * 0.40
+            water_mass = total_mix_weight * 0.60
+            
+            # Dry ingredients Ratio
+            # Sawdust : Bran : Lime = 85 : 13 : 2
+            sawdust = dry_mass * 0.85
+            bran = dry_mass * 0.13
+            lime = dry_mass * 0.02
+            
+            recipe = {
+                "Serbuk Gergaji (Sengon/Jati)": sawdust,
+                "Bekatul/Dedak Halus": bran,
+                "Kapur (CaCO3)": lime,
+                "Air Bersih": water_mass
+            }
+            cn_ratio = 50 # Approx
+            tips = "Cocok untuk Jamur Tiram & Kuping. Murah dan mudah didapat."
+            
+        elif formula_type == "Super Yield (Premium) 🚀":
+            # Serbuk 80%, Bekatul 15%, Jagung 2%, Kapur 1.5%, Gypsum 1.5%
+            dry_mass = total_mix_weight * 0.40
+            water_mass = total_mix_weight * 0.60
+            
+            sawdust = dry_mass * 0.80
+            bran = dry_mass * 0.15
+            corn_flour = dry_mass * 0.02
+            lime = dry_mass * 0.015
+            gypsum = dry_mass * 0.015
+            
+            recipe = {
+                "Serbuk Gergaji": sawdust,
+                "Bekatul/Dedak Halus": bran,
+                "Tepung Jagung (Nutrisi+)": corn_flour,
+                "Kapur (CaCO3)": lime,
+                "Gypsum (CaSO4)": gypsum,
+                "Air Bersih & Molase": water_mass
+            }
+            cn_ratio = 35 # richer nitrogen
+            tips = "Menghasilkan tubuh buah lebih tebal, bobot lebih berat, dan masa panen lebih panjang. Gunakan molase 1% dalam air pelarut."
+
+        elif formula_type == "Khusus Shiitake (Hardwood)":
+            # Shiitake needs hardwood (not sengon)
+            dry_mass = total_mix_weight * 0.45 # Shiitake blocks slightly drier usually
+            water_mass = total_mix_weight * 0.55
+            
+            sawdust = dry_mass * 0.78
+            bran = dry_mass * 0.20
+            gypsum = dry_mass * 0.01
+            sugar = dry_mass * 0.01
+            
+            recipe = {
+                "Serbuk Kayu Keras (Jati/Mahoni)": sawdust,
+                "Bekatul/Gandum": bran,
+                "Gypsum": gypsum,
+                "Gula Pasir (Starter)": sugar,
+                "Air Bersih": water_mass
+            }
+            cn_ratio = 25
+            tips = "Wajib gunakan serbuk kayu keras! Fermentasi minimal 1-2 hari sebelum bungkus agar lignoselulosa pecah."
+
+        # Display Recipe
+        for item, weight in recipe.items():
+            unit = "Liter" if "Air" in item else "kg"
+            st.metric(item, f"{weight:.2f} {unit}")
+            
+    with col_form2:
+        st.markdown(f"## 🥣 Panduan Racikan: {formula_type}")
+        st.success(f"💡 **Keunggulan:** {tips}")
+        
+        st.markdown(f"**Estimasi C/N Ratio: {cn_ratio}:1** (Ideal: 25-50:1)")
+        
+        st.markdown("### 🛠️ Langkah-Langkah Pembuatan:")
+        
+        steps = """
+        1. **Pengayakan Serbuk:**
+           - Ayak serbuk gergaji untuk memisahkan potongan kayu tajam (bisa robek plastik).
+           - Serbuk halus menyerap air lebih merata.
+           
+        2. **Pencampuran Kering (Dry Mix):**
+           - Campur Serbuk + Bekatul + Kapur + (Gypsum/Jagung) secara merata.
+           - Aduk minimal 3x balikan agar nutrisi homogen.
+        """
+        
+        if "Super Yield" in formula_type:
+            steps += """
+        3. **Pelarutan Molase (Jika ada):**
+           - Larutkan molase/gula ke dalam air siraman.
+            """
+            
+        steps += """
+        4. **Pemberian Air (Wet Mix):**
+           - Siram air sedikit demi sedikit sambil diaduk.
+           - **Tes Kepal:** Ambil segenggam adukan, peras kuat.
+             - Jika air menetes banyak = Terlalu Basah ❌
+             - Jika adukan buyar saat dilepas = Terlalu Kering ❌
+             - **Ideal:** Tidak menetes, tapi gumpalan tidak pecah saat dilepas ✅
+        
+        5. **Pengomposan (Opsional tapi Bagus):**
+           - Tutup adukan dengan terpal selama 1x24 jam.
+           - Membantu pelunakan lignin dan mengaktifkan mikroba nutrisi.
+           
+        6. **Pembungkusan (Bagging):**
+           - Masukkan ke plastik PP tahan panas (tebal 0.05mm).
+           - Padatkan (bisa pakai alat press atau botol). Baglog padat = Miselium kuat.
+           
+        7. **Sterilisasi (Kukus):**
+           - Suhu 95-100°C selama 8-10 jam (Drum/Steamer biasa).
+           - Suhu 121°C selama 2 jam (Autoclave).
+        """
+        st.markdown(steps)
+        
+        st.warning("""
+        ⛔ **Pantangan Utama:**
+        - Jangan pakai serbuk kayu bergetah (pinus/damar) tanpa fermentasi lama (zat anti-jamur alami).
+        - Jangan biarkan adukan basah lebih dari 2 hari tanpa disteril (akan asam/basi).
+        """)
     
     ---
     
