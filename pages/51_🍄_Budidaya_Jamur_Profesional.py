@@ -823,6 +823,79 @@ with tab8:
     - Pertimbangkan diversifikasi (2-3 jenis jamur)
     """)
 
+    st.markdown("---")
+    st.subheader("🔄 Kalkulator Siklus Berkelanjutan (Continuous Harvest)")
+    st.caption("Hitung kebutuhan infrastruktur untuk menjamin panen SETIAP HARI tanpa putus.")
+
+    with st.expander("🛠️ Buka Kalkulator Siklus & Rotasi Kumbung", expanded=True):
+        col_sus1, col_sus2 = st.columns(2)
+        
+        with col_sus1:
+            kumbung_cap = st.number_input("Kapasitas per Kumbung (Log)", 1000, 50000, 6000, step=500)
+            target_harvest_interval = st.selectbox(
+                "Target Frekuensi Tanam Baru",
+                ["2 Minggu Sekali", "1 Bulan Sekali", "2 Bulan Sekali"],
+                index=1
+            )
+            
+            interval_days = 30
+            if target_harvest_interval == "2 Minggu Sekali":
+                interval_days = 14
+            elif target_harvest_interval == "2 Bulan Sekali":
+                interval_days = 60
+                
+            cleaning_gap = st.number_input("Jeda Sterilisasi Kumbung (Hari)", 1, 14, 7, help="Waktu untuk bersih-bersih setelah afkir sebelum isi baru")
+            
+        with col_sus2:
+            # Calculation
+            cycle_duration = timeline_days[1] # Max days (e.g., 60 for Oyster)
+            total_occupancy = cycle_duration + cleaning_gap
+            
+            # Formula: Houses needed = Total Occupancy / Planting Interval
+            # Example: 67 days / 14 days = 4.7 -> 5 Houses
+            import math
+            kumbung_needed = math.ceil(total_occupancy / interval_days)
+            
+            total_logs_system = kumbung_needed * kumbung_cap
+            
+            # Estimasi Yield Stabil
+            # If we plant 'kumbung_cap' every 'interval_days'
+            # Average daily yield = (Total Yield per Batch / Interval Days)
+            # Total Yield per Batch = kumbung_cap * substrate_weight * be_avg
+            # Wait, yield_avg is for 'num_baglogs' which is user input above. We need to recalc for 'kumbung_cap'
+            
+            batch_substrate = kumbung_cap * substrate_weight # kg
+            batch_yield = batch_substrate * ((be_low + be_high)/2) # kg
+            
+            stable_daily_yield = batch_yield / interval_days
+            
+            st.metric("🏠 Jumlah Kumbung Dibutuhkan", f"{kumbung_needed} Unit")
+            st.metric("📦 Total Populasi Sistem", f"{total_logs_system:,} Baglog")
+            st.metric("⚖️ Estimasi Panen Stabil", f"±{stable_daily_yield:.1f} kg / hari", help="Rata-rata panen harian saat sistem sudah berjalan penuh")
+            
+        st.markdown("### 🗓️ Jadwal Rotasi Tanam (Sistem Berjalan)")
+        
+        rotation_data = []
+        current_date = datetime.now()
+        
+        for k in range(1, kumbung_needed + 1):
+            plant_date = current_date + timedelta(days=(k-1)*interval_days)
+            harvest_start = plant_date + timedelta(days=first_harvest_day)
+            end_date = plant_date + timedelta(days=cycle_duration)
+            next_fill = end_date + timedelta(days=cleaning_gap)
+            
+            rotation_data.append({
+                "Kumbung": f"Unit {k}",
+                "Tanam (Start)": plant_date.strftime("%d %b %Y"),
+                "Mulai Panen": harvest_start.strftime("%d %b %Y"),
+                "Afkir (Selesai)": end_date.strftime("%d %b %Y"),
+                "Siap Isi Ulang": next_fill.strftime("%d %b %Y")
+            })
+            
+        st.dataframe(pd.DataFrame(rotation_data), use_container_width=True, hide_index=True)
+        
+        st.success(f"**Kesimpulan:** Dengan membangun **{kumbung_needed} kumbung** kapacitas {kumbung_cap} log dan menanam setiap **{target_harvest_interval}**, Anda akan mendapatkan panen stabil **{stable_daily_yield:.0f} kg/hari** sepanjang tahun.")
+
 # TAB 9: Troubleshooting
 with tab9:
     st.subheader("🔧 Panduan Troubleshooting")
