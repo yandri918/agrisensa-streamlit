@@ -373,6 +373,90 @@ def generate_printable_label(data, size="medium", qr_img=None):
     
     return label
 
+def generate_qr_only(data, qr_img, size="medium"):
+    """
+    Generate QR code only with minimal branding
+    Args:
+        data: batch data dictionary
+        qr_img: PIL Image of QR code
+        size: "small" (5x5cm), "medium" (8x8cm), "large" (10x10cm)
+    Returns:
+        PIL Image object
+    """
+    # Size mapping for QR-only prints
+    sizes = {
+        "small": (590, 590),      # 5x5 cm
+        "medium": (945, 945),     # 8x8 cm
+        "large": (1181, 1181),    # 10x10 cm
+    }
+    
+    width, height = sizes[size]
+    
+    # Create white canvas
+    label = Image.new('RGB', (width, height), 'white')
+    draw = ImageDraw.Draw(label)
+    
+    # Colors
+    color_primary = (16, 185, 129)
+    color_text = (31, 41, 55)
+    color_white = (255, 255, 255)
+    
+    # Fonts
+    try:
+        if size == "small":
+            font_brand = ImageFont.truetype("arialbd.ttf", 28)
+            font_small = ImageFont.truetype("arial.ttf", 22)
+        elif size == "medium":
+            font_brand = ImageFont.truetype("arialbd.ttf", 36)
+            font_small = ImageFont.truetype("arial.ttf", 28)
+        else:
+            font_brand = ImageFont.truetype("arialbd.ttf", 42)
+            font_small = ImageFont.truetype("arial.ttf", 32)
+    except:
+        font_brand = ImageFont.load_default()
+        font_small = ImageFont.load_default()
+    
+    # Calculate QR size (80% of canvas)
+    qr_size = int(width * 0.7)
+    qr_resized = qr_img.resize((qr_size, qr_size))
+    
+    # Center QR code
+    qr_x = (width - qr_size) // 2
+    qr_y = (height - qr_size) // 2 - 30
+    
+    # Draw subtle border
+    border_padding = 20
+    draw.rounded_rectangle(
+        [(qr_x - border_padding, qr_y - border_padding),
+         (qr_x + qr_size + border_padding, qr_y + qr_size + border_padding)],
+        radius=15,
+        outline=color_primary,
+        width=3
+    )
+    
+    # Paste QR
+    label.paste(qr_resized, (qr_x, qr_y))
+    
+    # Top branding
+    brand_text = "🌾 AgriSensa"
+    bbox = draw.textbbox((0, 0), brand_text, font=font_brand)
+    text_width = bbox[2] - bbox[0]
+    draw.text(((width - text_width) // 2, 30), brand_text, fill=color_primary, font=font_brand)
+    
+    # Bottom text
+    scan_text = "Scan untuk info produk"
+    bbox = draw.textbbox((0, 0), scan_text, font=font_small)
+    text_width = bbox[2] - bbox[0]
+    draw.text(((width - text_width) // 2, qr_y + qr_size + 35), scan_text, fill=color_text, font=font_small)
+    
+    # Batch ID at bottom
+    id_text = f"ID: {data['id']}"
+    bbox = draw.textbbox((0, 0), id_text, font=font_small)
+    text_width = bbox[2] - bbox[0]
+    draw.text(((width - text_width) // 2, height - 50), id_text, fill=color_text, font=font_small)
+    
+    return label
+
 def pil_to_pdf_bytes(pil_image):
     """Convert PIL Image to PDF bytes"""
     pdf_buffer = io.BytesIO()
@@ -470,31 +554,71 @@ with tab2:
     if st.session_state['batch_data']:
         data = st.session_state['batch_data']
         
-        # Label Size Selection
+        # Print Type Selection
+        st.markdown("### 1️⃣ Pilih Jenis Cetakan")
+        col_type1, col_type2 = st.columns(2)
+        
+        with col_type1:
+            print_type = st.radio(
+                "Jenis Cetakan:",
+                ["label_lengkap", "qr_only"],
+                format_func=lambda x: {
+                    "label_lengkap": "📋 Label Lengkap (dengan info produk)",
+                    "qr_only": "📱 QR Code Saja (minimalis)"
+                }[x],
+                help="Pilih apakah ingin mencetak label lengkap atau hanya QR code"
+            )
+        
+        with col_type2:
+            if print_type == "label_lengkap":
+                st.info("💡 **Label Lengkap** cocok untuk kemasan produk retail yang membutuhkan info detail")
+            else:
+                st.success("✅ **QR Only** cocok untuk produk yang sudah punya kemasan, tinggal tempel QR")
+        
+        st.markdown("---")
+        st.markdown("### 2️⃣ Pilih Ukuran")
+        
+        # Size Selection (different options based on print type)
         col_size, col_opt = st.columns([1, 2])
         
         with col_size:
-            label_size = st.selectbox(
-                "Ukuran & Orientasi Label",
-                ["medium_landscape", "large_landscape", "small_landscape", "medium", "large", "small"],
-                index=0,  # Default to medium landscape
-                format_func=lambda x: {
-                    # Landscape (RECOMMENDED)
-                    "small_landscape": "🏞️ Landscape Kecil (10x5 cm) ⭐ Compact",
-                    "medium_landscape": "🏞️ Landscape Sedang (15x10 cm) ⭐ RECOMMENDED",
-                    "large_landscape": "🏞️ Landscape Besar (20x10 cm) ⭐ Premium",
-                    # Square/Portrait
-                    "small": "⬜ Square Kecil (5x5 cm)",
-                    "medium": "⬜ Square Sedang (10x10 cm)",
-                    "large": "⬜ Wide (15x10 cm)"
-                }[x]
-            )
+            if print_type == "label_lengkap":
+                label_size = st.selectbox(
+                    "Ukuran & Orientasi Label",
+                    ["medium_landscape", "large_landscape", "small_landscape", "medium", "large", "small"],
+                    index=0,  # Default to medium landscape
+                    format_func=lambda x: {
+                        # Landscape (RECOMMENDED)
+                        "small_landscape": "🏞️ Landscape Kecil (10x5 cm) ⭐ Compact",
+                        "medium_landscape": "🏞️ Landscape Sedang (15x10 cm) ⭐ RECOMMENDED",
+                        "large_landscape": "🏞️ Landscape Besar (20x10 cm) ⭐ Premium",
+                        # Square/Portrait
+                        "small": "⬜ Square Kecil (5x5 cm)",
+                        "medium": "⬜ Square Sedang (10x10 cm)",
+                        "large": "⬜ Wide (15x10 cm)"
+                    }[x]
+                )
+            else:
+                # QR Only sizes
+                qr_size = st.selectbox(
+                    "Ukuran QR Code",
+                    ["medium", "large", "small"],
+                    index=0,
+                    format_func=lambda x: {
+                        "small": "📱 Kecil (5x5 cm)",
+                        "medium": "📱 Sedang (8x8 cm) ⭐ RECOMMENDED",
+                        "large": "📱 Besar (10x10 cm)"
+                    }[x]
+                )
         
         with col_opt:
-            if "landscape" in label_size:
-                st.success("✅ **Landscape** - Format horizontal lebih cocok untuk kemasan produk!")
+            if print_type == "label_lengkap":
+                if "landscape" in label_size:
+                    st.success("✅ **Landscape** - Format horizontal lebih cocok untuk kemasan produk!")
+                else:
+                    st.info("💡 **Tip:** Coba format Landscape untuk hasil lebih profesional!")
             else:
-                st.info("💡 **Tip:** Coba format Landscape untuk hasil lebih profesional!")
+                st.info("💡 QR Code akan dicetak dengan branding minimal AgriSensa")
         
         # Generate QR Code
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
@@ -511,8 +635,13 @@ Kualitas: {', '.join(data['klaim'])}
         qr.make(fit=True)
         img_qr = qr.make_image(fill_color="black", back_color="white")
         
-        # Generate Printable Label
-        label_image = generate_printable_label(data, label_size, img_qr)
+        # Generate Image based on print type
+        if print_type == "label_lengkap":
+            label_image = generate_printable_label(data, label_size, img_qr)
+            filename_prefix = f"Label_{data['id']}_{label_size}"
+        else:
+            label_image = generate_qr_only(data, img_qr, qr_size)
+            filename_prefix = f"QR_{data['id']}_{qr_size}"
         
         # Convert to bytes for display and download
         label_buffer = io.BytesIO()
@@ -521,7 +650,8 @@ Kualitas: {', '.join(data['klaim'])}
         
         # Preview
         st.markdown("---")
-        st.caption("🔍 Preview Label:")
+        st.markdown("### 3️⃣ Preview")
+        st.caption(f"🔍 Preview {print_type.replace('_', ' ').title()}:")
         
         col_prev1, col_prev2, col_prev3 = st.columns([1, 2, 1])
         with col_prev2:
@@ -529,13 +659,14 @@ Kualitas: {', '.join(data['klaim'])}
         
         # Action Buttons
         st.markdown("---")
+        st.markdown("### 4️⃣ Download / Print")
         col_btn1, col_btn2, col_btn3 = st.columns(3)
         
         with col_btn1:
             st.download_button(
                 "⬇️ Download PNG",
                 label_bytes,
-                f"Label_{data['id']}_{label_size}.png",
+                f"{filename_prefix}.png",
                 "image/png",
                 use_container_width=True
             )
@@ -546,7 +677,7 @@ Kualitas: {', '.join(data['klaim'])}
             st.download_button(
                 "📄 Download PDF",
                 pdf_bytes,
-                f"Label_{data['id']}_{label_size}.pdf",
+                f"{filename_prefix}.pdf",
                 "application/pdf",
                 use_container_width=True
             )
