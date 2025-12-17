@@ -522,7 +522,8 @@ with tab3:
         c_mob1, c_mob2, c_mob3 = st.columns([1.5, 2, 1.5])
         
         with c_mob2:
-            st.markdown("""
+            # Build HTML content
+            html_content = f"""
             <div style='border: 8px solid #333; border-radius: 20px; padding: 20px; background-color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.2);'>
                 <div style='text-align:center;'>
                     <h3 style='color:#0f766e;'>✅ TERVERIFIKASI</h3>
@@ -531,30 +532,70 @@ with tab3:
                     <h1>🌾</h1>
                     <h2>Produk Asli & Aman</h2>
                 </div>
-                """ + (f"<div style='text-align:center; margin:10px;'><img src='data:image/png;base64,{base64.b64encode(data['foto'].getvalue()).decode()}' style='max-width:100%; border-radius:10px;'></div>" if data.get('foto') else "") + """
-                
+            """
+            
+            # Add photo if available
+            if data.get('foto'):
+                foto_base64 = base64.b64encode(data['foto'].getvalue()).decode()
+                html_content += f"""
+                <div style='text-align:center; margin:10px;'>
+                    <img src='data:image/png;base64,{foto_base64}' style='max-width:100%; border-radius:10px;'>
+                </div>
+                """
+            
+            # Product info card
+            html_content += f"""
                 <div style='background:#f0fdfa; padding:15px; border-radius:10px; margin: 15px 0;'>
-                    <p><b>📦 Batch ID:</b> <br>""" + data['id'] + """</p>
-                    <p><b>🗓️ Tanggal Panen:</b> <br>""" + str(data['tgl']) + """</p>
-                    <p><b>📍 Lokasi:</b> <br>""" + data['lokasi'] + """</p>
-                    """ + (f"<p><b>💰 Harga:</b> <br>Rp {data['harga']:,}/kg</p>" if data.get('harga') else "") + """
-                    """ + (f"<p><b>📞 Kontak Petani:</b> <br>{data['kontak']}</p>" if data.get('kontak') else "") + """
+                    <p><b>📦 Batch ID:</b> <br>{data['id']}</p>
+                    <p><b>🗓️ Tanggal Panen:</b> <br>{str(data['tgl'])}</p>
+                    <p><b>📍 Lokasi:</b> <br>{data['lokasi']}</p>
+            """
+            
+            # Add price if available
+            if data.get('harga'):
+                html_content += f"<p><b>💰 Harga:</b> <br>Rp {data['harga']:,}/kg</p>"
+            
+            # Add contact if available
+            if data.get('kontak'):
+                html_content += f"<p><b>📞 Kontak Petani:</b> <br>{data['kontak']}</p>"
+            
+            html_content += """
                 </div>
                 
                 <p><b>Cerita Petani:</b></p>
                 <p style='font-style:italic; font-size:0.9rem;'>
-                    "Produk ini dirawat dengan sepenuh hati oleh """ + data['petani'] + """. 
-                    Kami menggunakan metode berkelanjutan untuk menjaga alam tetap lestari."
+            """
+            
+            html_content += f'"Produk ini dirawat dengan sepenuh hati oleh {data["petani"]}. Kami menggunakan metode berkelanjutan untuk menjaga alam tetap lestari."'
+            
+            html_content += """
                 </p>
                 
                 <div style='text-align:center; margin-top:20px;'>
-                    <button style='background:#0f766e; color:white; border:none; padding:10px 20px; border-radius:50px; width:100%;'>""" + (f"Beli Lagi - Rp {data['harga']:,}" if data.get('harga') else "Beli Lagi (Order)") + """</button>
+            """
+            
+            # Button text
+            button_text = f"Beli Lagi - Rp {data['harga']:,}" if data.get('harga') else "Beli Lagi (Order)"
+            html_content += f"<button style='background:#0f766e; color:white; border:none; padding:10px 20px; border-radius:50px; width:100%;'>{button_text}</button>"
+            
+            html_content += """
                 </div>
-                 <div style='text-align:center; margin-top:10px;'>
-                    <a href='""" + (f"https://wa.me/{data['kontak'].replace('-', '').replace(' ', '')}" if data.get('kontak') else "#") + """'>💬 Hubungi Petani</a>
+                <div style='text-align:center; margin-top:10px;'>
+            """
+            
+            # WhatsApp link
+            if data.get('kontak'):
+                wa_number = data['kontak'].replace('-', '').replace(' ', '').replace('+', '')
+                html_content += f"<a href='https://wa.me/{wa_number}' target='_blank'>💬 Hubungi Petani</a>"
+            else:
+                html_content += "<a href='#'>💬 Hubungi Petani</a>"
+            
+            html_content += """
                 </div>
             </div>
-            """, unsafe_allow_html=True)
+            """
+            
+            st.markdown(html_content, unsafe_allow_html=True)
             
     else:
         st.warning("⚠️ Belum ada data batch yang dibuat. Silakan input di Tab 1 dulu.")
