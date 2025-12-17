@@ -1294,58 +1294,7 @@ with tab12:
         - Jangan biarkan adukan basah lebih dari 2 hari tanpa disteril (akan asam/basi).
         """)
     
-    ---
-    
-    ### 📖 Buku & Panduan Teknis
-    
-    16. **Mushroom Cultivation: A Practical Guide**
-        - Author: Peter Oei
-        - Publisher: Backhuys Publishers
-        - ISBN: 978-90-5782-137-1
-    
-    17. **Growing Gourmet and Medicinal Mushrooms**
-        - Author: Paul Stamets
-        - Publisher: Ten Speed Press
-        - ISBN: 978-1-58008-175-7
-    
-    18. **The Mushroom Cultivator**
-        - Authors: Paul Stamets & J.S. Chilton
-        - Publisher: Agarikon Press
-        - ISBN: 978-0-9610798-0-2
-    
-    ---
-    
-    ### 🌐 Database Online
-    
-    19. **ResearchGate** - Platform untuk paper ilmiah mushroom cultivation
-        - [researchgate.net](https://www.researchgate.net)
-    
-    20. **PubMed Central (NIH)** - Database penelitian biomedis
-        - [ncbi.nlm.nih.gov/pmc](https://www.ncbi.nlm.nih.gov/pmc/)
-    
-    21. **Google Scholar** - Search engine untuk literatur akademik
-        - [scholar.google.com](https://scholar.google.com)
-    
-    ---
-    
-    ### 📊 Data Pasar & Harga
-    
-    - Harga pasar berdasarkan data dari pasar tradisional dan modern di Indonesia (2024-2025)
-    - Biological Efficiency (BE) dari rata-rata laporan petani jamur Indonesia
-    - Timeline produksi dari pengalaman praktis budidaya komersial
-    
-    ---
-    
-    ### ⚠️ Disclaimer
-    
-    Data dalam modul ini dikumpulkan dari berbagai sumber ilmiah terpercaya. Namun, hasil aktual di lapangan dapat bervariasi tergantung:
-    - Kualitas bibit
-    - Kondisi lokal (iklim, ketinggian)
-    - Keahlian petani
-    - Kualitas substrat
-    
-    **Selalu lakukan uji coba skala kecil sebelum produksi massal!**
-    """)
+
     
     st.markdown("---")
     st.info("""
