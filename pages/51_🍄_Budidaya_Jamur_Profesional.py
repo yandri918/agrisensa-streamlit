@@ -637,12 +637,22 @@ with tab8:
             step=0.1
         )
         
+
         selling_price = st.number_input(
             "Harga Jual (Rp/kg)",
             min_value=10000,
             max_value=200000,
             value=MUSHROOM_DATA[calc_mushroom]['price_min'],
             step=1000
+        )
+        
+        cost_per_baglog = st.number_input(
+            "Biaya Produksi per Baglog (Rp)",
+            min_value=1000,
+            max_value=20000,
+            value=3500 if calc_mushroom != "Jamur Enoki (Flammulina)" else 5000,
+            step=100,
+            help="Termasuk bibit, media, plastik, & tenaga kerja per log"
         )
     
     with calc_col2:
@@ -661,8 +671,7 @@ with tab8:
         revenue_high = yield_high * selling_price
         revenue_avg = (revenue_low + revenue_high) / 2
         
-        # Production costs (rough estimate)
-        cost_per_baglog = 5000 if calc_mushroom == "Jamur Enoki (Flammulina)" else 3500
+        # Production costs (USER INPUT)
         total_cost = num_baglogs * cost_per_baglog
         
         profit_low = revenue_low - total_cost
