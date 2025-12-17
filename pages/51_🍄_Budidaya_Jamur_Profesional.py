@@ -959,30 +959,34 @@ with tab9:
     if problem_category == "Kontaminasi":
         st.markdown("""
         ### 🦠 Kontaminasi (Jamur Hijau, Bakteri, dll)
+        """)
         
-        **Gejala:**
-        - Muncul warna hijau, hitam, atau oranye di baglog
-        - Bau busuk/asam
-        - Miselium tidak tumbuh merata
+        # VISUAL DOCTOR
+        st.info("📸 **Visual Doctor:** Mencocokkan Gejala")
+        col_img1, col_img2 = st.columns([1, 2])
+        with col_img1:
+            try:
+                st.image("assets/img/trichoderma.png", caption="Kontaminasi Trichoderma (Jamur Hijau)", use_column_width=True)
+            except:
+                st.caption("📷 (Gambar tidak tersedia server)")
+        with col_img2:
+            st.markdown("""
+            **Gejala Utama:**
+            - **Warna Hijau Melingkar:** Khas Trichoderma. Awalnya putih, lalu hijau spora.
+            - **Bau Apek/Tanah:** Berbeda dengan bau segar miselium jamur tiram.
+            - **Tekstur Kasar**: Seperti beludru kasar.
+            """)
         
+        st.markdown("""
         **Penyebab:**
-        - Sterilisasi tidak sempurna
-        - Inokulasi tidak steril
-        - Ruangan kotor
-        - Ventilasi buruk
+        - Sterilisasi tidak sempurna (kurang panas/lama)
+        - Inokulasi tidak steril (tangan/alat kotor)
+        - Ruangan terlalu lembab (>95%) tanpa sirkulasi
         
         **Solusi:**
-        1. **Segera buang baglog terkontaminasi** (jangan dibuka di ruang produksi!)
-        2. Sterilisasi ulang ruangan dengan formalin/alkohol
-        3. Perbaiki prosedur sterilisasi (121°C, 2 jam minimum)
-        4. Gunakan masker & sarung tangan saat inokulasi
-        5. Semprot disinfektan sebelum masuk ruang produksi
-        
-        **Preventif:**
-        - Sterilisasi substrat dengan benar
-        - Inokulasi di ruang steril (laminar flow jika ada)
-        - Jaga kebersihan ruangan
-        - Cek bibit dari supplier terpercaya
+        1. **Isolasi & Buang:** Jangan buka log hijau di dalam kumbung! Spora akan menyebar.
+        2. **Sterilisasi Ulang:** Bersihkan rak dengan alkohol 70% atau pemutih (bleach) 5%.
+        3. **Cek Bibit:** Pastikan bibit F3 tidak membawa spora hijau sejak awal.
         """)
     
     elif problem_category == "Pertumbuhan Lambat":
@@ -1081,10 +1085,60 @@ with tab9:
         - **Tidak keluar dari casing:** Casing terlalu tebal/padat, atau pH tidak tepat (harus 7-7.5)
         - **Warna coklat:** Normal untuk cremini/portobello
         
-        **🍜 Jamur Enoki:**
-            - **Batang tidak putih:** Cahaya terlalu banyak! Harus gelap total
-            - **Batang pendek:** Suhu terlalu tinggi (harus 3-10°C) atau CO2 kurang
             - **Tidak fruiting:** Suhu harus SANGAT DINGIN (3-13°C), cek AC/cold room
+            """)
+            
+    st.markdown("---")
+    st.subheader("� Apotek Alami: Solusi Hama Tanpa Kimia")
+    st.caption("Resep pestisida nabati berdasarkan referensi ilmiah untuk budidaya organik.")
+    
+    with st.expander("🧪 Buka Resep Apotek Alami", expanded=True):
+        remedy_cols = st.columns(2)
+        
+        with remedy_cols[0]:
+            st.markdown("### 🌸 1. Lavender & Serai Wangi (Repellent)")
+            st.markdown("""
+            **Target:** Lalat Buah (Phorid/Sciarid), Nyamuk Jamur.
+            **Fungsi:** Mengacaukan navigasi lalat sehingga tidak bertelur di baglog.
+            
+            **Bahan:**
+            - Bunga Lavender kering / Minyak Serai Wangi (Citronella)
+            - Air bersih 1 Liter
+            - Sabun cair (perekat) sedikittt
+            
+            **Cara:**
+            1. Rebus lavender/serai hingga mendidih (ekstraksi).
+            2. Dinginkan, saring ampasnya.
+            3. Tambahkan 1-2 tetes sabun cair.
+            4. **Semprotkan ke UDARA dan Dinding Kumbung** (JANGAN langsung ke jamur muda, bisa gosong).
+            """)
+            
+            st.markdown("### 🍂 2. Minyak Mimba (Neem Oil)")
+            st.markdown("""
+            **Target:** Larva Lalat, Tungau (Mites).
+            **Fungsi:** *Antifeedant* (bikin hama tidak mau makan) & Gangguan Hormon ganti kulit (IGR).
+            
+            **Dosis:** 3-5 ml per Liter air.
+            **Aplikasi:** Semprot pada rak/lantai saat steril ruangan.
+            """)
+            
+        with remedy_cols[1]:
+            st.markdown("### 🥯 3. Baking Soda (Anti-Jamur Liar)")
+            st.markdown("""
+            **Target:** Jamur liar permukaan, spora trichoderma di udara.
+            **Fungsi:** Mengubah pH menjadi basa yang menghambat pertumbuhan jamur kontaminan.
+            
+            **Dosis:** 1 sendok teh per Liter air.
+            **Aplikasi:** Semprot ke dinding/lantai yang berlumut.
+            """)
+            
+            st.markdown("### 🧄 4. Bawang Putih & Cabai")
+            st.markdown("""
+            **Target:** Serangga umum, kutu.
+            **Fungsi:** Pembasmi kontak (panas).
+            
+            **Cara:** Blender 1 bonggol bawang + 5 cabai + 500ml air. Endapkan semalam. Saring.
+            **Aplikasi:** Semprot ke area bawah rak (Hati-hati, bau menyengat bisa mempengaruhi aroma jamur jika terlalu dekat).
             """)
 
 # TAB 10: Extra Tools & Info (Consolidated)
