@@ -191,7 +191,7 @@ MUSHROOM_DATA = {
 }
 
 # TABS
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab_extra = st.tabs([
     "🍄 Jamur Tiram", 
     "🍂 Jamur Kuping", 
     "🍄‍🟫 Jamur Shiitake",
@@ -957,7 +957,7 @@ with tab9:
             """)
 
 # TAB 10: Extra Tools & Info (Consolidated)
-with tab10:
+with tab_extra:
     st.header("📚 Informasi Tambahan & Tools Ekstra")
     subtab1, subtab2, subtab3 = st.tabs(["📊 Perbandingan", "📚 Referensi Ilmiah", "🧪 Kalkulator Nutrisi"])
 
