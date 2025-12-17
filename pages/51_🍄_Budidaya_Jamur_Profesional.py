@@ -313,6 +313,50 @@ with tab1:
 
 with tab2:
     render_mushroom_guide("Jamur Kuping (Auricularia)")
+    
+    st.markdown("---")
+    st.subheader("🍂 Analisa Bisnis: Jual Basah vs Kering")
+    st.caption("Jamur kuping adalah satu-satunya jenis yang nilainya bisa naik drastis jika dikeringkan.")
+    
+    with st.expander("🧮 Buka Kalkulator Basah vs Kering", expanded=True):
+        col_dry1, col_dry2 = st.columns(2)
+        
+        with col_dry1:
+            price_fresh_ear = st.number_input("Harga Jual Basah (Rp/kg)", 5000, 50000, 10000, step=500, key="p_fresh_ear")
+            price_dry_ear = st.number_input("Harga Jual Kering (Rp/kg)", 50000, 500000, 120000, step=5000, key="p_dry_ear")
+            shrinkage = 10 # 10kg fresh = 1kg dry
+            
+        with col_dry2:
+            st.info(f"""
+            **Rasio Penyusutan (Shrinkage):**
+            Rata-rata **10 kg Basah** menjadi **1 kg Kering** (Kadar air 12-14%).
+            
+            *Proses pengeringan biaya murah (jemur matahari) namun butuh waktu 2-3 hari.*
+            """)
+            
+        # Calculation for 100kg Fresh Batch
+        batch_fresh_kg = 100 # Basis perhitungan
+        batch_revenue_fresh = batch_fresh_kg * price_fresh_ear
+        
+        batch_dry_kg = batch_fresh_kg / shrinkage
+        batch_revenue_dry = batch_dry_kg * price_dry_ear
+        
+        profit_diff = batch_revenue_dry - batch_revenue_fresh
+        
+        st.write(f"**Simulasi untuk {batch_fresh_kg} kg Hasil Panen:**")
+        metric_col1, metric_col2, metric_col3 = st.columns(3)
+        
+        with metric_col1:
+            st.metric("Total Jual Basah", f"Rp {batch_revenue_fresh:,.0f}")
+        with metric_col2:
+            st.metric("Total Jual Kering", f"Rp {batch_revenue_dry:,.0f}", f"{batch_dry_kg} kg Output")
+        with metric_col3:
+            st.metric("Selisih (Profit Tambahan)", f"Rp {profit_diff:,.0f}", delta_color="normal" if profit_diff > 0 else "inverse")
+            
+        if profit_diff > 0:
+            st.success(f"✅ **Rekomendasi:** Lebih untung dijual **KERING**. Anda mendapat tambahan Rp {profit_diff:,.0f} per 100kg panen.")
+        else:
+            st.warning(f"⚠️ **Rekomendasi:** Lebih untung dijual **BASAH**. Harga kering saat ini belum menutupi penyusutan bobot.")
 
 with tab3:
     render_mushroom_guide("Jamur Shiitake (Lentinus)")
