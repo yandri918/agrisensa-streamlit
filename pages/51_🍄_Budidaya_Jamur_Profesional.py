@@ -191,7 +191,7 @@ MUSHROOM_DATA = {
 }
 
 # TABS
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12 = st.tabs([
     "🍄 Jamur Tiram", 
     "🍂 Jamur Kuping", 
     "🍄‍🟫 Jamur Shiitake",
@@ -202,7 +202,8 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
     "📊 Kalkulator Produksi",
     "🔧 Troubleshooting",
     "📊 Perbandingan",
-    "📚 Referensi Ilmiah"
+    "📚 Referensi Ilmiah",
+    "🧪 Kalkulator Nutrisi"
 ])
 
 # Helper function for mushroom guide tabs
