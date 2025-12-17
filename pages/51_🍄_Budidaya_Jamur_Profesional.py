@@ -628,6 +628,13 @@ with tab8:
             step=10
         )
         
+        start_date_input = st.date_input(
+            "📅 Tanggal Mulai Inokulasi (Suntik Bibit)",
+            value=datetime.now()
+        )
+        # Convert to datetime for calculations
+        start_date = datetime.combine(start_date_input, datetime.min.time())
+        
         substrate_weight = st.number_input(
             "Berat Substrat per Baglog (kg)",
             min_value=0.5,
@@ -732,7 +739,7 @@ with tab8:
     # Create DataFrame
     if daily_harvest:
         days = sorted(daily_harvest.keys())
-        start_date = datetime.now()
+        # start_date is already defined above from user input
         
         harvest_list = []
         for d in range(min(days), max(days) + 1):
