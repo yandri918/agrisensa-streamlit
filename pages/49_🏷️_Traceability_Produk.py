@@ -553,11 +553,11 @@ with tab3:
             
             # Add price if available
             if data.get('harga'):
-                html_content += f"<p><b>💰 Harga:</b> <br>Rp {data['harga']:,}/kg</p>"
+                html_content += f"                    <p><b>💰 Harga:</b> <br>Rp {data['harga']:,}/kg</p>\n"
             
             # Add contact if available
             if data.get('kontak'):
-                html_content += f"<p><b>📞 Kontak Petani:</b> <br>{data['kontak']}</p>"
+                html_content += f"                    <p><b>📞 Kontak Petani:</b> <br>{data['kontak']}</p>\n"
             
             html_content += """
                 </div>
@@ -566,7 +566,7 @@ with tab3:
                 <p style='font-style:italic; font-size:0.9rem;'>
             """
             
-            html_content += f'"Produk ini dirawat dengan sepenuh hati oleh {data["petani"]}. Kami menggunakan metode berkelanjutan untuk menjaga alam tetap lestari."'
+            html_content += f'                    "Produk ini dirawat dengan sepenuh hati oleh {data["petani"]}. Kami menggunakan metode berkelanjutan untuk menjaga alam tetap lestari."\n'
             
             html_content += """
                 </p>
@@ -576,7 +576,7 @@ with tab3:
             
             # Button text
             button_text = f"Beli Lagi - Rp {data['harga']:,}" if data.get('harga') else "Beli Lagi (Order)"
-            html_content += f"<button style='background:#0f766e; color:white; border:none; padding:10px 20px; border-radius:50px; width:100%;'>{button_text}</button>"
+            html_content += f"                    <button style='background:#0f766e; color:white; border:none; padding:10px 20px; border-radius:50px; width:100%;'>{button_text}</button>\n"
             
             html_content += """
                 </div>
@@ -586,9 +586,9 @@ with tab3:
             # WhatsApp link
             if data.get('kontak'):
                 wa_number = data['kontak'].replace('-', '').replace(' ', '').replace('+', '')
-                html_content += f"<a href='https://wa.me/{wa_number}' target='_blank'>💬 Hubungi Petani</a>"
+                html_content += f"                    <a href='https://wa.me/{wa_number}' target='_blank'>💬 Hubungi Petani</a>\n"
             else:
-                html_content += "<a href='#'>💬 Hubungi Petani</a>"
+                html_content += "                    <a href='#'>💬 Hubungi Petani</a>\n"
             
             html_content += """
                 </div>
