@@ -129,7 +129,7 @@ MUSHROOM_DATA = {
         "description": "Cocok untuk dataran rendah dan daerah panas. Tekstur kenyal, populer untuk masakan Asia."
     },
     "Jamur Shiitake (Lentinus)": {
-        "emoji": "🍄‍🟫",
+        "emoji": "🍄",
         "latin": "Lentinus edodes",
         "difficulty": "⭐⭐⭐☆☆",
         "difficulty_text": "Menengah - Premium Quality",
@@ -1043,199 +1043,202 @@ with tab10:
         """)
 
 # TAB 11: Scientific References
-with tab11:
-    st.subheader("📚 Referensi Jurnal Ilmiah")
+with tab10:
+    st.subheader("� Perbandingan 5 Jenis Jamur")
     
-    st.markdown("""
-    Modul ini disusun berdasarkan penelitian ilmiah peer-reviewed dari berbagai sumber terpercaya:
-    
-    ### 🍄 Jamur Tiram (Pleurotus)
-    
-    1. **Temperature and Humidity Requirements for Oyster Mushroom Cultivation**
-       - Source: International Journal of Research and Review (IJRRR)
-       - Key Finding: Optimal mycelial growth at 25-30°C, fruiting at 20-28°C
-       - [Link](https://www.ijrrr.com)
-    
-    2. **Effect of Environmental Factors on Pleurotus Species**
-       - Source: NIH (National Institutes of Health)
-       - DOI: Available at PubMed Central
-       - Key Finding: RH 85-95% critical for fruiting body development
-    
-    3. **Optimization of Oyster Mushroom Production**
-       - Source: ResearchGate
-       - Key Finding: BE 80-120% achievable with proper substrate formulation
-    
-    ---
-    
-    ### 🍂 Jamur Kuping (Auricularia)
-    
-    4. **Auricularia auricula-judae Cultivation Parameters**
-       - Source: Mushroom Farm Supplies Australia
-       - Key Finding: Optimal fruiting at 15-20°C, humidity 85-95%
-    
-    5. **Effect of C/N Ratio on Auricularia Growth**
-       - Source: MDPI (Multidisciplinary Digital Publishing Institute)
-       - Key Finding: C/N 20:1 for mycelium, 30-40:1 for fruiting
-    
-    6. **Wood Ear Mushroom Environmental Conditions**
-       - Source: Korean Science Database
-       - Key Finding: pH 5.0-7.0 optimal for substrate
-    
-    ---
-    
-    ### 🍄‍🟫 Jamur Shiitake (Lentinus edodes)
-    
-    7. **Temperature Management in Shiitake Cultivation**
-       - Source: Carbon Active Research
-       - Key Finding: Cold shock (48-72h from 25°C to 10°C) triggers fruiting
-    
-    8. **Humidity Control for Premium Shiitake**
-       - Source: Gorilla Grow Tent Scientific Studies
-       - Key Finding: 85-95% RH during fruiting prevents cap cracking
-    
-    9. **Shiitake Substrate Optimization**
-       - Source: Satrise Agricultural Research
-       - Key Finding: Hardwood sawdust + supplements yields best results
-    
-    ---
-    
-    ### 🔘 Jamur Kancing (Agaricus bisporus)
-    
-    10. **Button Mushroom Casing Layer Requirements**
-        - Source: National Horticultural Board (NHB), India
-        - Key Finding: Casing layer pH 7-7.5, thickness 3-4cm critical
-    
-    11. **Environmental Conditions for Agaricus Cultivation**
-        - Source: ResearchGate
-        - Key Finding: Mycelial growth 22-28°C, fruiting 12-20°C
-    
-    12. **CO2 Management in Button Mushroom Production**
-        - Source: OMICS International
-        - Key Finding: CO2 <1000-2000 ppm during fruiting
-    
-    ---
-    
-    ### 🍜 Jamur Enoki (Flammulina velutipes)
-    
-    13. **Temperature Requirements for Enoki Mushroom**
-        - Source: The Spore Depot
-        - Key Finding: Primordia formation at 7-13°C, fruiting 10-16°C
-    
-    14. **Light and CO2 Effects on Enoki Morphology**
-        - Source: CABI Digital Library
-        - Key Finding: Low light + high CO2 produces long white stems
-    
-
-    15. **Enoki Cultivation in Controlled Environment**
-        - Source: Mycoboutique Research
-        - Key Finding: 3-5°C produces hardest, best-shaped mushrooms
-    """)
+    try:
+        comparison_data = []
+        for name, data in MUSHROOM_DATA.items():
+            comparison_data.append({
+                "Jamur": f"{data['emoji']} {name}",
+                "Kesulitan": data['difficulty'],
+                "Waktu Panen": f"{data['timeline_days'][0]}-{data['timeline_days'][1]} hari",
+                "BE (%)": f"{data['be_percent'][0]}-{data['be_percent'][1]}%",
+                "Harga (Rp/kg)": f"{data['price_min']:,}-{data['price_max']:,}",
+                "Suhu Fruiting": f"{data['temp_fruiting'][0]}-{data['temp_fruiting'][1]}°C",
+                "Kebutuhan Khusus": data['special_req']
+            })
+        
+        comparison_df = pd.DataFrame(comparison_data)
+        st.dataframe(comparison_df, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        st.subheader("🎯 Rekomendasi Berdasarkan Kriteria")
+        
+        criteria = st.selectbox(
+            "Pilih Kriteria Utama Anda",
+            ["Pemula (Mudah)", "Profit Maksimal", "Waktu Tercepat", "Lokasi Panas", "Lokasi Dingin"]
+        )
+        
+        if criteria == "Pemula (Mudah)":
+            st.success("**Rekomendasi: 🍄 Jamur Tiram**")
+            st.markdown("""
+            **Alasan:**
+            - Paling mudah dan toleran
+            - Tidak butuh peralatan khusus
+            - Waktu panen relatif cepat (45-60 hari)
+            - Harga jual stabil
+            - Banyak tutorial dan komunitas
+            """)
+        
+        elif criteria == "Profit Maksimal":
+            st.success("**Rekomendasi: 🍄 Jamur Shiitake**")
+            st.markdown("""
+            **Alasan:**
+            - Harga tertinggi (Rp 80,000-150,000/kg)
+            - Permintaan pasar premium tinggi
+            - Margin profit besar meski investasi lebih tinggi
+            - Cocok untuk pasar ekspor
+            
+            **Catatan:** Butuh kesabaran (90-180 hari) dan kontrol suhu ketat
+            """)
+        
+        elif criteria == "Waktu Tercepat":
+            st.success("**Rekomendasi: 🍄 Jamur Tiram atau 🍜 Jamur Enoki**")
+            st.markdown("""
+            **Jamur Tiram:** 45-60 hari (MUDAH)
+            
+            **Jamur Enoki:** 45-70 hari (SULIT - butuh cold room)
+            
+            Pilih Tiram jika pemula, Enoki jika sudah punya cold room.
+            """)
+        
+        elif criteria == "Lokasi Panas":
+            st.success("**Rekomendasi: 🍂 Jamur Kuping**")
+            st.markdown("""
+            **Alasan:**
+            - Paling toleran terhadap suhu tinggi
+            - Cocok untuk dataran rendah (0-700 mdpl)
+            - Tidak butuh AC untuk fruiting
+            - Harga jual bagus (Rp 30,000-40,000/kg)
+            """)
+        
+        else:  # Lokasi Dingin
+            st.success("**Rekomendasi: 🍄 Jamur Shiitake atau 🍜 Jamur Enoki**")
+            st.markdown("""
+            **Dataran Tinggi (>1500 mdpl):**
+            - Suhu alami sudah dingin (15-22°C)
+            - Cocok untuk shiitake dan enoki
+            - Hemat biaya cooling
+            - Kualitas jamur lebih bagus
+            
+            **Shiitake:** Lebih mudah, harga tinggi
+            
+            **Enoki:** Sangat sulit, butuh 3-13°C
+            """)
+            
+    except Exception as e:
+        st.error(f"Gagal memuat Tab Perbandingan: {str(e)}")
     
 # TAB 12: Premium Baglog Calculator
 with tab12:
     st.subheader("🧪 Kalkulator Nutrisi Baglog (Premium Formulation)")
     st.info("Gunakan kalkulator ini untuk meracik substrat dengan komposisi nutrisi TERBAIK agar panen maksimal (Biological Efficiency >90%).")
     
-    col_form1, col_form2 = st.columns([1, 1.5])
-    
-    with col_form1:
-        st.markdown("### ⚙️ Input Produksi")
+    try:
+        col_form1, col_form2 = st.columns([1, 1.5])
         
-        target_basis = st.radio(
-            "Basis Perhitungan",
-            ["Total Berat Adukan (kg)", "Jumlah Baglog (pcs)"]
-        )
-        
-        if target_basis == "Total Berat Adukan (kg)":
-            total_mix_weight = st.number_input("Total Berat Adukan Basah (kg)", 10, 5000, 100, step=10)
-            baglog_size = 1.2
-            est_log_count = int(total_mix_weight / baglog_size)
-            st.caption(f"Estimasi jadi ±{est_log_count} baglog (@1.2kg)")
-        else:
-            target_log_count = st.number_input("Target Jumlah Baglog", 10, 5000, 100, step=10)
-            baglog_size = st.number_input("Berat per Baglog (kg)", 0.8, 2.0, 1.2, step=0.1)
-            total_mix_weight = target_log_count * baglog_size
-            st.caption(f"Total adukan dibutuhkan: {total_mix_weight:.1f} kg")
-
-        formula_type = st.selectbox(
-            "Pilih Jenis Formulasi",
-            ["Standard (Ekonomis)", "Super Yield (Premium) 🚀", "Khusus Shiitake (Hardwood)"]
-        )
-        
-        st.markdown("---")
-        st.markdown("### 📝 Hasil Perhitungan")
-        
-        recipe = {}
-        tips = ""
-        cn_ratio = 50
-        
-        if formula_type == "Standard (Ekonomis)":
-            dry_mass = total_mix_weight * 0.40
-            water_mass = total_mix_weight * 0.60
+        with col_form1:
+            st.markdown("### ⚙️ Input Produksi")
             
-            recipe = {
-                "Serbuk Gergaji": dry_mass * 0.85,
-                "Bekatul": dry_mass * 0.13,
-                "Kapur (CaCO3)": dry_mass * 0.02,
-                "Air Bersih": water_mass
-            }
+            target_basis = st.radio(
+                "Basis Perhitungan",
+                ["Total Berat Adukan (kg)", "Jumlah Baglog (pcs)"]
+            )
+            
+            if target_basis == "Total Berat Adukan (kg)":
+                total_mix_weight = st.number_input("Total Berat Adukan Basah (kg)", 10, 5000, 100, step=10)
+                baglog_size = 1.2
+                est_log_count = int(total_mix_weight / baglog_size)
+                st.caption(f"Estimasi jadi ±{est_log_count} baglog (@1.2kg)")
+            else:
+                target_log_count = st.number_input("Target Jumlah Baglog", 10, 5000, 100, step=10)
+                baglog_size = st.number_input("Berat per Baglog (kg)", 0.8, 2.0, 1.2, step=0.1)
+                total_mix_weight = target_log_count * baglog_size
+                st.caption(f"Total adukan dibutuhkan: {total_mix_weight:.1f} kg")
+
+            formula_type = st.selectbox(
+                "Pilih Jenis Formulasi",
+                ["Standard (Ekonomis)", "Super Yield (Premium) 🚀", "Khusus Shiitake (Hardwood)"]
+            )
+            
+            st.markdown("---")
+            st.markdown("### 📝 Hasil Perhitungan")
+            
+            recipe = {}
+            tips = ""
             cn_ratio = 50
-            tips = "Cocok untuk Jamur Tiram & Kuping. Murah dan mudah didapat."
             
-        elif formula_type == "Super Yield (Premium) 🚀":
-            dry_mass = total_mix_weight * 0.40
-            water_mass = total_mix_weight * 0.60
-            
-            recipe = {
-                "Serbuk Gergaji": dry_mass * 0.80,
-                "Bekatul": dry_mass * 0.15,
-                "Tepung Jagung": dry_mass * 0.02,
-                "Kapur (CaCO3)": dry_mass * 0.015,
-                "Gypsum": dry_mass * 0.015,
-                "Air Bersih + Molase": water_mass
-            }
-            cn_ratio = 35
-            tips = "Menghasilkan tubuh buah lebih tebal. Gunakan molase 1% dalam air."
+            if formula_type == "Standard (Ekonomis)":
+                dry_mass = total_mix_weight * 0.40
+                water_mass = total_mix_weight * 0.60
+                
+                recipe = {
+                    "Serbuk Gergaji": dry_mass * 0.85,
+                    "Bekatul": dry_mass * 0.13,
+                    "Kapur (CaCO3)": dry_mass * 0.02,
+                    "Air Bersih": water_mass
+                }
+                cn_ratio = 50
+                tips = "Cocok untuk Jamur Tiram & Kuping. Murah dan mudah didapat."
+                
+            elif formula_type == "Super Yield (Premium) 🚀":
+                dry_mass = total_mix_weight * 0.40
+                water_mass = total_mix_weight * 0.60
+                
+                recipe = {
+                    "Serbuk Gergaji": dry_mass * 0.80,
+                    "Bekatul": dry_mass * 0.15,
+                    "Tepung Jagung": dry_mass * 0.02,
+                    "Kapur (CaCO3)": dry_mass * 0.015,
+                    "Gypsum": dry_mass * 0.015,
+                    "Air Bersih + Molase": water_mass
+                }
+                cn_ratio = 35
+                tips = "Menghasilkan tubuh buah lebih tebal. Gunakan molase 1% dalam air."
 
-        elif formula_type == "Khusus Shiitake (Hardwood)":
-            dry_mass = total_mix_weight * 0.45
-            water_mass = total_mix_weight * 0.55
-            
-            recipe = {
-                "Serbuk Kayu Keras": dry_mass * 0.78,
-                "Bekatul/Gandum": dry_mass * 0.20,
-                "Gypsum": dry_mass * 0.01,
-                "Gula Pasir": dry_mass * 0.01,
-                "Air Bersih": water_mass
-            }
-            cn_ratio = 25
-            tips = "Wajib gunakan serbuk kayu keras! Fermentasi minimal 1-2 hari."
+            elif formula_type == "Khusus Shiitake (Hardwood)":
+                dry_mass = total_mix_weight * 0.45
+                water_mass = total_mix_weight * 0.55
+                
+                recipe = {
+                    "Serbuk Kayu Keras": dry_mass * 0.78,
+                    "Bekatul/Gandum": dry_mass * 0.20,
+                    "Gypsum": dry_mass * 0.01,
+                    "Gula Pasir": dry_mass * 0.01,
+                    "Air Bersih": water_mass
+                }
+                cn_ratio = 25
+                tips = "Wajib gunakan serbuk kayu keras! Fermentasi minimal 1-2 hari."
 
-        for item, weight in recipe.items():
-            unit = "Liter" if "Air" in item else "kg"
-            st.metric(item, f"{weight:.2f} {unit}")
+            for item, weight in recipe.items():
+                unit = "Liter" if "Air" in item else "kg"
+                st.metric(item, f"{weight:.2f} {unit}")
+                
+        with col_form2:
+            st.markdown(f"## 🥣 Panduan Racikan: {formula_type}")
+            st.success(f"💡 **Keunggulan:** {tips}")
+            st.markdown(f"**Estimasi C/N Ratio: {cn_ratio}:1**")
             
-    with col_form2:
-        st.markdown(f"## 🥣 Panduan Racikan: {formula_type}")
-        st.success(f"💡 **Keunggulan:** {tips}")
-        st.markdown(f"**Estimasi C/N Ratio: {cn_ratio}:1**")
-        
-        st.markdown("### 🛠️ Langkah-Langkah Pembuatan:")
-        
-        steps_text = (
-            "1. **Pengayakan Serbuk:** Ayak serbuk gergaji untuk memisahkan potongan tajam.\n\n"
-            "2. **Pencampuran Kering:** Campur semua bahan kering secara merata (minimal 3x aduk).\n\n"
-            "3. **Pemberian Air:** Siram air perlahan sambil diaduk.\n\n"
-            "4. **Tes Kepal:** Genggam adukan. Tidak boleh menetes (terlalu basah) dan tidak boleh buyar (terlalu kering).\n\n"
-            "5. **Pembungkusan:** Masukkan ke plastik PP tahan panas, padatkan.\n\n"
-            "6. **Sterilisasi:** Kukus 95-100°C selama 8 jam atau Autoclave 121°C selama 2 jam."
-        )
-        st.markdown(steps_text)
-        
-        st.warning("⛔ **Pantangan:** Jangan pakai serbuk kayu bergetah (pinus) tanpa fermentasi lama.")
+            st.markdown("### 🛠️ Langkah-Langkah Pembuatan:")
+            
+            steps_text = (
+                "1. **Pengayakan Serbuk:** Ayak serbuk gergaji untuk memisahkan potongan tajam.\\n\\n"
+                "2. **Pencampuran Kering:** Campur semua bahan kering secara merata (minimal 3x aduk).\\n\\n"
+                "3. **Pemberian Air:** Siram air perlahan sambil diaduk.\\n\\n"
+                "4. **Tes Kepal:** Genggam adukan. Tidak boleh menetes (terlalu basah) dan tidak boleh buyar (terlalu kering).\\n\\n"
+                "5. **Pembungkusan:** Masukkan ke plastik PP tahan panas, padatkan.\\n\\n"
+                "6. **Sterilisasi:** Kukus 95-100°C selama 8 jam atau Autoclave 121°C selama 2 jam."
+            )
+            st.markdown(steps_text)
+            
+            st.warning("⛔ **Pantangan:** Jangan pakai serbuk kayu bergetah (pinus) tanpa fermentasi lama.")
 
-    st.markdown("---")
-    st.info("💡 **Tips:** Bergabunglah dengan komunitas petani jamur untuk belajar lebih lanjut.")
+        st.markdown("---")
+        st.info("💡 **Tips:** Bergabunglah dengan komunitas petani jamur untuk belajar lebih lanjut.")
+        
+    except Exception as e:
+        st.error(f"Gagal memuat Kalkulator Baglog: {str(e)}")
 
 
 # Footer
