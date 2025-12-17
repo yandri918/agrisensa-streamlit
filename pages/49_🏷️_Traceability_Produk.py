@@ -84,6 +84,7 @@ def generate_printable_label(data, size="medium", qr_img=None):
     
     width, height = sizes[size]
     is_landscape = "landscape" in size
+    is_small = size == "small"  # Special handling for 5x5 cm
     
     # Create blank canvas with gradient background
     label = Image.new('RGB', (width, height), 'white')
@@ -99,14 +100,24 @@ def generate_printable_label(data, size="medium", qr_img=None):
         b = int(250 + (255 - 250) * ratio)
         draw.rectangle([(0, i), (width, i+1)], fill=(r, g, b))
     
-    # Try to load fonts with better sizes for hierarchy
+    # === ADAPTIVE FONT SIZES based on label size ===
     try:
-        font_brand = ImageFont.truetype("arialbd.ttf", 45)      # Brand/header
-        font_title = ImageFont.truetype("arialbd.ttf", 70)      # Product name (bold)
-        font_subtitle = ImageFont.truetype("arial.ttf", 42)     # Varietas
-        font_body = ImageFont.truetype("arial.ttf", 38)         # Body text
-        font_small = ImageFont.truetype("arial.ttf", 32)        # Small text
-        font_tiny = ImageFont.truetype("arial.ttf", 28)         # Tiny text
+        if is_small:
+            # Smaller, more compact fonts for 5x5 cm
+            font_brand = ImageFont.truetype("arialbd.ttf", 22)      # Brand/header
+            font_title = ImageFont.truetype("arialbd.ttf", 48)      # Product name (bold)
+            font_subtitle = ImageFont.truetype("arialbd.ttf", 32)   # Varietas (bold for emphasis)
+            font_body = ImageFont.truetype("arial.ttf", 26)         # Body text
+            font_small = ImageFont.truetype("arial.ttf", 22)        # Small text
+            font_tiny = ImageFont.truetype("arial.ttf", 18)         # Tiny text
+        else:
+            # Standard fonts for larger labels
+            font_brand = ImageFont.truetype("arialbd.ttf", 45)      # Brand/header
+            font_title = ImageFont.truetype("arialbd.ttf", 70)      # Product name (bold)
+            font_subtitle = ImageFont.truetype("arial.ttf", 42)     # Varietas
+            font_body = ImageFont.truetype("arial.ttf", 38)         # Body text
+            font_small = ImageFont.truetype("arial.ttf", 32)        # Small text
+            font_tiny = ImageFont.truetype("arial.ttf", 28)         # Tiny text
     except:
         font_brand = ImageFont.load_default()
         font_title = ImageFont.load_default()
@@ -126,10 +137,11 @@ def generate_printable_label(data, size="medium", qr_img=None):
     color_badge_halal = (59, 130, 246)      # Blue-500
     color_badge_premium = (168, 85, 247)    # Purple-500
     
-    margin = 50
+    # Adaptive margins and spacing
+    margin = 25 if is_small else 50
     
     # === HEADER CARD (Top Banner) ===
-    header_height = 100
+    header_height = 50 if is_small else 100
     # Draw header with gradient
     for i in range(header_height):
         ratio = i / header_height
@@ -139,40 +151,43 @@ def generate_printable_label(data, size="medium", qr_img=None):
         draw.rectangle([(0, i), (width, i+1)], fill=(r, g, b))
     
     # AgriSensa branding in header
-    draw.text((margin, 30), "🌾 AgriSensa Verified", fill=color_white, font=font_brand)
+    header_text_y = 15 if is_small else 30
+    draw.text((margin, header_text_y), "🌾 AgriSensa", fill=color_white, font=font_brand)
     
     # === MAIN CONTENT CARD ===
-    card_top = header_height + 20
-    card_margin = 30
+    card_top = header_height + (10 if is_small else 20)
+    card_margin = 15 if is_small else 30
     
     # White card with shadow effect (multiple rectangles for shadow)
-    shadow_offset = 8
+    shadow_offset = 4 if is_small else 8
     for i in range(shadow_offset, 0, -1):
         alpha = int(20 * (shadow_offset - i) / shadow_offset)
         shadow_color = (200 - alpha, 200 - alpha, 200 - alpha)
         draw.rounded_rectangle(
-            [(card_margin + i, card_top + i), (width - card_margin + i, height - 30 + i)],
-            radius=25,
+            [(card_margin + i, card_top + i), (width - card_margin + i, height - (15 if is_small else 30) + i)],
+            radius=15 if is_small else 25,
             fill=shadow_color
         )
     
     # Main white card
     draw.rounded_rectangle(
-        [(card_margin, card_top), (width - card_margin, height - 30)],
-        radius=25,
+        [(card_margin, card_top), (width - card_margin, height - (15 if is_small else 30))],
+        radius=15 if is_small else 25,
         fill=color_white,
         outline=color_primary,
-        width=3
+        width=2 if is_small else 3
     )
     
     # === LAYOUT: QR CODE + INFO ===
-    content_x = card_margin + 40
-    content_y = card_top + 40
+    content_x = card_margin + (20 if is_small else 40)
+    content_y = card_top + (20 if is_small else 40)
     
     if qr_img:
         # QR Code with rounded corners effect
-        # Adjust QR size based on label orientation
-        if is_landscape:
+        # Adjust QR size based on label size and orientation
+        if is_small:
+            qr_size = 180  # Smaller QR for 5x5 cm
+        elif is_landscape:
             qr_size = min(280, height - card_top - 100)  # Fit within height
         else:
             qr_size = 280 if "large" in size else 240
@@ -180,11 +195,11 @@ def generate_printable_label(data, size="medium", qr_img=None):
         qr_resized = qr_img.resize((qr_size, qr_size))
         
         # QR background card
-        qr_bg_padding = 15
+        qr_bg_padding = 8 if is_small else 15
         draw.rounded_rectangle(
             [(content_x - qr_bg_padding, content_y - qr_bg_padding),
              (content_x + qr_size + qr_bg_padding, content_y + qr_size + qr_bg_padding)],
-            radius=20,
+            radius=12 if is_small else 20,
             fill=(248, 250, 252),  # Light gray background
             outline=color_primary,
             width=2
@@ -192,10 +207,13 @@ def generate_printable_label(data, size="medium", qr_img=None):
         
         label.paste(qr_resized, (content_x, content_y))
         
-        # "Scan Me" text below QR
-        scan_text_y = content_y + qr_size + 10
-        draw.text((content_x + qr_size//2 - 50, scan_text_y), "📱 Scan Me", 
-                 fill=color_primary_dark, font=font_small)
+        # "Scan Me" text below QR (skip for very small labels)
+        if not is_small:
+            scan_text_y = content_y + qr_size + 10
+            draw.text((content_x + qr_size//2 - 50, scan_text_y), "📱 Scan Me", 
+                     fill=color_primary_dark, font=font_small)
+        else:
+            scan_text_y = content_y + qr_size + 5
         
         # For landscape: always put text to the right of QR
         # For square/portrait: text below QR
@@ -209,94 +227,149 @@ def generate_printable_label(data, size="medium", qr_img=None):
                 text_y = content_y
             else:
                 text_x = content_x
-                text_y = scan_text_y + 60
+                text_y = scan_text_y + (30 if is_small else 60)
     else:
         text_x = content_x
         text_y = content_y
     
-    # === PRODUCT INFO ===
+    # === PRODUCT INFO (ADAPTIVE CONTENT) ===
     # Product Name (Bold, Large)
-    product_name = data['produk'][:28] if len(data['produk']) > 28 else data['produk']
+    product_name = data['produk'][:20] if is_small else (data['produk'][:28] if len(data['produk']) > 28 else data['produk'])
     draw.text((text_x, text_y), product_name, fill=color_text, font=font_title)
-    text_y += 85
+    text_y += 55 if is_small else 85
     
     # Varietas with accent color
-    draw.text((text_x, text_y), f"{data['varietas'][:32]}", fill=color_primary_dark, font=font_subtitle)
-    text_y += 55
+    varietas_text = data['varietas'][:22] if is_small else data['varietas'][:32]
+    draw.text((text_x, text_y), varietas_text, fill=color_primary_dark, font=font_subtitle)
+    text_y += 38 if is_small else 55
     
     # Divider line
-    draw.rectangle([(text_x, text_y), (text_x + 300, text_y + 2)], fill=color_primary)
-    text_y += 20
+    divider_width = 180 if is_small else 300
+    draw.rectangle([(text_x, text_y), (text_x + divider_width, text_y + 2)], fill=color_primary)
+    text_y += 12 if is_small else 20
     
-    # Date with icon
-    draw.text((text_x, text_y), f"📅 {data['tgl']}", fill=color_text_light, font=font_body)
-    text_y += 50
-    
-    # Farmer info
-    draw.text((text_x, text_y), f"👨‍🌾 {data['petani'][:28]}", fill=color_text, font=font_body)
-    text_y += 45
-    
-    # Location
-    draw.text((text_x, text_y), f"📍 {data['lokasi'][:30]}", fill=color_text, font=font_body)
-    text_y += 55
-    
-    # Price (if available) - HIGHLIGHTED
-    if data.get('harga'):
-        # Price card
-        price_card_y = text_y
-        draw.rounded_rectangle(
-            [(text_x, price_card_y), (text_x + 350, price_card_y + 55)],
-            radius=12,
-            fill=color_accent,
-            outline=None
-        )
-        draw.text((text_x + 15, price_card_y + 12), f"💰 Rp {data['harga']:,}/kg", 
-                 fill=color_text, font=font_subtitle)
-        text_y += 70
-    
-    # Contact (if available)
-    if data.get('kontak'):
-        draw.text((text_x, text_y), f"📞 {data['kontak']}", fill=color_text, font=font_body)
-        text_y += 55
-    
-    # === QUALITY BADGES (Modern Pills) ===
-    if data.get('klaim'):
-        text_y += 10
-        badge_colors = {
-            'Organik': color_badge_organic,
-            'Halal': color_badge_halal,
-            'Premium': color_badge_premium
-        }
+    # === CONDITIONAL CONTENT based on size ===
+    if is_small:
+        # For 5x5 cm: Show only ESSENTIAL info with larger spacing
         
-        badge_x = text_x
-        for badge in data['klaim']:
-            badge_color = badge_colors.get(badge, color_primary)
-            badge_width = 160
-            
-            # Modern pill-shaped badge with shadow
+        # Price (PRIORITY for small labels)
+        if data.get('harga'):
+            price_card_y = text_y
             draw.rounded_rectangle(
-                [(badge_x + 2, text_y + 2), (badge_x + badge_width + 2, text_y + 47)],
-                radius=25,
-                fill=(200, 200, 200)  # Shadow
-            )
-            draw.rounded_rectangle(
-                [(badge_x, text_y), (badge_x + badge_width, text_y + 45)],
-                radius=25,
-                fill=badge_color,
+                [(text_x, price_card_y), (text_x + 200, price_card_y + 42)],
+                radius=10,
+                fill=color_accent,
                 outline=None
             )
-            draw.text((badge_x + 20, text_y + 10), f"✓ {badge}", fill=color_white, font=font_small)
-            badge_x += badge_width + 15
+            draw.text((text_x + 10, price_card_y + 8), f"💰 Rp {data['harga']:,}/kg", 
+                     fill=color_text, font=font_subtitle)
+            text_y += 50
+        
+        # Date (compact)
+        draw.text((text_x, text_y), f"📅 {data['tgl']}", fill=color_text_light, font=font_small)
+        text_y += 28
+        
+        # Location only (skip farmer name to save space)
+        location_short = data['lokasi'][:18] if len(data['lokasi']) > 18 else data['lokasi']
+        draw.text((text_x, text_y), f"📍 {location_short}", fill=color_text, font=font_small)
+        text_y += 35
+        
+        # Quality badges (compact, max 2)
+        if data.get('klaim'):
+            badge_colors = {
+                'Organik': color_badge_organic,
+                'Halal': color_badge_halal,
+                'Premium': color_badge_premium
+            }
+            
+            badge_x = text_x
+            for badge in data['klaim'][:2]:  # Max 2 badges for small labels
+                badge_color = badge_colors.get(badge, color_primary)
+                badge_width = 90
+                
+                # Compact badge
+                draw.rounded_rectangle(
+                    [(badge_x, text_y), (badge_x + badge_width, text_y + 28)],
+                    radius=14,
+                    fill=badge_color,
+                    outline=None
+                )
+                draw.text((badge_x + 10, text_y + 5), f"✓ {badge[:3]}", fill=color_white, font=font_tiny)
+                badge_x += badge_width + 8
+    else:
+        # For larger labels: Show ALL information
+        
+        # Date with icon
+        draw.text((text_x, text_y), f"📅 {data['tgl']}", fill=color_text_light, font=font_body)
+        text_y += 50
+        
+        # Farmer info
+        draw.text((text_x, text_y), f"👨‍🌾 {data['petani'][:28]}", fill=color_text, font=font_body)
+        text_y += 45
+        
+        # Location
+        draw.text((text_x, text_y), f"📍 {data['lokasi'][:30]}", fill=color_text, font=font_body)
+        text_y += 55
+        
+        # Price (if available) - HIGHLIGHTED
+        if data.get('harga'):
+            # Price card
+            price_card_y = text_y
+            draw.rounded_rectangle(
+                [(text_x, price_card_y), (text_x + 350, price_card_y + 55)],
+                radius=12,
+                fill=color_accent,
+                outline=None
+            )
+            draw.text((text_x + 15, price_card_y + 12), f"💰 Rp {data['harga']:,}/kg", 
+                     fill=color_text, font=font_subtitle)
+            text_y += 70
+        
+        # Contact (if available)
+        if data.get('kontak'):
+            draw.text((text_x, text_y), f"📞 {data['kontak']}", fill=color_text, font=font_body)
+            text_y += 55
+        
+        # === QUALITY BADGES (Modern Pills) ===
+        if data.get('klaim'):
+            text_y += 10
+            badge_colors = {
+                'Organik': color_badge_organic,
+                'Halal': color_badge_halal,
+                'Premium': color_badge_premium
+            }
+            
+            badge_x = text_x
+            for badge in data['klaim']:
+                badge_color = badge_colors.get(badge, color_primary)
+                badge_width = 160
+                
+                # Modern pill-shaped badge with shadow
+                draw.rounded_rectangle(
+                    [(badge_x + 2, text_y + 2), (badge_x + badge_width + 2, text_y + 47)],
+                    radius=25,
+                    fill=(200, 200, 200)  # Shadow
+                )
+                draw.rounded_rectangle(
+                    [(badge_x, text_y), (badge_x + badge_width, text_y + 45)],
+                    radius=25,
+                    fill=badge_color,
+                    outline=None
+                )
+                draw.text((badge_x + 20, text_y + 10), f"✓ {badge}", fill=color_white, font=font_small)
+                badge_x += badge_width + 15
     
     # === FOOTER: Batch ID ===
-    footer_y = height - 60
-    draw.text((margin + 20, footer_y), f"Batch ID: {data['id']}", 
+    footer_y = height - (30 if is_small else 60)
+    footer_id_text = f"ID: {data['id'][-8:]}" if is_small else f"Batch ID: {data['id']}"
+    draw.text((margin + (10 if is_small else 20), footer_y), footer_id_text, 
              fill=color_text_light, font=font_tiny)
     
-    # Verification badge
-    verify_text = "✓ Verified Product"
-    draw.text((width - margin - 250, footer_y), verify_text, 
-             fill=color_primary, font=font_tiny)
+    # Verification badge (skip for very small labels)
+    if not is_small:
+        verify_text = "✓ Verified Product"
+        draw.text((width - margin - 250, footer_y), verify_text, 
+                 fill=color_primary, font=font_tiny)
     
     return label
 
