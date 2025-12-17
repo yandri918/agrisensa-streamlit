@@ -1146,7 +1146,7 @@ with tab12:
         
         if target_basis == "Total Berat Adukan (kg)":
             total_mix_weight = st.number_input("Total Berat Adukan Basah (kg)", 10, 5000, 100, step=10)
-            baglog_size = 1.2 # Default assumption
+            baglog_size = 1.2
             est_log_count = int(total_mix_weight / baglog_size)
             st.caption(f"Estimasi jadi ±{est_log_count} baglog (@1.2kg)")
         else:
@@ -1163,81 +1163,52 @@ with tab12:
         st.markdown("---")
         st.markdown("### 📝 Hasil Perhitungan")
         
-        # FORMULATION LOGIC (Percentage by Dry Weight approx, then hydrated)
-        # Wet mix typically 60-65% water.
-        # Here we calculate based on "Wet Weight Formulation" common in Indo practice
-        
         recipe = {}
         tips = ""
-        cn_ratio = 0
+        cn_ratio = 50
         
         if formula_type == "Standard (Ekonomis)":
-            # Serbuk 83%, Bekatul 15%, Kapur 2% (Simple)
-            # Moisture management is key. Usually ingredients are dry, water added.
-            # Total Weight = Dry Ingredients + Water.
-            # Target Moisture 60%. -> Dry Mass = 40% of Total Weight.
-            
             dry_mass = total_mix_weight * 0.40
             water_mass = total_mix_weight * 0.60
             
-            # Dry ingredients Ratio
-            # Sawdust : Bran : Lime = 85 : 13 : 2
-            sawdust = dry_mass * 0.85
-            bran = dry_mass * 0.13
-            lime = dry_mass * 0.02
-            
             recipe = {
-                "Serbuk Gergaji (Sengon/Jati)": sawdust,
-                "Bekatul/Dedak Halus": bran,
-                "Kapur (CaCO3)": lime,
+                "Serbuk Gergaji": dry_mass * 0.85,
+                "Bekatul": dry_mass * 0.13,
+                "Kapur (CaCO3)": dry_mass * 0.02,
                 "Air Bersih": water_mass
             }
-            cn_ratio = 50 # Approx
+            cn_ratio = 50
             tips = "Cocok untuk Jamur Tiram & Kuping. Murah dan mudah didapat."
             
         elif formula_type == "Super Yield (Premium) 🚀":
-            # Serbuk 80%, Bekatul 15%, Jagung 2%, Kapur 1.5%, Gypsum 1.5%
             dry_mass = total_mix_weight * 0.40
             water_mass = total_mix_weight * 0.60
             
-            sawdust = dry_mass * 0.80
-            bran = dry_mass * 0.15
-            corn_flour = dry_mass * 0.02
-            lime = dry_mass * 0.015
-            gypsum = dry_mass * 0.015
-            
             recipe = {
-                "Serbuk Gergaji": sawdust,
-                "Bekatul/Dedak Halus": bran,
-                "Tepung Jagung (Nutrisi+)": corn_flour,
-                "Kapur (CaCO3)": lime,
-                "Gypsum (CaSO4)": gypsum,
-                "Air Bersih & Molase": water_mass
+                "Serbuk Gergaji": dry_mass * 0.80,
+                "Bekatul": dry_mass * 0.15,
+                "Tepung Jagung": dry_mass * 0.02,
+                "Kapur (CaCO3)": dry_mass * 0.015,
+                "Gypsum": dry_mass * 0.015,
+                "Air Bersih + Molase": water_mass
             }
-            cn_ratio = 35 # richer nitrogen
-            tips = "Menghasilkan tubuh buah lebih tebal, bobot lebih berat, dan masa panen lebih panjang. Gunakan molase 1% dalam air pelarut."
+            cn_ratio = 35
+            tips = "Menghasilkan tubuh buah lebih tebal. Gunakan molase 1% dalam air."
 
         elif formula_type == "Khusus Shiitake (Hardwood)":
-            # Shiitake needs hardwood (not sengon)
-            dry_mass = total_mix_weight * 0.45 # Shiitake blocks slightly drier usually
+            dry_mass = total_mix_weight * 0.45
             water_mass = total_mix_weight * 0.55
             
-            sawdust = dry_mass * 0.78
-            bran = dry_mass * 0.20
-            gypsum = dry_mass * 0.01
-            sugar = dry_mass * 0.01
-            
             recipe = {
-                "Serbuk Kayu Keras (Jati/Mahoni)": sawdust,
-                "Bekatul/Gandum": bran,
-                "Gypsum": gypsum,
-                "Gula Pasir (Starter)": sugar,
+                "Serbuk Kayu Keras": dry_mass * 0.78,
+                "Bekatul/Gandum": dry_mass * 0.20,
+                "Gypsum": dry_mass * 0.01,
+                "Gula Pasir": dry_mass * 0.01,
                 "Air Bersih": water_mass
             }
             cn_ratio = 25
-            tips = "Wajib gunakan serbuk kayu keras! Fermentasi minimal 1-2 hari sebelum bungkus agar lignoselulosa pecah."
+            tips = "Wajib gunakan serbuk kayu keras! Fermentasi minimal 1-2 hari."
 
-        # Display Recipe
         for item, weight in recipe.items():
             unit = "Liter" if "Air" in item else "kg"
             st.metric(item, f"{weight:.2f} {unit}")
@@ -1245,68 +1216,25 @@ with tab12:
     with col_form2:
         st.markdown(f"## 🥣 Panduan Racikan: {formula_type}")
         st.success(f"💡 **Keunggulan:** {tips}")
-        
-        st.markdown(f"**Estimasi C/N Ratio: {cn_ratio}:1** (Ideal: 25-50:1)")
+        st.markdown(f"**Estimasi C/N Ratio: {cn_ratio}:1**")
         
         st.markdown("### 🛠️ Langkah-Langkah Pembuatan:")
         
-        steps = """
-        1. **Pengayakan Serbuk:**
-           - Ayak serbuk gergaji untuk memisahkan potongan kayu tajam (bisa robek plastik).
-           - Serbuk halus menyerap air lebih merata.
-           
-        2. **Pencampuran Kering (Dry Mix):**
-           - Campur Serbuk + Bekatul + Kapur + (Gypsum/Jagung) secara merata.
-           - Aduk minimal 3x balikan agar nutrisi homogen.
-        """
+        steps_text = """
+1. **Pengayakan Serbuk:** Ayak serbuk gergaji untuk memisahkan potongan tajam.
+2. **Pencampuran Kering:** Campur semua bahan kering secara merata (minimal 3x aduk).
+3. **Pemberian Air:** Siram air perlahan sambil diaduk.
+4. **Tes Kepal:** Genggam adukan. Tidak boleh menetes (terlalu basah) dan tidak boleh buyar (terlalu kering).
+5. **Pembungkusan:** Masukkan ke plastik PP tahan panas, padatkan.
+6. **Sterilisasi:** Kukus 95-100°C selama 8 jam atau Autoclave 121°C selama 2 jam.
+"""
+        st.markdown(steps_text)
         
-        if "Super Yield" in formula_type:
-            steps += """
-        3. **Pelarutan Molase (Jika ada):**
-           - Larutkan molase/gula ke dalam air siraman.
-            """
-            
-        steps += """
-        4. **Pemberian Air (Wet Mix):**
-           - Siram air sedikit demi sedikit sambil diaduk.
-           - **Tes Kepal:** Ambil segenggam adukan, peras kuat.
-             - Jika air menetes banyak = Terlalu Basah ❌
-             - Jika adukan buyar saat dilepas = Terlalu Kering ❌
-             - **Ideal:** Tidak menetes, tapi gumpalan tidak pecah saat dilepas ✅
-        
-        5. **Pengomposan (Opsional tapi Bagus):**
-           - Tutup adukan dengan terpal selama 1x24 jam.
-           - Membantu pelunakan lignin dan mengaktifkan mikroba nutrisi.
-           
-        6. **Pembungkusan (Bagging):**
-           - Masukkan ke plastik PP tahan panas (tebal 0.05mm).
-           - Padatkan (bisa pakai alat press atau botol). Baglog padat = Miselium kuat.
-           
-        7. **Sterilisasi (Kukus):**
-           - Suhu 95-100°C selama 8-10 jam (Drum/Steamer biasa).
-           - Suhu 121°C selama 2 jam (Autoclave).
-        """
-        st.markdown(steps)
-        
-        st.warning("""
-        ⛔ **Pantangan Utama:**
-        - Jangan pakai serbuk kayu bergetah (pinus/damar) tanpa fermentasi lama (zat anti-jamur alami).
-        - Jangan biarkan adukan basah lebih dari 2 hari tanpa disteril (akan asam/basi).
-        """)
-    
+        st.warning("⛔ **Pantangan:** Jangan pakai serbuk kayu bergetah (pinus) tanpa fermentasi lama.")
 
-    
     st.markdown("---")
-    st.info("""
-    💡 **Ingin Belajar Lebih Lanjut?**
-    
-    Bergabung dengan komunitas petani jamur Indonesia:
-    - Facebook: Komunitas Petani Jamur Indonesia
-    - WhatsApp: Grup Budidaya Jamur Nusantara
-    - YouTube: Channel tutorial budidaya jamur
-    
-    Atau konsultasi dengan penyuluh pertanian (PPL) di daerah Anda!
-    """)
+    st.info("💡 **Tips:** Bergabunglah dengan komunitas petani jamur untuk belajar lebih lanjut.")
+
 
 # Footer
 st.markdown("---")
