@@ -191,7 +191,7 @@ MUSHROOM_DATA = {
 }
 
 # TABS
-tab_extra, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
+tab_extra, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab_commercial = st.tabs([
     "📚 Info & Tools",
     "🍄 Jamur Tiram", 
     "🍂 Jamur Kuping", 
@@ -201,7 +201,8 @@ tab_extra, tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "🌡️ Monitor Lingkungan",
     "📍 Rekomendasi Lokasi",
     "📊 Kalkulator Produksi",
-    "🔧 Troubleshooting"
+    "🔧 Troubleshooting",
+    "🍳 Pasca Panen & Olahan"
 ])
 
 # Helper function for mushroom guide tabs
@@ -1521,6 +1522,114 @@ with tab_extra:
             
         except Exception as e:
             st.error(f"Gagal memuat Kalkulator Baglog: {str(e)}")
+
+# TAB 11: Pasca Panen & Olahan
+with tab_commercial:
+    st.header("🍳 Dapur Bisnis: Olahan & Nilai Tambah")
+    st.caption("Jangan jual mentah semua! Olah sebagian hasil panen untuk keuntungan berlipat ganda dan daya tahan lebih lama.")
+    
+    st.markdown("---")
+    res_col1, res_col2 = st.columns([1, 1])
+    
+    with res_col1:
+        st.subheader("🥣 3 Resep Produk Terlaris")
+        
+        with st.expander("🍟 1. Keripik Jamur Crispy (Tahan 3-6 Bulan)", expanded=True):
+            st.markdown("""
+            **Ide Bisnis:** Camilan sehat, oleh-oleh.
+            **Nilai Jual:** Rp 60.000 - Rp 100.000 / kg (setara).
+            
+            **Resep Rahasia:**
+            - **Bahan:** Jamur Tiram (suwir, peras kering max), Tepung Beras (70%) + Maizena (30%), Telur (1 butir/kg), Bawang Putih, Ketumbar.
+            - **Cara:**
+              1. Cuci jamur, **PERAS** sampai benar-benar kering (kunci kerenyahan).
+              2. Marinasi dengan bumbu halus 15 menit.
+              3. Balur tepung kering (jangan adonan basah).
+              4. Goreng *Deep Fry* minyak panas api sedang sampai kuning keemasan.
+              5. **Spinner:** Wajib di-spinner untuk buang minyak (agar awet).
+            """)
+            
+        with st.expander("uggets 2. Nugget Jamur Sehat (Frozen Food)", expanded=False):
+            st.markdown("""
+            **Ide Bisnis:** Bekal anak sekolah, vegetarian.
+            **Keunggulan:** Tekstur mirip ayam, sehat.
+            
+            **Resep:**
+            - **Bahan:** Jamur Tiram (kukus, cincang halus), Tahu Putih (hancurkan), Telur, Bawang Bombay, Tepung Panir.
+            - **Cara:**
+              1. Campur jamur, tahu, telur, bumbu.
+              2. Kukus adonan dalam loyang (30 menit).
+              3. Dinginkan, potong-potong.
+              4. Celup putih telur -> gulingkan tepung panir.
+              5. Bekukan di freezer. Siap jual.
+            """)
+            
+        with st.expander("🍲 3. Kaldu Jamur Bubuk (Zero Waste)", expanded=False):
+            st.markdown("""
+            **Ide Bisnis:** Pengganti MSG, bumbu masak premium.
+            **Bahan Baku:** Batang jamur bawah/jamur afkir bentuk (tapi masih segar).
+            
+            **Cara:**
+            1. Iris tipis-tipis semua bagian jamur.
+            2. Sangrai (tanpa minyak) atau Oven suhu rendah sampai BENAR-BENAR kering keriuk.
+            3. Blender halus jadi bubuk.
+            4. Campur: Gula, Garam, Bawang Putih Bubuk, Maizena sangrai (dikit).
+            5. Kemas botolan.
+            """)
+
+    with res_col2:
+        st.subheader("💰 Kalkulator Nilai Tambah (Value Added)")
+        st.info("Bandingkan keuntungan jual segar vs jual olahan.")
+        
+        va_prod = st.selectbox("Pilih Produk Olahan", ["Keripik Jamur", "Nugget Jamur", "Kaldu Bubuk"])
+        
+        fresh_price_input = st.number_input("Harga Jamur Segar (Rp/kg)", 5000, 50000, 15000, step=1000)
+        
+        if va_prod == "Keripik Jamur":
+            # Rendemen 25% (1kg basah jadi 250g keripik)
+            rendemen = 0.25
+            pack_size = 100 # gram
+            default_sell = 15000 # per pack
+        elif va_prod == "Nugget Jamur":
+            # Rendemen 120% (karena tambah tepung/tahu)
+            rendemen = 1.2
+            pack_size = 250 # gram
+            default_sell = 25000
+        else:
+            # Kaldu
+            rendemen = 0.1 # 1kg jadi 100g bubuk
+            pack_size = 50 # gram
+            default_sell = 20000
+            
+        sell_price_pack = st.number_input(f"Harga Jual per Pack ({pack_size}g) (Rp)", 1000, 100000, default_sell, step=500)
+        
+        # Calculate
+        output_weight = 1000 * rendemen # grams output from 1kg fresh
+        num_packs = output_weight / pack_size
+        total_revenue = num_packs * sell_price_pack
+        
+        # Simple COGS assumption (bumbu, minyak, packaging)
+        # Assuming processing cost is roughly 30% of revenue (standard F&B)
+        proc_cost = total_revenue * 0.3 
+        profit_processed = total_revenue - fresh_price_input - proc_cost
+        
+        profit_fresh = fresh_price_input - 5000 # Asumsi HPP jamur 5000 (dari tab kalkulator)
+        
+        st.markdown("### 📊 Analisa per 1 Kg Jamur Segar")
+        
+        col_va1, col_va2 = st.columns(2)
+        with col_va1:
+            st.metric("Jual Segar (Profit)", f"Rp {profit_fresh:,.0f}", "Margin Tipis")
+            st.caption("Resiko: Busuk dalam 24 jam")
+            
+        with col_va2:
+            st.metric(f"Jual {va_prod} (Profit)", f"Rp {profit_processed:,.0f}", f"{profit_processed/fresh_price_input*100:.0f}% Uplift!")
+            st.caption(f"Output: {num_packs:.1f} pack @{pack_size}g")
+            
+        if profit_processed > profit_fresh:
+            st.success(f"**Insight:** Mengolah jamur menjadi **{va_prod}** meningkatkan keuntungan **{profit_processed/profit_fresh:.1f}x lipat** dibanding jual segar!")
+        else:
+            st.warning("Harga jual olahan terlalu rendah atau biaya terlalu tinggi.")
 
 
 # Footer
