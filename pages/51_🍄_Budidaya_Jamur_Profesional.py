@@ -1225,10 +1225,41 @@ with tab_extra:
                     unit = "Liter" if "Air" in item else "kg"
                     st.metric(item, f"{weight:.2f} {unit}")
                     
+                # Seed Calculation
+                st.markdown("### 🌱 Estimasi Kebutuhan Bibit (F3)")
+                avg_seeds_per_log = 15 # grams
+                bottle_weight = 220 # grams (standard glass bottle)
+                
+                total_seeds_needed_kg = (num_baglogs * avg_seeds_per_log) / 1000
+                bottles_needed = (num_baglogs * avg_seeds_per_log) / bottle_weight
+                
+                col_seed1, col_seed2 = st.columns(2)
+                with col_seed1:
+                    st.metric("Total Bibit F3", f"{total_seeds_needed_kg:.1f} kg")
+                with col_seed2:
+                    st.metric("Estimasi Botol", f"{int(bottles_needed)+1} botol", help="Asumsi 1 botol = 220g miselium padat")
+
             with col_form2:
                 st.markdown(f"## 🥣 Panduan Racikan: {formula_type}")
                 st.success(f"💡 **Keunggulan:** {tips}")
                 st.markdown(f"**Estimasi C/N Ratio: {cn_ratio}:1**")
+                
+                st.markdown("### 🪵 Rekomendasi Jenis Kayu (Serbuk Gergaji)")
+                st.markdown("""
+                Kualitas serbuk gergaji menentukan 80% keberhasilan nutrisi:
+                
+                ✅ **Sangat Disarankan (Hardwood Ringan):**
+                - **Sengon (Albasia):** Paling umum, mudah didapat, tekstur pas.
+                - **Karet (Rubberwood):** Kandungan nutrisi tinggi, hasil jamur tebal.
+                - **Jabon:** Tekstur lunak, miselium cepat merambat.
+                
+                ⚠️ **Bisa Digunakan (Dicampur):**
+                - **Mahoni/Jati:** Keras, sebaiknya dicampur Sengon (1:1). Fermentasi harus matang.
+                - **Glugu (Kelapa):** Serat kasar, wajib digiling ulang.
+                
+                ⛔ **Hindari/Perlakuan Khusus:**
+                - **Pinus/Cemara:** Mengandung resin/getah fungisida alami. WAJIB fermentasi >1 bulan atau dikukus lama.
+                """)
                 
                 st.markdown("### 🛠️ Langkah-Langkah Pembuatan:")
                 
