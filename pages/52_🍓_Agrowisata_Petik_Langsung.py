@@ -98,6 +98,24 @@ with tab2:
             *   *Gantung (Hanging):* Unik, buah tidak kotor kena tanah.
         *   **Kunci Sukses:** Pupuk Kalium tinggi saat berbunga, buang sulur (runner) agar fokus ke buah.
         """)
+        
+    # 4. Bunga & Refugia
+    with st.expander("🌻 Bunga Estetik & Refugia (Wajib Ada!)", expanded=False):
+        st.markdown("""
+        **Fungsi Ganda:** Spot Selfie (Daya tarik visual) + Rumah Predator Alami (Pengendali Hama).
+        
+        *   **Bunga Matahari (Helianthus):**
+            *   *Estetika:* Sangat megah untuk background foto.
+            *   *Fungsi:* Menarik lebah (polinator) untuk membantu penyerbukan Melon/Strawberry.
+        *   **Marigold (Tagetes):**
+            *   *Estetika:* Warna oranye/kuning mencolok, hamparan indah.
+            *   *Fungsi:* **Anti-Nematoda** tanah dan mengalihkan perhatian kutu kebul dari tanaman utama.
+        *   **Zinnia (Bunga Kertas):**
+            *   *Estetika:* Warni-warni ceria.
+            *   *Fungsi:* Mengundang musuh alami (kumbang/laba-laba) yang memakan hama ulat.
+            
+        **Tips Tata Letak:** Tanam bunga di PINGGIR green house atau di sela-sela bedengan sebagai pagar hidup.
+        """)
 
 # --- TAB 3: KALKULATOR BISNIS ---
 with tab3:
