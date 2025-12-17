@@ -69,13 +69,21 @@ def generate_printable_label(data, size="medium", qr_img=None):
         PIL Image object
     """
     # Size mapping at 300 DPI for print quality
+    # Format: (width, height)
     sizes = {
-        "small": (590, 590),      # 5x5 cm
-        "medium": (1181, 1181),   # 10x10 cm
-        "large": (1772, 1181)     # 15x10 cm
+        # Square/Portrait formats
+        "small": (590, 590),          # 5x5 cm
+        "medium": (1181, 1181),       # 10x10 cm
+        "large": (1772, 1181),        # 15x10 cm
+        
+        # Landscape formats (RECOMMENDED for products)
+        "small_landscape": (1181, 590),      # 10x5 cm - compact
+        "medium_landscape": (1772, 1181),    # 15x10 cm - standard
+        "large_landscape": (2362, 1181),     # 20x10 cm - premium
     }
     
     width, height = sizes[size]
+    is_landscape = "landscape" in size
     
     # Create blank canvas with gradient background
     label = Image.new('RGB', (width, height), 'white')
@@ -163,7 +171,12 @@ def generate_printable_label(data, size="medium", qr_img=None):
     
     if qr_img:
         # QR Code with rounded corners effect
-        qr_size = 280 if size == "large" else 240
+        # Adjust QR size based on label orientation
+        if is_landscape:
+            qr_size = min(280, height - card_top - 100)  # Fit within height
+        else:
+            qr_size = 280 if "large" in size else 240
+        
         qr_resized = qr_img.resize((qr_size, qr_size))
         
         # QR background card
@@ -184,13 +197,19 @@ def generate_printable_label(data, size="medium", qr_img=None):
         draw.text((content_x + qr_size//2 - 50, scan_text_y), "📱 Scan Me", 
                  fill=color_primary_dark, font=font_small)
         
-        # Text starts next to QR for large, below for others
-        if size == "large":
+        # For landscape: always put text to the right of QR
+        # For square/portrait: text below QR
+        if is_landscape:
             text_x = content_x + qr_size + 50
             text_y = content_y
         else:
-            text_x = content_x
-            text_y = scan_text_y + 60
+            # Original logic for square labels
+            if "large" in size and not is_landscape:
+                text_x = content_x + qr_size + 50
+                text_y = content_y
+            else:
+                text_x = content_x
+                text_y = scan_text_y + 60
     else:
         text_x = content_x
         text_y = content_y
@@ -383,18 +402,26 @@ with tab2:
         
         with col_size:
             label_size = st.selectbox(
-                "Ukuran Label",
-                ["small", "medium", "large"],
-                index=1,
+                "Ukuran & Orientasi Label",
+                ["medium_landscape", "large_landscape", "small_landscape", "medium", "large", "small"],
+                index=0,  # Default to medium landscape
                 format_func=lambda x: {
-                    "small": "📦 Kecil (5x5 cm) - Sachet/Kemasan Kecil",
-                    "medium": "📋 Sedang (10x10 cm) - Standar Stiker",
-                    "large": "📄 Besar (15x10 cm) - Box/Kemasan Besar"
+                    # Landscape (RECOMMENDED)
+                    "small_landscape": "🏞️ Landscape Kecil (10x5 cm) ⭐ Compact",
+                    "medium_landscape": "🏞️ Landscape Sedang (15x10 cm) ⭐ RECOMMENDED",
+                    "large_landscape": "🏞️ Landscape Besar (20x10 cm) ⭐ Premium",
+                    # Square/Portrait
+                    "small": "⬜ Square Kecil (5x5 cm)",
+                    "medium": "⬜ Square Sedang (10x10 cm)",
+                    "large": "⬜ Wide (15x10 cm)"
                 }[x]
             )
         
         with col_opt:
-            st.info("💡 **Tips:** Pilih ukuran sesuai kemasan produk Anda. Label akan digenerate dengan resolusi 300 DPI untuk kualitas cetak terbaik.")
+            if "landscape" in label_size:
+                st.success("✅ **Landscape** - Format horizontal lebih cocok untuk kemasan produk!")
+            else:
+                st.info("💡 **Tip:** Coba format Landscape untuk hasil lebih profesional!")
         
         # Generate QR Code
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
