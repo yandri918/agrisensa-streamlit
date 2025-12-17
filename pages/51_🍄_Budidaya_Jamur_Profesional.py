@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 from datetime import datetime, timedelta
 import folium
 from streamlit_folium import st_folium
@@ -668,10 +669,10 @@ with tab8:
         profit_high = revenue_high - total_cost
         profit_avg = (profit_low + profit_high) / 2
         
-        st.markdown("### 📈 Estimasi Hasil")
+        st.markdown("### 📈 Estimasi Hasil Total")
         
         st.metric("Total Substrat", f"{total_substrate:.1f} kg")
-        st.metric("Estimasi Panen (BE {}-{}%)".format(data_calc['be_percent'][0], data_calc['be_percent'][1]), 
+        st.metric("Total Panen (Semua Flush)", 
                  f"{yield_avg:.1f} kg", 
                  delta=f"{yield_low:.1f} - {yield_high:.1f} kg")
         
@@ -682,15 +683,92 @@ with tab8:
         st.metric("Biaya Produksi", f"Rp {total_cost:,.0f}")
         st.metric("Profit Bersih", f"Rp {profit_avg:,.0f}", 
                  delta=f"Rp {profit_low:,.0f} - Rp {profit_high:,.0f}")
-        
-        roi = (profit_avg / total_cost) * 100
-        st.metric("ROI", f"{roi:.1f}%")
     
     st.markdown("---")
-    st.subheader("📅 Timeline Produksi Detail")
+    st.subheader("🗓️ Jadwal Panen Harian (Untuk Market)")
+    st.info("Simulasi ini menghitung potensi panen per hari berdasarkan pola 'Flush' (gelombang panen) alami jamur.")
     
+    # Harvest Simulation Logic
     timeline_days = data_calc['timeline_days']
-    start_date = datetime.now()
+    first_harvest_day = timeline_days[0]
+    
+    # Define Flush Patterns (Percentage of total yield per flush)
+    # Day offset from first harvest day
+    flush_patterns = {
+        "Jamur Tiram (Pleurotus)": [(0, 0.40), (15, 0.35), (30, 0.25)], # 3 Flushes: 40%, 35%, 25% interval 15 days
+        "Jamur Kuping (Auricularia)": [(0, 0.50), (20, 0.30), (40, 0.20)],
+        "Jamur Shiitake (Lentinus)": [(0, 0.30), (30, 0.30), (60, 0.20), (90, 0.20)], # Slow, many flushes
+        "Jamur Kancing (Agaricus)": [(0, 0.45), (10, 0.35), (20, 0.20)],
+        "Jamur Enoki (Flammulina)": [(0, 1.0)] # Usually one big harvest then discard
+    }
+    
+    pattern = flush_patterns.get(calc_mushroom, [(0, 1.0)])
+    
+    # Generate daily harvest data
+    daily_harvest = {} # Day: Kg
+    harvest_window = 5 # Each flush spreads over 5 days
+    
+    for start_offset, harvest_pct in pattern:
+        flush_yield = yield_avg * harvest_pct
+        start_day_idx = first_harvest_day + start_offset
+        
+        # Distribute flush yield over harvest window (Gaussian-ish)
+        # Day 1: 10%, Day 2: 20%, Day 3: 40%, Day 4: 20%, Day 5: 10%
+        daily_distribution = [0.10, 0.20, 0.40, 0.20, 0.10]
+        
+        for i, daily_pct in enumerate(daily_distribution):
+            day = start_day_idx + i
+            kg_today = flush_yield * daily_pct
+            daily_harvest[day] = daily_harvest.get(day, 0) + kg_today
+
+    # Create DataFrame
+    if daily_harvest:
+        days = sorted(daily_harvest.keys())
+        start_date = datetime.now()
+        
+        harvest_list = []
+        for d in range(min(days), max(days) + 1):
+            kg = daily_harvest.get(d, 0)
+            if kg > 0.1: # Only show significant days
+                date_str = (start_date + timedelta(days=d)).strftime("%d %b %Y")
+                harvest_list.append({
+                    "Hari Ke-": d,
+                    "Tanggal": date_str,
+                    "Estimasi Panen (kg)": round(kg, 1),
+                    "Status": "Panen Raya 🌟" if kg > (yield_avg * 0.05) else "Panen Biasa"
+                })
+        
+        df_harvest = pd.DataFrame(harvest_list)
+        
+        # 1. Visualization
+        fig_harvest = px.bar(
+            df_harvest, 
+            x="Tanggal", 
+            y="Estimasi Panen (kg)",
+            color="Estimasi Panen (kg)",
+            color_continuous_scale="Greens",
+            title=f"📅 Potensi Panen Harian ({calc_mushroom})",
+            labels={"Estimasi Panen (kg)": "Kg per Hari"}
+        )
+        st.plotly_chart(fig_harvest, use_container_width=True)
+        
+        # 2. Table
+        col_t1, col_t2 = st.columns([2, 1])
+        with col_t1:
+            st.dataframe(df_harvest, use_container_width=True, hide_index=True)
+        with col_t2:
+            max_day = df_harvest.loc[df_harvest["Estimasi Panen (kg)"].idxmax()]
+            st.success(f"""
+            **🎯 Puncak Panen:**
+            
+            Tanggal: **{max_day['Tanggal']}**
+            Jumlah: **{max_day['Estimasi Panen (kg)']} kg**
+            
+            *Siapkan pasar/pembeli pada tanggal ini!*
+            """)
+    
+    st.markdown("---")
+    st.subheader("📝 Timeline Aktivitas Lengkap")
     
     timeline_events = [
         (0, "Persiapan Substrat", "Mixing, sterilisasi"),
@@ -699,11 +777,14 @@ with tab8:
         (timeline_days[0] // 2, "Miselium 50%", "Cek kontaminasi"),
         (timeline_days[0] - 5, "Miselium 100%", "Siap fruiting"),
         (timeline_days[0], "Inisiasi Fruiting", "Buka baglog, turunkan suhu"),
-        (timeline_days[0] + 5, "Pinhead Muncul", "Calon tubuh buah"),
-        (timeline_days[0] + 10, "Panen Flush 1", "Panen pertama"),
-        (timeline_days[0] + 20, "Panen Flush 2", "Panen kedua"),
-        (timeline_days[1], "Selesai", "Buang baglog")
     ]
+    
+    # Add Harvest Events to timeline
+    for i, (offset, pct) in enumerate(pattern):
+        day = first_harvest_day + offset
+        timeline_events.append((day, f"Mulai Panen Flush {i+1}", f"Estimasi {pct*100:.0f}% dari total hasil"))
+
+    timeline_events.append((timeline_days[1], "Selesai", "Buang baglog / Kompos"))
     
     timeline_df = pd.DataFrame([
         {
@@ -712,7 +793,7 @@ with tab8:
             "Aktivitas": activity,
             "Keterangan": note
         }
-        for day, activity, note in timeline_events
+        for day, activity, note in sorted(timeline_events)
     ])
     
     st.dataframe(timeline_df, use_container_width=True, hide_index=True)
