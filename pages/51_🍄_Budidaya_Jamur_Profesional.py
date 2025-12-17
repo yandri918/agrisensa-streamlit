@@ -896,6 +896,49 @@ with tab8:
         
         st.success(f"**Kesimpulan:** Dengan membangun **{kumbung_needed} kumbung** kapacitas {kumbung_cap} log dan menanam setiap **{target_harvest_interval}**, Anda akan mendapatkan panen stabil **{stable_daily_yield:.0f} kg/hari** sepanjang tahun.")
 
+    st.markdown("---")
+    st.subheader("♻️ Manajemen Limbah (Zero Waste Income)")
+    st.caption("Ubah sampah baglog menjadi Rupiah! Jangan buang limbah sembarangan.")
+    
+    with st.expander("💰 Hitung Potensi Uang dari Limbah Baglog", expanded=False):
+        col_waste1, col_waste2 = st.columns(2)
+        
+        with col_waste1:
+            waste_price_curah = st.number_input("Harga Jual Limbah Curah (Rp/karung)", 0, 50000, 2000, step=500, help="Dijual mentah ke petani sayur/tanaman hias")
+            waste_price_premium = st.number_input("Harga Jual Kompos Premium (Rp/kg)", 0, 50000, 5000, step=500, help="Setelah difermentasi + dikemas rapi")
+            avg_log_residue = 0.6 # kg (asumsi penyusutan bobot 40% setelah panen habis)
+            
+        with col_waste2:
+            st.info("""
+            **Opsi Pengolahan:**
+            1. **Jual Curah:** Langsung jual karungan ke petani sayur/cabe (Cepat, duit kecil).
+            2. **Kompos:** Fermentasi dengan kotoran hewan + EM4 selama 1 bulan (Lama, duit besar).
+            """)
+            
+        # Calculation
+        total_waste_logs = num_baglogs # From inputs above
+        total_waste_weight = total_waste_logs * substrate_weight * avg_log_residue # kg
+        
+        # Scenario 1: Curah (per sack ~20kg)
+        sacks_count = total_waste_weight / 20
+        revenue_curah = sacks_count * waste_price_curah
+        
+        # Scenario 2: Premium (per kg)
+        # Asumsi rendemen kompos 80% dari limbah basah
+        compost_yield = total_waste_weight * 0.8
+        revenue_premium = compost_yield * waste_price_premium
+        
+        st.markdown("### 💸 Potensi Pendapatan Tambahan")
+        c_res1, c_res2 = st.columns(2)
+        
+        with c_res1:
+            st.metric("Opsi 1: Jual Curah", f"Rp {revenue_curah:,.0f}", f"{int(sacks_count)} karung")
+            
+        with c_res2:
+            st.metric("Opsi 2: Olah Kompos", f"Rp {revenue_premium:,.0f}", f"{int(compost_yield)} kg (Siap Pakai)")
+            
+        st.success("**Saran:** Gunakan limbah untuk membiayai operasional listrik & air. Ini adalah 'hidden profit'!")
+
 # TAB 9: Troubleshooting
 with tab9:
     st.subheader("🔧 Panduan Troubleshooting")
