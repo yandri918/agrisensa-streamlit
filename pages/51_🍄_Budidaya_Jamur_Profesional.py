@@ -904,6 +904,7 @@ with tab8:
         col_waste1, col_waste2 = st.columns(2)
         
         with col_waste1:
+            waste_log_count = st.number_input("Jumlah Baglog Afkir", 10, 50000, num_baglogs, step=100, help="Default mengambil dari input di atas, tapi bisa diubah")
             waste_price_curah = st.number_input("Harga Jual Limbah Curah (Rp/karung)", 0, 50000, 2000, step=500, help="Dijual mentah ke petani sayur/tanaman hias")
             waste_price_premium = st.number_input("Harga Jual Kompos Premium (Rp/kg)", 0, 50000, 5000, step=500, help="Setelah difermentasi + dikemas rapi")
             avg_log_residue = 0.6 # kg (asumsi penyusutan bobot 40% setelah panen habis)
@@ -916,7 +917,7 @@ with tab8:
             """)
             
         # Calculation
-        total_waste_logs = num_baglogs # From inputs above
+        total_waste_logs = waste_log_count # From new input
         total_waste_weight = total_waste_logs * substrate_weight * avg_log_residue # kg
         
         # Scenario 1: Curah (per sack ~20kg)
@@ -938,9 +939,9 @@ with tab8:
             st.metric("Opsi 2: Olah Kompos", f"Rp {revenue_premium:,.0f}", f"{int(compost_yield)} kg (Siap Pakai)")
             
         st.info(f"""
-        **ℹ️ Simulasi Perhitungan untuk {num_baglogs} Baglog:**
-        1. **Total Bobot Awal:** {num_baglogs} baglog × {substrate_weight} kg = **{num_baglogs * substrate_weight:,.0f} kg**
-        2. **Est. Berat Limbah (60%):** {num_baglogs * substrate_weight:,.0f} kg × 0.6 = **{total_waste_weight:,.0f} kg** (Limbah Basah)
+        **ℹ️ Simulasi Perhitungan untuk {waste_log_count} Baglog:**
+        1. **Total Bobot Awal:** {waste_log_count} baglog × {substrate_weight} kg = **{waste_log_count * substrate_weight:,.0f} kg**
+        2. **Est. Berat Limbah (60%):** {waste_log_count * substrate_weight:,.0f} kg × 0.6 = **{total_waste_weight:,.0f} kg** (Limbah Basah)
         3. **Est. Kompos Jadi (80%):** {total_waste_weight:,.0f} kg × 0.8 = **{compost_yield:,.0f} kg** (Siap Jual)
         """)
         
