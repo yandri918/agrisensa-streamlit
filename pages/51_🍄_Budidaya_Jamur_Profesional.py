@@ -937,6 +937,13 @@ with tab8:
         with c_res2:
             st.metric("Opsi 2: Olah Kompos", f"Rp {revenue_premium:,.0f}", f"{int(compost_yield)} kg (Siap Pakai)")
             
+        st.info("""
+        **ℹ️ Rumus Perhitungan:**
+        1. **Berat Limbah:** Est. 60% dari berat awal (40% hilang karena penyusutan air & jadi jamur).
+        2. **Rendemen Kompos:** Est. 80% dari limbah basah (penyusutan saat fermentasi).
+        *Contoh: 1000 kg baglog awal -> 600 kg limbah basah -> 480 kg kompos jadi.*
+        """)
+        
         st.success("**Saran:** Gunakan limbah untuk membiayai operasional listrik & air. Ini adalah 'hidden profit'!")
 
 # TAB 9: Troubleshooting
