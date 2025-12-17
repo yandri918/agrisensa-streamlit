@@ -522,72 +522,98 @@ with tab3:
         c_mob1, c_mob2, c_mob3 = st.columns([1.5, 2, 1.5])
         
         with c_mob2:
-            # Build HTML content (NO leading whitespace for proper rendering!)
-            html_content = """<div style='border: 8px solid #333; border-radius: 20px; padding: 20px; background-color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.2);'>
+            # Build HTML content using components.html for guaranteed rendering
+            html_content = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    </style>
+</head>
+<body>
+<div style='border: 8px solid #333; border-radius: 20px; padding: 20px; background-color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.2);'>
     <div style='text-align:center;'>
-        <h3 style='color:#0f766e;'>✅ TERVERIFIKASI</h3>
-        <p style='color:grey;'>AgriSensa Blockchain Network</p>
-        <hr>
-        <h1>🌾</h1>
-        <h2>Produk Asli & Aman</h2>
+        <h3 style='color:#0f766e; margin: 10px 0;'>✅ TERVERIFIKASI</h3>
+        <p style='color:grey; margin: 5px 0;'>AgriSensa Blockchain Network</p>
+        <hr style='border: 1px solid #e5e7eb; margin: 15px 0;'>
+        <h1 style='font-size: 3em; margin: 10px 0;'>🌾</h1>
+        <h2 style='color:#1f2937; margin: 10px 0;'>Produk Asli & Aman</h2>
     </div>
 """
             
             # Add photo if available
             if data.get('foto'):
                 foto_base64 = base64.b64encode(data['foto'].getvalue()).decode()
-                html_content += f"""    <div style='text-align:center; margin:10px;'>
+                html_content += f"""
+    <div style='text-align:center; margin:15px 0;'>
         <img src='data:image/png;base64,{foto_base64}' style='max-width:100%; border-radius:10px;'>
     </div>
 """
             
             # Product info card
-            html_content += f"""    <div style='background:#f0fdfa; padding:15px; border-radius:10px; margin: 15px 0;'>
-        <p><b>📦 Batch ID:</b> <br>{data['id']}</p>
-        <p><b>🗓️ Tanggal Panen:</b> <br>{str(data['tgl'])}</p>
-        <p><b>📍 Lokasi:</b> <br>{data['lokasi']}</p>
+            html_content += f"""
+    <div style='background:#f0fdfa; padding:15px; border-radius:10px; margin: 15px 0;'>
+        <p style='margin: 8px 0;'><b>📦 Batch ID:</b> <br>{data['id']}</p>
+        <p style='margin: 8px 0;'><b>🗓️ Tanggal Panen:</b> <br>{str(data['tgl'])}</p>
+        <p style='margin: 8px 0;'><b>📍 Lokasi:</b> <br>{data['lokasi']}</p>
 """
             
             # Add price if available
             if data.get('harga'):
-                html_content += f"        <p><b>💰 Harga:</b> <br>Rp {data['harga']:,}/kg</p>\n"
+                html_content += f"        <p style='margin: 8px 0;'><b>💰 Harga:</b> <br>Rp {data['harga']:,}/kg</p>\n"
             
             # Add contact if available
             if data.get('kontak'):
-                html_content += f"        <p><b>📞 Kontak Petani:</b> <br>{data['kontak']}</p>\n"
+                html_content += f"        <p style='margin: 8px 0;'><b>📞 Kontak Petani:</b> <br>{data['kontak']}</p>\n"
             
-            html_content += """    </div>
+            html_content += """
+    </div>
     
-    <p><b>Cerita Petani:</b></p>
-    <p style='font-style:italic; font-size:0.9rem;'>
+    <p style='margin: 15px 0 5px 0;'><b>Cerita Petani:</b></p>
+    <p style='font-style:italic; font-size:0.9rem; color:#4b5563; margin: 5px 0 15px 0;'>
 """
             
             html_content += f'        "Produk ini dirawat dengan sepenuh hati oleh {data["petani"]}. Kami menggunakan metode berkelanjutan untuk menjaga alam tetap lestari."\n'
             
-            html_content += """    </p>
+            html_content += """
+    </p>
     
     <div style='text-align:center; margin-top:20px;'>
 """
             
             # Button text
             button_text = f"Beli Lagi - Rp {data['harga']:,}" if data.get('harga') else "Beli Lagi (Order)"
-            html_content += f"        <button style='background:#0f766e; color:white; border:none; padding:10px 20px; border-radius:50px; width:100%;'>{button_text}</button>\n"
+            html_content += f"""
+        <button style='background:#0f766e; color:white; border:none; padding:12px 24px; border-radius:50px; width:100%; font-size:1em; cursor:pointer; font-weight:bold;'>{button_text}</button>
+"""
             
-            html_content += """    </div>
+            html_content += """
+    </div>
     <div style='text-align:center; margin-top:10px;'>
 """
             
             # WhatsApp link
             if data.get('kontak'):
                 wa_number = data['kontak'].replace('-', '').replace(' ', '').replace('+', '')
-                html_content += f"        <a href='https://wa.me/{wa_number}' target='_blank'>💬 Hubungi Petani</a>\n"
+                html_content += f"""
+        <a href='https://wa.me/{wa_number}' target='_blank' style='color:#0f766e; text-decoration:none; font-weight:bold;'>💬 Hubungi Petani</a>
+"""
             else:
-                html_content += "        <a href='#'>💬 Hubungi Petani</a>\n"
+                html_content += """
+        <a href='#' style='color:#0f766e; text-decoration:none; font-weight:bold;'>💬 Hubungi Petani</a>
+"""
             
-            html_content += """    </div>
-</div>"""
+            html_content += """
+    </div>
+</div>
+</body>
+</html>
+"""
             
-            st.markdown(html_content, unsafe_allow_html=True)
+            # Use components.html for guaranteed rendering
+            st.components.v1.html(html_content, height=700, scrolling=True)
             
     else:
         st.warning("⚠️ Belum ada data batch yang dibuat. Silakan input di Tab 1 dulu.")
