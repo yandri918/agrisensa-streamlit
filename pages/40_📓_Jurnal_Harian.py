@@ -58,6 +58,18 @@ st.markdown("""
     .module-icon { font-size: 2rem; }
     .module-info h4 { margin: 0; color: #1e293b; }
     .module-info p { margin: 0; font-size: 0.85rem; color: #64748b; }
+
+    .metric-pill {
+        display: inline-block;
+        background: #ecfdf5;
+        color: #065f46;
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-right: 8px;
+        border: 1px solid #10b981;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -451,11 +463,10 @@ def main():
         
         if "Pertumbuhan" in filter_type and not df_growth.empty:
             for _, row in df_growth.iterrows():
-                metrics_html = f"<div class='metric-pill'>📏 {row['tinggi_cm']:.1f} cm</div>" if row['tinggi_cm'] > 0 else ""
                 timeline.append({
                     'date': pd.to_datetime(row['tanggal']), 'raw_date': row['tanggal'],
                     'type': 'growth', 'title': f"Monitoring {row['komoditas']}",
-                    'desc': metrics_html, 'meta': f"HST {row['usia_hst']}",
+                    'desc': row['tinggi_cm'], 'meta': f"HST {row['usia_hst']}", # Store value directly
                     'cost': 0, 'location': row.get('lokasi', ''), 'priority': '',
                     'status': '', 'style': 'growth'
                 })
@@ -480,14 +491,25 @@ def main():
         if timeline:
             for item in timeline:
                 icon = "📝" if item['type'] == 'activity' else "📈" if item['type'] == 'growth' else "💰"
+                
+                # Render content based on type to avoid raw HTML strings in 'desc'
+                if item['type'] == 'growth':
+                    content_html = f"<div class='metric-pill'>📏 {item['desc']:.1f} cm</div>"
+                else:
+                    content_html = f"<div>{item['desc']}</div>"
+
                 st.markdown(f"""
                 <div class="glass-card">
-                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#64748b;">
-                        <span>{item['raw_date']} | {item['meta']}</span>
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#64748b; margin-bottom:8px;">
+                        <span>📅 {item['raw_date']} | 🏷️ {item['meta']}</span>
                         {f'<span style="color:#ef4444; font-weight:700;">Rp {item["cost"]:,.0f}</span>' if item['cost'] > 0 else ""}
                     </div>
-                    <h4 style="margin:10px 0 5px 0;">{icon} {item['title']}</h4>
-                    <div style="font-size:0.9rem; color:#475569;">{item['desc']}</div>
+                    <h4 style="margin:0 0 10px 0; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                        <span>{icon}</span> {item['title']}
+                    </h4>
+                    <div style="font-size:0.9rem; color:#475569;">
+                        {content_html}
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
         else:
