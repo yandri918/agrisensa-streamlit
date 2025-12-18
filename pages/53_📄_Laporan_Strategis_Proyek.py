@@ -2,6 +2,8 @@ import streamlit as st
 import datetime
 import pandas as pd
 import base64
+import plotly.express as px
+import plotly.graph_objects as go
 
 # Page Config
 st.set_page_config(
@@ -56,45 +58,89 @@ tab_dashboard, tab_editor, tab_preview = st.tabs([
     "📑 Pratinjau Buku Putih"
 ])
 
+# --- HELPER FUNCTIONS ---
+def parse_duration(d_str):
+    try:
+        # Simple parser for "Bulan 1-2" or "Bulan 5+"
+        d_str = d_str.replace("Bulan ", "").strip()
+        if "+" in d_str:
+            start = int(d_str.replace("+", ""))
+            return start, start + 1
+        if "-" in d_str:
+            parts = d_str.split("-")
+            return int(parts[0]), int(parts[1])
+        return int(d_str), int(d_str)
+    except:
+        return 0, 0
+
 # --- TAB 1: DASHBOARD ---
 with tab_dashboard:
-    st.header("Project KPI Dashboard")
+    st.markdown("### 📊 Project Intelligence Dashboard")
     
     # Check for Sync Data
     rab_raw = st.session_state.get('global_rab_summary', {})
     sim_raw = st.session_state.get('global_3k_sim', {})
     ledger_raw = st.session_state.get('ledger_db', [])
     
-    if rab_raw or sim_raw:
-        st.success(f"✅ Data Sinkron Aktif (Last Sync: {rab_raw.get('timestamp', sim_raw.get('timestamp', 'N/A'))})")
-    else:
-        st.warning("⚠️ Data Belum Sinkron. Silakan isi RAB dan Simulasi di modul terkait untuk data otomatis.")
+    # Row 1: Key Metrics
+    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+    with m_col1:
+        st.metric("Total Investment", f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850M", "CAPEX")
+    with m_col2:
+        st.metric("Efficiency ROI", f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "Market Avg", "Profitability")
+    with m_col3:
+        st.metric("Verified Blocks", f"{len(ledger_raw)} Blocks", "Blockchain")
+    with m_col4:
+        st.metric("Supply Readiness", f"{sim_raw['kapasitas_mingguan']} kg/wk" if sim_raw else "200 kg/wk", "Consistency")
 
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        val_capex = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850 Juta"
-        st.metric("Total Biaya (RAB)", val_capex, "Live" if rab_raw else "Blueprint")
-    with col2:
-        val_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24-28 Bln"
-        st.metric("Estimasi ROI", val_roi, "RAB Data" if rab_raw else "Market Avg")
-    with col3:
-        val_kap = f"{sim_raw['kapasitas_mingguan']} kg" if sim_raw else "200 kg"
-        st.metric("Kapasitas Suplai", val_kap, "Weekly" if sim_raw else "Target")
-    with col4:
-        val_safety = "AAA" if len(ledger_raw) > 2 else "B (New)"
-        st.metric("Blockchain Score", val_safety, f"{len(ledger_raw)} Blocks")
+    st.divider()
+
+    # Row 2: Visualizations
+    v_col1, v_col2 = st.columns([3, 2])
     
-    st.markdown("---")
-    # ... rest of dashboard ...
-    c1, c2 = st.columns(2)
-    with c1:
-        st.subheader("💡 Visi Strategis")
-        desc_kom = rab_raw.get('komoditas', proj_name)
-        st.success(f"Proyek **{desc_kom}** bertujuan mendominasi pasar premium melalui efisiensi berbasis data dan standarisasi 3K.")
-    with c2:
-        st.subheader("🚩 Mitigasi Risiko Utama")
-        risk_note = f"Fokus pada retur {sim_raw.get('retur_factor', 5)}% dan gap pembayaran {sim_raw.get('gap_pembayaran', 'N/A')}." if sim_raw else "Otomasi irigasi dan sistem peringatan dini diaktifkan."
-        st.warning(risk_note)
+    with v_col1:
+        st.subheader("📅 Project Implementation Roadmap")
+        # Prepare Gantt Data
+        gantt_list = []
+        for stage in st.session_state['timeline_data']:
+            start, end = parse_duration(stage['Durasi'])
+            gantt_list.append(dict(Task=stage['Fase'], Start=str(start), Finish=str(end), Resource='Planning'))
+        
+        df_gantt = pd.DataFrame(gantt_list)
+        if not df_gantt.empty:
+            fig_timeline = px.timeline(df_gantt, x_start="Start", x_end="Finish", y="Task", color="Task", 
+                                       title="Visual Project Schedule", template="plotly_white")
+            fig_timeline.update_yaxes(autorange="reversed")
+            fig_timeline.update_layout(showlegend=False, height=300, margin=dict(l=0, r=0, t=30, b=0))
+            st.plotly_chart(fig_timeline, use_container_width=True)
+
+    with v_col2:
+        st.subheader("🎯 Strategic Balance (SWOT)")
+        swot_scores = {
+            "Strengths": 90,
+            "Opportunities": 85,
+            "Weaknesses": 30,
+            "Threats": 40
+        }
+        fig_swot = go.Figure(data=go.Scatterpolar(
+            r=[swot_scores[k] for k in swot_scores.keys()] + [swot_scores["Strengths"]],
+            theta=list(swot_scores.keys()) + ["Strengths"],
+            fill='toself',
+            marker=dict(color='#059669')
+        ))
+        fig_swot.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), 
+                               showlegend=False, height=300, margin=dict(l=40, r=40, t=30, b=30))
+        st.plotly_chart(fig_swot, use_container_width=True)
+
+    st.divider()
+    
+    # Row 3: Summaries
+    s_col1, s_col2 = st.columns(2)
+    with s_col1:
+        st.info(f"**Visi Utama:** Menjadi pemimpin pasar untuk komoditas **{rab_raw.get('komoditas', proj_name)}** dengan standar kualitas 3K.")
+    with s_col2:
+        sync_status = "Online" if rab_raw or sim_raw else "Standalone"
+        st.caption(f"Status Sistem: {sync_status} | Last Database Push: {rab_raw.get('timestamp', 'N/A')}")
 
 # --- TAB 2: EDITOR ---
 with tab_editor:
@@ -120,205 +166,97 @@ with tab_editor:
 
 # --- TAB 3: FINAL PREVIEW (WHITE PAPER) ---
 with tab_preview:
-    st.info("💡 Halaman ini dirancang khusus untuk dicetak ke PDF via Sidebar.")
+    st.markdown("""
+        <style>
+            .stApp { background: #f1f5f9 !important; }
+            .paper-view {
+                background: white;
+                max-width: 850px;
+                margin: 40px auto;
+                padding: 70px 90px;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                font-family: 'Inter', sans-serif;
+                color: #1e293b;
+                line-height: 1.8;
+                border-radius: 4px;
+            }
+            .paper-header { border-bottom: 4px solid #059669; padding-bottom: 30px; margin-bottom: 50px; text-align: center; }
+            .paper-title { font-size: 2.8rem; font-weight: 800; color: #064e3b; margin: 0; }
+            .paper-section { font-size: 1.2rem; font-weight: 700; color: #065f46; margin-top: 40px; margin-bottom: 15px; border-left: 5px solid #10b981; padding-left: 15px; }
+            .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+            .swot-box { padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; }
+            .swot-header { font-weight: bold; text-transform: uppercase; margin-bottom: 5px; display: block; color: #64748b; }
+            .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .data-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
+            .label-cell { color: #64748b; font-weight: 600; width: 40%; }
+            .sign-grid { display: grid; grid-template-columns: 1fr 1fr; margin-top: 80px; text-align: center; }
+            
+            @media print {
+                .stApp { background: white !important; }
+                .paper-view { box-shadow: none; margin: 0; padding: 0; max-width: 100%; }
+                header, .stSidebar, .stTabs, .stInfo, .no-print { display: none !important; }
+            }
+        </style>
+    """, unsafe_allow_html=True)
     
-    # PREMIUM CSS FOR THE DOSSIER
-    report_css = """
-    <style>
-        .dossier-root {
-            background: white;
-            padding: 80px 60px;
-            border: 1px solid #e2e8f0;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #1a202c;
-            max-width: 850px;
-            margin: auto;
-            line-height: 1.7;
-            position: relative;
-        }
-        .dossier-watermark {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            border: 2px solid #ef4444;
-            color: #ef4444;
-            padding: 5px 15px;
-            font-weight: bold;
-            text-transform: uppercase;
-            transform: rotate(5deg);
-            opacity: 0.6;
-            font-size: 0.8rem;
-        }
-        .report-header {
-            text-align: center;
-            border-bottom: 3px solid #059669;
-            padding-bottom: 40px;
-            margin-bottom: 50px;
-        }
-        .report-title {
-            font-size: 3rem;
-            color: #064e3b;
-            margin: 10px 0;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-        .section-title {
-            font-size: 1.4rem;
-            color: #065f46;
-            margin-top: 50px;
-            margin-bottom: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-        }
-        .section-title::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: #cbd5e1;
-            margin-left: 20px;
-        }
-        /* SWOT GRID */
-        .swot-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 20px 0;
-        }
-        .swot-card {
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        .swot-s { background: #f0fdf4; border-left: 5px solid #22c55e; }
-        .swot-w { background: #fff1f2; border-left: 5px solid #f43f5e; }
-        .swot-o { background: #f0f9ff; border-left: 5px solid #0ea5e9; }
-        .swot-t { background: #fefce8; border-left: 5px solid #eab308; }
-        .swot-label { font-weight: 800; font-size: 0.9rem; margin-bottom: 5px; display: block; text-transform: uppercase; }
+    st.info("📑 Mode Pratinjau Dokumen Aktif. Gunakan Sidebar untuk mencetak.")
 
-        /* PREMIUM TABLES */
-        .premium-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .premium-table th {
-            background: #f8fafc;
-            color: #475569;
-            text-align: left;
-            padding: 12px 15px;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        .premium-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.95rem;
-        }
-        .kpi-label { font-weight: 600; color: #334155; background: #f8fafc; width: 40%; }
-        
-        @media print {
-            header, .stSidebar, .stButton, .stTabs, .stInfo, .stMetric, .stAlert, .no-print { display: none !important; }
-            .dossier-root { border: none; padding: 0; width: 100%; }
-            body { background: white; }
-            .stApp { background: white !important; }
-        }
-    </style>
-    """
-    
     # BUILD CONTENT
-    html_content = f"""
-    <div class="dossier-root">
-        <div class="dossier-watermark">CONFIDENTIAL & STRATEGIC</div>
-        
-        <div class="report-header">
-            <div style="color:#059669; font-weight:700; font-size:1.1rem; margin-bottom:10px;">PROPOSAL STRATEGIS BISNIS</div>
-            <h1 class="report-title">{proj_name}</h1>
-            <p style="font-size:1.2rem; margin-top:10px; color:#475569;">Oleh: <b>{company_name}</b></p>
-            <p style="color:#94a3b8; font-size:0.9rem;">Dokumen ID: AS-{report_date.strftime('%Y%j')}-PRO</p>
-            <p style="color:#94a3b8; font-size:0.9rem;">Diterbitkan pada: {report_date.strftime('%d %B %Y')}</p>
+    html_report = f"""
+    <div class="paper-view">
+        <div class="paper-header">
+            <div style="text-transform: uppercase; letter-spacing: 4px; color: #059669; font-weight: bold; font-size: 0.8rem; margin-bottom: 10px;">Strategic Dossier</div>
+            <h1 class="paper-title">{proj_name}</h1>
+            <p style="margin-top: 10px; font-size: 1.1rem; color: #475569;">Prepared for: <b>Stakeholders & Management</b></p>
+            <p style="color: #94a3b8; font-size: 0.85rem;">Official Release: {report_date.strftime('%d %B %Y')} | ID: AS-2025-V3</p>
         </div>
-        
-        <div class="section-title">01. Ringkasan Eksekutif</div>
-        <p>
-            Proyek <b>{proj_name}</b> merupakan inisiasi strategis yang menggabungkan otomasi cerdas, manajemen 3K, dan transparansi blockchain. 
-            Laporan ini berfungsi sebagai dokumen kelayakan utama yang merinci posisi kompetitif, proyeksi ekonomi, dan 
-            kerangka waktu implementasi untuk mencapai keunggulan operasional di pasar modern.
-        </p>
-    """
-    
-    if include_swot:
-        html_content += f"""
-        <div class="section-title">02. Matriks Analisis SWOT</div>
+
+        <div class="paper-section">01. Rencana Strategis</div>
+        <p>Proyek <b>{proj_name}</b> diinisiasi oleh <b>{company_name}</b> sebagai jawaban atas permintaan pasar modern terhadap produk pertanian yang konsisten. 
+        Melalui integrasi otomasi dan sistem 3K, proyek ini menargetkan kepuasan mitra strategis dan efisiensi biaya yang optimal.</p>
+
+        <div class="paper-section">02. Matriks Analisis SWOT</div>
         <div class="swot-grid">
-            <div class="swot-card swot-s"><span class="swot-label">Strengths</span>{st.session_state['swot_data']['Strengths']}</div>
-            <div class="swot-card swot-w"><span class="swot-label">Weaknesses</span>{st.session_state['swot_data']['Weaknesses']}</div>
-            <div class="swot-card swot-o"><span class="swot-label">Opportunities</span>{st.session_state['swot_data']['Opportunities']}</div>
-            <div class="swot-card swot-t"><span class="swot-label">Threats</span>{st.session_state['swot_data']['Threats']}</div>
+            <div class="swot-box"><span class="swot-header">Strengths</span>{st.session_state['swot_data']['Strengths']}</div>
+            <div class="swot-box"><span class="swot-header">Weaknesses</span>{st.session_state['swot_data']['Weaknesses']}</div>
+            <div class="swot-box"><span class="swot-header">Opportunities</span>{st.session_state['swot_data']['Opportunities']}</div>
+            <div class="swot-box"><span class="swot-header">Threats</span>{st.session_state['swot_data']['Threats']}</div>
         </div>
-        """
-        
-    if include_fin:
-        c_capex = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000"
-        c_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24 - 28 Bulan"
-        c_mkt = f"{sim_raw['gap_pembayaran']}" if sim_raw else "Mati 1 Nota"
-        
-        html_content += f"""
-        <div class="section-title">03. Proyeksi Ekonomi & Investasi</div>
-        <table class="premium-table">
-            <thead><tr><th>Parameter Investasi</th><th>Estimasi Nilai / Target</th></tr></thead>
-            <tbody>
-                <tr><td class="kpi-label">Investasi CAPEX</td><td>{c_capex}</td></tr>
-                <tr><td class="kpi-label">Target ROI (Musim)</td><td>{c_roi}</td></tr>
-                <tr><td class="kpi-label">Model Pembayaran</td><td>{c_mkt}</td></tr>
-                <tr><td class="kpi-label">Margin Bersih Est.</td><td>35% - 42%</td></tr>
-            </tbody>
+
+        <div class="paper-section">03. Kelayakan Ekonomi</div>
+        <table class="data-table">
+            <tr><td class="label-cell">Total Investasi Awal</td><td>Rp {rab_raw['total_biaya']:,.0f}</td></tr>
+            <tr><td class="label-cell">Estimasi ROI</td><td>{rab_raw['roi_percent']:.1f}%</td></tr>
+            <tr><td class="label-cell">Unit Kapasitas</td><td>{sim_raw['kapasitas_mingguan']} kg / Minggu</td></tr>
+            <tr><td class="label-cell">Kepatuhan Blockchain</td><td>{len(ledger_raw)} Transaksi Terverifikasi</td></tr>
         </table>
-        """
+
+        <div class="paper-section">04. Timeline Implementasi</div>
+        <table class="data-table">
+    """
+    for stage in st.session_state['timeline_data']:
+        html_report += f"<tr><td class='label-cell'>{stage['Fase']}</td><td>{stage['Durasi']}</td></tr>"
+    
+    html_report += f"""
+        </table>
+
+        <div class="paper-section">05. Pernyataan & Pengesahan</div>
+        <p style="font-size: 0.9rem; font-style: italic; color: #64748b;">Seluruh data di atas dihasilkan dari sistem AgriSensa Intelligence dan dapat dipertanggungjawabkan keakuratannya berdasarkan masukan operasional terkini.</p>
         
-    if include_timeline:
-        html_content += """
-        <div class="section-title">04. Timeline Rencana Aksi</div>
-        <table class="premium-table">
-            <thead><tr><th>Fase Proyek</th><th>Ekspektasi Durasi</th></tr></thead>
-            <tbody>"""
-        for item in st.session_state['timeline_data']:
-            html_content += f"<tr><td class='kpi-label'>{item['Fase']}</td><td>{item['Durasi']}</td></tr>"
-        html_content += "</tbody></table>"
-        
-    if include_trace:
-        l_count = len(ledger_raw)
-        html_content += f"""
-        <div class="section-title">05. Keamanan Digital & Traceability</div>
-        <p>Integrasi <b>{l_count} transaksi blockchain</b> menjamin transparansi rantai pasok. 
-        Sistem sertifikasi digital ini memungkinkan audit instan terhadap kepatuhan SOP.</p>
-        <div style="background:#f8fafc; padding:30px; border-radius:12px; margin-top:20px; border: 1px solid #e2e8f0; text-align:center;">
-            <div style="color:#059669; font-weight:800; font-size:1.1rem; margin-bottom:5px;">● BLOCKCHAIN VERIFIED ({l_count} BLOCKS)</div>
-            <p style="margin:0; font-size:0.85rem; color:#64748b;">Protocol SHA-256 Secured</p>
+        <div class="sign-grid">
+            <div>
+                <p>Strategic Analyst,</p>
+                <div style="height: 60px;"></div>
+                <b>AgriSensa AI System</b><br>
+                <span style="font-size: 0.8rem; color: #94a3b8;">Automated Report Engine</span>
+            </div>
+            <div>
+                <p>Project Director,</p>
+                <div style="height: 60px;"></div>
+                <b>{owner_name}</b><br>
+                <span style="font-size: 0.8rem; color: #94a3b8;">{company_name}</span>
+            </div>
         </div>
-        """
-        
-    html_content += f"""
-        <div class="section-title">06. Pengesahan Strategis</div>
-        <table style="width:100%; margin-top:80px; border:none;">
-            <tr style="border:none;">
-                <td style="text-align:center; border:none; width:50%;">
-                    <div style="border-top:1px solid #475569; width:200px; margin:auto; margin-bottom:10px;"></div>
-                    <b style="font-size:0.9rem;">Intelligence System AgriSensa</b><br>
-                    <span style="font-size:0.8rem; color:gray;">Penyusun Laporan Digital</span>
-                </td>
-                <td style="text-align:center; border:none; width:50%;">
-                    <div style="border-top:1px solid #475569; width:200px; margin:auto; margin-bottom:10px;"></div>
-                    <b style="font-size:0.9rem;">{owner_name}</b><br>
-                    <span style="font-size:0.8rem; color:gray;">Direktur / Pemilik Proyek</span>
-                </td>
-            </tr>
-        </table>
     </div>
     """
-    
-    # RENDER
-    st.markdown(report_css, unsafe_allow_html=True)
-    st.markdown(html_content, unsafe_allow_html=True)
+    st.markdown(html_report, unsafe_allow_html=True)
