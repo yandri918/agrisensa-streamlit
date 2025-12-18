@@ -205,144 +205,197 @@ init_data()
 # --- UI STYLING ---
 st.markdown("""
 <style>
-    /* Card Styles */
-    .journal-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        border-left: 5px solid #4CAF50;
-        padding: 16px;
-        border-radius: 12px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
+    /* Main Layout Refinements */
+    .main {
+        background-color: #f0f2f6;
     }
-    .journal-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-    }
-    .journal-card.expense { border-left-color: #f44336; }
-    .journal-card.harvest { border-left-color: #ff9800; }
-    .journal-card.growth { border-left-color: #2196F3; }
-    .journal-card.cost { border-left-color: #9c27b0; }
     
-    .card-date { 
-        font-size: 0.75em; 
-        color: #888; 
-        margin-bottom: 6px;
-        font-weight: 500;
-    }
-    .card-title { 
-        font-weight: 700; 
-        font-size: 1.1em; 
-        color: #1a1a1a;
-        margin-bottom: 8px;
-    }
-    .card-cost { 
-        float: right; 
-        font-weight: bold; 
-        color: #d32f2f; 
-        font-size: 1em;
-        background: #ffebee;
-        padding: 4px 12px;
+    /* Global Card Styles (Modern Feed Look) */
+    .entry-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 20px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border-left: 6px solid #4CAF50;
+        position: relative;
+        overflow: hidden;
     }
-    .card-metric { 
-        display: inline-flex; 
+    
+    .entry-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(76, 175, 80, 0.05) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(50%, -50%);
+    }
+    
+    .entry-card:hover {
+        transform: translateY(-5px) scale(1.01);
+        box-shadow: 0 12px 48px rgba(31, 38, 135, 0.12);
+    }
+    
+    .entry-card.expense { border-left-color: #ff5252; }
+    .entry-card.growth { border-left-color: #2196f3; }
+    .entry-card.cost { border-left-color: #9c27b0; }
+    .entry-card.harvest { border-left-color: #ff9800; }
+    
+    /* Header Section */
+    .entry-header {
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        color: #1565c0; 
-        padding: 4px 12px; 
-        border-radius: 20px; 
-        font-size: 0.85em; 
-        font-weight: 600;
-        margin-right: 8px;
-        margin-top: 6px;
-        white-space: nowrap;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        margin-bottom: 12px;
     }
-    .metrics-container {
+    
+    .entry-meta {
+        font-size: 0.85em;
+        color: #64748b;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .entry-category {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.75em;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Title and Cost */
+    .entry-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+    
+    .entry-title {
+        font-size: 1.3em;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
+        margin: 0;
+    }
+    
+    .entry-cost-badge {
+        background: linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-weight: 800;
+        font-size: 0.95em;
+        box-shadow: 0 4px 12px rgba(255, 95, 109, 0.3);
+    }
+    
+    /* Description and Metrics */
+    .entry-content {
+        color: #334155;
+        font-size: 0.95em;
+        line-height: 1.6;
+    }
+    
+    .metrics-grid {
         display: flex;
         flex-wrap: wrap;
-        gap: 2px;
-        margin-top: 8px;
+        gap: 12px;
+        margin-top: 16px;
     }
-    .summary-bar {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 20px;
-        border: 1px solid #e0e0e0;
-        display: flex;
-        justify-content: space-around;
-        text-align: center;
-    }
-    .summary-item {
-        flex: 1;
-    }
-    .summary-val {
-        font-size: 1.5em;
-        font-weight: 700;
-        color: #2e7d32;
-        display: block;
-    }
-    .summary-lbl {
-        font-size: 0.8em;
-        color: #666;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .priority-high { 
-        background: #ffebee; 
-        color: #c62828; 
-        padding: 2px 8px; 
-        border-radius: 12px; 
-        font-size: 0.75em;
-        font-weight: 600;
-    }
-    .priority-medium { 
-        background: #fff3e0; 
-        color: #e65100; 
-        padding: 2px 8px; 
-        border-radius: 12px; 
-        font-size: 0.75em;
-        font-weight: 600;
-    }
-    .priority-low { 
-        background: #e8f5e9; 
-        color: #2e7d32; 
-        padding: 2px 8px; 
-        border-radius: 12px; 
-        font-size: 0.75em;
-        font-weight: 600;
-    }
-    .status-badge {
-        display: inline-block;
-        padding: 3px 10px;
-        border-radius: 12px;
-        font-size: 0.75em;
-        font-weight: 600;
-        margin-left: 8px;
-    }
-    .status-planned { background: #e3f2fd; color: #1976d2; }
-    .status-progress { background: #fff3e0; color: #f57c00; }
-    .status-completed { background: #e8f5e9; color: #388e3c; }
     
-    /* Metric Cards */
-    .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 16px;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    .metric-pill {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 6px 14px;
+        border-radius: 14px;
+        font-size: 0.85em;
+        font-weight: 600;
+        color: #1e293b;
     }
-    .metric-value {
-        font-size: 2em;
+    
+    .metric-pill i { font-size: 1.1em; }
+    
+    /* Badges */
+    .badge {
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.7em;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+    
+    .priority-high { background: #fee2e2; color: #dc2626; }
+    .priority-medium { background: #fef3c7; color: #d97706; }
+    .priority-low { background: #ecfdf5; color: #059669; }
+    
+    .status-badge {
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 0.7em;
+        padding: 4px 10px;
+        border-radius: 8px;
         font-weight: 700;
-        margin: 8px 0;
     }
-    .metric-label {
-        font-size: 0.9em;
-        opacity: 0.9;
+    
+    /* Summary Dashboard */
+    .summary-container {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-radius: 24px;
+        padding: 30px;
+        margin-bottom: 40px;
+        color: white;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .summary-card {
+        text-align: center;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .summary-card:last-child { border-right: none; }
+    
+    .summary-value {
+        font-size: 2.2em;
+        font-weight: 800;
+        display: block;
+        margin-bottom: 4px;
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .summary-label {
+        font-size: 0.75em;
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .summary-container { grid-template-columns: repeat(2, 1fr); }
+        .summary-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .summary-card:last-child { border-bottom: none; }
+        .entry-main { flex-direction: column; gap: 10px; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -674,20 +727,20 @@ with tab_timeline:
             except:
                 specific = {}
             
-            # Build metrics HTML with proper handling of numeric values
+            # Build metrics HTML with proper handling of numeric values (Modern Style)
             metrics_html = ""
             
             if pd.notna(row['tinggi_cm']) and row['tinggi_cm'] > 0:
-                metrics_html += f"<span class='card-metric'>📏 {row['tinggi_cm']:.1f} cm</span>"
+                metrics_html += f"<div class='metric-pill'>📏 {row['tinggi_cm']:.1f} cm</div>"
             
             if pd.notna(row['jumlah_daun']) and row['jumlah_daun'] > 0:
-                metrics_html += f"<span class='card-metric'>🍃 {int(row['jumlah_daun'])} daun</span>"
+                metrics_html += f"<div class='metric-pill'>🍃 {int(row['jumlah_daun'])} daun</div>"
             
             if pd.notna(row['diameter_batang_mm']) and row['diameter_batang_mm'] > 0:
-                metrics_html += f"<span class='card-metric'>📐 {row['diameter_batang_mm']:.1f} mm</span>"
+                metrics_html += f"<div class='metric-pill'>📐 {row['diameter_batang_mm']:.1f} mm</div>"
             
             if pd.notna(row['spad']) and row['spad'] > 0:
-                metrics_html += f"<span class='card-metric'>🔬 SPAD {row['spad']:.1f}</span>"
+                metrics_html += f"<div class='metric-pill'>🔬 SPAD {row['spad']:.1f}</div>"
             
             # Handle varietas display - only show if exists
             v_text = f" ({row['varietas']})" if pd.notna(row['varietas']) and str(row['varietas']).strip() and str(row['varietas']).lower() != 'nan' else ""
@@ -742,27 +795,25 @@ with tab_timeline:
     
     # Display Summary Dashboard (Premium Look)
     st.markdown(f"""
-    <div class="summary-bar">
-        <div class="summary-item">
-            <span class="summary-lbl">💰 Total Biaya</span>
-            <span class="summary-val">Rp {total_f_cost:,.0f}</span>
+    <div class="summary-container">
+        <div class="summary-card">
+            <span class="summary-value">Rp {total_f_cost:,.0f}</span>
+            <span class="summary-label">💰 Total Biaya</span>
         </div>
-        <div class="summary-item">
-            <span class="summary-lbl">📝 Aktivitas</span>
-            <span class="summary-val">{c_act}</span>
+        <div class="summary-card">
+            <span class="summary-value">{c_act}</span>
+            <span class="summary-label">📝 Aktivitas</span>
         </div>
-        <div class="summary-item">
-            <span class="summary-lbl">📈 Monitoring</span>
-            <span class="summary-val">{c_growth}</span>
+        <div class="summary-card">
+            <span class="summary-value">{c_growth}</span>
+            <span class="summary-label">📈 Monitoring</span>
         </div>
-        <div class="summary-item">
-            <span class="summary-lbl">🔢 Total Entri</span>
-            <span class="summary-val">{len(timeline)}</span>
+        <div class="summary-card">
+            <span class="summary-value">{len(timeline)}</span>
+            <span class="summary-label">🔢 Total Entri</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
-    
-    st.divider()
     
     # Display timeline
     if timeline:
@@ -781,36 +832,44 @@ with tab_timeline:
                 icon = "💰"
             
             # Cost display
-            cost_html = f'<div class="card-cost">Rp {item["cost"]:,.0f}</div>' if item['cost'] > 0 else ""
+            cost_html = f'<div class="entry-cost-badge">Rp {item["cost"]:,.0f}</div>' if item['cost'] > 0 else ""
             
-            # Priority badge
-            priority_html = ""
+            # Priority & Status badges
+            p_html = ""
             if item['priority']:
-                priority_class = f"priority-{item['priority'].lower()}"
-                priority_html = f'<span class="{priority_class}">{item["priority"]}</span>'
+                p_class = f"priority-{item['priority'].lower()}"
+                p_html = f'<span class="badge {p_class}">{item["priority"]}</span>'
             
-            # Status badge
-            status_html = ""
+            s_html = ""
             if item['status']:
-                status_map = {
-                    "Direncanakan": "planned",
-                    "Sedang Berjalan": "progress",
-                    "Selesai": "completed"
-                }
-                status_class = status_map.get(item['status'], 'planned')
-                status_html = f'<span class="status-badge status-{status_class}">{item["status"]}</span>'
+                s_map = {"Direncanakan": "planned", "Sedang Berjalan": "progress", "Selesai": "completed"}
+                s_class = s_map.get(item['status'], 'planned')
+                s_html = f'<span class="status-badge">{item["status"]}</span>'
             
-            # Location - handle nan/empty values strictly
-            location_display = str(item['location']).strip() if pd.notna(item['location']) and str(item['location']).strip() and str(item['location']).lower() != 'nan' else ""
-            location_html = f" 📍 {location_display}" if location_display else ""
+            # Location
+            loc_display = str(item['location']).strip() if pd.notna(item['location']) and str(item['location']).strip() and str(item['location']).lower() != 'nan' else ""
+            loc_html = f" 📍 {loc_display}" if loc_display else ""
             
-            # Icon standardization: Title already cleaned of icons, so we add exactly one here
+            # Render Entry Card
             st.markdown(f"""
-            <div class="{item['style']}">
-                <div class="card-date">{item['raw_date']} • {item['meta']}{location_html}</div>
-                {cost_html}
-                <div class="card-title">{icon} {item['title']} {priority_html}{status_html}</div>
-                <div class="metrics-container">{item['desc']}</div>
+            <div class="entry-card {item['style']}">
+                <div class="entry-header">
+                    <div class="entry-meta">
+                        <span>{item['raw_date']}</span> • 
+                        <span class="entry-category">{item['meta']}</span>
+                        {loc_html}
+                    </div>
+                </div>
+                <div class="entry-main">
+                    <h3 class="entry-title">{icon} {item['title']}</h3>
+                    {cost_html}
+                </div>
+                <div class="entry-content">
+                    {p_html} {s_html}
+                    <div class="metrics-grid">
+                        {item['desc']}
+                    </div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
     else:
