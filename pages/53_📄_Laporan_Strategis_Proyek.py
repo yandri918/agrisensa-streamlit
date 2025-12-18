@@ -91,15 +91,15 @@ def get_timeline_dates(d_str):
     except:
         return "2025-01-01", "2025-02-01"
 
+# --- FETCH DATA (Before Tabs) ---
+rab_raw = st.session_state.get('global_rab_summary', {}) if source_rab == "Sinkron Modul 28" else {}
+sim_raw = st.session_state.get('global_3k_sim', {}) if source_3k == "Sinkron Modul 33" else {}
+ledger_raw = st.session_state.get('ledger_db', []) if source_trace == "Sinkron Modul 48" else []
+
 # --- TAB 2 (Langkah 2): DASHBOARD ---
 with tab_dashboard:
     st.markdown("### 📊 Langkah 2: Monitoring & Analisa Terintegrasi")
     st.caption("Lihat visualisasi data strategi Anda yang digabungkan dengan data operasional real-time.")
-    
-    # Check for Sync Data with Source Selection
-    rab_raw = st.session_state.get('global_rab_summary', {}) if source_rab == "Sinkron Modul 28" else {}
-    sim_raw = st.session_state.get('global_3k_sim', {}) if source_3k == "Sinkron Modul 33" else {}
-    ledger_raw = st.session_state.get('ledger_db', []) if source_trace == "Sinkron Modul 48" else []
     
     # Row 1: Key Metrics
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
