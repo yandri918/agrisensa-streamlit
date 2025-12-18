@@ -45,14 +45,15 @@ Fokus pada integrasi: **Tourism, Production, and Nursery (Yamasa Style).**
 st.markdown("---")
 
 # TABS
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "📍 Analisis Kelayakan",
     "🍇 Panduan Komoditas", 
     "💰 Bisnis & ROI",
     "📋 Manajemen & SOP",
     "📅 Kalender Ops",
     "🌱 Yamasa Nursery",
-    "🏛️ Masterplan & Edu"
+    "🏛️ Masterplan & Edu",
+    "📡 IoT Smart Farm"
 ])
 
 # --- TAB 1: ANALISIS KELAYAKAN ---
@@ -438,6 +439,69 @@ with tab7:
         m_w2.metric("Margin Workshop", f"{(profit_workshop/rev_workshop*100):.1f}%" if rev_workshop > 0 else "0%")
         
         st.success("✅ Workshop adalah pendapatan 'Low Risk' dengan profit tinggi.")
+
+# --- TAB 8: IOT SMART FARM ---
+with tab8:
+    st.header("📡 IoT & Smart Farm Command Center")
+    st.markdown("""
+    **Transformasi Kebun Menjadi Digital Twin.** 
+    Pantau kondisi tanaman secara real-time dan berikan pengalaman interaktif bagi pengunjung.
+    """)
+    
+    # Simulate Live Data Stream
+    import random
+    import time
+
+    col_iot1, col_iot2 = st.columns([1, 2])
+    
+    with col_iot1:
+        st.subheader("📟 Real-time Monitoring")
+        st.caption("Data disimulasikan dari sensor IoT di lapangan.")
+        
+        # Simulated metrics with small random fluctuations
+        temp_iot = 24.5 + random.uniform(-0.5, 0.5)
+        hum_iot = 72.0 + random.uniform(-1, 1)
+        ec_iot = 1.8 + random.uniform(-0.05, 0.05)
+        light_iot = 45000 + random.randint(-500, 500)
+        
+        st.metric("Suhu Udara (°C)", f"{temp_iot:.1f}", f"{random.uniform(-0.2, 0.2):.1f}")
+        st.metric("Kelembaban Media (%)", f"{hum_iot:.1f}", f"{random.uniform(-0.5, 0.5):.1f}")
+        st.metric("Nutrisi / EC (mS/cm)", f"{ec_iot:.2f}", f"{random.uniform(-0.01, 0.01):.2f}")
+        st.metric("Intensitas Cahaya (Lux)", f"{light_iot:,}", f"{random.randint(-100, 100)}")
+
+    with col_iot2:
+        st.subheader("📲 Simulasi Scan QR Pengunjung")
+        st.info("Pilih ID Tanaman seolah-olah Anda sedang scan QR Code di lahan.")
+        
+        plant_id = st.selectbox("Pilih Kode QR Tanaman:", [f"AGRI-MELON-{i:03d}" for i in range(1, 11)])
+        
+        # Plant Status Generation
+        health_status = random.choice(["Optimal", "Sangat Baik", "Perlu Perhatian"])
+        vga_status = random.choice(["Vegetatif Akhir", "Pembesaran Buah", "Pematangan"])
+        days_to_harvest = random.randint(5, 45)
+        
+        st.markdown(f"""
+        <div style="background-color: white; padding: 20px; border-radius: 15px; border: 2px solid #4CAF50;">
+            <h3 style="color: #2E7D32;">🌱 Profil Pintar: {plant_id}</h3>
+            <hr>
+            <p><b>Kondisi Kesehatan:</b> <span style="color: {'green' if health_status != 'Perlu Perhatian' else 'orange'};">{health_status}</span></p>
+            <p><b>Fase Pertumbuhan:</b> {vga_status}</p>
+            <p><b>Estimasi Panen:</b> {days_to_harvest} hari lagi</p>
+            <p><b>Varian:</b> Melon Intanon RZ (Premium)</p>
+            <hr>
+            <p style="font-size: 0.8em; color: gray;">*Data ini diakses oleh pengunjung melalui scan QR Code di setiap poli bag.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        with st.expander("🛠️ Konfigurasi Sistem IoT"):
+            st.markdown("""
+            **Infrastruktur yang Digunakan:**
+            - **Nodes:** ESP32 + Sensor DHT22 & Soil Moisture.
+            - **Gateway:** Raspberry Pi 4 (Edge Computing).
+            - **Cloud:** Real-time Firebase / MQTT Broker.
+            - **Dashboard:** Streamlit Cloud Integration.
+            """)
 
 # Footer
 st.markdown("---")
