@@ -16,12 +16,13 @@ st.title("🏠 Greenhouse & Sistem Hidroponik")
 st.markdown("**Teknologi Budidaya Terkendali untuk Tanaman Bernilai Tinggi**")
 
 # Main tabs
-tab_greenhouse, tab_hydro, tab_nutrients, tab_climate, tab_economics = st.tabs([
+tab_greenhouse, tab_hydro, tab_nutrients, tab_climate, tab_economics, tab_3k = st.tabs([
     "🏠 Greenhouse",
     "💧 Sistem Hidroponik",
     "🧪 Nutrisi & pH",
     "🌡️ Kontrol Iklim",
-    "💰 Analisis Ekonomi"
+    "💰 Analisis Ekonomi",
+    "🚀 Manajemen 3K (Sustainable)"
 ])
 
 # ===== TAB 1: GREENHOUSE =====
@@ -1236,3 +1237,157 @@ with tab_economics:
     
     **Disclaimer:** Hasil analisis bersifat estimasi. Untuk analisis detail, konsultasikan dengan ahli greenhouse/hidroponik.
     """)
+
+# ===== TAB 6: MANAJEMEN 3K (SUSTAINABLE) =====
+with tab_3k:
+    st.header("🚀 Sustainable Greenhouse Management (3K)")
+    st.markdown("""
+    **Kontinuitas, Kualitas, & Kuantitas** — Kunci sukses menembus pasar modern dan ekspor dengan margin tinggi.
+    """)
+
+    # Custom CSS for 3K Dashboard
+    st.markdown("""
+    <style>
+    .pillar-card {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        border-top: 5px solid #10b981;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+        height: 100%;
+    }
+    .pillar-title {
+        color: #065f46;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    .kpi-box {
+        background: #f0fdf4;
+        border: 1px solid #10b981;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # 3K Pillars Overview
+    col_p1, col_p2, col_p3 = st.columns(3)
+    with col_p1:
+        st.markdown("""<div class="pillar-card"><div class="pillar-title">🔁 Kontinuitas</div>
+        Pasokan rutin tanpa putus. Menggunakan sistem <b>Batch / Staggered Planting</b> agar panen tersedia setiap minggu/bulan.</div>""", unsafe_allow_html=True)
+    with col_p2:
+        st.markdown("""<div class="pillar-card"><div class="pillar-title">🌟 Kualitas</div>
+        Standar pasar modern (Grade A). Kontrol nutrisi presisi, IPM tanpa pestisida kimia berbahaya, dan sortasi ketat.</div>""", unsafe_allow_html=True)
+    with col_p3:
+        st.markdown("""<div class="pillar-card"><div class="pillar-title">📊 Kuantitas</div>
+        Yield maksimal per m². Optimalisasi populasi dan efisiensi GH untuk mengejar target tonase pasar.</div>""", unsafe_allow_html=True)
+
+    st.divider()
+
+    # --- SECTION: RAB GREENHOUSE ---
+    st.subheader("💰 Rincian RAB Greenhouse & Investasi")
+    
+    m_col1, m_col2 = st.columns([1, 2])
+    
+    with m_col1:
+        st.info("Input Parameter GH Standar Modern:")
+        area_3k = st.number_input("Luas Area (m²)", 100, 10000, 500, step=100, key="area_3k")
+        tipe_gh_3k = st.selectbox("Tipe Struktur GH", ["Multi-Span (Galvanis)", "Venlo (Kaca/Advanced)", "Polytunnel Premium"], index=0)
+        komoditas_3k = st.selectbox("Komoditas Unggulan", ["Melon Premium (Intanon)", "Tomat Cherry (Ruby)", "Selada Hidroponik (Batavia)", "Paprika Unggul"], index=0)
+        
+    with m_col2:
+        # RAB Calculation Logic
+        base_prices = {
+            "Multi-Span (Galvanis)": 650000,
+            "Venlo (Kaca/Advanced)": 1200000,
+            "Polytunnel Premium": 350000
+        }
+        struct_cost = area_3k * base_prices[tipe_gh_3k]
+        
+        # Technology Packages (IoT, Cooling, Fertigation)
+        tech_cost = area_3k * 150000 # Asumsi Rp 150rb/m2 untuk sistem otomatisasi
+        irrigation_cost = area_3k * 100000 # Rp 100rb/m2 untuk Drip/NFT
+        
+        total_capex = struct_cost + tech_cost + irrigation_cost
+        
+        st.write("#### 📊 Estimasi Investasi Awal (CAPEX)")
+        rab_df = pd.DataFrame({
+            "Komponen": ["Struktur & Atap", "Teknologi (IoT & Cooling)", "Sistem Irigasi & Fertigasi", "Lain-lain (Tools/Listrik)"],
+            "Biaya (Rp)": [struct_cost, tech_cost, irrigation_cost, total_capex * 0.05]
+        })
+        st.table(rab_df.style.format({"Biaya (Rp)": "Rp {:,.0f}"}))
+        st.success(f"**Total Investasi: Rp {total_capex * 1.05:,.0f}**")
+
+    st.divider()
+
+    # --- SECTION: ROTASI TERBAIK ---
+    st.subheader("🔁 Perencanaan Rotasi (Putaran Terbaik)")
+    st.info("Sistem Staggered Planting: Membagi GH menjadi beberapa blok/putaran agar panen rutin harian/mingguan.")
+    
+    r_col1, r_col2 = st.columns(2)
+    
+    with r_col1:
+        siklus_hari = st.slider("Lama Siklus Tanam (Hari dari Semai ke Panen)", 30, 120, 75 if "Melon" in komoditas_3k else 35)
+        jumlah_blok = st.number_input("Jumlah Putaran / Blok GH", 2, 12, 4 if "Melon" in komoditas_3k else 8, help="Berapa banyak gelombang tanam")
+        target_panen_minggu = st.number_input("Target Panen per Minggu (kg)", 10, 5000, 200)
+
+    with r_col2:
+        # Rotation Analysis
+        interval_tanam = siklus_hari / jumlah_blok
+        st.markdown(f"""
+        <div class="kpi-box">
+            <h3>Strategi Rotasi</h3>
+            <p>Interval Tanam: <b>Setiap {interval_tanam:.1f} Hari</b></p>
+            <p>Frekuensi Panen: <b>{365/interval_tanam:.0f} Kali / Tahun</b></p>
+            <p>Luas per Blok: <b>{area_3k/jumlah_blok:.1f} m²</b></p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Simple Visual Timeline
+        timeline_data = []
+        for i in range(int(jumlah_blok)):
+            timeline_data.append({"Blok": f"Blok {i+1}", "Status": "Tanam", "Minggu Ke": i * (interval_tanam/7)})
+        
+        st.caption("Visualisasi Gelombang Tanam (Staggered):")
+        fig_rot = px.bar(timeline_data, x="Minggu Ke", y="Blok", color="Blok", orientation='h', title="Timeline Rotasi 3K")
+        st.plotly_chart(fig_rot, use_container_width=True)
+
+    st.divider()
+
+    # --- SECTION: MANAJEMEN TOTAL ---
+    st.subheader("📊 Dashboard Manajemen Total (Dashboard 3K)")
+    
+    d_col1, d_col2, d_col3 = st.columns(3)
+    
+    # Simulation Data
+    yield_est = (area_3k * 15) if "Melon" in komoditas_3k else (area_3k * 25) # kg per tahun
+    rev_est = yield_est * (40000 if "Melon" in komoditas_3k else 20000)
+    
+    with d_col1:
+        st.metric("Skor Kontinuitas", "95%", delta="Tinggi")
+        st.caption("Pasokan konsisten ke supermarket")
+    with d_col2:
+        st.metric("Rasio Kualitas (Grade A)", "88%", delta="5% Up")
+        st.caption("Produk memenuhi standar modern market")
+    with d_col3:
+        st.metric("Efisiensi Kuantitas", f"{yield_est/area_3k:.1f} kg/m²", delta="Optimal")
+        st.caption("Produktivitas per unit luas")
+
+    st.markdown("---")
+    
+    # Checklist Management
+    with st.expander("📝 SOP Harian Manajemen 3K (Modern Market Standards)"):
+        st.checkbox("1. Monitoring EC & pH (Kualitas) - Pagi & Sore")
+        st.checkbox("2. Cek Logbook Rotasi (Kontinuitas) - Apakah jadwal tanam blok berikutnya sudah siap?")
+        st.checkbox("3. Pengendalian Hama Preventif (Kualitas) - Gunakan Trap & Insect Net")
+        st.checkbox("4. Optimalisasi Pruning (Kuantitas) - Pastikan asimilasi hanya ke buah/daun utama")
+        st.checkbox("5. QC Packing (Kualitas) - Berat seragam, NO residu pestisida, Labeling")
+
+    st.success("Sistem Manajemen 3K Aktif: Siap mensuplai pasar modern secara berkelanjutan.")
+
+# Footer
+st.markdown("---")
+st.caption("AgriSensa Sustainable Greenhouse - Membangun Pertanian yang Terukur dan Berkelanjutan.")
