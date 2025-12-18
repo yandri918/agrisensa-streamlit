@@ -51,11 +51,17 @@ with st.sidebar:
 st.title("📄 Strategic Project Dossier V2")
 st.markdown("Sistem Manajemen Laporan Strategis Terpadu — *AgriSensa Intelligence*")
 
+# --- PROCESS GUIDE BANNER ---
+st.info("""
+**Alur Kerja Strategis:**
+1. **Penyusunan Konten** (Isi SWOT & Timeline) ➔ 2. **Analisa Terintegrasi** (Monitor Dashboard) ➔ 3. **Cetak Buku Putih** (Dokumen Final)
+""")
+
 # --- NATIVE TABS ---
-tab_dashboard, tab_editor, tab_preview = st.tabs([
-    "📊 Dashboard Strategis", 
-    "✍️ Editor Dokumen", 
-    "📑 Pratinjau Buku Putih"
+tab_editor, tab_dashboard, tab_preview = st.tabs([
+    "�️ Langkah 1: Penyusunan Konten",
+    "📊 Langkah 2: Analisa Terintegrasi", 
+    "� Langkah 3: Cetak Buku Putih"
 ])
 
 # --- HELPER FUNCTIONS ---
@@ -85,9 +91,10 @@ def get_timeline_dates(d_str):
     except:
         return "2025-01-01", "2025-02-01"
 
-# --- TAB 1: DASHBOARD ---
+# --- TAB 2 (Langkah 2): DASHBOARD ---
 with tab_dashboard:
-    st.markdown("### 📊 Project Intelligence Dashboard")
+    st.markdown("### 📊 Langkah 2: Monitoring & Analisa Terintegrasi")
+    st.caption("Lihat visualisasi data strategi Anda yang digabungkan dengan data operasional real-time.")
     
     # Check for Sync Data with Source Selection
     rab_raw = st.session_state.get('global_rab_summary', {}) if source_rab == "Sinkron Modul 28" else {}
@@ -154,9 +161,10 @@ with tab_dashboard:
         sync_status = "Connected" if (rab_raw or sim_raw or source_trace == "Sinkron Modul 48") else "Template Mode"
         st.caption(f"Status Data: {sync_status} | Mode: Enterprise V3")
 
-# --- TAB 2: EDITOR ---
+# --- TAB 1 (Langkah 1): EDITOR ---
 with tab_editor:
-    st.header("📝 Dokumentasi Konten & Analisis")
+    st.markdown("### ✍️ Langkah 1: Penyusunan Konten Strategis")
+    st.caption("Gunakan bagian ini untuk mengisi detail narasi (SWOT) dan jadwal proyek secara manual.")
     
     # SWOT Editor
     st.subheader("1. Matriks SWOT")
@@ -176,8 +184,11 @@ with tab_editor:
     edited_df = st.data_editor(df_timeline, num_rows="dynamic", use_container_width=True)
     st.session_state['timeline_data'] = edited_df.to_dict('records')
 
-# --- TAB 3: FINAL PREVIEW (WHITE PAPER) ---
+# --- TAB 3 (Langkah 3): FINAL PREVIEW ---
 with tab_preview:
+    st.markdown("### 📑 Dokumentasi Resmi (Buku Putih)")
+    st.caption("Pratinjau akhir sebelum dicetak ke PDF. Gunakan sidebar jika ingin mengubah sumber data atau mencetak.")
+    
     st.markdown("""
         <style>
             .stApp { background: #f1f5f9 !important; }
