@@ -298,10 +298,18 @@ def main():
                 farmer_phone = st.text_input("No. WhatsApp *", placeholder="08123456789")
                 location = st.text_input("Blok / Nama Lahan *", placeholder="Contoh: Blok A - Sawah Barat")
             with col2:
-                commodity = st.selectbox("Komoditas Identifikasi *", [
+                commodity_options = [
                     "Padi Inpari", "Jagung Hibrida", "Kedelai", "Cabai Rawit", "Cabai Merah",
-                    "Tomat", "Kentang", "Bawang Merah", "Bawang Putih", "Melon", "Semangka"
-                ])
+                    "Tomat", "Kentang", "Bawang Merah", "Bawang Putih", "Melon", "Semangka",
+                    "Lainnya (Ketik Manual)"
+                ]
+                commodity_choice = st.selectbox("Komoditas Identifikasi *", commodity_options)
+                
+                if commodity_choice == "Lainnya (Ketik Manual)":
+                    commodity = st.text_input("Ketik Nama Komoditas *", placeholder="Misal: Vanili, Porang, dll")
+                else:
+                    commodity = commodity_choice
+                    
                 harvest_date = st.date_input("Tanggal Aktual Panen", value=date.today())
                 harvest_sequence = st.number_input("Urutan Panen (Periode)", min_value=1, value=1)
             
