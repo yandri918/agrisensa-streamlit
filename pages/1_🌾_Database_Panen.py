@@ -281,35 +281,40 @@ def main():
         st.header("➕ Form Input Panen Presisi")
         
         # Number of criteria OUTSIDE form for reactivity
-        st.subheader("📊 Konfigurasi Hasil")
+        st.subheader("📊 Konfigurasi & Identifikasi")
         col_c1, col_c2 = st.columns(2)
         with col_c1:
-            st.info("Berapa tingkatan kualitas/grade hasil panen Anda?")
+            st.info("Konfigurasi Lahan & Grade")
             num_criteria = st.number_input("Jumlah Kriteria/Grade", min_value=1, max_value=5, value=1)
-        with col_c2:
-            st.info("Target produktivitas dihitung otomatis (Ton/Ha).")
             land_size_ha = st.number_input("Luas Lahan Panen (Hektar)", min_value=0.01, value=1.0, step=0.01)
         
+        with col_c2:
+            st.info("Pilih atau Ketik Komoditas")
+            commodity_options = [
+                "Padi Inpari", "Jagung Hibrida", "Kedelai", "Cabai Rawit", "Cabai Merah",
+                "Tomat", "Kentang", "Bawang Merah", "Bawang Putih", "Melon", "Semangka",
+                "Lainnya (Ketik Manual)"
+            ]
+            commodity_choice = st.selectbox("Komoditas Identifikasi *", commodity_options)
+            if commodity_choice == "Lainnya (Ketik Manual)":
+                commodity = st.text_input("Ketik Nama Komoditas *", placeholder="Misal: Vanili, Porang, dll")
+            else:
+                commodity = commodity_choice
+        
+        st.markdown("---")
+        
+        # Farmer & Location (Also outside for immediate feedback if needed, but safe inside too)
+        # However, for a clean look, let's keep the core form as the "Data Entry" spot.
+        # But we must ensure all mandatory fields are captured.
+
         with st.form("add_harvest_form_v2"):
             st.subheader("📝 Metadata Produksi")
             col1, col2 = st.columns(2)
             with col1:
                 farmer_name = st.text_input("Nama Petani / Operator *", placeholder="Contoh: Kelompok Tani Makmur")
                 farmer_phone = st.text_input("No. WhatsApp *", placeholder="08123456789")
-                location = st.text_input("Blok / Nama Lahan *", placeholder="Contoh: Blok A - Sawah Barat")
             with col2:
-                commodity_options = [
-                    "Padi Inpari", "Jagung Hibrida", "Kedelai", "Cabai Rawit", "Cabai Merah",
-                    "Tomat", "Kentang", "Bawang Merah", "Bawang Putih", "Melon", "Semangka",
-                    "Lainnya (Ketik Manual)"
-                ]
-                commodity_choice = st.selectbox("Komoditas Identifikasi *", commodity_options)
-                
-                if commodity_choice == "Lainnya (Ketik Manual)":
-                    commodity = st.text_input("Ketik Nama Komoditas *", placeholder="Misal: Vanili, Porang, dll")
-                else:
-                    commodity = commodity_choice
-                    
+                location = st.text_input("Blok / Nama Lahan *", placeholder="Contoh: Blok A - Sawah Barat")
                 harvest_date = st.date_input("Tanggal Aktual Panen", value=date.today())
                 harvest_sequence = st.number_input("Urutan Panen (Periode)", min_value=1, value=1)
             
