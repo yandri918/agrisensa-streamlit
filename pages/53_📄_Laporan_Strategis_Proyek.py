@@ -38,11 +38,11 @@ with st.sidebar:
     report_date = st.date_input("Tanggal Terbit", datetime.date.today())
     
     st.divider()
-    include_fin = st.toggle("Analisis Finansial", True)
-    include_swot = st.toggle("Analisis SWOT", True)
-    include_timeline = st.toggle("Project Timeline", True)
-    include_trace = st.toggle("Traceability & Security", True)
-    
+    st.subheader("🔌 Sumber Data")
+    source_rab = st.radio("Sektor Finansial (RAB)", ["Template Standar", "Sinkron Modul 28"], index=0, help="Pilih sumber data untuk biaya dan ROI.")
+    source_3k = st.radio("Sektor Operasional (3K)", ["Template Standar", "Sinkron Modul 33"], index=0, help="Pilih sumber data untuk kapasitas dan model bisnis.")
+    source_trace = st.radio("Sektor Keamanan", ["Template Standar", "Sinkron Modul 48"], index=0, help="Pilih sumber data untuk riwayat blockchain.")
+
     st.divider()
     if st.button("🖨️ Generate & Print (Buku Putih)", type="primary", use_container_width=True):
         st.components.v1.html("<script>window.print();</script>", height=0)
@@ -89,21 +89,21 @@ def get_timeline_dates(d_str):
 with tab_dashboard:
     st.markdown("### 📊 Project Intelligence Dashboard")
     
-    # Check for Sync Data
-    rab_raw = st.session_state.get('global_rab_summary', {})
-    sim_raw = st.session_state.get('global_3k_sim', {})
-    ledger_raw = st.session_state.get('ledger_db', [])
+    # Check for Sync Data with Source Selection
+    rab_raw = st.session_state.get('global_rab_summary', {}) if source_rab == "Sinkron Modul 28" else {}
+    sim_raw = st.session_state.get('global_3k_sim', {}) if source_3k == "Sinkron Modul 33" else {}
+    ledger_raw = st.session_state.get('ledger_db', []) if source_trace == "Sinkron Modul 48" else []
     
     # Row 1: Key Metrics
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
     with m_col1:
-        st.metric("Total Investment", f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850M", "CAPEX")
+        st.metric("Total Investment", f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850M", "RAB Live" if rab_raw else "Template")
     with m_col2:
-        st.metric("Efficiency ROI", f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "Market Avg", "Profitability")
+        st.metric("Efficiency ROI", f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "Market Avg", "RAB Live" if rab_raw else "Standard")
     with m_col3:
-        st.metric("Verified Blocks", f"{len(ledger_raw)} Blocks", "Blockchain")
+        st.metric("Verified Blocks", f"{len(ledger_raw)} Blocks", "Chain Live" if source_trace == "Sinkron Modul 48" else "Template")
     with m_col4:
-        st.metric("Supply Readiness", f"{sim_raw['kapasitas_mingguan']} kg/wk" if sim_raw else "200 kg/wk", "Consistency")
+        st.metric("Supply Readiness", f"{sim_raw['kapasitas_mingguan']} kg/wk" if sim_raw else "200 kg/wk", "3K Live" if sim_raw else "Template")
 
     st.divider()
 
@@ -151,8 +151,8 @@ with tab_dashboard:
     with s_col1:
         st.info(f"**Visi Utama:** Menjadi pemimpin pasar untuk komoditas **{rab_raw.get('komoditas', proj_name)}** dengan standar kualitas 3K.")
     with s_col2:
-        sync_status = "Online" if rab_raw or sim_raw else "Standalone"
-        st.caption(f"Status Sistem: {sync_status} | Last Database Push: {rab_raw.get('timestamp', 'N/A')}")
+        sync_status = "Connected" if (rab_raw or sim_raw or source_trace == "Sinkron Modul 48") else "Template Mode"
+        st.caption(f"Status Data: {sync_status} | Mode: Enterprise V3")
 
 # --- TAB 2: EDITOR ---
 with tab_editor:
@@ -214,9 +214,10 @@ with tab_preview:
     st.info("📑 Mode Pratinjau Dokumen Aktif. Gunakan Sidebar untuk mencetak.")
 
     # CALCULATE FALLBACKS FOR REPORT
-    r_total = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000"
-    r_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24 - 28 Bulan"
-    r_kap = f"{sim_raw['kapasitas_mingguan']} kg" if sim_raw else "200 kg"
+    r_total = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000 (Blueprint)"
+    r_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24 - 28 Bulan (Market Avg)"
+    r_kap = f"{sim_raw['kapasitas_mingguan']} kg" if sim_raw else "200 kg (Est. Capacity)"
+    r_blocks = f"{len(ledger_raw)} Transaksi Terverifikasi" if source_trace == "Sinkron Modul 48" else "Sistem Keamanan Terintegrasi (Template)"
 
     # BUILD CONTENT
     html_report = f"""
@@ -245,7 +246,7 @@ with tab_preview:
             <tr><td class="label-cell">Total Investasi Awal</td><td>{r_total}</td></tr>
             <tr><td class="label-cell">Estimasi ROI</td><td>{r_roi}</td></tr>
             <tr><td class="label-cell">Unit Kapasitas</td><td>{r_kap} / Minggu</td></tr>
-            <tr><td class="label-cell">Kepatuhan Blockchain</td><td>{len(ledger_raw)} Transaksi Terverifikasi</td></tr>
+            <tr><td class="label-cell">Kepatuhan Blockchain</td><td>{r_blocks}</td></tr>
         </table>
 
         <div class="paper-section">04. Timeline Implementasi</div>
