@@ -104,98 +104,198 @@ with tab_editor:
 with tab_preview:
     st.info("💡 Halaman ini dirancang khusus untuk dicetak ke PDF via Sidebar.")
     
-    # CSS remains the same for the print document
+    # PREMIUM CSS FOR THE DOSSIER
     report_css = """
     <style>
-        .report-card { background: white; padding: 60px; border: 1px solid #e2e8f0; font-family: 'Georgia', serif; color: #1a202c; max-width: 850px; margin: auto; line-height: 1.6; }
-        .report-header { text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 30px; margin-bottom: 40px; }
-        .report-title { font-size: 2.8rem; color: #064e3b; margin-bottom: 5px; font-weight: bold; }
-        .section-title { font-size: 1.6rem; color: #0f766e; border-bottom: 1.5px solid #cbd5e1; margin-top: 40px; margin-bottom: 15px; padding-bottom: 5px; font-weight: bold; }
-        .kpi-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .kpi-table td { padding: 12px; border: 1px solid #e2e8f0; font-size: 0.95rem; }
-        .kpi-label { background: #f8fafc; font-weight: bold; width: 40%; }
-        .swot-box { padding: 15px; border-left: 4px solid #10b981; background: #f0fdf4; margin-bottom: 10px; }
+        .dossier-root {
+            background: white;
+            padding: 80px 60px;
+            border: 1px solid #e2e8f0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #1a202c;
+            max-width: 850px;
+            margin: auto;
+            line-height: 1.7;
+            position: relative;
+        }
+        .dossier-watermark {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            padding: 5px 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transform: rotate(5deg);
+            opacity: 0.6;
+            font-size: 0.8rem;
+        }
+        .report-header {
+            text-align: center;
+            border-bottom: 3px solid #059669;
+            padding-bottom: 40px;
+            margin-bottom: 50px;
+        }
+        .report-title {
+            font-size: 3rem;
+            color: #064e3b;
+            margin: 10px 0;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        .section-title {
+            font-size: 1.4rem;
+            color: #065f46;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        .section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #cbd5e1;
+            margin-left: 20px;
+        }
+        /* SWOT GRID */
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .swot-card {
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .swot-s { background: #f0fdf4; border-left: 5px solid #22c55e; }
+        .swot-w { background: #fff1f2; border-left: 5px solid #f43f5e; }
+        .swot-o { background: #f0f9ff; border-left: 5px solid #0ea5e9; }
+        .swot-t { background: #fefce8; border-left: 5px solid #eab308; }
+        .swot-label { font-weight: 800; font-size: 0.9rem; margin-bottom: 5px; display: block; text-transform: uppercase; }
+
+        /* PREMIUM TABLES */
+        .premium-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .premium-table th {
+            background: #f8fafc;
+            color: #475569;
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .premium-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+        }
+        .kpi-label { font-weight: 600; color: #334155; background: #f8fafc; width: 40%; }
         
         @media print {
             header, .stSidebar, .stButton, .stTabs, .stInfo, .stMetric, .stAlert, .no-print { display: none !important; }
-            .report-card { box-shadow: none; border: none; padding: 0; width: 100%; }
+            .dossier-root { border: none; padding: 0; width: 100%; }
             body { background: white; }
             .stApp { background: white !important; }
         }
     </style>
     """
     
-    # Build HTML Content
+    # BUILD CONTENT
     html_content = f"""
-    <div class="report-card">
+    <div class="dossier-root">
+        <div class="dossier-watermark">CONFIDENTIAL & STRATEGIC</div>
+        
         <div class="report-header">
-            <div style="color:#10b981; letter-spacing:3px; font-size:0.9rem;">CONFIDENTIAL STRATEGIC DOSSIER</div>
+            <div style="color:#059669; font-weight:700; font-size:1.1rem; margin-bottom:10px;">PROPOSAL STRATEGIS BISNIS</div>
             <h1 class="report-title">{proj_name}</h1>
-            <p style="font-size:1.1rem; margin-top:5px;">Oleh: <b>{company_name}</b></p>
-            <p style="color:gray;">Tanggal: {report_date.strftime('%d %B %Y')}</p>
+            <p style="font-size:1.2rem; margin-top:10px; color:#475569;">Oleh: <b>{company_name}</b></p>
+            <p style="color:#94a3b8; font-size:0.9rem;">Dokumen ID: AS-{report_date.strftime('%Y%j')}-PRO</p>
+            <p style="color:#94a3b8; font-size:0.9rem;">Diterbitkan pada: {report_date.strftime('%d %B %Y')}</p>
         </div>
         
-        <div class="section-title">I. Ringkasan Eksekutif</div>
+        <div class="section-title">01. Ringkasan Eksekutif</div>
         <p>
             Proyek <b>{proj_name}</b> merupakan inisiasi strategis yang menggabungkan otomasi cerdas, manajemen 3K, dan transparansi blockchain. 
-            Laporan ini berfungsi sebagai "Buku Putih" (White Paper) yang merinci kelayakan bisnis dan kesiapan operasional.
+            Laporan ini berfungsi sebagai dokumen kelayakan utama yang merinci posisi kompetitif, proyeksi ekonomi, dan 
+            kerangka waktu implementasi untuk mencapai keunggulan operasional di pasar modern.
         </p>
     """
     
     if include_swot:
         html_content += f"""
-        <div class="section-title">II. Analisis SWOT Strategis</div>
-        <div class="swot-box"><b>Strengths:</b> {st.session_state['swot_data']['Strengths']}</div>
-        <div class="swot-box"><b>Weaknesses:</b> {st.session_state['swot_data']['Weaknesses']}</div>
-        <div class="swot-box"><b>Opportunities:</b> {st.session_state['swot_data']['Opportunities']}</div>
-        <div class="swot-box"><b>Threats:</b> {st.session_state['swot_data']['Threats']}</div>
+        <div class="section-title">02. Matriks Analisis SWOT</div>
+        <div class="swot-grid">
+            <div class="swot-card swot-s"><span class="swot-label">Strengths</span>{st.session_state['swot_data']['Strengths']}</div>
+            <div class="swot-card swot-w"><span class="swot-label">Weaknesses</span>{st.session_state['swot_data']['Weaknesses']}</div>
+            <div class="swot-card swot-o"><span class="swot-label">Opportunities</span>{st.session_state['swot_data']['Opportunities']}</div>
+            <div class="swot-card swot-t"><span class="swot-label">Threats</span>{st.session_state['swot_data']['Threats']}</div>
+        </div>
         """
         
     if include_fin:
         html_content += f"""
-        <div class="section-title">III. Parameter Ekonomi & Investasi</div>
-        <table class="kpi-table">
-            <tr><td class="kpi-label">Estimasi CAPEX</td><td>Rp 850,000,000</td></tr>
-            <tr><td class="kpi-label">Periode BEP</td><td>24 - 28 Bulan</td></tr>
-            <tr><td class="kpi-label">Modal Kerja (Reserves)</td><td>Rp 45,000,000</td></tr>
-            <tr><td class="kpi-label">Target Margin Bersih</td><td>35% - 42%</td></tr>
+        <div class="section-title">03. Proyeksi Ekonomi & Investasi</div>
+        <table class="premium-table">
+            <thead><tr><th>Parameter Investasi</th><th>Estimasi Nilai / Target</th></tr></thead>
+            <tbody>
+                <tr><td class="kpi-label">Estimasi CAPEX</td><td>Rp 850,000,000</td></tr>
+                <tr><td class="kpi-label">Periode BEP (ROI)</td><td>24 - 28 Bulan</td></tr>
+                <tr><td class="kpi-label">Cadangan Modal Kerja</td><td>Rp 45,000,000</td></tr>
+                <tr><td class="kpi-label">Target Margin Operasional</td><td>35% - 42%</td></tr>
+            </tbody>
         </table>
         """
         
     if include_timeline:
-        html_content += """<div class="section-title">IV. Project Timeline & Fasilitas</div><table class="kpi-table">"""
+        html_content += """
+        <div class="section-title">04. Timeline Rencana Aksi</div>
+        <table class="premium-table">
+            <thead><tr><th>Fase Proyek</th><th>Ekspektasi Durasi</th></tr></thead>
+            <tbody>"""
         for item in st.session_state['timeline_data']:
             html_content += f"<tr><td class='kpi-label'>{item['Fase']}</td><td>{item['Durasi']}</td></tr>"
-        html_content += "</table>"
+        html_content += "</tbody></table>"
         
     if include_trace:
         html_content += """
-        <div class="section-title">V. Keamanan Data & Traceability</div>
-        <p>Seluruh transaksi serah terima dicatat dalam <b>AgriSensa Blockchain Ledger</b>, menjamin data tidak dapat diubah (immutable) dan dapat diverifikasi oleh konsumen maupun mitra modern market.</p>
-        <div style="background:#f1f5f9; padding:20px; border-radius:10px; text-align:center; border: 1px dashed #cbd5e1;">
-            <b style="color:#0f172a;">NETWORK STATUS: SECURED</b><br/>
-            <span style="font-size:0.8rem; color:gray;">Hash Verification Protocol Active</span>
+        <div class="section-title">05. Keamanan Digital & Traceability</div>
+        <p>Utilisasi <b>AgriSensa Blockchain Ledger</b> menjamin integritas data rantai pasok. 
+        Sistem sertifikasi digital kami memungkinkan verifikasi instan terhadap kualitas produk dan kepatuhan SOP.</p>
+        <div style="background:#f8fafc; padding:30px; border-radius:12px; margin-top:20px; border: 1px solid #e2e8f0; text-align:center;">
+            <div style="color:#059669; font-weight:800; font-size:1.1rem; margin-bottom:5px;">● ENCRYPTED & SECURED</div>
+            <p style="margin:0; font-size:0.85rem; color:#64748b;">Verifikasi Hash Berbasis SHA-256 Otomatis Aktif</p>
         </div>
         """
         
     html_content += f"""
-        <div class="section-title">VI. Pengesahan</div>
-        <table style="width:100%; margin-top:50px; border:none;">
+        <div class="section-title">06. Pengesahan Strategis</div>
+        <table style="width:100%; margin-top:80px; border:none;">
             <tr style="border:none;">
-                <td style="text-align:center; border:none;">
-                    Dipersiapkan oleh,<br/><br/><br/><br/>
-                    <b>Intelligence System AgriSensa</b>
+                <td style="text-align:center; border:none; width:50%;">
+                    <div style="border-top:1px solid #475569; width:200px; margin:auto; margin-bottom:10px;"></div>
+                    <b style="font-size:0.9rem;">Intelligence System AgriSensa</b><br>
+                    <span style="font-size:0.8rem; color:gray;">Penyusun Laporan Digital</span>
                 </td>
-                <td style="text-align:center; border:none;">
-                    Disetujui oleh,<br/><br/><br/><br/>
-                    <b>{owner_name}</b><br/>
-                    {company_name}
+                <td style="text-align:center; border:none; width:50%;">
+                    <div style="border-top:1px solid #475569; width:200px; margin:auto; margin-bottom:10px;"></div>
+                    <b style="font-size:0.9rem;">{owner_name}</b><br>
+                    <span style="font-size:0.8rem; color:gray;">Direktur / Pemilik Proyek</span>
                 </td>
             </tr>
         </table>
     </div>
     """
     
-    # Final Rendering
+    # RENDER
     st.markdown(report_css, unsafe_allow_html=True)
     st.markdown(html_content, unsafe_allow_html=True)
