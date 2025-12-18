@@ -4,6 +4,7 @@
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -492,19 +493,287 @@ PESTISIDA_NABATI = {
     }
 }
 
+
+# ========== ADVANCED INTEL MODULES ==========
+
+def show_mulders_chart():
+    st.subheader("📊 Visualisasi Interaksi Nutrisi (Mulder's Chart)")
+    st.markdown("""
+    Bagan ini menunjukkan bagaimana satu unsur hara dapat memengaruhi penyerapan unsur hara lainnya.
+    - **Antagonisme (Garis Merah):** Kelebihan satu unsur menghambat penyerapan unsur lain.
+    - **Sinergisme (Garis Hijau):** Kehadiran satu unsur membantu penyerapan unsur lain.
+    """)
+
+    nutrients = ["N", "P", "K", "Ca", "Mg", "Fe", "Mn", "Zn", "Cu", "B", "Mo"]
+    
+    # Simple coordinates for a circle
+    angles = np.linspace(0, 2*np.pi, len(nutrients), endpoint=False)
+    x = np.cos(angles)
+    y = np.sin(angles)
+
+    fig = go.Figure()
+
+    # Define interactions (Simplified example for visualization)
+    interactions = [
+        ("N", "P", "synergy"), ("N", "K", "synergy"), ("N", "Mg", "synergy"),
+        ("K", "Mg", "antagonism"), ("K", "Ca", "antagonism"),
+        ("P", "Zn", "antagonism"), ("P", "Fe", "antagonism"), ("P", "Cu", "antagonism"),
+        ("Ca", "P", "antagonism"), ("Ca", "Mg", "antagonism"), ("Ca", "B", "antagonism"),
+        ("Mg", "Ca", "antagonism"), ("Mg", "K", "antagonism"),
+        ("Fe", "Mn", "antagonism"), ("Cu", "Mo", "antagonism")
+    ]
+
+    # Draw lines
+    for start, end, type in interactions:
+        idx_s = nutrients.index(start)
+        idx_e = nutrients.index(end)
+        color = "rgba(34, 197, 94, 0.6)" if type == "synergy" else "rgba(239, 68, 68, 0.6)"
+        width = 2
+        
+        fig.add_trace(go.Scatter(
+            x=[x[idx_s], x[idx_e]], y=[y[idx_s], y[idx_e]],
+            mode='lines',
+            line=dict(color=color, width=width),
+            hoverinfo='none',
+            showlegend=False
+        ))
+
+    # Add points
+    fig.add_trace(go.Scatter(
+        x=x, y=y,
+        mode='markers+text',
+        text=nutrients,
+        textposition="top center",
+        marker=dict(size=25, color='#065f46', line=dict(width=2, color='white')),
+        textfont=dict(color="black", size=14, family="Outfit"),
+        hoverinfo='text',
+        hovertext=nutrients
+    ))
+
+    fig.update_layout(
+        showlegend=False,
+        height=500,
+        margin=dict(l=20, r=20, t=20, b=20),
+        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+
+def show_ph_availability():
+    st.subheader("🌍 Pengaruh pH Tanah terhadap Ketersediaan Hara")
+    
+    ph_range = np.linspace(4.0, 9.0, 50)
+    
+    # Simulated availability curves
+    availability = {
+        "N (Nitrogen)": np.exp(-(ph_range-6.5)**2 / 2.0),
+        "P (Fosfor)": np.exp(-(ph_range-6.8)**2 / 0.8),
+        "K (Kalium)": np.where(ph_range < 6, (ph_range-4)/2, 1.0),
+        "Ca/Mg": np.where(ph_range < 7, (ph_range-4)/3, 1.0),
+        "Mikro (Fe, Mn, Zn)": np.where(ph_range > 6, 1 - (ph_range-6)/3, 1.0),
+        "Mo (Molibdenum)": np.where(ph_range < 7, (ph_range-4)/4, 1.0)
+    }
+    
+    fig = px.line(pd.DataFrame(availability, index=ph_range), 
+                 labels={"index": "pH Tanah", "value": "Ketersediaan (Relatif)"},
+                 color_discrete_sequence=px.colors.qualitative.Safe)
+    
+    fig.add_vrect(x0=6.0, x1=7.0, fillcolor="rgba(34, 197, 94, 0.2)", layer="below", line_width=0, 
+                  annotation_text="Rentang Ideal (6.0 - 7.0)")
+    
+    fig.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20), hovermode="x unified")
+    st.plotly_chart(fig, use_container_width=True)
+
+def show_mixture_simulator():
+    st.subheader("🧪 Simulator Pencampuran Pupuk")
+    st.markdown("Cek apakah dua jenis pupuk aman untuk dicampurkan dalam satu tangki/wadah.")
+    
+    col1, col2 = st.columns(2)
+    pupuk_list = ["Urea", "ZA", "SP-36/TSP", "KCl", "NPK", "Kalsium Nitrat", "Magnesium Sulfat", "Pupuk Organik Cair"]
+    
+    with col1:
+        p1 = st.selectbox("Pilih Pupuk A", pupuk_list, index=0)
+    with col2:
+        p2 = st.selectbox("Pilih Pupuk B", pupuk_list, index=5)
+        
+    # Compatibility Logic
+    compatibility = "Safe"
+    reason = "Aman untuk dicampur."
+    
+    # Specific Cases
+    dangerous = [
+        ("Kalsium Nitrat", "SP-36/TSP"), # Presipitasi kalsium fosfat
+        ("Kalsium Nitrat", "Magnesium Sulfat"), # Presipitasi kalsium sulfat (gipsum)
+        ("Urea", "ZA"), # Menjadi sangat lembab (higroskopis)
+    ]
+    
+    caution = [
+        ("Urea", "SP-36/TSP"), # Bisa menggumpal jika disimpan lama
+        ("ZA", "Kapur/Dolomit"), # Kehilangan N dalam bentuk amonia
+    ]
+    
+    for pair in dangerous:
+        if (p1 == pair[0] and p2 == pair[1]) or (p1 == pair[1] and p2 == pair[0]):
+            compatibility = "Dangerous"
+            reason = "Terjadi presipitasi (pengendapan) yang dapat menyumbat nozzle atau mengurangi efektivitas."
+    
+    for pair in caution:
+        if (p1 == pair[0] and p2 == pair[1]) or (p1 == pair[1] and p2 == pair[0]):
+            compatibility = "Caution"
+            reason = "Segera gunakan setelah dicampur. Jangan disimpan dalam kondisi tercampur."
+
+    if compatibility == "Safe":
+        st.success(f"✅ **{p1} + {p2}**: {reason}")
+    elif compatibility == "Caution":
+        st.warning(f"⚠️ **{p1} + {p2}**: {reason}")
+    else:
+        st.error(f"❌ **{p1} + {p2}**: {reason}")
+
+
+def show_deficiency_detector():
+    st.subheader("🔍 Pendeteksi Defisiensi Cerdas")
+    st.info("Jawab beberapa pertanyaan di bawah ini untuk mengidentifikasi kemungkinan kekurangan nutrisi.")
+    
+    # Step 1: Location of symptoms
+    location = st.radio(
+        "Di mana gejala pertama kali muncul?",
+        ["Daun Tua (Bagian Bawah)", "Daun Muda (Bagian Atas/Pucuk)", "Bunga/Buah/Akar"],
+        horizontal=True
+    )
+    
+    if location == "Daun Tua (Bagian Bawah)":
+        st.markdown("**Analisis Daun Tua:** Unsur hara yang bersifat mobil (N, P, K, Mg) akan dipindahkan ke daun muda jika terjadi kekurangan.")
+        symptom = st.radio(
+            "Apa gejala utamanya?",
+            [
+                "Kuning merata (Klorosis)", 
+                "Tepi daun kering/terbakar (Necrosis)",
+                "Warna ungu/merah tua",
+                "Bercak kuning di antara tulang daun (Interveinal)"
+            ]
+        )
+        
+        if symptom == "Kuning merata (Klorosis)":
+            st.error("💡 **Kemungkinan: Defisiensi NITROGEN (N)**")
+            st.write("Tanaman butuh asupan N cepat (Urea/ZA/POC).")
+        elif symptom == "Tepi daun kering/terbakar (Necrosis)":
+            st.error("💡 **Kemungkinan: Defisiensi KALIUM (K)**")
+            st.write("Tanaman butuh KCl atau pupuk daun tinggi K.")
+        elif symptom == "Warna ungu/merah tua":
+            st.error("💡 **Kemungkinan: Defisiensi FOSFOR (P)**")
+            st.write("Tanaman butuh SP-36/TSP atau MAP/DAP.")
+        elif symptom == "Bercak kuning di antara tulang daun (Interveinal)":
+            st.error("💡 **Kemungkinan: Defisiensi MAGNESIUM (Mg)**")
+            st.write("Aplikasi Magnesium Sulfat atau Kapur Dolomit.")
+            
+    elif location == "Daun Muda (Bagian Atas/Pucuk)":
+        st.markdown("**Analisis Daun Muda:** Unsur hara imobil (Ca, S, Fe, Zn, Mn, B, Cu) tidak bisa pindah, sehingga gejala muncul di pucuk.")
+        symptom = st.radio(
+            "Apa gejala utamanya?",
+            [
+                "Pucuk kuning pucat (tulang daun tetap hijau)", 
+                "Pucuk kuning merata",
+                "Pucuk kerdil/cacat/mati",
+                "Daun muda putih bersih"
+            ]
+        )
+        
+        if symptom == "Pucuk kuning pucat (tulang daun tetap hijau)":
+            st.error("💡 **Kemungkinan: Defisiensi BESI (Fe)**")
+            st.write("Hampir sering terjadi di tanah pH tinggi. Gunakan Fe-EDTA.")
+        elif symptom == "Pucuk kuning merata":
+            st.error("💡 **Kemungkinan: Defisiensi SULFUR (S)**")
+            st.write("Mirip N tapi di daun muda. Gunakan ZA atau pupuk mengandung S.")
+        elif symptom == "Pucuk kerdil/cacat/mati":
+            st.error("💡 **Kemungkinan: Defisiensi BORON (B) atau KALSIUM (Ca)**")
+            st.write("Cek buah; jika busuk pantat (blossom end rot) itu Ca. Jika titik tumbuh mati itu B.")
+        elif symptom == "Daun muda putih bersih":
+            st.error("💡 **Kemungkinan: Defisiensi MIKRO (Zn/Mn)**")
+            st.write("Gunakan pupuk mikro lengkap.")
+
+    elif location == "Bunga/Buah/Akar":
+        st.markdown("**Analisis Organ Khusus:**")
+        symptom = st.radio(
+            "Gejala apa yang ditemukan?",
+            ["Buah busuk ujung (Blossom End Rot)", "Bunga rontok parah", "Akar pendek/kerdil"]
+        )
+        if symptom == "Buah busuk ujung (Blossom End Rot)":
+            st.error("💡 **Kemungkinan: Defisiensi KALSIUM (Ca)**")
+        else:
+            st.info("Kombinasi defisiensi P, B, dan K sering menyebabkan masalah pada organ generatif.")
+
+def show_pest_action_matrix():
+    st.subheader("🛡️ Matriks Aksi Pengendalian Alami")
+    st.markdown("Pilih Target Hama untuk melihat solusi pengendalian nabati yang paling efektif.")
+    
+    # Combined data from knowledge and pestisida nabati
+    action_data = {
+        "Ulat (Grayak/Krop)": ["Mimba", "Tembakau", "Cabai Rawit", "Sirsak", "Sambiloto"],
+        "Kutu Daun/Aphids": ["Bawang Putih", "Mimba", "Minyak Kelapa/Sabun", "Tembakau"],
+        "Thrips/Tungau": ["Mimba", "Bawang Putih", "Tembakau"],
+        "Wereng Padi": ["Mimba", "Brotowali", "Tembakau"],
+        "Lalat Buah": ["Cemara Hantu (Atraktan)", "Selasih", "Minyak Nimba"],
+        "Jamur/Fungi": ["Kunyit", "Lengkuas", "Sirih", "Jahe", "Bawang Putih"],
+        "Bakteri": ["Sirih", "Bawang Putih", "Lidah Buaya"],
+        "Keong Mas": ["Akar Tuba", "Biji Jarak", "Batik/Pinang Muda"],
+        "Tikus": ["Gadung", "Gamal"]
+    }
+    
+    selected_target = st.selectbox("🎯 Target Gangguan:", list(action_data.keys()))
+    
+    if selected_target:
+        solutions = action_data[selected_target]
+        st.markdown(f"**Solusi Nabati untuk {selected_target}:**")
+        
+        cols = st.columns(len(solutions) if len(solutions) < 4 else 4)
+        for i, sol in enumerate(solutions):
+            with cols[i % 4]:
+                st.info(f"🌿 **{sol}**")
+                if st.button(f"Lihat Resep {sol}", key=f"btn_res_{sol}_{i}"):
+                    # Logic to switch or show recipe (for now just a link mention)
+                    st.success(f"Gunakan Tab 'Pestisida Nabati' dan cari '{sol}'")
+
 # ========== MAIN APP ==========
 st.title("📚 Pusat Pengetahuan Pertanian")
 st.markdown("**Ensiklopedia lengkap nutrisi tanaman, pupuk, dan pengendalian hama alami**")
 
 # Category tabs
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab0, tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "🧠 Intelijen Nutrisi",
     "🌾 Pupuk Makro",
-    "⚛️ Pupuk Makro Sekunder (Ca, Mg, S)",
+    "⚛️ Pupuk Makro Sekunder",
     "⚗️ Pupuk Mikro",
     "🌱 Pupuk Organik & Hayati",
     "💧 POC, MOL & ZPT",
     "🌿 Pestisida Nabati"
 ])
+
+# TAB 0: INTEL NUTRISI (NEW)
+with tab0:
+    st.header("🧠 Intelijen Nutrisi & Pupuk")
+    st.info("Gunakan modul interaktif ini untuk memahami interaksi kimia dalam tanah dan tanaman.")
+    
+    col_a, col_b = st.columns([1, 1.2])
+    
+    with col_a:
+        show_ph_availability()
+        st.divider()
+        show_mixture_simulator()
+        st.divider()
+        show_pest_action_matrix()
+        
+    with col_b:
+        show_mulders_chart()
+        st.divider()
+        show_deficiency_detector()
+        with st.expander("ℹ️ Cara Membaca Mulder's Chart"):
+            st.markdown("""
+            - **Antagonisme**: Jika kadar satu unsur terlalu tinggi, ia akan 'menekan' ketersediaan unsur lain. Misalnya, kadar **Kalium (K)** yang sangat tinggi dapat menghambat penyerapan **Magnesium (Mg)**.
+            - **Sinergisme**: Unsur yang saling membantu. Misalnya, **Nitrogen (N)** membantu penyerapan **Magnesium (Mg)**.
+            - **Penting**: Pemupukan harus berimbang. Menambah satu jenis pupuk secara berlebihan justru bisa menyebabkan tanaman 'kelaparan' unsur lain.
+            """)
 
 # TAB 1: PUPUK MAKRO
 with tab1:
