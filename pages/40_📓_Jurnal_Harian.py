@@ -23,47 +23,43 @@ GROWTH_FILE = os.path.join(DATA_DIR, "growth_journal.csv")
 COST_FILE = os.path.join(DATA_DIR, "cost_journal.csv")
 PHOTOS_DIR = os.path.join(DATA_DIR, "photos")
 
-# Commodity-specific parameters configuration
+# Commodity-specific parameters configuration (Scientific Profiles)
 COMMODITY_PARAMS = {
     "Padi": {
         "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
         "specific": ["jumlah_anakan", "panjang_malai_cm", "persen_pengisian"],
-        "stages": ["Vegetatif", "Primordia", "Berbunga", "Pengisian Bulir", "Masak"]
+        "stages": ["Vegetatif", "Primordia", "Berbunga", "Pengisian Bulir", "Masak"],
+        "Tb": 10, "target_gdd": 1200
     },
     "Jagung": {
         "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
         "specific": ["jumlah_tongkol", "baris_biji", "panjang_tongkol_cm"],
-        "stages": ["Vegetatif", "Tasseling", "Silking", "Pengisian Biji", "Masak Fisiologis"]
+        "stages": ["Vegetatif", "Tasseling", "Silking", "Pengisian Biji", "Masak Fisiologis"],
+        "Tb": 10, "target_gdd": 1400
     },
     "Cabai": {
         "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
         "specific": ["jumlah_buah", "panjang_buah_cm", "diameter_buah_mm"],
-        "stages": ["Vegetatif", "Berbunga", "Berbuah Muda", "Berbuah Matang", "Panen"]
+        "stages": ["Vegetatif", "Berbunga", "Berbuah Muda", "Berbuah Matang", "Panen"],
+        "Tb": 15, "target_gdd": 1800
     },
     "Tomat": {
         "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
         "specific": ["jumlah_tandan", "buah_per_tandan", "berat_buah_gram"],
-        "stages": ["Vegetatif", "Berbunga", "Fruit Set", "Pembesaran Buah", "Pematangan"]
+        "stages": ["Vegetatif", "Berbunga", "Fruit Set", "Pembesaran Buah", "Pematangan"],
+        "Tb": 10, "target_gdd": 1500
     },
     "Melon": {
         "basic": ["tinggi_cm", "jumlah_daun", "lebar_kanopi_cm"],
         "specific": ["jumlah_buah", "lingkar_buah_cm", "estimasi_brix"],
-        "stages": ["Vegetatif", "Berbunga", "Fruit Set", "Pembesaran", "Pematangan"]
+        "stages": ["Vegetatif", "Berbunga", "Fruit Set", "Pembesaran", "Pematangan"],
+        "Tb": 12, "target_gdd": 1100
     },
     "Sawi": {
         "basic": ["tinggi_cm", "jumlah_daun", "lebar_daun_cm"],
         "specific": ["panjang_daun_cm", "daun_siap_panen", "berat_estimasi_gram"],
-        "stages": ["Vegetatif Awal", "Vegetatif Tengah", "Siap Panen"]
-    },
-    "Kangkung": {
-        "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
-        "specific": ["panjang_daun_cm", "lebar_daun_cm", "berat_estimasi_gram"],
-        "stages": ["Vegetatif Awal", "Vegetatif Tengah", "Siap Panen"]
-    },
-    "Bayam": {
-        "basic": ["tinggi_cm", "jumlah_daun", "lebar_daun_cm"],
-        "specific": ["panjang_daun_cm", "daun_siap_panen", "berat_estimasi_gram"],
-        "stages": ["Vegetatif Awal", "Vegetatif Tengah", "Siap Panen"]
+        "stages": ["Vegetatif Awal", "Vegetatif Tengah", "Siap Panen"],
+        "Tb": 7, "target_gdd": 600
     }
 }
 
@@ -106,6 +102,8 @@ def init_data():
             'tinggi_cm', 'jumlah_daun', 'diameter_batang_mm', 'lebar_kanopi_cm',
             # Advanced parameters
             'spad', 'stage', 'penyakit_score', 'hama_score',
+            # Scientific metric
+            'gdd_cumulative',
             # Commodity-specific (stored as JSON-like string)
             'param_spesifik',
             'catatan', 'foto_path', 'created_at'
@@ -149,7 +147,7 @@ def load_growth():
             # Ensure all columns exist
             required_cols = ['tanggal', 'komoditas', 'varietas', 'lokasi', 'usia_hst',
                            'tinggi_cm', 'jumlah_daun', 'diameter_batang_mm', 'lebar_kanopi_cm',
-                           'spad', 'stage', 'penyakit_score', 'hama_score',
+                           'spad', 'stage', 'penyakit_score', 'hama_score', 'gdd_cumulative',
                            'param_spesifik', 'catatan', 'foto_path', 'created_at']
             for col in required_cols:
                 if col not in df.columns:
@@ -551,14 +549,23 @@ with tab_input:
                 growth_disease = st.slider("Skor Penyakit", 0, 5, 0, help="0=Sehat, 5=Parah")
             with col_a3:
                 growth_pest = st.slider("Skor Hama", 0, 5, 0, help="0=Tidak ada, 5=Parah")
-            with col_a4:
-                growth_stage = st.selectbox("Fase Pertumbuhan", params["stages"])
-            
-            growth_notes = st.text_area("📝 Catatan", placeholder="Observasi tambahan...", height=80, key="gnotes")
-            
+            # GDD calculation in form
+            st.markdown("---")
+            st.markdown("**🌡️ Hitung GDD (Thermal Time)**")
+            col_t1, col_t2 = st.columns(2)
+            with col_t1: t_max = st.number_input("Suhu Max (°C)", value=32.0, key="tmax")
+            with col_t2: t_min = st.number_input("Suhu Min (°C)", value=24.0, key="tmin")
+            gdd_today = max(0, (t_max + t_min)/2 - params.get('Tb', 10))
+            st.caption(f"Estimasi GDD Hari Ini: **{gdd_today:.1f}**")
+
             submit_growth = st.form_submit_button("💾 Simpan Data Pertumbuhan", use_container_width=True, type="primary")
             
             if submit_growth:
+                # Calculate cumulative GDD
+                df_growth_all = load_growth()
+                df_kom = df_growth_all[df_growth_all['komoditas'] == growth_commodity]
+                prev_gdd = df_kom['gdd_cumulative'].max() if not df_kom.empty else 0.0
+                
                 # Convert specific params to string for storage
                 import json
                 param_str = json.dumps(specific_params)
@@ -572,11 +579,12 @@ with tab_input:
                     'tinggi_cm': growth_height,
                     'jumlah_daun': growth_leaves,
                     'diameter_batang_mm': growth_diameter,
-                    'lebar_kanopi_cm': 0.0,  # Can be added later
+                    'lebar_kanopi_cm': 0.0,
                     'spad': growth_spad,
                     'stage': growth_stage,
                     'penyakit_score': growth_disease,
                     'hama_score': growth_pest,
+                    'gdd_cumulative': prev_gdd + gdd_today,
                     'param_spesifik': param_str,
                     'catatan': growth_notes,
                     'foto_path': ""
