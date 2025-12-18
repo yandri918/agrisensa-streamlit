@@ -640,20 +640,29 @@ with tab_timeline:
             except:
                 specific = {}
             
-            metrics_html = f"<span class='card-metric'>📏 {row['tinggi_cm']:.1f} cm</span>"
-            metrics_html += f"<span class='card-metric'>🍃 {row['jumlah_daun']} daun</span>"
+            # Build metrics HTML with proper handling of numeric values
+            metrics_html = ""
             
-            if row['diameter_batang_mm'] > 0:
+            if pd.notna(row['tinggi_cm']) and row['tinggi_cm'] > 0:
+                metrics_html += f"<span class='card-metric'>📏 {row['tinggi_cm']:.1f} cm</span>"
+            
+            if pd.notna(row['jumlah_daun']) and row['jumlah_daun'] > 0:
+                metrics_html += f"<span class='card-metric'>🍃 {int(row['jumlah_daun'])} daun</span>"
+            
+            if pd.notna(row['diameter_batang_mm']) and row['diameter_batang_mm'] > 0:
                 metrics_html += f"<span class='card-metric'>📐 {row['diameter_batang_mm']:.1f} mm</span>"
             
-            if row['spad'] > 0:
+            if pd.notna(row['spad']) and row['spad'] > 0:
                 metrics_html += f"<span class='card-metric'>🔬 SPAD {row['spad']:.1f}</span>"
+            
+            # Handle empty varietas
+            varietas_display = row['varietas'] if pd.notna(row['varietas']) and row['varietas'] else "(Varietas tidak dicatat)"
             
             timeline.append({
                 'date': pd.to_datetime(row['tanggal']),
                 'raw_date': row['tanggal'],
                 'type': 'growth',
-                'title': f"📈 Monitoring {row['komoditas']} - {row['varietas']}",
+                'title': f"Monitoring {row['komoditas']} - {varietas_display}",
                 'desc': metrics_html,
                 'meta': f"HST {row['usia_hst']} | {row['stage']}",
                 'cost': 0,
