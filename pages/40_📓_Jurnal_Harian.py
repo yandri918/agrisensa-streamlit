@@ -526,16 +526,25 @@ def main():
             df_kom = df_growth[df_growth['komoditas'] == sel_kom].sort_values('usia_hst')
             
             # Correlation Chart: Height vs GDD
-            fig_corr = go.Figure()
-            fig_corr.add_trace(go.Scatter(x=df_kom['usia_hst'], y=df_kom['tinggi_cm'], name="Tinggi (cm)", line=dict(color='#10b981', width=4)))
+            from plotly.subplots import make_subplots
+            fig_corr = make_subplots(specs=[[{"secondary_y": True}]])
+            
+            fig_corr.add_trace(
+                go.Scatter(x=df_kom['usia_hst'], y=df_kom['tinggi_cm'], name="Tinggi (cm)", line=dict(color='#10b981', width=4)),
+                secondary_y=False,
+            )
+            
             if 'gdd_cumulative' in df_kom.columns:
-                fig_corr.add_trace(go.Scatter(x=df_kom['usia_hst'], y=df_kom['gdd_cumulative'], name="GDD Kumulatif", yaxis="y2", line=dict(color='#f59e0b', width=2, dash='dot')))
+                fig_corr.add_trace(
+                    go.Scatter(x=df_kom['usia_hst'], y=df_kom['gdd_cumulative'], name="GDD Kumulatif", line=dict(color='#f59e0b', width=2, dash='dot')),
+                    secondary_y=True,
+                )
             
             fig_corr.update_layout(
-                title=f"Korelasi Pertumbuhan vs Thermal Time (GDD) - {sel_kom}",
-                xaxis=dict(title="Usia (HST)"),
-                yaxis=dict(title="Tinggi Tanaman (cm)", titlefont=dict(color="#10b981"), tickfont=dict(color="#10b981")),
-                yaxis2=dict(title="GDD Kumulatif", titlefont=dict(color="#f59e0b"), tickfont=dict(color="#f59e0b"), overlaying="y", side="right"),
+                title=dict(text=f"Korelasi Pertumbuhan vs Thermal Time (GDD) - {sel_kom}"),
+                xaxis=dict(title=dict(text="Usia (HST)")),
+                yaxis=dict(title=dict(text="Tinggi Tanaman (cm)", font=dict(color="#10b981")), tickfont=dict(color="#10b981")),
+                yaxis2=dict(title=dict(text="GDD Kumulatif", font=dict(color="#f59e0b")), tickfont=dict(color="#f59e0b")),
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
             )
             st.plotly_chart(fig_corr, use_container_width=True)
