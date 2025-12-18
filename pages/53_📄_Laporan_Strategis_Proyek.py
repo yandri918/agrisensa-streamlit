@@ -190,103 +190,86 @@ with tab_preview:
     st.caption("Pratinjau akhir sebelum dicetak ke PDF. Gunakan sidebar jika ingin mengubah sumber data atau mencetak.")
     
     # CALCULATE FALLBACKS FOR REPORT
-    r_total = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000 (Blueprint)"
-    r_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24 - 28 Bulan (Market Avg)"
-    r_kap = f"{sim_raw['kapasitas_mingguan']} kg" if sim_raw else "200 kg (Est. Capacity)"
-    r_blocks = f"{len(ledger_raw)} Transaksi Terverifikasi" if source_trace == "Sinkron Modul 48" else "Sistem Keamanan Terintegrasi (Template)"
+    r_total = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000"
+    r_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24 - 28 Bulan"
+    r_kap = f"{sim_raw['kapasitas_mingguan']} kg" if sim_raw else "200 kg"
+    r_blocks = f"{len(ledger_raw)} Transaksi" if source_trace == "Sinkron Modul 48" else "Sistem Terintegrasi"
     
-    st.markdown("""
-        <style>
-            .stApp { background: #f1f5f9 !important; }
-            .paper-view {
-                background: white;
-                max-width: 850px;
-                margin: 40px auto;
-                padding: 70px 90px;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                font-family: 'Inter', sans-serif;
-                color: #1e293b;
-                line-height: 1.8;
-                border-radius: 4px;
-            }
-            .paper-header { border-bottom: 4px solid #059669; padding-bottom: 30px; margin-bottom: 50px; text-align: center; }
-            .paper-title { font-size: 2.8rem; font-weight: 800; color: #064e3b; margin: 0; }
-            .paper-section { font-size: 1.2rem; font-weight: 700; color: #065f46; margin-top: 40px; margin-bottom: 15px; border-left: 5px solid #10b981; padding-left: 15px; }
-            .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-            .swot-box { padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; }
-            .swot-header { font-weight: bold; text-transform: uppercase; margin-bottom: 5px; display: block; color: #64748b; }
-            .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            .data-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
-            .label-cell { color: #64748b; font-weight: 600; width: 40%; }
-            .sign-grid { display: grid; grid-template-columns: 1fr 1fr; margin-top: 80px; text-align: center; }
-            
-            @media print {
-                .stApp { background: white !important; }
-                .paper-view { box-shadow: none; margin: 0; padding: 0; max-width: 100%; }
-                header, .stSidebar, .stTabs, .stInfo, .no-print { display: none !important; }
-            }
-        </style>
+    # === NATIVE STREAMLIT REPORT ===
+    st.markdown("---")
+    
+    # HEADER
+    st.markdown(f"""
+    <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, #059669 0%, #064e3b 100%); color: white; border-radius: 10px; margin-bottom: 30px;'>
+        <div style='font-size: 0.9rem; letter-spacing: 3px; margin-bottom: 10px;'>STRATEGIC DOSSIER</div>
+        <h1 style='margin: 0; font-size: 2.5rem;'>{proj_name}</h1>
+        <p style='margin-top: 10px; opacity: 0.9;'>Prepared for: Stakeholders & Management</p>
+        <p style='font-size: 0.85rem; opacity: 0.8;'>Official Release: {report_date.strftime('%d %B %Y')} | ID: AS-2025-V3</p>
+    </div>
     """, unsafe_allow_html=True)
     
-    st.info("📑 Mode Pratinjau Dokumen Aktif. Gunakan Sidebar untuk mencetak.")
-
-    # BUILD CONTENT
-    # Build timeline rows first
-    timeline_rows = ""
-    for stage in st.session_state['timeline_data']:
-        timeline_rows += f"<tr><td class='label-cell'>{stage['Fase']}</td><td>{stage['Durasi']}</td></tr>"
+    # SECTION 1: RENCANA STRATEGIS
+    st.subheader("01. Rencana Strategis")
+    st.write(f"""
+    Proyek **{proj_name}** diinisiasi oleh **{company_name}** sebagai jawaban atas permintaan pasar modern 
+    terhadap produk pertanian yang konsisten. Melalui integrasi otomasi dan sistem 3K, proyek ini menargetkan 
+    kepuasan mitra strategis dan efisiensi biaya yang optimal.
+    """)
     
-    html_report = f"""
-    <div class="paper-view">
-        <div class="paper-header">
-            <div style="text-transform: uppercase; letter-spacing: 4px; color: #059669; font-weight: bold; font-size: 0.8rem; margin-bottom: 10px;">Strategic Dossier</div>
-            <h1 class="paper-title">{proj_name}</h1>
-            <p style="margin-top: 10px; font-size: 1.1rem; color: #475569;">Prepared for: <b>Stakeholders & Management</b></p>
-            <p style="color: #94a3b8; font-size: 0.85rem;">Official Release: {report_date.strftime('%d %B %Y')} | ID: AS-2025-V3</p>
+    st.markdown("---")
+    
+    # SECTION 2: SWOT
+    st.subheader("02. Matriks Analisis SWOT")
+    swot_col1, swot_col2 = st.columns(2)
+    with swot_col1:
+        st.success(f"**💪 Strengths**\n\n{st.session_state['swot_data']['Strengths']}")
+        st.info(f"**🌟 Opportunities**\n\n{st.session_state['swot_data']['Opportunities']}")
+    with swot_col2:
+        st.warning(f"**⚠️ Weaknesses**\n\n{st.session_state['swot_data']['Weaknesses']}")
+        st.error(f"**🚨 Threats**\n\n{st.session_state['swot_data']['Threats']}")
+    
+    st.markdown("---")
+    
+    # SECTION 3: KELAYAKAN EKONOMI
+    st.subheader("03. Kelayakan Ekonomi")
+    df_ekonomi = pd.DataFrame({
+        "Parameter Investasi": ["Total Investasi Awal", "Estimasi ROI", "Unit Kapasitas", "Kepatuhan Blockchain"],
+        "Nilai / Target": [r_total, r_roi, f"{r_kap} / Minggu", r_blocks]
+    })
+    st.table(df_ekonomi)
+    
+    st.markdown("---")
+    
+    # SECTION 4: TIMELINE
+    st.subheader("04. Timeline Implementasi")
+    df_timeline_display = pd.DataFrame(st.session_state['timeline_data'])
+    df_timeline_display.columns = ["Fase Proyek", "Ekspektasi Durasi"]
+    st.table(df_timeline_display)
+    
+    st.markdown("---")
+    
+    # SECTION 5: PENGESAHAN
+    st.subheader("05. Pernyataan & Pengesahan")
+    st.caption("_Seluruh data di atas dihasilkan dari sistem AgriSensa Intelligence dan dapat dipertanggungjawabkan keakuratannya berdasarkan masukan operasional terkini._")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    sig_col1, sig_col2 = st.columns(2)
+    with sig_col1:
+        st.markdown(f"""
+        <div style='text-align: center; padding: 20px;'>
+            <p>Strategic Analyst,</p>
+            <div style='height: 60px;'></div>
+            <b>AgriSensa AI System</b><br>
+            <span style='font-size: 0.85rem; color: gray;'>Automated Report Engine</span>
         </div>
-
-        <div class="paper-section">01. Rencana Strategis</div>
-        <p>Proyek <b>{proj_name}</b> diinisiasi oleh <b>{company_name}</b> sebagai jawaban atas permintaan pasar modern terhadap produk pertanian yang konsisten. 
-        Melalui integrasi otomasi dan sistem 3K, proyek ini menargetkan kepuasan mitra strategis dan efisiensi biaya yang optimal.</p>
-
-        <div class="paper-section">02. Matriks Analisis SWOT</div>
-        <div class="swot-grid">
-            <div class="swot-box"><span class="swot-header">Strengths</span>{st.session_state['swot_data']['Strengths']}</div>
-            <div class="swot-box"><span class="swot-header">Weaknesses</span>{st.session_state['swot_data']['Weaknesses']}</div>
-            <div class="swot-box"><span class="swot-header">Opportunities</span>{st.session_state['swot_data']['Opportunities']}</div>
-            <div class="swot-box"><span class="swot-header">Threats</span>{st.session_state['swot_data']['Threats']}</div>
+        """, unsafe_allow_html=True)
+    with sig_col2:
+        st.markdown(f"""
+        <div style='text-align: center; padding: 20px;'>
+            <p>Project Director,</p>
+            <div style='height: 60px;'></div>
+            <b>{owner_name}</b><br>
+            <span style='font-size: 0.85rem; color: gray;'>{company_name}</span>
         </div>
-
-        <div class="paper-section">03. Kelayakan Ekonomi</div>
-        <table class="data-table">
-            <tr><td class="label-cell">Total Investasi Awal</td><td>{r_total}</td></tr>
-            <tr><td class="label-cell">Estimasi ROI</td><td>{r_roi}</td></tr>
-            <tr><td class="label-cell">Unit Kapasitas</td><td>{r_kap} / Minggu</td></tr>
-            <tr><td class="label-cell">Kepatuhan Blockchain</td><td>{r_blocks}</td></tr>
-        </table>
-
-        <div class="paper-section">04. Timeline Implementasi</div>
-        <table class="data-table">
-            {timeline_rows}
-        </table>
-
-        <div class="paper-section">05. Pernyataan & Pengesahan</div>
-        <p style="font-size: 0.9rem; font-style: italic; color: #64748b;">Seluruh data di atas dihasilkan dari sistem AgriSensa Intelligence dan dapat dipertanggungjawabkan keakuratannya berdasarkan masukan operasional terkini.</p>
-        
-        <div class="sign-grid">
-            <div>
-                <p>Strategic Analyst,</p>
-                <div style="height: 60px;"></div>
-                <b>AgriSensa AI System</b><br>
-                <span style="font-size: 0.8rem; color: #94a3b8;">Automated Report Engine</span>
-            </div>
-            <div>
-                <p>Project Director,</p>
-                <div style="height: 60px;"></div>
-                <b>{owner_name}</b><br>
-                <span style="font-size: 0.8rem; color: #94a3b8;">{company_name}</span>
-            </div>
-        </div>
-    </div>
-    """
-    st.markdown(html_report, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
