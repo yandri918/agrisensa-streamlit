@@ -119,48 +119,108 @@ def get_fertilizer_recommendation(n, p, k):
     
     return recommendations
 
-# ========== CUSTOM CSS ==========
+# ========== CUSTOM CSS (Premium Glassmorphism) ==========
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #059669;
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+    
+    * { font-family: 'Outfit', sans-serif; }
+
+    .main {
+        background-color: #f8fafc;
+    }
+
+    /* Header & Hero */
+    .header-container {
+        background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+        padding: 40px;
+        border-radius: 20px;
+        color: white;
         text-align: center;
-        margin-bottom: 1rem;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.3);
     }
-    .stat-card {
-        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-        padding: 1.5rem;
-        border-radius: 12px;
-        border: 2px solid #10b981;
-        text-align: center;
+
+    /* Command Center KPI Cards */
+    .kpi-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
     }
-    .info-box {
-        background: #dbeafe;
-        border: 2px solid #3b82f6;
-        border-radius: 8px;
-        padding: 1rem;
-        margin: 1rem 0;
-    }
-    .npk-card {
+    .kpi-card {
+        flex: 1;
+        min-width: 200px;
         background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        border: 2px solid #e5e7eb;
-        margin: 0.5rem 0;
+        padding: 25px;
+        border-radius: 18px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        transition: transform 0.2s ease;
     }
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        border-color: #10b981;
+    }
+    .kpi-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 5px;
+    }
+    .kpi-label {
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Info Boxes & Modules */
+    .info-box {
+        background: white;
+        border-radius: 15px;
+        border: 1px solid #e2e8f0;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .analysis-pill {
+        display: inline-flex;
+        align-items: center;
+        background: #f1f5f9;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        color: #475569;
+        font-weight: 600;
+        margin-right: 10px;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Form Styling */
+    .stTextInput>div>div>input, .stNumberInput>div>div>input {
+        border-radius: 10px !important;
+    }
+    
+    .status-success { color: #10b981; font-weight: 700; }
+    .status-warning { color: #f59e0b; font-weight: 700; }
+    .status-danger { color: #ef4444; font-weight: 700; }
 </style>
 """, unsafe_allow_html=True)
 
 # ========== MAIN APP ==========
 def main():
-    # Header
-    st.markdown('<h1 class="main-header">🗺️ Peta Data Tanah AgriSensa</h1>', unsafe_allow_html=True)
-    st.markdown("**Pemetaan Lahan, Analisis NPK, dan Data Cuaca Terintegrasi**")
+    # Header Hero
+    st.markdown("""
+    <div class="header-container">
+        <h1 style="margin:0; color:white; font-size:2.8rem;">🗺️ Soil Command Center v2.0</h1>
+        <p style="margin:0; opacity:0.9; font-size:1.1rem; font-weight:300;">GIS AgriSensa: Integrasi Spasial, Kimiawi, dan Iklim Mikro</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Sidebar
-    st.sidebar.title("🗺️ Menu")
+    # Sidebar Navigation
+    st.sidebar.title("🍱 Navigation")
     menu = st.sidebar.radio(
         "Pilih Fitur:",
         ["🗺️ Peta Interaktif", "📊 Data NPK", "🌤️ Cuaca & Iklim", "📈 Statistik"]
@@ -173,216 +233,127 @@ def main():
     
     # ========== PAGE: INTERACTIVE MAP ==========
     if menu == "🗺️ Peta Interaktif":
-        st.header("🗺️ Peta Interaktif Lahan")
+        st.subheader("🌐 GIS Master View")
         
         # Instructions
-        with st.expander("📖 Cara Menggunakan Peta", expanded=False):
+        with st.expander("📖 Panduan GIS Command Center", expanded=False):
             st.markdown("""
-            **Fitur Peta:**
-            - 🖱️ **Klik & Drag** untuk menggeser peta
-            - 🔍 **Zoom In/Out** dengan scroll atau tombol +/-
-            - 📍 **Klik pada peta** untuk menandai lokasi
-            - 🗺️ **Draw Tools** untuk menggambar polygon (area lahan)
-            
-            **Tips:**
-            - Gunakan layer control (kanan atas) untuk mengubah tampilan peta
-            - Klik marker untuk melihat informasi detail
-            - Simpan polygon untuk tracking area lahan Anda
+            - 🖱️ **Klik Kiri**: Pilih titik untuk analisis cuaca & tanah instan.
+            - 📑 **Layer Control**: Ganti ke mode Satelit untuk melihat vegetasi asli.
+            - 📐 **Drawing Tools**: Gambar poligon untuk menghitung luas lahan & estimasi NPK.
+            - 🔄 **Sinkronisasi**: Hubungkan data titik NPK langsung ke modul RAB.
             """)
         
-        # Map center (default: Indonesia)
-        col1, col2 = st.columns(2)
-        with col1:
-            center_lat = st.number_input("Latitude Pusat", value=-6.2088, format="%.6f")
-        with col2:
-            center_lon = st.number_input("Longitude Pusat", value=106.8456, format="%.6f")
-        
-        # Create map
-        m = folium.Map(
-            location=[center_lat, center_lon],
-            zoom_start=12,
-            tiles=None
-        )
-        
-        # Add tile layers
-        folium.TileLayer('OpenStreetMap', name='Street Map').add_to(m)
-        folium.TileLayer('Esri.WorldImagery', name='Satellite').add_to(m)
-        folium.TileLayer('CartoDB positron', name='Light Map').add_to(m)
-        
-        # Add existing polygons
-        for polygon in polygons:
-            coords = polygon.get('coordinates', [])
-            if coords:
-                # Convert coordinates format if needed
-                if isinstance(coords[0], dict):
-                    coords = [[c['lat'], c['lng']] for c in coords]
+        # Map center
+        col_m1, col_m2 = st.columns([2, 1])
+        with col_m1:
+            # Create map
+            m = folium.Map(location=[-6.2088, 106.8456], zoom_start=12, tiles=None)
+            folium.TileLayer('OpenStreetMap', name='Street Map').add_to(m)
+            folium.TileLayer('Esri.WorldImagery', name='Satellite').add_to(m)
+            folium.TileLayer('CartoDB positron', name='Light Map').add_to(m)
+            
+            # Add existing polygons
+            for polygon in polygons:
+                coords = polygon.get('coordinates', [])
+                if coords:
+                    if isinstance(coords[0], dict):
+                        coords = [[c['lat'], c['lng']] for c in coords]
+                    folium.Polygon(
+                        locations=coords,
+                        popup=f"<b>{polygon['name']}</b>",
+                        color='#059669', fill=True, fillColor='#10b981', fillOpacity=0.3
+                    ).add_to(m)
+            
+            # Add NPK markers with status colors
+            for npk in npk_data:
+                lat, lon = npk.get('latitude'), npk.get('longitude')
+                if lat and lon:
+                    n, p, k = npk.get('n_value', 0), npk.get('p_value', 0), npk.get('k_value', 0)
+                    # Simple metric for icon color
+                    avg_status = (n/3500 + p/17.5 + k/3000) / 3
+                    color = 'green' if avg_status > 0.8 else 'orange' if avg_status > 0.4 else 'red'
+                    
+                    folium.Marker(
+                        location=[lat, lon],
+                        popup=f"NPK: {n}/{p}/{k} ppm",
+                        icon=folium.Icon(color=color, icon='flask', prefix='fa')
+                    ).add_to(m)
+            
+            folium.LayerControl().add_to(m)
+            from folium.plugins import Draw
+            Draw(export=True, position='topleft').add_to(m)
+            
+            map_data = st_folium(m, width="100%", height=600)
+            
+        with col_m2:
+            st.markdown("### 🛰️ Real-time Analysis")
+            if map_data and map_data.get('last_clicked'):
+                clicked = map_data['last_clicked']
+                lat, lon = clicked['lat'], clicked['lng']
                 
-                folium.Polygon(
-                    locations=coords,
-                    popup=f"<b>{polygon['name']}</b><br>Area: {polygon.get('area_sqm', 0):.2f} m²<br>pH: {polygon.get('ph', '-')}",
-                    tooltip=polygon['name'],
-                    color='#059669',
-                    fill=True,
-                    fillColor='#10b981',
-                    fillOpacity=0.3
-                ).add_to(m)
-        
-        # Add NPK markers
-        for npk in npk_data:
-            lat = npk.get('latitude')
-            lon = npk.get('longitude')
-            if lat and lon:
-                popup_html = f"""
-                <div style="width:200px">
-                    <h4>📊 Data NPK</h4>
-                    <p><b>N:</b> {npk.get('n_value', '-')} ppm</p>
-                    <p><b>P:</b> {npk.get('p_value', '-')} ppm</p>
-                    <p><b>K:</b> {npk.get('k_value', '-')} ppm</p>
-                    <p><b>pH:</b> {npk.get('ph', '-')}</p>
+                # Fetch Weather & Soil Data
+                with st.spinner("Fetching Satellite Data..."):
+                    weather = get_weather_data(lat, lon)
+                    soil = get_soil_data(lat, lon)
+                
+                st.markdown(f"""
+                <div class="info-box">
+                    <p style="margin:0; font-size:0.8rem; color:#64748b;">LOKASI TERDETEKSI</p>
+                    <p style="margin:0; font-weight:700;">{lat:.4f}, {lon:.4f}</p>
                 </div>
-                """
-                folium.Marker(
-                    location=[lat, lon],
-                    popup=folium.Popup(popup_html, max_width=250),
-                    tooltip="Data NPK",
-                    icon=folium.Icon(color='green', icon='leaf', prefix='fa')
-                ).add_to(m)
-        
-        # Add custom markers
-        for marker in markers:
-            lat = marker.get('latitude')
-            lon = marker.get('longitude')
-            if lat and lon:
-                icon_map = {
-                    'water': ('blue', 'tint'),
-                    'building': ('red', 'home'),
-                    'tree': ('green', 'tree'),
-                    'warning': ('orange', 'exclamation-triangle')
-                }
-                color, icon = icon_map.get(marker.get('type', 'info'), ('blue', 'info'))
+                """, unsafe_allow_html=True)
                 
-                folium.Marker(
-                    location=[lat, lon],
-                    popup=f"<b>{marker['title']}</b><br>{marker.get('description', '')}",
-                    tooltip=marker['title'],
-                    icon=folium.Icon(color=color, icon=icon, prefix='fa')
-                ).add_to(m)
-        
-        # Add layer control
-        folium.LayerControl().add_to(m)
-        
-        # Add draw plugin
-        from folium.plugins import Draw
-        Draw(
-            export=True,
-            position='topleft',
-            draw_options={
-                'polyline': False,
-                'rectangle': True,
-                'polygon': True,
-                'circle': False,
-                'marker': True,
-                'circlemarker': False
-            }
-        ).add_to(m)
-        
-        # Display map
-        map_data = st_folium(m, width=None, height=600)
-        
-        # Handle map interactions
-        if map_data and map_data.get('last_clicked'):
-            clicked = map_data['last_clicked']
-            st.success(f"📍 Lokasi diklik: Lat {clicked['lat']:.6f}, Lon {clicked['lng']:.6f}")
-            
-            # Quick actions
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                if st.button("🌤️ Lihat Cuaca"):
-                    weather = get_weather_data(clicked['lat'], clicked['lng'])
-                    if weather and 'current' in weather:
-                        st.write(f"🌡️ Suhu: {weather['current']['temperature_2m']}°C")
-                        st.write(f"💧 Kelembaban: {weather['current']['relative_humidity_2m']}%")
-            
-            with col2:
-                if st.button("🌱 Tambah Data NPK"):
-                    st.session_state['add_npk_lat'] = clicked['lat']
-                    st.session_state['add_npk_lon'] = clicked['lng']
-                    st.info("Scroll ke bawah untuk input data NPK")
-            
-            with col3:
-                if st.button("📍 Tambah Marker"):
-                    st.session_state['add_marker_lat'] = clicked['lat']
-                    st.session_state['add_marker_lon'] = clicked['lng']
-                    st.info("Scroll ke bawah untuk input marker")
-            
-            # Quick RAB Simulation
-            st.markdown("---")
-            if st.button("🚀 Simulasi RAB di Titik Ini", use_container_width=True):
-                 
-                 # 1. Helper: Haversine Distance (m)
-                 def haversine(lat1, lon1, lat2, lon2):
-                    import math
-                    R = 6371000 # Radius of Earth in meters
-                    phi1 = math.radians(lat1)
-                    phi2 = math.radians(lat2)
-                    delta_phi = math.radians(lat2 - lat1)
-                    delta_lambda = math.radians(lon2 - lon1)
-                    a = math.sin(delta_phi / 2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2)**2
-                    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-                    return R * c
+                if weather and 'current' in weather:
+                    w_curr = weather['current']
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        st.metric("🌡️ Temp", f"{w_curr['temperature_2m']}°C")
+                    with c2:
+                        st.metric("🌧️ Hujan", f"{w_curr['precipitation']} mm")
+                
+                if soil:
+                    st.markdown("---")
+                    st.markdown("**🌱 Kondisi Tanah (Real-time)**")
+                    s1, s2 = st.columns(2)
+                    with s1:
+                        st.metric("🌡️ Soil Temp", f"{soil.get('soil_temperature', '-')}°C")
+                    with s2:
+                        st.metric("💧 Soil Moist", f"{soil.get('soil_moisture', '-')}%")
+                
+                st.markdown("---")
+                st.subheader("⚡ Quick Actions")
+                if st.button("➕ Tambah Data NPK", use_container_width=True):
+                    st.session_state['add_npk_lat'] = lat
+                    st.session_state['add_npk_lon'] = lon
+                
+                if st.button("🚀 Lanjut ke Simulasi RAB", use_container_width=True):
+                    # Find nearest NPK
+                    nearest_dist = float('inf')
+                    nearest_data = None
+                    for record in npk_data:
+                        try:
+                            dist = haversine(lat, lon, float(record['latitude']), float(record['longitude']))
+                            if dist < nearest_dist:
+                                nearest_dist = dist
+                                nearest_data = record
+                        except: continue
+                    
+                    context = {
+                        'source': f"GIS Target ({lat:.4f})",
+                        'ph': float(nearest_data.get('ph', 6.0)) if nearest_data else 6.0,
+                        'texture': nearest_data.get('soil_type', 'Lempung') if nearest_data else 'Lempung',
+                        'n_ppm': float(nearest_data.get('n_value', 0)) if nearest_data else 0,
+                        'p_ppm': float(nearest_data.get('p_value', 0)) if nearest_data else 0,
+                        'k_ppm': float(nearest_data.get('k_value', 0)) if nearest_data else 0
+                    }
+                    st.session_state['rab_context'] = context
+                    st.success(f"Context siap! Jarak data terdekat: {nearest_dist:.0f}m")
+                    st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
+            else:
+                st.info("Silakan klik titik mana saja di peta untuk memulai analisis spasial.")
 
-                 # 2. Search nearest Point within generous radius (10km) to ensure debugging works
-                 nearest_dist = float('inf')
-                 nearest_data = None
-                 count_checked = 0
-                 
-                 for record in npk_data:
-                     # Check if lat/lon exists and valid
-                     lat_rec = record.get('latitude')
-                     lon_rec = record.get('longitude')
-                     
-                     if lat_rec is not None and lon_rec is not None:
-                         try:
-                             dist = haversine(float(clicked['lat']), float(clicked['lng']), float(lat_rec), float(lon_rec))
-                             count_checked += 1
-                             if dist < nearest_dist: 
-                                 nearest_dist = dist
-                                 if dist < 10000: # 10km radius
-                                     nearest_data = record
-                         except Exception as e:
-                             continue
-                 
-                 # Debug info
-                 st.info(f"🔍 Peta Debug: Cek {count_checked} titik. Terdekat: {nearest_dist:.0f} meter.")
-                 
-                 # 3. Construct Context
-                 # Default context if nothing found
-                 context = {
-                    'source': f'Peta (Lat: {clicked["lat"]:.4f})',
-                    'ph': 6.0, 
-                    'texture': 'Lempung'
-                 }
-                 
-                 if nearest_data:
-                     context = {
-                        'source': f"Peta ({nearest_dist:.0f}m dari titik)",
-                        'ph': float(nearest_data.get('ph', 6.0)),
-                        'texture': nearest_data.get('soil_type', 'Lempung'),
-                        'n_ppm': float(nearest_data.get('n_value', 0)),
-                        'p_ppm': float(nearest_data.get('p_value', 0)),
-                        'k_ppm': float(nearest_data.get('k_value', 0))
-                     }
-                     st.success(f"✅ Data Ditemukan! Menggunakan pH {context['ph']} dari jarak {nearest_dist:.0f}m")
-                 else:
-                     st.warning("⚠️ Tidak ada data NPK dalam radius 10km. Menggunakan asumsi standar.")
-                     
-                 st.session_state['rab_context'] = context
-                 # Force delay to let user see the message before switching
-                 if st.button("👉 Lanjut ke RAB sekarang"):
-                     st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
-                 else:
-                     st.stop() # Wait for user validation
-        
+
         # Add NPK Data Form
         if 'add_npk_lat' in st.session_state:
             st.markdown("---")
@@ -428,55 +399,69 @@ def main():
     
     # ========== PAGE: NPK DATA ==========
     elif menu == "📊 Data NPK":
-        st.header("📊 Data NPK Tanah")
+        st.subheader("📜 Database Kimiawi Tanah")
         
         if not npk_data:
             st.info("Belum ada data NPK. Gunakan peta interaktif untuk menambah data.")
         else:
-            # Statistics
+            # Statistics Dashboard
             df = pd.DataFrame(npk_data)
-            col1, col2, col3, col4 = st.columns(4)
+            st.markdown(f"""
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <div class="kpi-value">{len(npk_data)}</div>
+                    <div class="kpi-label">Total Sampel</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{df['n_value'].mean():.0f}</div>
+                    <div class="kpi-label">Rata N (ppm)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{df['p_value'].mean():.1f}</div>
+                    <div class="kpi-label">Rata P (ppm)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{df['k_value'].mean():.0f}</div>
+                    <div class="kpi-label">Rata K (ppm)</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
             
-            with col1:
-                st.metric("Total Data", len(npk_data))
-            with col2:
-                st.metric("Rata-rata N", f"{df['n_value'].mean():.0f} ppm")
-            with col3:
-                st.metric("Rata-rata P", f"{df['p_value'].mean():.1f} ppm")
-            with col4:
-                st.metric("Rata-rata K", f"{df['k_value'].mean():.0f} ppm")
-            
-            st.markdown("---")
-            
-            # Display data
+            # Display data with premium cards
             for npk in npk_data:
-                with st.expander(f"📍 NPK Data - {npk.get('soil_type', 'Unknown')} ({npk['created_at'][:10]})"):
-                    col1, col2 = st.columns([2, 1])
+                analysis = analyze_npk(npk['n_value'], npk['p_value'], npk['k_value'])
+                
+                with st.container():
+                    st.markdown(f"""
+                    <div class="info-box">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h4 style="margin:0; color:#1e293b;">📍 Lahan {npk.get('soil_type', 'Tanpa Nama')}</h4>
+                            <span style="font-size:0.8rem; color:#94a3b8;">UID: {npk['id'][:8]}</span>
+                        </div>
+                        <div style="margin-bottom:15px;">
+                            <span class="analysis-pill">🧪 pH: <b>{npk.get('ph', '-')}</b></span>
+                            <span class="analysis-pill">🗺️ {npk['latitude']:.4f}, {npk['longitude']:.4f}</span>
+                            <span class="analysis-pill">📅 {npk['created_at'][:10]}</span>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
                     
-                    with col1:
-                        st.write(f"**Lokasi:** {npk['latitude']:.6f}, {npk['longitude']:.6f}")
-                        st.write(f"**Jenis Tanah:** {npk.get('soil_type', '-')}")
-                        st.write(f"**pH:** {npk.get('ph', '-')}")
-                        if npk.get('notes'):
-                            st.write(f"**Catatan:** {npk['notes']}")
-                        
-                        # NPK Analysis
-                        analysis = analyze_npk(npk['n_value'], npk['p_value'], npk['k_value'])
-                        st.markdown("**Analisis NPK:**")
-                        st.write(f"{analysis['n']['icon']} Nitrogen: {analysis['n']['value']:.0f} ppm ({analysis['n']['status']})")
-                        st.write(f"{analysis['p']['icon']} Fosfor: {analysis['p']['value']:.1f} ppm ({analysis['p']['status']})")
-                        st.write(f"{analysis['k']['icon']} Kalium: {analysis['k']['value']:.0f} ppm ({analysis['k']['status']})")
+                    c1, c2, c3 = st.columns(3)
+                    with c1:
+                        st.markdown("**Status Nutrisi**")
+                        st.write(f"{analysis['n']['icon']} N: {analysis['n']['value']:.0f} ppm")
+                        st.write(f"{analysis['p']['icon']} P: {analysis['p']['value']:.1f} ppm")
+                        st.write(f"{analysis['k']['icon']} K: {analysis['k']['value']:.0f} ppm")
                     
-                    with col2:
-                        # Recommendations
-                        st.markdown("**Rekomendasi:**")
+                    with c2:
+                        st.markdown("**Rekomendasi Utama**")
                         recs = get_fertilizer_recommendation(npk['n_value'], npk['p_value'], npk['k_value'])
-                        for rec in recs:
-                            st.write(rec)
-                            
-                        # Integration Button
-                        st.markdown("---")
-                        if st.button("🚀 Kirim ke RAB", key=f"send_rab_{npk['id']}"):
+                        for rec in recs[:2]: # Show top 2
+                            st.caption(rec)
+                    
+                    with c3:
+                        st.markdown("**Integrasi & Aksi**")
+                        if st.button("🚀 Kirim ke RAB", key=f"send_rab_{npk['id']}", use_container_width=True):
                             st.session_state['rab_context'] = {
                                 'source': 'Peta Data Tanah',
                                 'ph': float(npk.get('ph', 6.0)),
@@ -485,104 +470,126 @@ def main():
                                 'p_ppm': float(npk.get('p_value', 0)),
                                 'k_ppm': float(npk.get('k_value', 0))
                             }
-                            st.success("✅ Data terkirim! Buka menu 'Analisis Usaha Tani' sekarang.")
-                    
-                    # Delete button
-                    if st.button(f"🗑️ Hapus", key=f"del_npk_{npk['id']}"):
-                        npk_data = [n for n in npk_data if n['id'] != npk['id']]
-                        save_json(NPK_DATA_FILE, npk_data)
-                        st.success("Data dihapus!")
-                        st.rerun()
+                            st.success("Terkirim!")
+                        
+                        if st.button("🗑️ Hapus", key=f"del_npk_{npk['id']}", use_container_width=True):
+                            npk_data = [n for n in npk_data if n['id'] != npk['id']]
+                            save_json(NPK_DATA_FILE, npk_data)
+                            st.rerun()
+                    st.markdown("---")
     
     # ========== PAGE: WEATHER ==========
     elif menu == "🌤️ Cuaca & Iklim":
-        st.header("🌤️ Data Cuaca & Iklim")
+        st.subheader("🌦️ Analisis Iklim Mikro & Tanah")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            weather_lat = st.number_input("Latitude", value=-6.2088, format="%.6f", key="weather_lat")
-        with col2:
-            weather_lon = st.number_input("Longitude", value=106.8456, format="%.6f", key="weather_lon")
-        
-        if st.button("🔍 Ambil Data Cuaca"):
-            with st.spinner("Mengambil data cuaca..."):
-                weather = get_weather_data(weather_lat, weather_lon)
-                soil = get_soil_data(weather_lat, weather_lon)
-                
-                if weather and 'current' in weather:
-                    st.success("✅ Data cuaca berhasil diambil!")
+        with st.container():
+            st.markdown("""
+            <div class="info-box">
+                <p style="margin:0;">Lakukan pengecekan cuaca dan kondisi tanah secara real-time untuk optimalisasi jadwal pemupukan dan irigasi.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                weather_lat = st.number_input("Latitude", value=-6.2088, format="%.6f", key="weather_lat")
+            with col2:
+                weather_lon = st.number_input("Longitude", value=106.8456, format="%.6f", key="weather_lon")
+            
+            if st.button("🔍 Ambil Data Komprehensif", type="primary", use_container_width=True):
+                with st.spinner("Mengambil data cuaca & tanah..."):
+                    weather = get_weather_data(weather_lat, weather_lon)
+                    soil = get_soil_data(weather_lat, weather_lon)
                     
-                    # Current weather
-                    st.subheader("🌤️ Cuaca Saat Ini")
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.metric("🌡️ Suhu", f"{weather['current']['temperature_2m']}°C")
-                    with col2:
-                        st.metric("💧 Kelembaban", f"{weather['current']['relative_humidity_2m']}%")
-                    with col3:
-                        st.metric("🌧️ Curah Hujan", f"{weather['current']['precipitation']} mm")
-                    
-                    # Soil data
-                    if soil:
-                        st.subheader("🌱 Data Tanah")
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            st.metric("🌡️ Suhu Tanah", f"{soil.get('soil_temperature', '-')}°C")
-                        with col2:
-                            st.metric("💧 Kelembaban Tanah", f"{soil.get('soil_moisture', '-')}%")
-                    
-                    # Forecast
-                    if 'daily' in weather:
-                        st.subheader("📅 Prakiraan 7 Hari")
-                        forecast_df = pd.DataFrame({
-                            'Tanggal': weather['daily']['time'],
-                            'Suhu Max (°C)': weather['daily']['temperature_2m_max'],
-                            'Suhu Min (°C)': weather['daily']['temperature_2m_min'],
-                            'Curah Hujan (mm)': weather['daily']['precipitation_sum']
-                        })
-                        st.dataframe(forecast_df, use_container_width=True)
-                else:
-                    st.error("❌ Gagal mengambil data cuaca. Periksa koneksi internet.")
+                    if weather and 'current' in weather:
+                        st.markdown(f"""
+                        <div class="kpi-container">
+                            <div class="kpi-card">
+                                <div class="kpi-value">{weather['current']['temperature_2m']}°C</div>
+                                <div class="kpi-label">Suhu Udara</div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-value">{weather['current']['relative_humidity_2m']}%</div>
+                                <div class="kpi-label">Kelembaban</div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-value">{weather['current']['precipitation']}mm</div>
+                                <div class="kpi-label">Curah Hujan</div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        if soil:
+                            st.markdown(f"""
+                            <div class="kpi-container">
+                                <div class="kpi-card" style="border-left:4px solid #10b981;">
+                                    <div class="kpi-value" style="color:#059669;">{soil.get('soil_temperature', '-')}°C</div>
+                                    <div class="kpi-label">Suhu Tanah</div>
+                                </div>
+                                <div class="kpi-card" style="border-left:4px solid #10b981;">
+                                    <div class="kpi-value" style="color:#059669;">{soil.get('soil_moisture', '-')}%</div>
+                                    <div class="kpi-label">Kelembaban Tanah</div>
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        
+                        if 'daily' in weather:
+                            st.markdown("---")
+                            st.subheader("📅 Prakiraan 7 Hari Terintegrasi")
+                            forecast_df = pd.DataFrame({
+                                'Tanggal': weather['daily']['time'],
+                                'Suhu Max (°C)': weather['daily']['temperature_2m_max'],
+                                'Suhu Min (°C)': weather['daily']['temperature_2m_min'],
+                                'Curah Hujan (mm)': weather['daily']['precipitation_sum']
+                            })
+                            st.dataframe(forecast_df, use_container_width=True)
+                    else:
+                        st.error("❌ Gagal menjangkau sensor satelit.")
     
     # ========== PAGE: STATISTICS ==========
     elif menu == "📈 Statistik":
-        st.header("📈 Statistik Pemetaan")
+        st.subheader("📈 Analisis Spasial & Distribusi")
         
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown(f"""
-            <div class="stat-card">
-                <div style="font-size:2rem;font-weight:700;color:#059669">{len(polygons)}</div>
-                <div style="color:#6b7280;font-size:0.9rem;margin-top:0.5rem">Area Lahan</div>
+        st.markdown(f"""
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-value">{len(polygons)}</div>
+                <div class="kpi-label">Area Lahan</div>
             </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown(f"""
-            <div class="stat-card">
-                <div style="font-size:2rem;font-weight:700;color:#059669">{len(npk_data)}</div>
-                <div style="color:#6b7280;font-size:0.9rem;margin-top:0.5rem">Data NPK</div>
+            <div class="kpi-card">
+                <div class="kpi-value">{len(npk_data)}</div>
+                <div class="kpi-label">Titik NPK</div>
             </div>
-            """, unsafe_allow_html=True)
-        with col3:
-            st.markdown(f"""
-            <div class="stat-card">
-                <div style="font-size:2rem;font-weight:700;color:#059669">{len(markers)}</div>
-                <div style="color:#6b7280;font-size:0.9rem;margin-top:0.5rem">Marker</div>
+            <div class="kpi-card">
+                <div class="kpi-value">{len(markers)}</div>
+                <div class="kpi-label">Lain-lain</div>
             </div>
-            """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
         
         if npk_data:
-            st.markdown("---")
-            st.subheader("📊 Distribusi NPK")
-            
             df = pd.DataFrame(npk_data)
+            st.markdown("---")
             
-            # NPK distribution
-            col1, col2 = st.columns(2)
-            with col1:
-                st.bar_chart(df[['n_value', 'p_value', 'k_value']].mean())
-            with col2:
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("**🧪 Profil Nutrisi Rata-rata (ppm)**")
+                st.bar_chart(df[['n_value', 'p_value', 'k_value']].mean(), color="#10b981")
+            
+            with c2:
+                st.markdown("**📈 Tren Variabilitas Kimiawi**")
                 st.line_chart(df[['n_value', 'p_value', 'k_value']])
+            
+            st.markdown("---")
+            st.subheader("📍 Sebaran pH Tanah")
+            st.area_chart(df['ph'], color="#3b82f6")
+
+def haversine(lat1, lon1, lat2, lon2):
+    import math
+    R = 6371000 # Radius in meters
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    d_phi, d_lam = math.radians(lat2-lat1), math.radians(lon2-lon1)
+    a = math.sin(d_phi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(d_lam/2)**2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
 if __name__ == "__main__":
     main()
