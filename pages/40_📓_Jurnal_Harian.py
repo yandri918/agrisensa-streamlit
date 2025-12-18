@@ -246,15 +246,49 @@ st.markdown("""
         border-radius: 20px;
     }
     .card-metric { 
-        display: inline-block; 
+        display: inline-flex; 
+        align-items: center;
         background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
         color: #1565c0; 
-        padding: 4px 10px; 
-        border-radius: 16px; 
+        padding: 4px 12px; 
+        border-radius: 20px; 
         font-size: 0.85em; 
         font-weight: 600;
-        margin-right: 6px;
-        margin-top: 4px;
+        margin-right: 8px;
+        margin-top: 6px;
+        white-space: nowrap;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .metrics-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+        margin-top: 8px;
+    }
+    .summary-bar {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+    }
+    .summary-item {
+        flex: 1;
+    }
+    .summary-val {
+        font-size: 1.5em;
+        font-weight: 700;
+        color: #2e7d32;
+        display: block;
+    }
+    .summary-lbl {
+        font-size: 0.8em;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
     .priority-high { 
         background: #ffebee; 
@@ -701,6 +735,35 @@ with tab_timeline:
     # Sort
     timeline.sort(key=lambda x: x['date'], reverse=(sort_order == "Terbaru"))
     
+    # Calculate Summary for Dashboard
+    total_f_cost = sum(item['cost'] for item in timeline)
+    c_act = sum(1 for item in timeline if item['type'] == 'activity')
+    c_growth = sum(1 for item in timeline if item['type'] == 'growth')
+    
+    # Display Summary Dashboard (Premium Look)
+    st.markdown(f"""
+    <div class="summary-bar">
+        <div class="summary-item">
+            <span class="summary-lbl">💰 Total Biaya</span>
+            <span class="summary-val">Rp {total_f_cost:,.0f}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-lbl">📝 Aktivitas</span>
+            <span class="summary-val">{c_act}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-lbl">📈 Monitoring</span>
+            <span class="summary-val">{c_growth}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-lbl">🔢 Total Entri</span>
+            <span class="summary-val">{len(timeline)}</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.divider()
+    
     # Display timeline
     if timeline:
         st.caption(f"📊 Menampilkan {len(timeline)} entri")
@@ -747,7 +810,7 @@ with tab_timeline:
                 <div class="card-date">{item['raw_date']} • {item['meta']}{location_html}</div>
                 {cost_html}
                 <div class="card-title">{icon} {item['title']} {priority_html}{status_html}</div>
-                <div style="margin-top: 8px; color: #444;">{item['desc']}</div>
+                <div class="metrics-container">{item['desc']}</div>
             </div>
             """, unsafe_allow_html=True)
     else:
