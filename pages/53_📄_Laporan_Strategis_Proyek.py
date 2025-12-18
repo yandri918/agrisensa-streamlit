@@ -10,6 +10,22 @@ st.set_page_config(
     layout="wide"
 )
 
+# --- SIDEBAR: INPUT PARAMETERS ---
+with st.sidebar:
+    st.header("⚙️ Konfigurasi Laporan")
+    proj_name = st.text_input("Nama Proyek", "Pusat Agribisnis Melon Premium 3K")
+    company_name = st.text_input("Nama Perusahaan / Kelompok", "PT. AgriSensa Solusi Madani")
+    owner_name = st.text_input("Pemilik Proyek / CEO", "Bpk. Yandri")
+    report_date = st.date_input("Tanggal Laporan", datetime.date.today())
+    
+    st.divider()
+    include_fin = st.toggle("Sertakan Ringkasan RAB", True)
+    include_3k = st.toggle("Sertakan Strategi 3K", True)
+    include_trace = st.toggle("Sertakan Traceability", True)
+    
+    if st.button("🖨️ Print Laporan ke PDF", type="primary", use_container_width=True):
+        st.components.v1.html("<script>window.print();</script>", height=0)
+
 # --- MAIN REPORT VIEW ---
 st.info("💡 Tip: Gunakan Sidebar untuk mengatur data, lalu gunakan tombol 'Print' untuk menyimpan sebagai PDF.")
 
