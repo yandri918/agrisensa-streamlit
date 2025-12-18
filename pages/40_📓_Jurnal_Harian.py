@@ -655,14 +655,14 @@ with tab_timeline:
             if pd.notna(row['spad']) and row['spad'] > 0:
                 metrics_html += f"<span class='card-metric'>🔬 SPAD {row['spad']:.1f}</span>"
             
-            # Handle empty varietas
-            varietas_display = row['varietas'] if pd.notna(row['varietas']) and row['varietas'] else "(Varietas tidak dicatat)"
+            # Handle varietas display - only show if exists
+            v_text = f" ({row['varietas']})" if pd.notna(row['varietas']) and str(row['varietas']).strip() and str(row['varietas']).lower() != 'nan' else ""
             
             timeline.append({
                 'date': pd.to_datetime(row['tanggal']),
                 'raw_date': row['tanggal'],
                 'type': 'growth',
-                'title': f"Monitoring {row['komoditas']} - {varietas_display}",
+                'title': f"Monitoring {row['komoditas']}{v_text}",
                 'desc': metrics_html,
                 'meta': f"HST {row['usia_hst']} | {row['stage']}",
                 'cost': 0,
@@ -679,7 +679,7 @@ with tab_timeline:
                 'date': pd.to_datetime(row['tanggal']),
                 'raw_date': row['tanggal'],
                 'type': 'cost',
-                'title': f"💸 {row['item']} ({row['jumlah']} {row['satuan']})",
+                'title': f"{row['item']} ({row['jumlah']} {row['satuan']})",
                 'desc': f"{row['kategori_biaya']} - {row['sub_kategori']}",
                 'meta': row.get('supplier', ''),
                 'cost': row['total'],
@@ -737,19 +737,16 @@ with tab_timeline:
                 status_class = status_map.get(item['status'], 'planned')
                 status_html = f'<span class="status-badge status-{status_class}">{item["status"]}</span>'
             
-            # Location - handle nan/empty values
-            location_display = item['location'] if item['location'] and str(item['location']).lower() != 'nan' else ""
+            # Location - handle nan/empty values strictly
+            location_display = str(item['location']).strip() if pd.notna(item['location']) and str(item['location']).strip() and str(item['location']).lower() != 'nan' else ""
             location_html = f" 📍 {location_display}" if location_display else ""
             
-            # For growth entries, don't add icon since title is already descriptive
-            # For other entries, add the icon
-            title_display = item['title'] if item['style'] == 'growth' else f"{icon} {item['title']}"
-            
+            # Icon standardization: Title already cleaned of icons, so we add exactly one here
             st.markdown(f"""
             <div class="{item['style']}">
                 <div class="card-date">{item['raw_date']} • {item['meta']}{location_html}</div>
                 {cost_html}
-                <div class="card-title">{title_display} {priority_html}{status_html}</div>
+                <div class="card-title">{icon} {item['title']} {priority_html}{status_html}</div>
                 <div style="margin-top: 8px; color: #444;">{item['desc']}</div>
             </div>
             """, unsafe_allow_html=True)
