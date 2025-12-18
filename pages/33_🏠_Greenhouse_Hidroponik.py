@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import datetime
 
 # Page config
 st.set_page_config(
@@ -1407,6 +1408,19 @@ with tab_3k:
         
         # Risk factor (Retur/Susut di Toko)
         retur_factor = st.slider("Estimasi Retur/Susut di Rak Toko (%)", 0, 20, 5)
+
+        # ==========================================
+        # 🔄 GLOBAL SYNC (For Strategic Report)
+        # ==========================================
+        st.session_state['global_3k_sim'] = {
+            "komoditas": komoditas_3k,
+            "kapasitas_mingguan": kapasitas_mingguan,
+            "harga_supplier": harga_supplier,
+            "biaya_ops": biaya_ops_per_kg,
+            "gap_pembayaran": gap_pembayaran,
+            "retur_factor": retur_factor,
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        }
     
     with s_col2:
         # Business Simulation Logic (12 Weeks)

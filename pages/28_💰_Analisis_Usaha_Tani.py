@@ -823,6 +823,19 @@ m1.metric("Total Biaya (RAB)", f"Rp {total_biaya:,.0f}", help="Total CAPEX + OPE
 m2.metric("Est. Omzet Panen", f"Rp {estimasi_omzet:,.0f}", f"{target_panen:,.0f} {unit_hasil} x Rp {target_harga}")
 m3.metric("Potensi Laba", f"Rp {estimasi_laba:,.0f}", f"ROI: {roi_percent:.1f}%")
 
+# ==========================================
+# 🔄 GLOBAL SYNC (For Strategic Report)
+# ==========================================
+st.session_state['global_rab_summary'] = {
+    "komoditas": selected_crop,
+    "luas_lahan": luas_lahan_ha,
+    "total_biaya": total_biaya,
+    "estimasi_omzet": estimasi_omzet,
+    "estimasi_laba": estimasi_laba,
+    "roi_percent": roi_percent,
+    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M")
+}
+
 if roi_percent < 0:
     st.error("⚠️ Proyeksi Rugi! Coba kurangi biaya tetangga atau naikkan target panen.")
 elif roi_percent > 100:

@@ -59,24 +59,42 @@ tab_dashboard, tab_editor, tab_preview = st.tabs([
 # --- TAB 1: DASHBOARD ---
 with tab_dashboard:
     st.header("Project KPI Dashboard")
+    
+    # Check for Sync Data
+    rab_raw = st.session_state.get('global_rab_summary', {})
+    sim_raw = st.session_state.get('global_3k_sim', {})
+    ledger_raw = st.session_state.get('ledger_db', [])
+    
+    if rab_raw or sim_raw:
+        st.success(f"✅ Data Sinkron Aktif (Last Sync: {rab_raw.get('timestamp', sim_raw.get('timestamp', 'N/A'))})")
+    else:
+        st.warning("⚠️ Data Belum Sinkron. Silakan isi RAB dan Simulasi di modul terkait untuk data otomatis.")
+
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("Total CAPEX", "Rp 850 Juta", "Simulasi")
+        val_capex = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850 Juta"
+        st.metric("Total Biaya (RAB)", val_capex, "Live" if rab_raw else "Blueprint")
     with col2:
-        st.metric("Estimasi ROI", "24-28 Bln", "-2 Bln")
+        val_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24-28 Bln"
+        st.metric("Estimasi ROI", val_roi, "RAB Data" if rab_raw else "Market Avg")
     with col3:
-        st.metric("Market Readiness", "92%", "Excellent")
+        val_kap = f"{sim_raw['kapasitas_mingguan']} kg" if sim_raw else "200 kg"
+        st.metric("Kapasitas Suplai", val_kap, "Weekly" if sim_raw else "Target")
     with col4:
-        st.metric("Safety Score", "AAA", "Blockchain")
+        val_safety = "AAA" if len(ledger_raw) > 2 else "B (New)"
+        st.metric("Blockchain Score", val_safety, f"{len(ledger_raw)} Blocks")
     
     st.markdown("---")
+    # ... rest of dashboard ...
     c1, c2 = st.columns(2)
     with c1:
         st.subheader("💡 Visi Strategis")
-        st.success(f"Proyek **{proj_name}** bertujuan mendominasi pasar premium melalui efisiensi berbasis data dan standarisasi 3K.")
+        desc_kom = rab_raw.get('komoditas', proj_name)
+        st.success(f"Proyek **{desc_kom}** bertujuan mendominasi pasar premium melalui efisiensi berbasis data dan standarisasi 3K.")
     with c2:
         st.subheader("🚩 Mitigasi Risiko Utama")
-        st.warning("Otomasi irigasi dan sistem peringatan dini (Early Warning System) diaktifkan untuk menjaga kuantitas panen.")
+        risk_note = f"Fokus pada retur {sim_raw.get('retur_factor', 5)}% dan gap pembayaran {sim_raw.get('gap_pembayaran', 'N/A')}." if sim_raw else "Otomasi irigasi dan sistem peringatan dini diaktifkan."
+        st.warning(risk_note)
 
 # --- TAB 2: EDITOR ---
 with tab_editor:
@@ -243,15 +261,19 @@ with tab_preview:
         """
         
     if include_fin:
+        c_capex = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000"
+        c_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24 - 28 Bulan"
+        c_mkt = f"{sim_raw['gap_pembayaran']}" if sim_raw else "Mati 1 Nota"
+        
         html_content += f"""
         <div class="section-title">03. Proyeksi Ekonomi & Investasi</div>
         <table class="premium-table">
             <thead><tr><th>Parameter Investasi</th><th>Estimasi Nilai / Target</th></tr></thead>
             <tbody>
-                <tr><td class="kpi-label">Estimasi CAPEX</td><td>Rp 850,000,000</td></tr>
-                <tr><td class="kpi-label">Periode BEP (ROI)</td><td>24 - 28 Bulan</td></tr>
-                <tr><td class="kpi-label">Cadangan Modal Kerja</td><td>Rp 45,000,000</td></tr>
-                <tr><td class="kpi-label">Target Margin Operasional</td><td>35% - 42%</td></tr>
+                <tr><td class="kpi-label">Investasi CAPEX</td><td>{c_capex}</td></tr>
+                <tr><td class="kpi-label">Target ROI (Musim)</td><td>{c_roi}</td></tr>
+                <tr><td class="kpi-label">Model Pembayaran</td><td>{c_mkt}</td></tr>
+                <tr><td class="kpi-label">Margin Bersih Est.</td><td>35% - 42%</td></tr>
             </tbody>
         </table>
         """
@@ -267,13 +289,14 @@ with tab_preview:
         html_content += "</tbody></table>"
         
     if include_trace:
-        html_content += """
+        l_count = len(ledger_raw)
+        html_content += f"""
         <div class="section-title">05. Keamanan Digital & Traceability</div>
-        <p>Utilisasi <b>AgriSensa Blockchain Ledger</b> menjamin integritas data rantai pasok. 
-        Sistem sertifikasi digital kami memungkinkan verifikasi instan terhadap kualitas produk dan kepatuhan SOP.</p>
+        <p>Integrasi <b>{l_count} transaksi blockchain</b> menjamin transparansi rantai pasok. 
+        Sistem sertifikasi digital ini memungkinkan audit instan terhadap kepatuhan SOP.</p>
         <div style="background:#f8fafc; padding:30px; border-radius:12px; margin-top:20px; border: 1px solid #e2e8f0; text-align:center;">
-            <div style="color:#059669; font-weight:800; font-size:1.1rem; margin-bottom:5px;">● ENCRYPTED & SECURED</div>
-            <p style="margin:0; font-size:0.85rem; color:#64748b;">Verifikasi Hash Berbasis SHA-256 Otomatis Aktif</p>
+            <div style="color:#059669; font-weight:800; font-size:1.1rem; margin-bottom:5px;">● BLOCKCHAIN VERIFIED ({l_count} BLOCKS)</div>
+            <p style="margin:0; font-size:0.85rem; color:#64748b;">Protocol SHA-256 Secured</p>
         </div>
         """
         
