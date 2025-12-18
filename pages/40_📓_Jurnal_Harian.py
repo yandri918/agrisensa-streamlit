@@ -489,25 +489,32 @@ def main():
         timeline.sort(key=lambda x: x['date'], reverse=(sort_order == "Terbaru"))
         
         if timeline:
+            import re
+            def clean_html(text):
+                if not isinstance(text, str): return text
+                return re.sub('<[^<]+?>', '', text) # Strip any HTML tags
+
             for item in timeline:
                 icon = "📝" if item['type'] == 'activity' else "📈" if item['type'] == 'growth' else "💰"
                 
-                # Render content based on type to avoid raw HTML strings in 'desc'
+                # Render content with sanitization to prevent raw tags from showing
                 if item['type'] == 'growth':
-                    content_html = f"<div class='metric-pill'>📏 {item['desc']:.1f} cm</div>"
+                    val = float(clean_html(str(item['desc']))) if item['desc'] else 0
+                    content_html = f"<div class='metric-pill'>📏 {val:.1f} cm</div>"
                 else:
-                    content_html = f"<div>{item['desc']}</div>"
+                    safe_desc = clean_html(str(item['desc']))
+                    content_html = f"<div style='line-height:1.5;'>{safe_desc}</div>"
 
                 st.markdown(f"""
                 <div class="glass-card">
-                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#64748b; margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#64748b; margin-bottom:8px; border-bottom:1px solid #f1f5f9; padding-bottom:5px;">
                         <span>📅 {item['raw_date']} | 🏷️ {item['meta']}</span>
                         {f'<span style="color:#ef4444; font-weight:700;">Rp {item["cost"]:,.0f}</span>' if item['cost'] > 0 else ""}
                     </div>
-                    <h4 style="margin:0 0 10px 0; color:#1e293b; display:flex; align-items:center; gap:8px;">
-                        <span>{icon}</span> {item['title']}
+                    <h4 style="margin:10px 0 10px 0; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                        <span style="background:#f1f5f9; padding:5px; border-radius:8px;">{icon}</span> {clean_html(item['title'])}
                     </h4>
-                    <div style="font-size:0.9rem; color:#475569;">
+                    <div style="font-size:0.95rem; color:#475569; padding-left:5px;">
                         {content_html}
                     </div>
                 </div>
