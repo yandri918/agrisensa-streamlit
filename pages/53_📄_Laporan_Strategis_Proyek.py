@@ -189,6 +189,12 @@ with tab_preview:
     st.markdown("### 📑 Dokumentasi Resmi (Buku Putih)")
     st.caption("Pratinjau akhir sebelum dicetak ke PDF. Gunakan sidebar jika ingin mengubah sumber data atau mencetak.")
     
+    # CALCULATE FALLBACKS FOR REPORT
+    r_total = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000 (Blueprint)"
+    r_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24 - 28 Bulan (Market Avg)"
+    r_kap = f"{sim_raw['kapasitas_mingguan']} kg" if sim_raw else "200 kg (Est. Capacity)"
+    r_blocks = f"{len(ledger_raw)} Transaksi Terverifikasi" if source_trace == "Sinkron Modul 48" else "Sistem Keamanan Terintegrasi (Template)"
+    
     st.markdown("""
         <style>
             .stApp { background: #f1f5f9 !important; }
@@ -223,12 +229,6 @@ with tab_preview:
     """, unsafe_allow_html=True)
     
     st.info("📑 Mode Pratinjau Dokumen Aktif. Gunakan Sidebar untuk mencetak.")
-
-    # CALCULATE FALLBACKS FOR REPORT
-    r_total = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000 (Blueprint)"
-    r_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24 - 28 Bulan (Market Avg)"
-    r_kap = f"{sim_raw['kapasitas_mingguan']} kg" if sim_raw else "200 kg (Est. Capacity)"
-    r_blocks = f"{len(ledger_raw)} Transaksi Terverifikasi" if source_trace == "Sinkron Modul 48" else "Sistem Keamanan Terintegrasi (Template)"
 
     # BUILD CONTENT
     html_report = f"""
