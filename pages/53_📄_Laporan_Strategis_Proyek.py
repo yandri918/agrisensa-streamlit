@@ -60,9 +60,9 @@ st.info("""
 
 # --- NATIVE TABS ---
 tab_editor, tab_dashboard, tab_preview = st.tabs([
-    "�️ Langkah 1: Penyusunan Konten",
-    "📊 Langkah 2: Analisa Terintegrasi", 
-    "� Langkah 3: Cetak Buku Putih"
+    "Step 1: Penyusunan Konten",
+    "Step 2: Analisa Terintegrasi", 
+    "Step 3: Cetak Buku Putih"
 ])
 
 # --- HELPER FUNCTIONS ---
