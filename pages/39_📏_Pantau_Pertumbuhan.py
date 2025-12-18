@@ -18,6 +18,9 @@ st.set_page_config(
 # Constants & Setup
 DATA_FILE = "data/growth_journal.csv"
 
+import folium
+from streamlit_folium import st_folium
+
 # Add updated path logic for services
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -64,8 +67,8 @@ init_data()
 st.title("📏 Pantau Pertumbuhan Tanaman (Advanced)")
 st.markdown("""
 <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 20px; border-radius: 15px; color: white; margin-bottom: 25px;">
-    <h3 style="margin:0; color: #4ade80;">Scientific Growth Engine v2.0</h3>
-    <p style="margin:0; opacity: 0.8;">Integrated with Biological Logistic Models (Verhulst) and Growing Degree Days (GDD) tracking.</p>
+    <h3 style="margin:0; color: #4ade80;">Scientific Growth Engine v2.1</h3>
+    <p style="margin:0; opacity: 0.8;">Integrated with Biological Logistic Models (Verhulst) and <strong>Automatic Map-Based GDD Tracking</strong>.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -85,6 +88,28 @@ with st.sidebar:
     prof = profiles[kom_choice]
     
     st.divider()
+    st.header("📍 Lokasi Lahan (Peta Otomatis)")
+    
+    # Map for Location selection
+    default_lat, default_lon = st.session_state.get('data_lat', -7.15), st.session_state.get('data_lon', 110.14)
+    m = folium.Map(location=[default_lat, default_lon], zoom_start=13)
+    m.add_child(folium.LatLngPopup())
+    
+    # Map in sidebar is a bit tight, but let's try
+    map_data = st_folium(m, height=250, width=280)
+    
+    if map_data and map_data.get("last_clicked"):
+        lat_sel = map_data["last_clicked"]["lat"]
+        lon_sel = map_data["last_clicked"]["lng"]
+        # Sync back to session state
+        st.session_state['data_lat'] = lat_sel
+        st.session_state['data_lon'] = lon_sel
+        st.success(f"Lokasi: {lat_sel:.4f}, {lon_sel:.4f}")
+    else:
+        lat_sel, lon_sel = default_lat, default_lon
+        st.info("Pilih lokasi lahan di peta.")
+
+    st.divider()
     st.header("📝 Input Data Harian")
     tgl_catat = st.date_input("Tanggal Pencatatan", datetime.now())
     usia_hst = st.number_input("Usia Tanaman (HST)", min_value=1, value=1)
@@ -93,28 +118,18 @@ with st.sidebar:
     
     # GDD Calculation helper with automated weather
     st.markdown("---")
-    st.markdown("**🌡️ Hitung GDD (Thermal Time)**")
+    st.markdown("**🌡️ Auto-GDD (Weather Sync)**")
     
-    # Try to fetch current weather if lat/lon in session_state (from weather page)
-    lat_auto = st.session_state.get('data_lat', -7.15)
-    lon_auto = st.session_state.get('data_lon', 110.14)
-    
-    if st.checkbox("Gunakan Data Cuaca Real-time", value=True):
-        with st.spinner("Fetching weather..."):
-            w_data = weather_service.get_weather_forecast(lat_auto, lon_auto)
-            if w_data and 'raw_daily' in w_data:
-                # Use today's max/min from forecast
-                t_max = w_data['raw_daily'].get('temperature_2m_max', [32.0])[0]
-                t_min = w_data['raw_daily'].get('temperature_2m_min', [24.0])[0]
-                st.caption(f"📍 {lat_auto:.2f}, {lon_auto:.2f} | T-Max: {t_max}°C, T-Min: {t_min}°C")
-            else:
-                t_max, t_min = 32.0, 24.0
-    else:
-        t_max = st.number_input("Suhu Max (°C)", value=32.0)
-        t_min = st.number_input("Suhu Min (°C)", value=24.0)
-    
-    gdd_today = max(0, (t_max + t_min)/2 - prof['Tb'])
-    st.info(f"Energi Termal Hari Ini: **{gdd_today:.1f} GDD**")
+    with st.spinner("Mengambil cuaca real-time..."):
+        w_data = weather_service.get_weather_forecast(lat_sel, lon_sel)
+        if w_data and 'raw_daily' in w_data:
+            t_max = w_data['raw_daily'].get('temperature_2m_max', [32.0])[0]
+            t_min = w_data['raw_daily'].get('temperature_2m_min', [24.0])[0]
+            gdd_today = max(0, (t_max + t_min)/2 - prof['Tb'])
+            st.metric("Estimasi Panas (GDD)", f"{gdd_today:.1f} Units", delta=f"{t_max}°C / {t_min}°C")
+        else:
+            gdd_today = 10.0 # Fallback
+            st.warning("Gagal fetch cuaca. Menggunakan estimasi default.")
     
     if st.button("💾 Simpan Data ke Jurnal", type="primary", use_container_width=True):
         # Calculate cumulative GDD from previous entries if exists
