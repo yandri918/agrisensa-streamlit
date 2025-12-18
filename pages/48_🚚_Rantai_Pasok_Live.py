@@ -54,7 +54,12 @@ VEHICLES = {
 }
 
 # TABS
-tab1, tab2, tab3 = st.tabs(["🚛 Kalkulator Logistik", "💰 Analisis Margin (Tata Niaga)", "⏱️ Radar Pasar Induk"])
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🚛 Kalkulator Logistik", 
+    "💰 Analisis Margin (Tata Niaga)", 
+    "⏱️ Radar Pasar Induk",
+    "🔗 Blockchain Ledger (Simulasi)"
+])
 
 # --- TAB 1: LOGISTICS CALCULATOR ---
 with tab1:
@@ -138,6 +143,19 @@ with tab1:
         """, unsafe_allow_html=True)
         
         st.warning(f"⚠️ **Estimasi Susut:** {est_susut_pct:.1f}% ({berat_susut:.0f} kg hilang diperjalanan). \nBerat siap jual: {berat_jual:.0f} kg.")
+
+        # --- CARBON FOOTPRINT CALCULATOR ---
+        st.markdown("---")
+        st.subheader("🌍 Jejak Karbon (Carbon Footprint)")
+        # Emission factors: Diesel avg 2.68 kg CO2/liter
+        total_co2 = liter_bbm * 2.68
+        co2_per_kg = total_co2 / muatan_kg
+        
+        c_c1, c_c2 = st.columns(2)
+        c_c1.metric("Total Emisi CO2", f"{total_co2:.1f} kg")
+        c_c2.metric("Emisi per kg Produk", f"{co2_per_kg*1000:.1f} gram")
+        
+        st.caption("Fokus pada Green Logistics untuk akses pasar ekspor & premium.")
 
         # Breakdown Chart
         cost_data = pd.DataFrame({
@@ -283,6 +301,43 @@ with tab3:
         else:
             st.info(f"- Posisi {posisi_lapak}: Harga Standar")
 
+# --- TAB 4: BLOCKCHAIN LEDGER ---
+with tab4:
+    st.markdown("### 🔗 Blockchain Supply Chain Ledger (Simulation)")
+    st.info("Catatan transaksi yang tidak dapat diubah (Immutable) untuk menjamin transparansi.")
+    
+    import hashlib
+    
+    def generate_hash(text):
+        return hashlib.sha256(text.encode()).hexdigest()
+
+    # Simulated Ledger Data
+    log_data = [
+        {"actor": "🚜 Petani (Pemanenan)", "timestamp": "2025-12-18 06:00", "action": "Validasi Panen: 500kg Cabai Red Beauty"},
+        {"actor": "🚛 Pengepul (Sortir)", "timestamp": "2025-12-18 10:00", "action": "Quality Control: Lulus Seleksi Grade A"},
+        {"actor": "🏢 Gudang Pusat (Landed)", "timestamp": "2025-12-18 15:00", "action": "Inbound Storage: Suhu Cold Storage 12°C"}
+    ]
+    
+    prev_hash = "00000000000000000000000000000000"
+    
+    for i, item in enumerate(log_data):
+        curr_text = f"{item['actor']}{item['timestamp']}{item['action']}{prev_hash}"
+        curr_hash = generate_hash(curr_text)
+        
+        with st.container():
+            st.markdown(f"""
+            <div style='border-left: 5px solid #10b981; padding: 10px; background: #f0fdf4; margin-bottom: 10px;'>
+                <p style='margin:0; font-weight:bold; color:#065f46;'>{item['actor']}</p>
+                <p style='margin:0; font-size:0.8em; color:gray;'>{item['timestamp']}</p>
+                <p style='margin:5px 0;'>{item['action']}</p>
+                <code style='font-size:0.7em;'>Hash: {curr_hash[:32]}...</code>
+            </div>
+            """, unsafe_allow_html=True)
+            prev_hash = curr_hash
+
+    if st.button("➕ Simulasikan Transaksi Baru (Proof of Handover)"):
+        st.success("Transaksi 'Serah Terima ke Retailer' berhasil dicatat ke dalam Ledger!")
+
 # Footer
 st.markdown("---")
-st.caption("AgriSensa Logistics - Mengamankan Profit dari Kebun ke Kota.")
+st.caption("AgriSensa Logistics - Mengamankan Profit & Transparansi dari Kebun ke Kota.")

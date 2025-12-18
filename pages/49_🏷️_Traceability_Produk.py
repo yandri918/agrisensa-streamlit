@@ -527,13 +527,19 @@ with tab1:
         is_halal = st.checkbox("✅ Halal Certified")
         is_premium = st.checkbox("✅ Kualitas Ekspor (Sortir Ketat)")
         
-        # Generator ID
+        st.subheader("5. Riwayat Budidaya (Advanced)")
+        riwayat_log = st.text_area("📝 Catatan Budidaya (Pupuk/Pestisida)", "Pupuk Organik Cair (Minggu 2), Kompos (Minggu 4), Cabut Rumput Manual.")
+        
+        # Generator ID & Blockchain Fake Hash
+        import hashlib
         batch_id = f"AGRI-{tgl_panen.strftime('%Y%m%d')}-{hash(jenis_produk)%1000:03d}"
+        blockchain_hash = hashlib.sha256(f"{batch_id}{riwayat_log}{nama_petani}".encode()).hexdigest()
         
         st.markdown("---")
         if st.button("💾 Simpan & Generate QR Code", type="primary", use_container_width=True):
             st.session_state['batch_data'] = {
                 "id": batch_id,
+                "hash": blockchain_hash,
                 "produk": jenis_produk,
                 "varietas": varietas,
                 "tgl": tgl_panen,
@@ -542,6 +548,7 @@ with tab1:
                 "foto": foto_produk,
                 "harga": harga_produk if harga_produk > 0 else None,
                 "kontak": kontak_petani if kontak_petani else None,
+                "riwayat": riwayat_log,
                 "klaim": [k for k, v in [("Organik", is_organik), ("Halal", is_halal), ("Premium", is_premium)] if v]
             }
             st.success(f"✅ Batch {batch_id} berhasil dibuat!")
@@ -741,6 +748,9 @@ with tab3:
     <div style='text-align:center;'>
         <h3 style='color:#0f766e; margin: 10px 0;'>✅ TERVERIFIKASI</h3>
         <p style='color:grey; margin: 5px 0;'>AgriSensa Blockchain Network</p>
+        <div style='background:#f0fdf4; border: 1px solid #bbf7d0; border-radius: 5px; padding: 5px; font-size: 0.6em; word-break: break-all;'>
+            Hash: {data.get('hash', 'N/A')[:32]}...
+        </div>
         <hr style='border: 1px solid #e5e7eb; margin: 15px 0;'>
         <h1 style='font-size: 3em; margin: 10px 0;'>🌾</h1>
         <h2 style='color:#1f2937; margin: 10px 0;'>Produk Asli & Aman</h2>
@@ -772,7 +782,12 @@ with tab3:
             if data.get('kontak'):
                 html_content += f"        <p style='margin: 8px 0;'><b>📞 Kontak Petani:</b> <br>{data['kontak']}</p>\n"
             
-            html_content += """
+            html_content += f"""
+    </div>
+    
+    <div style='background:#fefce8; padding:15px; border-radius:10px; margin: 15px 0; border: 1px solid #fef08a;'>
+        <p style='margin: 0; font-weight:bold; color:#854d0e;'>📝 Riwayat Budidaya:</p>
+        <p style='margin: 5px 0; font-size: 0.85em; color: #713f12;'>{data.get('riwayat', 'Tidak ada catatan.')}</p>
     </div>
     
     <p style='margin: 15px 0 5px 0;'><b>Cerita Petani:</b></p>
@@ -804,9 +819,18 @@ with tab3:
                 html_content += f"""
         <a href='https://wa.me/{wa_number}' target='_blank' style='color:#0f766e; text-decoration:none; font-weight:bold;'>💬 Hubungi Petani</a>
 """
-            else:
-                html_content += """
+            html_content += """
         <a href='#' style='color:#0f766e; text-decoration:none; font-weight:bold;'>💬 Hubungi Petani</a>
+"""
+            
+            # Feedback Section Simulation
+            html_content += """
+        <hr style='border: 1px solid #e5e7eb; margin: 15px 0;'>
+        <div style='text-align:left;'>
+            <p style='margin:0; font-weight:bold;'>⭐ Berikan Rating:</p>
+            <div style='color:#fbbf24; font-size:1.5em;'>★★★★★</div>
+            <p style='margin:5px 0; font-size:0.8em; color:gray;'>Puas dengan produk ini? Beritahu petani!</p>
+        </div>
 """
             
             html_content += """
