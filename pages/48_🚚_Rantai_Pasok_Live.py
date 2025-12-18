@@ -328,20 +328,77 @@ with tab4:
     st.info("Catatan transaksi yang tidak dapat diubah (Immutable) untuk menjamin transparansi.")
     
     import hashlib
+    import qrcode
+    from io import BytesIO
     
     def generate_hash(text):
         return hashlib.sha256(text.encode()).hexdigest()
 
-    # Simulated Ledger Data
-    log_data = [
-        {"actor": "🚜 Petani (Pemanenan)", "timestamp": "2025-12-18 06:00", "action": "Validasi Panen: 500kg Cabai Red Beauty"},
-        {"actor": "🚛 Pengepul (Sortir)", "timestamp": "2025-12-18 10:00", "action": "Quality Control: Lulus Seleksi Grade A"},
-        {"actor": "🏢 Gudang Pusat (Landed)", "timestamp": "2025-12-18 15:00", "action": "Inbound Storage: Suhu Cold Storage 12°C"}
-    ]
+    # SECTION 1: FORM HANDOVER
+    st.subheader("📝 Form Serah Terima (Proof of Handover)")
+    with st.form("handover_form"):
+        col_h1, col_h2 = st.columns(2)
+        with col_h1:
+            farmer_id = st.text_input("ID Petani / Sertifikat", "PET-2025-001")
+            komoditas_name = st.text_input("Nama Komoditas", "Cabai Red Beauty")
+            berat_kg = st.number_input("Berat Serah Terima (kg)", 1.0, 10000.0, 200.0)
+        with col_h2:
+            grade_produk = st.selectbox("Grade", ["Grade A (Premium)", "Grade B", "Grade C", "BS"])
+            lokasi_serah = st.text_input("Lokasi Serah Terima", "Gudang Pengepul Cianjur")
+            catatan_qc = st.text_area("Catatan QC / Kebersihan", "Lulus sortir, residu minimal.")
+        
+        submit_handover = st.form_submit_button("✅ Konfirmasi Serah Terima (Simpan ke Ledger)")
+
+    # Simulated Ledger Storage in Session State
+    if 'ledger_db' not in st.session_state:
+        st.session_state['ledger_db'] = [
+            {"actor": "🚜 Petani (Pemanenan)", "timestamp": "2025-12-18 06:00", "action": "Validasi Panen: 500kg Cabai Red Beauty"},
+            {"actor": "🚛 Pengepul (Sortir)", "timestamp": "2025-12-18 10:00", "action": "Quality Control: Lulus Seleksi Grade A"}
+        ]
+
+    if submit_handover:
+        new_entry = {
+            "actor": f"🚛 Handover: {farmer_id}",
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "action": f"Serah Terima: {berat_kg}kg {komoditas_name} ({grade_produk}) di {lokasi_serah}"
+        }
+        st.session_state['ledger_db'].append(new_entry)
+        st.success(f"Transaksi untuk {farmer_id} berhasil dicatat ke dalam Ledger!")
+
+        # GENERATE QR PASSPORT
+        st.markdown("### 🎫 QR Passport (Digital Certificate)")
+        qr_data = f"AgriSensa Traceability\nID: {farmer_id}\nItem: {komoditas_name}\nBerat: {berat_kg}kg\nGrade: {grade_produk}\nHash: {generate_hash(str(new_entry))[:16]}"
+        
+        qr = qrcode.QRCode(version=1, box_size=10, border=4)
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        img_qr = qr.make_image(fill_color="black", back_color="white")
+        
+        buf = BytesIO()
+        img_qr.save(buf, format="PNG")
+        
+        c_qr1, c_qr2 = st.columns([1, 2])
+        with c_qr1:
+            st.image(buf.getvalue(), caption=f"QR Passport - {farmer_id}")
+        with c_qr2:
+            st.markdown(f"""
+            <div style='background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1;'>
+                <h4 style='margin:0;'>🎫 AgriPass Verified</h4>
+                <p style='margin:5px 0; font-size: 0.9em;'>Produk ini telah melalui verifikasi serah terima digital.</p>
+                <hr/>
+                <p style='margin:5px 0;'><b>Komoditas:</b> {komoditas_name}</p>
+                <p style='margin:5px 0;'><b>Berat:</b> {berat_kg} kg</p>
+                <p style='margin:5px 0;'><b>Grade:</b> {grade_produk}</p>
+                <p style='margin:5px 0; font-size: 0.7em; color: gray;'>Immutable Hash: {generate_hash(str(new_entry))}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.divider()
+    st.markdown("#### 📜 Riwayat Ledger (Blockchain Timeline)")
     
     prev_hash = "00000000000000000000000000000000"
     
-    for i, item in enumerate(log_data):
+    for i, item in enumerate(st.session_state['ledger_db']):
         curr_text = f"{item['actor']}{item['timestamp']}{item['action']}{prev_hash}"
         curr_hash = generate_hash(curr_text)
         
@@ -356,8 +413,7 @@ with tab4:
             """, unsafe_allow_html=True)
             prev_hash = curr_hash
 
-    if st.button("➕ Simulasikan Transaksi Baru (Proof of Handover)"):
-        st.success("Transaksi 'Serah Terima ke Retailer' berhasil dicatat ke dalam Ledger!")
+    # Logic for manual simulated transactions removed in favor of the form
 
 # Footer
 st.markdown("---")
