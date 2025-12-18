@@ -45,6 +45,7 @@ with st.sidebar:
 
     st.divider()
     if st.button("🖨️ Generate & Print (Buku Putih)", type="primary", use_container_width=True):
+        st.info("📌 **Cara Mencetak:**\n\n1. Pastikan Anda sudah di Tab 3 (Cetak Buku Putih)\n2. Tekan **Ctrl+P** (Windows) atau **Cmd+P** (Mac)\n3. Pilih 'Save as PDF' atau printer Anda\n4. Klik Print/Save")
         st.components.v1.html("<script>window.print();</script>", height=0)
 
 # --- HEADER NATIVE ---
@@ -188,6 +189,27 @@ with tab_editor:
 with tab_preview:
     st.markdown("### 📑 Dokumentasi Resmi (Buku Putih)")
     st.caption("Pratinjau akhir sebelum dicetak ke PDF. Gunakan sidebar jika ingin mengubah sumber data atau mencetak.")
+    
+    # ADD PRINT CSS
+    st.markdown("""
+    <style>
+        @media print {
+            /* Hide Streamlit UI elements */
+            header, .stSidebar, .stTabs, [data-testid="stHeader"], 
+            [data-testid="stToolbar"], .stDeployButton, .stDecoration,
+            .stMarkdown > div:first-child { display: none !important; }
+            
+            /* Make content full width */
+            .main .block-container { max-width: 100% !important; padding: 0 !important; }
+            
+            /* Ensure tables print properly */
+            table { page-break-inside: avoid; }
+            
+            /* Remove backgrounds */
+            body, .stApp { background: white !important; }
+        }
+    </style>
+    """, unsafe_allow_html=True)
     
     # CALCULATE FALLBACKS FOR REPORT
     r_total = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000"
