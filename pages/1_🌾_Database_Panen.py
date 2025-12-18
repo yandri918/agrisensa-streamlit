@@ -80,68 +80,129 @@ def calculate_profitability(total_value, costs):
         'roi': round(roi, 2)
     }
 
-# ========== CUSTOM CSS ==========
+# ========== CUSTOM CSS (Premium Glassmorphism) ==========
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #059669;
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+    
+    * { font-family: 'Outfit', sans-serif; }
+
+    .main {
+        background-color: #f8fafc;
+    }
+
+    /* Header & Hero */
+    .header-container {
+        background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+        padding: 40px;
+        border-radius: 20px;
+        color: white;
         text-align: center;
-        margin-bottom: 1rem;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.3);
     }
-    .stat-card {
-        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-        padding: 1.5rem;
-        border-radius: 12px;
-        border: 2px solid #10b981;
-        text-align: center;
+
+    /* Command Center KPI Cards */
+    .kpi-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
     }
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #059669;
-    }
-    .stat-label {
-        color: #6b7280;
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
-    }
-    .record-card {
+    .kpi-card {
+        flex: 1;
         background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        margin-bottom: 1rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 25px;
+        border-radius: 18px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        transition: transform 0.2s ease;
     }
-    .success-box {
-        background: #d1fae5;
-        border: 2px solid #10b981;
-        border-radius: 8px;
-        padding: 1rem;
-        color: #065f46;
-        margin: 1rem 0;
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        border-color: #10b981;
     }
-    .warning-box {
-        background: #fef3c7;
-        border: 2px solid #f59e0b;
-        border-radius: 8px;
-        padding: 1rem;
-        color: #92400e;
-        margin: 1rem 0;
+    .kpi-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 5px;
+    }
+    .kpi-label {
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Feed Entry Cards */
+    .harvest-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        padding: 0;
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .harvest-card:hover {
+        box-shadow: 0 12px 20px -10px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        background: #f8fafc;
+        padding: 15px 25px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .card-body {
+        padding: 25px;
+    }
+    .metric-pill {
+        display: inline-flex;
+        align-items: center;
+        background: #f1f5f9;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        color: #475569;
+        font-weight: 600;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    /* Scientific Colors */
+    .color-yield { border-left: 5px solid #10b981; }
+    .color-profit { border-left: 5px solid #8b5cf6; }
+    .color-loss { border-left: 5px solid #ef4444; }
+
+    /* Forms & Inputs */
+    .stTextInput>div>div>input, .stNumberInput>div>div>input {
+        border-radius: 10px !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
+def icon_score(score):
+    if score >= 85: return "⭐⭐⭐ Excellent"
+    if score >= 70: return "⭐⭐ Good"
+    return "⭐ Average"
+
 # ========== MAIN APP ==========
 def main():
-    # Header
-    st.markdown('<h1 class="main-header">🌾 Database Panen AgriSensa</h1>', unsafe_allow_html=True)
-    st.markdown("**Catat, Analisis, dan Visualisasikan Data Hasil Panen Anda**")
+    # Header Hero
+    st.markdown("""
+    <div class="header-container">
+        <h1 style="margin:0; color:white; font-size:2.8rem;">🌾 Database Panen AgriSensa</h1>
+        <p style="margin:0; opacity:0.9; font-size:1.1rem; font-weight:300;">Command Center: Catat, Analisis, dan Visualisasikan Hasil Produksi Anda</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Sidebar Navigation
-    st.sidebar.title("📋 Menu")
+    st.sidebar.title("🍱 Navigation")
     menu = st.sidebar.radio(
         "Pilih Halaman:",
         ["📊 Dashboard", "➕ Tambah Data Panen", "📝 Lihat & Edit Data", "📈 Analisis & Visualisasi", "💾 Export Data"]
@@ -152,111 +213,113 @@ def main():
     
     # ========== PAGE: DASHBOARD ==========
     if menu == "📊 Dashboard":
-        st.header("📊 Dashboard Ringkasan")
-        
         if not data:
             st.info("👋 Belum ada data panen. Mulai dengan menambahkan data panen pertama Anda!")
         else:
-            # Calculate statistics
+            # Calculate productivity metrics
             total_records = len(data)
             total_quantity = sum(r.get('total_quantity', 0) for r in data)
             total_value = sum(r.get('total_value', 0) for r in data)
             total_profit = sum(r.get('profit', 0) for r in data)
+            avg_margin = sum(r.get('profit_margin', 0) for r in data) / total_records if total_records > 0 else 0
             
-            # Display stats
-            col1, col2, col3, col4 = st.columns(4)
-            
-            with col1:
-                st.markdown(f"""
-                <div class="stat-card">
-                    <div class="stat-value">{total_records}</div>
-                    <div class="stat-label">Total Catatan Panen</div>
+            # New Scientific Metric: Total Productivity (if area exists)
+            total_ha = sum(r.get('land_size_ha', 0.1) for r in data if 'land_size_ha' in r)
+            avg_yield_ha = (total_quantity / 1000) / total_ha if total_ha > 0 else 0
+
+            # KPI Command Center
+            st.markdown(f"""
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <div class="kpi-value">{total_records}</div>
+                    <div class="kpi-label">Total Panen</div>
                 </div>
-                """, unsafe_allow_html=True)
-            
-            with col2:
-                st.markdown(f"""
-                <div class="stat-card">
-                    <div class="stat-value">{total_quantity:,.0f} kg</div>
-                    <div class="stat-label">Total Hasil Panen</div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{total_quantity/1000:,.1f} Ton</div>
+                    <div class="kpi-label">Total Produksi</div>
                 </div>
-                """, unsafe_allow_html=True)
-            
-            with col3:
-                st.markdown(f"""
-                <div class="stat-card">
-                    <div class="stat-value">Rp {total_value:,.0f}</div>
-                    <div class="stat-label">Total Pendapatan</div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{avg_yield_ha:,.2f}</div>
+                    <div class="kpi-label">Ton / Hektar (Avg)</div>
                 </div>
-                """, unsafe_allow_html=True)
-            
-            with col4:
-                st.markdown(f"""
-                <div class="stat-card">
-                    <div class="stat-value">Rp {total_profit:,.0f}</div>
-                    <div class="stat-label">Total Keuntungan</div>
+                <div class="kpi-card">
+                    <div class="kpi-value" style="color:#16a34a;">Rp {total_profit/1000000:,.1f}M</div>
+                    <div class="kpi-label">Estimasi Profit</div>
                 </div>
-                """, unsafe_allow_html=True)
+            </div>
+            """, unsafe_allow_html=True)
             
             st.markdown("---")
             
-            # Recent harvests
-            st.subheader("🕒 5 Panen Terakhir")
+            # Recent harvests - Premium Feed Style
+            st.subheader("🕒 Riwayat Panen Terakhir")
             recent = sorted(data, key=lambda x: x.get('harvest_date', ''), reverse=True)[:5]
             
             for record in recent:
-                with st.expander(f"🌾 {record['commodity']} - {record['harvest_date']} ({record['farmer_name']})"):
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.write(f"**Lokasi:** {record['location']}")
-                        st.write(f"**Total Hasil:** {record.get('total_quantity', 0):.2f} kg")
-                        st.write(f"**Pendapatan:** Rp {record.get('total_value', 0):,.0f}")
-                    with col2:
-                        st.write(f"**Biaya:** Rp {record.get('total_cost', 0):,.0f}")
-                        st.write(f"**Keuntungan:** Rp {record.get('profit', 0):,.0f}")
-                        st.write(f"**Margin:** {record.get('profit_margin', 0):.2f}%")
+                p_margin = record.get('profit_margin', 0)
+                color_class = "color-profit" if p_margin > 0 else "color-loss"
+                icon = "🟢" if p_margin > 20 else "🟡" if p_margin > 0 else "🔴"
+                
+                st.markdown(f"""
+                <div class="harvest-card {color_class}">
+                    <div class="card-header">
+                        <span style="font-weight:700; color:#1e293b;">{icon} {record['commodity']} - {record['harvest_date']}</span>
+                        <span style="color:#64748b; font-size:0.85rem;">Ref: {record['id'][:8]}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-pill">📍 {record['location']}</div>
+                        <div class="metric-pill">🚜 {record['farmer_name']}</div>
+                        <div class="metric-pill">⚖️ {record.get('total_quantity', 0):,.0f} kg</div>
+                        <div class="metric-pill">💰 Rp {record.get('total_value', 0):,.0f}</div>
+                        <div class="metric-pill" style="background:#f0fdf4; color:#16a34a;">📈 Profit: Rp {record.get('profit', 0):,.0f} ({p_margin:.1f}%)</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
     
     # ========== PAGE: ADD RECORD ==========
     elif menu == "➕ Tambah Data Panen":
-        st.header("➕ Tambah Data Panen Baru")
+        st.header("➕ Form Input Panen Presisi")
         
         # Number of criteria OUTSIDE form for reactivity
-        st.subheader("📊 Kriteria Hasil Panen")
-        st.info("Tambahkan minimal 1 kriteria (ukuran/grade) hasil panen")
-        num_criteria = st.number_input("Jumlah Kriteria", min_value=1, max_value=5, value=1, 
-                                       help="Ubah angka ini untuk menambah/mengurangi jumlah kriteria")
+        st.subheader("📊 Konfigurasi Hasil")
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            st.info("Berapa tingkatan kualitas/grade hasil panen Anda?")
+            num_criteria = st.number_input("Jumlah Kriteria/Grade", min_value=1, max_value=5, value=1)
+        with col_c2:
+            st.info("Target produktivitas dihitung otomatis (Ton/Ha).")
+            land_size_ha = st.number_input("Luas Lahan Panen (Hektar)", min_value=0.01, value=1.0, step=0.01)
         
-        with st.form("add_harvest_form"):
-            st.subheader("📝 Informasi Petani")
+        with st.form("add_harvest_form_v2"):
+            st.subheader("📝 Metadata Produksi")
             col1, col2 = st.columns(2)
             with col1:
-                farmer_name = st.text_input("Nama Petani *", placeholder="Contoh: Budi Santoso")
-                farmer_phone = st.text_input("No. Telepon *", placeholder="08123456789")
+                farmer_name = st.text_input("Nama Petani / Operator *", placeholder="Contoh: Kelompok Tani Makmur")
+                farmer_phone = st.text_input("No. WhatsApp *", placeholder="08123456789")
+                location = st.text_input("Blok / Nama Lahan *", placeholder="Contoh: Blok A - Sawah Barat")
             with col2:
-                commodity = st.selectbox("Komoditas *", [
-                    "Padi", "Jagung", "Kedelai", "Cabai Merah", "Cabai Rawit",
-                    "Tomat", "Kentang", "Bawang Merah", "Bawang Putih"
+                commodity = st.selectbox("Komoditas Identifikasi *", [
+                    "Padi Inpari", "Jagung Hibrida", "Kedelai", "Cabai Rawit", "Cabai Merah",
+                    "Tomat", "Kentang", "Bawang Merah", "Bawang Putih", "Melon", "Semangka"
                 ])
-                location = st.text_input("Lokasi Lahan *", placeholder="Contoh: Desa Sukamaju, Kec. Cianjur")
-            
-            harvest_date = st.date_input("Tanggal Panen *", value=date.today())
-            harvest_sequence = st.number_input("Panen Ke-", min_value=1, value=1, step=1)
+                harvest_date = st.date_input("Tanggal Aktual Panen", value=date.today())
+                harvest_sequence = st.number_input("Urutan Panen (Periode)", min_value=1, value=1)
             
             st.markdown("---")
-            st.markdown(f"### Input Data untuk {num_criteria} Kriteria")
+            st.markdown(f"### ⚖️ Input Grade Produksi ({num_criteria} Grade)")
             criteria = []
             
             for i in range(num_criteria):
-                st.markdown(f"**Kriteria {i+1}**")
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    size = st.text_input(f"Ukuran/Grade {i+1}", key=f"size_{i}", placeholder="Contoh: Besar, Sedang, Kecil")
-                with col2:
-                    quantity = st.number_input(f"Jumlah (kg) {i+1}", min_value=0.0, key=f"qty_{i}", step=0.1)
-                with col3:
-                    price = st.number_input(f"Harga/kg (Rp) {i+1}", min_value=0.0, key=f"price_{i}", step=100.0)
+                st.markdown(f"**Grade {i+1}**")
+                col_g1, col_g2, col_g3 = st.columns(3)
+                with col_g1:
+                    size = st.text_input(f"Nama Grade {i+1}", key=f"size_{i}", placeholder="Contoh: Super / Grade A")
+                with col_g2:
+                    quantity = st.number_input(f"Berat (kg) {i+1}", min_value=0.0, key=f"qty_{i}", step=0.1)
+                with col_g3:
+                    price = st.number_input(f"Harga Jual/kg (Rp) {i+1}", min_value=0.0, key=f"price_{i}", step=100.0)
                 
-                if size and quantity > 0 and price > 0:
+                if size and quantity > 0:
                     criteria.append({
                         'size': size,
                         'quantity_kg': quantity,
@@ -264,96 +327,109 @@ def main():
                         'total': quantity * price
                     })
             
-            st.subheader("💰 Biaya Produksi (Opsional)")
-            col1, col2 = st.columns(2)
-            with col1:
-                cost_seed = st.number_input("Bibit/Benih (Rp)", min_value=0.0, step=1000.0)
-                cost_fertilizer = st.number_input("Pupuk (Rp)", min_value=0.0, step=1000.0)
-                cost_pesticide = st.number_input("Pestisida (Rp)", min_value=0.0, step=1000.0)
-            with col2:
-                cost_labor = st.number_input("Tenaga Kerja (Rp)", min_value=0.0, step=1000.0)
-                cost_equipment = st.number_input("Peralatan (Rp)", min_value=0.0, step=1000.0)
-                cost_other = st.number_input("Lain-lain (Rp)", min_value=0.0, step=1000.0)
+            st.markdown("---")
+            st.subheader("🧪 Parameter Kualitas (Scientific)")
+            col_q1, col_q2, col_q3 = st.columns(3)
+            with col_q1:
+                moisture = st.slider("Kadar Air (%)", 5, 35, 14, help="Penting untuk standarisasi harga gabah/jagung")
+            with col_q2:
+                quality_score = st.slider("Indeks Kualitas Fisik", 0, 100, 85, help="Visual, keutuhan bulir, warna")
+            with col_q3:
+                soil_status = st.selectbox("Kondisi Tanah Akhir", ["Subur", "Menengah", "Kritis", "Sangat Kritis"])
+
+            st.subheader("💰 Biaya Logistik & Produksi")
+            col_b1, col_b2 = st.columns(2)
+            with col_b1:
+                cost_seed = st.number_input("Total Biaya Bibit (Rp)", min_value=0.0, step=1000.0)
+                cost_fertilizer = st.number_input("Total Biaya Pupuk (Rp)", min_value=0.0, step=1000.0)
+                cost_pesticide = st.number_input("Total Biaya Pestisida (Rp)", min_value=0.0, step=1000.0)
+            with col_b2:
+                cost_labor = st.number_input("Biaya Tenaga Kerja (Rp)", min_value=0.0, step=1000.0)
+                cost_transport = st.number_input("Biaya Transport/Logistik (Rp)", min_value=0.0, step=1000.0)
+                cost_other = st.number_input("Biaya Lain-lain (Rp)", min_value=0.0, step=1000.0)
             
             costs = {
                 'bibit': cost_seed,
                 'pupuk': cost_fertilizer,
                 'pestisida': cost_pesticide,
                 'tenaga_kerja': cost_labor,
-                'peralatan': cost_equipment,
+                'transport': cost_transport,
                 'lainnya': cost_other
             }
             
-            st.subheader("📝 Informasi Tambahan")
-            weather = st.selectbox("Cuaca Saat Panen", ["Cerah", "Berawan", "Hujan Ringan", "Hujan Lebat"])
-            notes = st.text_area("Catatan", placeholder="Tambahkan catatan penting tentang panen ini...")
+            notes = st.text_area("Catatan Strategis", placeholder="Contoh: Serangan hama di akhir masa tanam, penggunaan varietas baru...")
             
-            submitted = st.form_submit_button("💾 Simpan Data Panen", use_container_width=True)
+            submitted = st.form_submit_button("🚀 SIMPAN DATA KE DATABASE", use_container_width=True)
             
             if submitted:
-                if not farmer_name or not farmer_phone or not commodity or not location:
-                    st.error("❌ Mohon lengkapi semua field yang wajib diisi (*)")
-                elif len(criteria) == 0:
-                    st.error("❌ Tambahkan minimal 1 kriteria hasil panen")
+                if not farmer_name or not location:
+                    st.error("❌ Nama Petani dan Lokasi wajib diisi.")
+                elif not criteria:
+                    st.error("❌ Masukkan minimal 1 data grade hasil panen.")
                 else:
-                    # Calculate totals
                     total_quantity, total_value = calculate_totals(criteria)
                     profitability = calculate_profitability(total_value, costs)
                     
-                    # Create record
+                    # Ton/Ha Calculation
+                    productivity_ton_ha = (total_quantity / 1000) / land_size_ha if land_size_ha > 0 else 0
+                    
                     record = {
                         'farmer_name': farmer_name,
                         'farmer_phone': farmer_phone,
                         'commodity': commodity,
                         'location': location,
+                        'land_size_ha': land_size_ha,
                         'harvest_date': harvest_date.isoformat(),
                         'harvest_sequence': harvest_sequence,
                         'criteria': criteria,
                         'total_quantity': total_quantity,
                         'total_value': total_value,
+                        'productivity_ton_ha': productivity_ton_ha,
+                        'quality_params': {
+                            'moisture': moisture,
+                            'quality_score': quality_score,
+                            'soil_status': soil_status
+                        },
                         'costs': costs,
                         **profitability,
-                        'weather': weather,
                         'notes': notes
                     }
                     
                     add_record(record)
-                    st.success("✅ Data panen berhasil disimpan!")
+                    st.success("✅ Rekaman Panen Presisi Berhasil Disimpan!")
                     st.balloons()
                     
-                    # Show summary
                     st.markdown(f"""
                     <div class="success-box">
-                        <h4>📊 Ringkasan Panen</h4>
-                        <p><strong>Total Hasil:</strong> {total_quantity:.2f} kg</p>
-                        <p><strong>Pendapatan:</strong> Rp {total_value:,.0f}</p>
-                        <p><strong>Biaya:</strong> Rp {profitability['total_cost']:,.0f}</p>
-                        <p><strong>Keuntungan:</strong> Rp {profitability['profit']:,.0f}</p>
-                        <p><strong>Margin:</strong> {profitability['profit_margin']:.2f}%</p>
+                        <h4 style="margin-top:0;">📊 Resume Produksi: {commodity}</h4>
+                        <p><strong>Produktivitas:</strong> {productivity_ton_ha:.2f} Ton/Ha</p>
+                        <p><strong>Total Hasil:</strong> {total_quantity:,.0f} kg ({total_quantity/1000:.1f} Ton)</p>
+                        <p><strong>Profit Bersih:</strong> Rp {profitability['profit']:,.0f}</p>
+                        <p><strong>Kualitas:</strong> {icon_score(quality_score)} {quality_score}/100</p>
                     </div>
                     """, unsafe_allow_html=True)
     
     # ========== PAGE: VIEW & EDIT ==========
     elif menu == "📝 Lihat & Edit Data":
-        st.header("📝 Lihat & Edit Data Panen")
+        st.header("📝 Database Rekaman Panen")
         
         if not data:
             st.info("Belum ada data panen yang tersimpan.")
         else:
             # Filters
-            st.subheader("🔍 Filter Data")
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                commodities = list(set(r['commodity'] for r in data))
-                filter_commodity = st.selectbox("Filter Komoditas", ["Semua"] + commodities)
-            
-            with col2:
-                farmers = list(set(r['farmer_name'] for r in data))
-                filter_farmer = st.selectbox("Filter Petani", ["Semua"] + farmers)
-            
-            with col3:
-                sort_by = st.selectbox("Urutkan Berdasarkan", ["Tanggal (Terbaru)", "Tanggal (Terlama)", "Pendapatan (Tertinggi)", "Keuntungan (Tertinggi)"])
+            with st.expander("🔍 Filter & Pengurutan Canggih"):
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    commodities = list(set(r['commodity'] for r in data))
+                    filter_commodity = st.selectbox("Filter Komoditas", ["Semua"] + commodities)
+                
+                with col2:
+                    farmers = list(set(r['farmer_name'] for r in data))
+                    filter_farmer = st.selectbox("Filter Petani", ["Semua"] + farmers)
+                
+                with col3:
+                    sort_by = st.selectbox("Urutkan Berdasarkan", ["Tanggal (Terbaru)", "Produktivitas (Tertinggi)", "Profit (Tertinggi)", "Kualitas (Terbaik)"])
             
             # Apply filters
             filtered_data = data.copy()
@@ -365,126 +441,139 @@ def main():
             # Apply sorting
             if sort_by == "Tanggal (Terbaru)":
                 filtered_data.sort(key=lambda x: x.get('harvest_date', ''), reverse=True)
-            elif sort_by == "Tanggal (Terlama)":
-                filtered_data.sort(key=lambda x: x.get('harvest_date', ''))
-            elif sort_by == "Pendapatan (Tertinggi)":
-                filtered_data.sort(key=lambda x: x.get('total_value', 0), reverse=True)
-            elif sort_by == "Keuntungan (Tertinggi)":
+            elif sort_by == "Produktivitas (Tertinggi)":
+                filtered_data.sort(key=lambda x: x.get('productivity_ton_ha', 0), reverse=True)
+            elif sort_by == "Profit (Tertinggi)":
                 filtered_data.sort(key=lambda x: x.get('profit', 0), reverse=True)
+            elif sort_by == "Kualitas (Terbaik)":
+                filtered_data.sort(key=lambda x: x.get('quality_params', {}).get('quality_score', 0), reverse=True)
             
-            st.write(f"**Menampilkan {len(filtered_data)} dari {len(data)} catatan**")
+            st.write(f"**Menampilkan {len(filtered_data)} catatan**")
             
-            # Display records
+            # Display records - Premium Feed Card
             for record in filtered_data:
-                with st.expander(f"🌾 {record['commodity']} - {record['harvest_date']} - {record['farmer_name']}"):
-                    col1, col2 = st.columns([2, 1])
-                    
-                    with col1:
-                        st.write(f"**Petani:** {record['farmer_name']} ({record['farmer_phone']})")
-                        st.write(f"**Lokasi:** {record['location']}")
-                        st.write(f"**Panen Ke-:** {record.get('harvest_sequence', 1)}")
-                        st.write(f"**Cuaca:** {record.get('weather', '-')}")
-                        
-                        if record.get('notes'):
-                            st.write(f"**Catatan:** {record['notes']}")
-                        
-                        st.markdown("**Kriteria Hasil:**")
+                p_ton_ha = record.get('productivity_ton_ha', 0)
+                q_score = record.get('quality_params', {}).get('quality_score', 0)
+                
+                st.markdown(f"""
+                <div class="harvest-card color-yield" style="margin-bottom:10px;">
+                    <div class="card-header">
+                        <span style="font-weight:700;">{record['commodity']} - {record['harvest_date']}</span>
+                        <span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:10px; font-size:0.75rem;">{p_ton_ha:.2f} Ton/Ha</span>
+                    </div>
+                    <div class="card-body" style="padding:15px 25px;">
+                        <span class="metric-pill">🚜 {record['farmer_name']}</span>
+                        <span class="metric-pill">📍 {record['location']}</span>
+                        <span class="metric-pill">🧪 Q: {q_score}/100</span>
+                        <span class="metric-pill">💧 {record.get('quality_params', {}).get('moisture', 14)}% MC</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                with st.expander("👁️ Detail & Analisis Biaya"):
+                    col_d1, col_d2 = st.columns([2, 1])
+                    with col_d1:
+                        st.subheader("📊 Rincian Grade")
                         for i, c in enumerate(record.get('criteria', []), 1):
-                            st.write(f"{i}. {c['size']}: {c['quantity_kg']} kg × Rp {c['price_per_kg']:,.0f} = Rp {c['total']:,.0f}")
+                            st.write(f"**{c.get('size', 'N/A')}**: {c['quantity_kg']} kg × Rp {c['price_per_kg']:,.0f} = Rp {c['total']:,.0f}")
+                        
+                        st.subheader("💰 Struktur Biaya")
+                        cost_df = pd.DataFrame(list(record['costs'].items()), columns=['Kategori', 'Nilai (Rp)'])
+                        st.table(cost_df)
                     
-                    with col2:
-                        st.metric("Total Hasil", f"{record.get('total_quantity', 0):.2f} kg")
-                        st.metric("Pendapatan", f"Rp {record.get('total_value', 0):,.0f}")
-                        st.metric("Biaya", f"Rp {record.get('total_cost', 0):,.0f}")
-                        st.metric("Keuntungan", f"Rp {record.get('profit', 0):,.0f}", 
-                                 delta=f"{record.get('profit_margin', 0):.1f}%")
-                    
-                    # Delete button
-                    if st.button(f"🗑️ Hapus Data", key=f"del_{record['id']}"):
-                        delete_record(record['id'])
-                        st.success("Data berhasil dihapus!")
-                        st.rerun()
+                    with col_d2:
+                        st.metric("Total Hasil", f"{record['total_quantity']:,.0f} kg")
+                        st.metric("Total Profit", f"Rp {record['profit']:,.0f}")
+                        st.metric("ROI", f"{record.get('roi', 0):.1f}%")
+                        
+                        if st.button(f"🗑️ Hapus Rekaman", key=f"del_{record['id']}"):
+                            delete_record(record['id'])
+                            st.rerun()
+                st.write("")
     
     # ========== PAGE: ANALYTICS ==========
     elif menu == "📈 Analisis & Visualisasi":
-        st.header("📈 Analisis & Visualisasi Data")
+        st.header("📈 Analisis Sains & Performa")
         
         if not data:
             st.info("Belum ada data untuk divisualisasikan.")
         else:
-            # Convert to DataFrame
             df = pd.DataFrame(data)
+            df['harvest_date'] = pd.to_datetime(df['harvest_date'])
             
-            # Commodity Distribution
-            st.subheader("📊 Distribusi Komoditas")
-            commodity_counts = df['commodity'].value_counts()
-            fig_commodity = px.pie(
-                values=commodity_counts.values,
-                names=commodity_counts.index,
-                title="Distribusi Jumlah Panen per Komoditas",
-                color_discrete_sequence=px.colors.sequential.Greens
-            )
-            st.plotly_chart(fig_commodity, use_container_width=True)
+            # 1. Benchmark Produktivitas (Ton/Ha)
+            st.subheader("🚀 Benchmark Produktivitas (Ton/Ha)")
+            if 'productivity_ton_ha' in df.columns:
+                prod_by_commodity = df.groupby('commodity')['productivity_ton_ha'].mean().sort_values(ascending=False)
+                fig_prod = px.bar(
+                    x=prod_by_commodity.index,
+                    y=prod_by_commodity.values,
+                    labels={'x': 'Komoditas', 'y': 'Ton / Hektar'},
+                    color=prod_by_commodity.values,
+                    color_continuous_scale='Emrld',
+                    title="Rata-rata Hasil per Hektar"
+                )
+                st.plotly_chart(fig_prod, use_container_width=True)
+            else:
+                st.warning("Data Ton/Ha belum tersedia pada rekaman lama.")
+
+            col_a1, col_a2 = st.columns(2)
             
-            # Revenue by Commodity
-            st.subheader("💰 Pendapatan per Komoditas")
-            revenue_by_commodity = df.groupby('commodity')['total_value'].sum().sort_values(ascending=False)
-            fig_revenue = px.bar(
-                x=revenue_by_commodity.index,
-                y=revenue_by_commodity.values,
-                labels={'x': 'Komoditas', 'y': 'Total Pendapatan (Rp)'},
-                title="Total Pendapatan per Komoditas",
-                color=revenue_by_commodity.values,
-                color_continuous_scale='Greens'
-            )
-            st.plotly_chart(fig_revenue, use_container_width=True)
+            # 2. Profit vs Quality Correlation
+            with col_a1:
+                st.subheader("🎯 Korelasi Kualitas vs Profit")
+                if 'quality_params' in df.columns:
+                    # Flatten quality score for plotting
+                    df['q_score'] = df['quality_params'].apply(lambda x: x.get('quality_score', 0) if isinstance(x, dict) else 0)
+                    fig_corr = px.scatter(
+                        df, x='q_score', y='profit',
+                        color='commodity', size='total_quantity',
+                        labels={'q_score': 'Indeks Kualitas', 'profit': 'Profit (Rp)'},
+                        title="Kualitas vs Keuntungan",
+                        template="plotly_white"
+                    )
+                    st.plotly_chart(fig_corr, use_container_width=True)
+                else:
+                    st.info("Tambahkan data panen baru untuk melihat korelasi kualitas.")
+
+            # 3. Monthly Production Trend
+            with col_a2:
+                st.subheader("📅 Tren Produksi Bulanan")
+                df['month'] = df['harvest_date'].dt.to_period('M').astype(str)
+                monthly_qty = df.groupby('month')['total_quantity'].sum().reset_index()
+                fig_trend = px.line(
+                    monthly_qty, x='month', y='total_quantity',
+                    markers=True,
+                    labels={'total_quantity': 'Total Hasil (kg)'},
+                    title="Volume Produksi per Bulan"
+                )
+                fig_trend.update_traces(line_color='#059669', line_width=3)
+                st.plotly_chart(fig_trend, use_container_width=True)
+
+            st.markdown("---")
             
-            # Monthly Trend
-            st.subheader("📅 Tren Bulanan")
-            df['month'] = pd.to_datetime(df['harvest_date']).dt.to_period('M').astype(str)
-            monthly_data = df.groupby('month').agg({
-                'total_quantity': 'sum',
+            # 4. Financial Health Table
+            st.subheader("💹 Struktur Keuntungan Komoditas")
+            fin_summary = df.groupby('commodity').agg({
                 'total_value': 'sum',
-                'profit': 'sum'
+                'profit': 'sum',
+                'profit_margin': 'mean',
+                'roi': 'mean'
             }).reset_index()
             
-            fig_trend = go.Figure()
-            fig_trend.add_trace(go.Scatter(
-                x=monthly_data['month'],
-                y=monthly_data['total_quantity'],
-                name='Total Hasil (kg)',
-                mode='lines+markers',
-                line=dict(color='#10b981', width=3)
-            ))
-            fig_trend.update_layout(
-                title="Tren Hasil Panen Bulanan",
-                xaxis_title="Bulan",
-                yaxis_title="Total Hasil (kg)",
-                hovermode='x unified'
-            )
-            st.plotly_chart(fig_trend, use_container_width=True)
+            # Format numbers for better reading
+            fin_summary['total_value'] = fin_summary['total_value'].apply(lambda x: f"Rp {x:,.0f}")
+            fin_summary['profit'] = fin_summary['profit'].apply(lambda x: f"Rp {x:,.0f}")
+            fin_summary['profit_margin'] = fin_summary['profit_margin'].apply(lambda x: f"{x:.1f}%")
+            fin_summary['roi'] = fin_summary['roi'].apply(lambda x: f"{x:.1f}%")
             
-            # Profitability Analysis
-            st.subheader("💹 Analisis Profitabilitas")
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                avg_margin = df['profit_margin'].mean()
-                st.metric("Rata-rata Margin Keuntungan", f"{avg_margin:.2f}%")
-                
-                top_profitable = df.nlargest(5, 'profit')[['commodity', 'harvest_date', 'profit']]
-                st.write("**Top 5 Panen Paling Menguntungkan:**")
-                for idx, row in top_profitable.iterrows():
-                    st.write(f"• {row['commodity']} ({row['harvest_date']}): Rp {row['profit']:,.0f}")
-            
-            with col2:
-                avg_roi = df['roi'].mean()
-                st.metric("Rata-rata ROI", f"{avg_roi:.2f}%")
-                
-                profitable_commodities = df.groupby('commodity')['profit'].mean().sort_values(ascending=False)
-                st.write("**Komoditas Paling Menguntungkan (Rata-rata):**")
-                for commodity, profit in profitable_commodities.head(5).items():
-                    st.write(f"• {commodity}: Rp {profit:,.0f}")
+            st.table(fin_summary.rename(columns={
+                'commodity': 'Komoditas',
+                'total_value': 'Total Omzet',
+                'profit': 'Total Profit',
+                'profit_margin': 'Margin (Avg)',
+                'roi': 'ROI (Avg)'
+            }))
     
     # ========== PAGE: EXPORT ==========
     elif menu == "💾 Export Data":
