@@ -52,6 +52,9 @@ with st.sidebar:
 st.title("📄 Strategic Project Dossier V2")
 st.markdown("Sistem Manajemen Laporan Strategis Terpadu — *AgriSensa Intelligence*")
 
+# DEBUG: Confirm page loads
+st.success("✅ Halaman berhasil dimuat! Jika Anda melihat pesan ini, berarti file Python tidak error.")
+
 # --- PROCESS GUIDE BANNER ---
 st.info("""
 **Alur Kerja Strategis:**
