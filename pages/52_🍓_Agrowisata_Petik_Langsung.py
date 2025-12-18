@@ -45,13 +45,14 @@ Fokus pada integrasi: **Tourism, Production, and Nursery (Yamasa Style).**
 st.markdown("---")
 
 # TABS
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📍 Analisis Kelayakan",
     "🍇 Panduan Komoditas", 
     "💰 Bisnis & ROI",
     "📋 Manajemen & SOP",
     "📅 Kalender Ops",
-    "🌱 Yamasa Nursery"
+    "🌱 Yamasa Nursery",
+    "🏛️ Masterplan & Edu"
 ])
 
 # --- TAB 1: ANALISIS KELAYAKAN ---
@@ -389,6 +390,54 @@ with tab6:
         st.checkbox("Pelabelan: Nama varietas, tgl semai, dan tgl siap tanam di setiap tray.", value=True)
         st.checkbox("Uniformity: Tinggi tanaman dalam satu tray harus seragam >95%.", value=True)
         st.success("✅ Memenuhi Standar Yamasa No Niwa")
+
+# --- TAB 7: MASTERPLAN & EDUKASI ---
+with tab7:
+    st.header("🏛️ Masterplan & Workshop Edukasi")
+    st.markdown("""
+    **Transformasi Kebun Menjadi Kampus Alam.** 
+    Mengoptimalkan nilai lahan melalui zonasi spasial dan monetisasi pengetahuan.
+    """)
+    
+    col_mp1, col_mp2 = st.columns([1, 1])
+    
+    with col_mp1:
+        st.subheader("🗺️ Zonasi Spasial (Masterplan)")
+        with st.expander("📍 Pembagian Area Strategis", expanded=True):
+            st.markdown("""
+            1. **Zona Produksi (Backstage):** Area tertutup untuk budidaya intensif. Terpisah dari jalur umum untuk menjaga biosecurity.
+            2. **Zona Showroom (Nursery):** Area display bibit estetik (Yamasa Style). Tempat wisatawan belajar dan membeli bibit.
+            3. **Zona Experience (Pick-Your-Own):** Jalur lebar (1.5m+) dengan spot foto terintegrasi di antara tanaman.
+            4. **Zona Edukasi (Workshop Hub):** Ruang terbuka/semi-terbuka dengan bangku kayu untuk kegiatan belajar berkelompok.
+            """)
+        
+        st.info("""
+        **💡 Visitor Flow Tip:** 
+        Pastikan alur pengunjung berbentuk **Loop (Satu Arah)**. Mulai dari Edukasi -> Petik Buah -> Terakhir melewati Showroom Bibit (Nursery) untuk memicu *Emotional Buying*.
+        """)
+
+    with col_mp2:
+        st.subheader("🎓 Simulasi Workshop Edukasi")
+        workshop_price = st.number_input("Biaya Workshop per Orang (Rp)", 50000, 500000, 150000)
+        pax_per_class = st.number_input("Kapasitas per Kelas (Orang)", 1, 100, 20)
+        classes_per_month = st.number_input("Jumlah Kelas per Bulan", 1, 30, 4)
+        
+        # Costs
+        material_cost_pax = st.number_input("Biaya Bahan per Orang (Rp)", 0, 100000, 35000, help="Bibit, media, pot, handout")
+        instruction_cost_class = st.number_input("Biaya Instruktor per Kelas (Rp)", 0, 1000000, 150000)
+        
+        # Calculation
+        total_pax = pax_per_class * classes_per_month
+        rev_workshop = total_pax * workshop_price
+        total_workshop_cost = (total_pax * material_cost_pax) + (classes_per_month * instruction_cost_class)
+        profit_workshop = rev_workshop - total_workshop_cost
+        
+        st.markdown("---")
+        m_w1, m_w2 = st.columns(2)
+        m_w1.metric("Laba Bersih Workshop", f"Rp {profit_workshop:,.0f}")
+        m_w2.metric("Margin Workshop", f"{(profit_workshop/rev_workshop*100):.1f}%" if rev_workshop > 0 else "0%")
+        
+        st.success("✅ Workshop adalah pendapatan 'Low Risk' dengan profit tinggi.")
 
 # Footer
 st.markdown("---")
