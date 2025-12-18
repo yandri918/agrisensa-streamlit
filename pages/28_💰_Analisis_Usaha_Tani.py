@@ -833,7 +833,7 @@ st.session_state['global_rab_summary'] = {
     "estimasi_omzet": estimasi_omzet,
     "estimasi_laba": estimasi_laba,
     "roi_percent": roi_percent,
-    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M")
+    "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 }
 
 if roi_percent < 0:
@@ -854,7 +854,6 @@ with c_ex1:
         st.success(f"Proyek '{save_name}' berhasil disimpan!")
 
 # Download Logic
-from datetime import datetime
 
 with c_ex2:
     st.write("Download Data")
@@ -880,7 +879,7 @@ with c_ex2:
     st.download_button(
         label="📥 Download Excel (.xlsx)",
         data=buffer_excel.getvalue(),
-        file_name=f"RAB_{selected_crop}_{datetime.now().strftime('%Y%m%d')}.xlsx",
+        file_name=f"RAB_{selected_crop}_{datetime.datetime.now().strftime('%Y%m%d')}.xlsx",
         mime="application/vnd.ms-excel"
     )
 
