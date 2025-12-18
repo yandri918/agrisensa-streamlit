@@ -396,6 +396,7 @@ st.markdown("""
     .entry-main { flex-direction: column; gap: 10px; }
 }
 </style>
+""", unsafe_allow_html=True)
 
 
 # --- HEADER ---
@@ -820,14 +821,10 @@ with tab_timeline:
         for item in timeline:
             # Icon selection
             icon = "📝"
-            if item['style'] == 'growth':
-                icon = "📈"
-            elif item['style'] == 'harvest':
-                icon = "🌾"
-            elif item['style'] == 'expense':
-                icon = "💸"
-            elif item['style'] == 'cost':
-                icon = "💰"
+            if item['style'] == 'growth': icon = "📈"
+            elif item['style'] == 'harvest': icon = "🌾"
+            elif item['style'] == 'expense': icon = "💸"
+            elif item['style'] == 'cost': icon = "💰"
             
             # Cost display
             cost_html = f'<div class="entry-cost-badge">Rp {item["cost"]:,.0f}</div>' if item['cost'] > 0 else ""
@@ -840,15 +837,13 @@ with tab_timeline:
             
             s_html = ""
             if item['status']:
-                s_map = {"Direncanakan": "planned", "Sedang Berjalan": "progress", "Selesai": "completed"}
-                s_class = s_map.get(item['status'], 'planned')
                 s_html = f'<span class="status-badge">{item["status"]}</span>'
             
             # Location
-            loc_display = str(item['location']).strip() if pd.notna(item['location']) and str(item['location']).strip() and str(item['location']).lower() != 'nan' else ""
-            loc_html = f" 📍 {loc_display}" if loc_display else ""
+            loc_disp = str(item['location']).strip() if pd.notna(item['location']) and str(item['location']).strip() and str(item['location']).lower() != 'nan' else ""
+            loc_html = f" 📍 {loc_disp}" if loc_disp else ""
             
-            # Render Entry Card
+            # Render Entry Card (DEDENTED TO PREVENT MARKDOWN CODE BLOCKS)
             st.markdown(f"""
 <div class="entry-card {item['style']}">
 <div class="entry-header">
@@ -863,7 +858,7 @@ with tab_timeline:
 {cost_html}
 </div>
 <div class="entry-content">
-{p_html} {s_html}
+<div style="margin-bottom: 12px;">{p_html} {s_html}</div>
 <div class="metrics-grid">
 {item['desc']}
 </div>
