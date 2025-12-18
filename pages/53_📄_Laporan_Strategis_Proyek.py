@@ -197,7 +197,7 @@ with tab_preview:
     
     st.divider()
     
-    st.subheader("� Data yang Tersedia:")
+    st.subheader("Data yang Tersedia:")
     st.write(f"- RAB: {'✅ Ada' if rab_raw else '❌ Kosong'}")
     st.write(f"- Greenhouse: {'✅ Ada' if sim_raw else '❌ Kosong'}")
     st.write(f"- Blockchain: {len(ledger_raw)} entries")
