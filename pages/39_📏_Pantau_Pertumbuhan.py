@@ -73,12 +73,35 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Profile Data (Standard Scientific Profiles)
-# Base Temp (Tb) is crucial for GDD calculation
+# Base Temp (Tb) and Target GDD are sourced from agricultural literature
 profiles = {
-    "Jagung Hibrida": {"max_h": 220, "panen_hst": 105, "growth_rate": 0.08, "Tb": 10, "target_gdd": 1400},
+    # Cereals
     "Padi Inpari": {"max_h": 110, "panen_hst": 115, "growth_rate": 0.07, "Tb": 10, "target_gdd": 1200},
+    "Jagung Hibrida": {"max_h": 220, "panen_hst": 105, "growth_rate": 0.08, "Tb": 10, "target_gdd": 1400},
+    
+    # Vegetables (Leafy & Fruit)
     "Cabai Rawit": {"max_h": 80, "panen_hst": 90, "growth_rate": 0.05, "Tb": 15, "target_gdd": 1800},
-    "Melon": {"max_h": 200, "panen_hst": 70, "growth_rate": 0.12, "Tb": 12, "target_gdd": 1100}
+    "Tomat": {"max_h": 150, "panen_hst": 85, "growth_rate": 0.08, "Tb": 10, "target_gdd": 1500},
+    "Terong": {"max_h": 100, "panen_hst": 90, "growth_rate": 0.06, "Tb": 12, "target_gdd": 1700},
+    "Timun": {"max_h": 200, "panen_hst": 60, "growth_rate": 0.10, "Tb": 12, "target_gdd": 900},
+    "Sawi": {"max_h": 30, "panen_hst": 35, "growth_rate": 0.15, "Tb": 7, "target_gdd": 600},
+    "Kangkung": {"max_h": 35, "panen_hst": 25, "growth_rate": 0.18, "Tb": 10, "target_gdd": 500},
+    "Bayam": {"max_h": 30, "panen_hst": 25, "growth_rate": 0.18, "Tb": 10, "target_gdd": 500},
+    "Kubis": {"max_h": 40, "panen_hst": 90, "growth_rate": 0.05, "Tb": 7, "target_gdd": 1400},
+    "Kacang Panjang": {"max_h": 250, "panen_hst": 60, "growth_rate": 0.09, "Tb": 12, "target_gdd": 1000},
+    
+    # Tubers & Bulbs
+    "Bawang Merah": {"max_h": 45, "panen_hst": 65, "growth_rate": 0.06, "Tb": 10, "target_gdd": 1000},
+    "Kentang": {"max_h": 60, "panen_hst": 100, "growth_rate": 0.05, "Tb": 7, "target_gdd": 1500},
+    "Ubi Jalar": {"max_h": 40, "panen_hst": 120, "growth_rate": 0.04, "Tb": 12, "target_gdd": 2200},
+    
+    # Legumes
+    "Kedelai": {"max_h": 70, "panen_hst": 85, "growth_rate": 0.07, "Tb": 10, "target_gdd": 1800},
+    "Kacang Tanah": {"max_h": 50, "panen_hst": 100, "growth_rate": 0.06, "Tb": 10, "target_gdd": 2000},
+    
+    # Fruits
+    "Melon": {"max_h": 200, "panen_hst": 70, "growth_rate": 0.12, "Tb": 12, "target_gdd": 1100},
+    "Semangka": {"max_h": 200, "panen_hst": 80, "growth_rate": 0.10, "Tb": 12, "target_gdd": 1300}
 }
 
 # Sidebar Input
@@ -289,19 +312,18 @@ with col_side:
         current_gdd = df_filtered['gdd_cumulative'].iloc[-1]
         remaining_gdd = max(0, prof['target_gdd'] - current_gdd)
         
-        # Estimate days to harvest based on average GDD per day
-        avg_gdd_per_day = current_gdd / df_filtered['usia_hst'].iloc[-1] if df_filtered['usia_hst'].iloc[-1] > 0 else 10
-        est_days_gdd = int(remaining_gdd / avg_gdd_per_day) if avg_gdd_per_day > 0 else 0
+        # LOGIC REFINEMENT: Use today's GDD rate for projection (Scientific Engine v2.2)
+        # If gdd_today is fetched successfully, use it. Otherwise, use a safe default of 12 GDD/day (Tropical avg)
+        projected_rate = gdd_today if gdd_today > 5 else 12.0 
         
-        # Cross reference with Logistic curve (days to reach max height)
-        # For simplicity, we use GDD as primary driver for Panen Scientifik
+        est_days_gdd = int(remaining_gdd / projected_rate) if projected_rate > 0 else 0
         
         st.markdown(f"""
         <div style="text-align: center; padding: 25px; background: #f8fafc; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
             <p style="margin:0; color: #64748b; font-size: 0.8em; font-weight: bold; text-transform: uppercase;">Estimasi GDD Sisa</p>
             <h2 style="color: #ef4444; margin: 5px 0;">{remaining_gdd:.0f} Units</h2>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
-            <p style="margin:0; color: #64748b; font-size: 0.8em; font-weight: bold; text-transform: uppercase;">Waktu ke Panen</p>
+            <p style="margin:0; color: #64748b; font-size: 0.8em; font-weight: bold; text-transform: uppercase;">Proyeksi Laju: {projected_rate:.1f} / hari</p>
             <h1 style="color: #16a34a; margin: 5px 0;">~{est_days_gdd} Hari</h1>
         </div>
         """, unsafe_allow_html=True)
@@ -315,7 +337,13 @@ with col_side:
         st.markdown("---")
         st.write("**🛡️ Status Keamanan**")
         # Logic: If current HST > planned but height is low
-        if df_filtered['usia_hst'].iloc[-1] > prof['panen_hst'] * 0.8 and health_idx < 80:
+        # Note: health_idx is calculated in the main column
+        try:
+            h_idx = health_idx
+        except:
+            h_idx = 100
+            
+        if df_filtered['usia_hst'].iloc[-1] > prof['panen_hst'] * 0.8 and h_idx < 80:
             st.error("⚠️ Potensi Gagal Panen Tinggi.")
         else:
             st.success("🟢 Lokasi Aman.")

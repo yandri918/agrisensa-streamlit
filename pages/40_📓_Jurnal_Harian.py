@@ -25,19 +25,19 @@ PHOTOS_DIR = os.path.join(DATA_DIR, "photos")
 
 # Commodity-specific parameters configuration (Scientific Profiles)
 COMMODITY_PARAMS = {
-    "Padi": {
+    "Padi Inpari": {
         "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
         "specific": ["jumlah_anakan", "panjang_malai_cm", "persen_pengisian"],
         "stages": ["Vegetatif", "Primordia", "Berbunga", "Pengisian Bulir", "Masak"],
         "Tb": 10, "target_gdd": 1200
     },
-    "Jagung": {
+    "Jagung Hibrida": {
         "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
         "specific": ["jumlah_tongkol", "baris_biji", "panjang_tongkol_cm"],
         "stages": ["Vegetatif", "Tasseling", "Silking", "Pengisian Biji", "Masak Fisiologis"],
         "Tb": 10, "target_gdd": 1400
     },
-    "Cabai": {
+    "Cabai Rawit": {
         "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
         "specific": ["jumlah_buah", "panjang_buah_cm", "diameter_buah_mm"],
         "stages": ["Vegetatif", "Berbunga", "Berbuah Muda", "Berbuah Matang", "Panen"],
@@ -49,17 +49,89 @@ COMMODITY_PARAMS = {
         "stages": ["Vegetatif", "Berbunga", "Fruit Set", "Pembesaran Buah", "Pematangan"],
         "Tb": 10, "target_gdd": 1500
     },
-    "Melon": {
-        "basic": ["tinggi_cm", "jumlah_daun", "lebar_kanopi_cm"],
-        "specific": ["jumlah_buah", "lingkar_buah_cm", "estimasi_brix"],
-        "stages": ["Vegetatif", "Berbunga", "Fruit Set", "Pembesaran", "Pematangan"],
-        "Tb": 12, "target_gdd": 1100
+    "Terong": {
+        "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
+        "specific": ["jumlah_buah", "panjang_buah_cm", "diameter_buah_mm"],
+        "stages": ["Vegetatif", "Berbunga", "Berbuah", "Masak"],
+        "Tb": 12, "target_gdd": 1700
+    },
+    "Timun": {
+        "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
+        "specific": ["jumlah_buah", "panjang_buah_cm", "diameter_buah_mm"],
+        "stages": ["Vegetatif", "Berbunga", "Berbuah", "Panen"],
+        "Tb": 12, "target_gdd": 900
     },
     "Sawi": {
         "basic": ["tinggi_cm", "jumlah_daun", "lebar_daun_cm"],
         "specific": ["panjang_daun_cm", "daun_siap_panen", "berat_estimasi_gram"],
         "stages": ["Vegetatif Awal", "Vegetatif Tengah", "Siap Panen"],
         "Tb": 7, "target_gdd": 600
+    },
+    "Kangkung": {
+        "basic": ["tinggi_cm", "jumlah_daun", "lebar_daun_cm"],
+        "specific": ["panjang_daun_cm", "daun_siap_panen", "berat_estimasi_gram"],
+        "stages": ["Vegetatif Awal", "Vegetatif Tengah", "Siap Panen"],
+        "Tb": 10, "target_gdd": 500
+    },
+    "Bayam": {
+        "basic": ["tinggi_cm", "jumlah_daun", "lebar_daun_cm"],
+        "specific": ["panjang_daun_cm", "daun_siap_panen", "berat_estimasi_gram"],
+        "stages": ["Vegetatif Awal", "Vegetatif Tengah", "Siap Panen"],
+        "Tb": 10, "target_gdd": 500
+    },
+    "Kubis": {
+        "basic": ["tinggi_cm", "jumlah_daun", "lebar_kanopi_cm"],
+        "specific": ["diameter_krop_cm", "kepadatan_krop", "berat_estimasi_gram"],
+        "stages": ["Vegetatif", "Head Initiation", "Head Development", "Panen"],
+        "Tb": 7, "target_gdd": 1400
+    },
+    "Kacang Panjang": {
+        "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
+        "specific": ["jumlah_polong", "panjang_polong_cm", "buah_per_buku"],
+        "stages": ["Vegetatif", "Berbunga", "Pengisian Polong", "Panen"],
+        "Tb": 12, "target_gdd": 1000
+    },
+    "Bawang Merah": {
+        "basic": ["tinggi_cm", "jumlah_daun", "jumlah_anakan"],
+        "specific": ["diameter_umbi_mm", "warna_umbi", "kekerasan_umbi"],
+        "stages": ["Vegetatif", "Pembentukan Umbi", "Pematangan Umbi", "Siap Panen"],
+        "Tb": 10, "target_gdd": 1000
+    },
+    "Kentang": {
+        "basic": ["tinggi_cm", "jumlah_daun", "lebar_kanopi_cm"],
+        "specific": ["jumlah_umbi_per_rumpun", "diameter_umbi_rata", "kesehatan_tanaman"],
+        "stages": ["Vegetatif", "Inisiasi Umbi", "Bulking Umbi", "Pematangan"],
+        "Tb": 7, "target_gdd": 1500
+    },
+    "Ubi Jalar": {
+        "basic": ["panjang_sulur_cm", "jumlah_daun", "lebar_kanopi_cm"],
+        "specific": ["jumlah_umbi", "berat_rata_umbi", "kesehatan_akar"],
+        "stages": ["Vegetatif", "Inisiasi Umbi", "Pembesaran Umbi", "Panen"],
+        "Tb": 12, "target_gdd": 2200
+    },
+    "Kedelai": {
+        "basic": ["tinggi_cm", "jumlah_daun", "diameter_batang_mm"],
+        "specific": ["jumlah_polong", "isi_polong", "berat_100_biji"],
+        "stages": ["Vegetatif", "Berbunga", "Pengisian Polong", "Pemasakan"],
+        "Tb": 10, "target_gdd": 1800
+    },
+    "Kacang Tanah": {
+        "basic": ["tinggi_cm", "jumlah_daun", "lebar_kanopi_cm"],
+        "specific": ["jumlah_polong", "isi_polong", "berat_polong_basah"],
+        "stages": ["Vegetatif", "Berbunga", "Pengisian Polong", "Pematangan"],
+        "Tb": 10, "target_gdd": 2000
+    },
+    "Melon": {
+        "basic": ["tinggi_cm", "jumlah_daun", "lebar_kanopi_cm"],
+        "specific": ["jumlah_buah", "lingkar_buah_cm", "estimasi_brix"],
+        "stages": ["Vegetatif", "Berbunga", "Fruit Set", "Pembesaran", "Pematangan"],
+        "Tb": 12, "target_gdd": 1100
+    },
+    "Semangka": {
+        "basic": ["tinggi_cm", "jumlah_daun", "lebar_kanopi_cm"],
+        "specific": ["jumlah_buah", "berat_estimasi_kg", "kekerasan_kulit"],
+        "stages": ["Vegetatif", "Berbunga", "Fruit Set", "Pembesaran", "Pematangan"],
+        "Tb": 12, "target_gdd": 1300
     }
 }
 
