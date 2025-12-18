@@ -205,200 +205,198 @@ init_data()
 # --- UI STYLING ---
 st.markdown("""
 <style>
-    /* Main Layout Refinements */
-    .main {
-        background-color: #f0f2f6;
-    }
-    
-    /* Global Card Styles (Modern Feed Look) */
-    .entry-card {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 20px;
-        padding: 24px;
-        margin-bottom: 24px;
-        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border-left: 6px solid #4CAF50;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .entry-card::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 150px;
-        height: 150px;
-        background: radial-gradient(circle, rgba(76, 175, 80, 0.05) 0%, transparent 70%);
-        border-radius: 50%;
-        transform: translate(50%, -50%);
-    }
-    
-    .entry-card:hover {
-        transform: translateY(-5px) scale(1.01);
-        box-shadow: 0 12px 48px rgba(31, 38, 135, 0.12);
-    }
-    
-    .entry-card.expense { border-left-color: #ff5252; }
-    .entry-card.growth { border-left-color: #2196f3; }
-    .entry-card.cost { border-left-color: #9c27b0; }
-    .entry-card.harvest { border-left-color: #ff9800; }
-    
-    /* Header Section */
-    .entry-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-    }
-    
-    .entry-meta {
-        font-size: 0.85em;
-        color: #64748b;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .entry-category {
-        background: #f1f5f9;
-        color: #475569;
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 0.75em;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    /* Title and Cost */
-    .entry-main {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 16px;
-    }
-    
-    .entry-title {
-        font-size: 1.3em;
-        font-weight: 800;
-        color: #0f172a;
-        line-height: 1.2;
-        margin: 0;
-    }
-    
-    .entry-cost-badge {
-        background: linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%);
-        color: white;
-        padding: 6px 16px;
-        border-radius: 30px;
-        font-weight: 800;
-        font-size: 0.95em;
-        box-shadow: 0 4px 12px rgba(255, 95, 109, 0.3);
-    }
-    
-    /* Description and Metrics */
-    .entry-content {
-        color: #334155;
-        font-size: 0.95em;
-        line-height: 1.6;
-    }
-    
-    .metrics-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 16px;
-    }
-    
-    .metric-pill {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        padding: 6px 14px;
-        border-radius: 14px;
-        font-size: 0.85em;
-        font-weight: 600;
-        color: #1e293b;
-    }
-    
-    .metric-pill i { font-size: 1.1em; }
-    
-    /* Badges */
-    .badge {
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-size: 0.7em;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-    
-    .priority-high { background: #fee2e2; color: #dc2626; }
-    .priority-medium { background: #fef3c7; color: #d97706; }
-    .priority-low { background: #ecfdf5; color: #059669; }
-    
-    .status-badge {
-        background: #eff6ff;
-        color: #2563eb;
-        font-size: 0.7em;
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-weight: 700;
-    }
-    
-    /* Summary Dashboard */
-    .summary-container {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        border-radius: 24px;
-        padding: 30px;
-        margin-bottom: 40px;
-        color: white;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 20px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    
-    .summary-card {
-        text-align: center;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .summary-card:last-child { border-right: none; }
-    
-    .summary-value {
-        font-size: 2.2em;
-        font-weight: 800;
-        display: block;
-        margin-bottom: 4px;
-        background: linear-gradient(to right, #fff, #94a3b8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    
-    .summary-label {
-        font-size: 0.75em;
-        color: #94a3b8;
-        text-transform: uppercase;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-    }
-    
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .summary-container { grid-template-columns: repeat(2, 1fr); }
-        .summary-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
-        .summary-card:last-child { border-bottom: none; }
-        .entry-main { flex-direction: column; gap: 10px; }
-    }
+/* Main Layout Refinements */
+.main {
+    background-color: #f0f2f6;
+}
+
+/* Global Card Styles (Modern Feed Look) */
+.entry-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-left: 6px solid #4CAF50;
+    position: relative;
+    overflow: hidden;
+}
+
+.entry-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(76, 175, 80, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(50%, -50%);
+}
+
+.entry-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 12px 48px rgba(31, 38, 135, 0.12);
+}
+
+.entry-card.expense { border-left-color: #ff5252; }
+.entry-card.growth { border-left-color: #2196f3; }
+.entry-card.cost { border-left-color: #9c27b0; }
+.entry-card.harvest { border-left-color: #ff9800; }
+
+/* Header Section */
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.entry-meta {
+    font-size: 0.85em;
+    color: #64748b;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.entry-category {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Title and Cost */
+.entry-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.entry-title {
+    font-size: 1.3em;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.entry-cost-badge {
+    background: linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-weight: 800;
+    font-size: 0.95em;
+    box-shadow: 0 4px 12px rgba(255, 95, 109, 0.3);
+}
+
+/* Description and Metrics */
+.entry-content {
+    color: #334155;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.metrics-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.metric-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 6px 14px;
+    border-radius: 14px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Badges */
+.badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.7em;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.priority-high { background: #fee2e2; color: #dc2626; }
+.priority-medium { background: #fef3c7; color: #d97706; }
+.priority-low { background: #ecfdf5; color: #059669; }
+
+.status-badge {
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 0.7em;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+/* Summary Dashboard */
+.summary-container {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 24px;
+    padding: 30px;
+    margin-bottom: 40px;
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.summary-card {
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summary-card:last-child { border-right: none; }
+
+.summary-value {
+    font-size: 2.2em;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 4px;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.summary-label {
+    font-size: 0.75em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .summary-container { grid-template-columns: repeat(2, 1fr); }
+    .summary-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+    .summary-card:last-child { border-bottom: none; }
+    .entry-main { flex-direction: column; gap: 10px; }
+}
 </style>
-""", unsafe_allow_html=True)
+
 
 # --- HEADER ---
 st.title("📓 Jurnal Harian Modern")
@@ -795,25 +793,25 @@ with tab_timeline:
     
     # Display Summary Dashboard (Premium Look)
     st.markdown(f"""
-    <div class="summary-container">
-        <div class="summary-card">
-            <span class="summary-value">Rp {total_f_cost:,.0f}</span>
-            <span class="summary-label">💰 Total Biaya</span>
-        </div>
-        <div class="summary-card">
-            <span class="summary-value">{c_act}</span>
-            <span class="summary-label">📝 Aktivitas</span>
-        </div>
-        <div class="summary-card">
-            <span class="summary-value">{c_growth}</span>
-            <span class="summary-label">📈 Monitoring</span>
-        </div>
-        <div class="summary-card">
-            <span class="summary-value">{len(timeline)}</span>
-            <span class="summary-label">🔢 Total Entri</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="summary-container">
+<div class="summary-card">
+<span class="summary-value">Rp {total_f_cost:,.0f}</span>
+<span class="summary-label">💰 Total Biaya</span>
+</div>
+<div class="summary-card">
+<span class="summary-value">{c_act}</span>
+<span class="summary-label">📝 Aktivitas</span>
+</div>
+<div class="summary-card">
+<span class="summary-value">{c_growth}</span>
+<span class="summary-label">📈 Monitoring</span>
+</div>
+<div class="summary-card">
+<span class="summary-value">{len(timeline)}</span>
+<span class="summary-label">🔢 Total Entri</span>
+</div>
+</div>
+""", unsafe_allow_html=True)
     
     # Display timeline
     if timeline:
@@ -852,26 +850,26 @@ with tab_timeline:
             
             # Render Entry Card
             st.markdown(f"""
-            <div class="entry-card {item['style']}">
-                <div class="entry-header">
-                    <div class="entry-meta">
-                        <span>{item['raw_date']}</span> • 
-                        <span class="entry-category">{item['meta']}</span>
-                        {loc_html}
-                    </div>
-                </div>
-                <div class="entry-main">
-                    <h3 class="entry-title">{icon} {item['title']}</h3>
-                    {cost_html}
-                </div>
-                <div class="entry-content">
-                    {p_html} {s_html}
-                    <div class="metrics-grid">
-                        {item['desc']}
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+<div class="entry-card {item['style']}">
+<div class="entry-header">
+<div class="entry-meta">
+<span>{item['raw_date']}</span> • 
+<span class="entry-category">{item['meta']}</span>
+{loc_html}
+</div>
+</div>
+<div class="entry-main">
+<h3 class="entry-title">{icon} {item['title']}</h3>
+{cost_html}
+</div>
+<div class="entry-content">
+{p_html} {s_html}
+<div class="metrics-grid">
+{item['desc']}
+</div>
+</div>
+</div>
+""", unsafe_allow_html=True)
     else:
         st.info("📭 Belum ada data yang sesuai dengan filter. Mulai mencatat di tab **Input Data**!")
 
