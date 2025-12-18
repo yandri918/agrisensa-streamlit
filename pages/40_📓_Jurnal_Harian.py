@@ -737,14 +737,19 @@ with tab_timeline:
                 status_class = status_map.get(item['status'], 'planned')
                 status_html = f'<span class="status-badge status-{status_class}">{item["status"]}</span>'
             
-            # Location
-            location_html = f" 📍 {item['location']}" if item['location'] else ""
+            # Location - handle nan/empty values
+            location_display = item['location'] if item['location'] and str(item['location']).lower() != 'nan' else ""
+            location_html = f" 📍 {location_display}" if location_display else ""
+            
+            # For growth entries, don't add icon since title is already descriptive
+            # For other entries, add the icon
+            title_display = item['title'] if item['style'] == 'growth' else f"{icon} {item['title']}"
             
             st.markdown(f"""
             <div class="{item['style']}">
                 <div class="card-date">{item['raw_date']} • {item['meta']}{location_html}</div>
                 {cost_html}
-                <div class="card-title">{icon} {item['title']} {priority_html}{status_html}</div>
+                <div class="card-title">{title_display} {priority_html}{status_html}</div>
                 <div style="margin-top: 8px; color: #444;">{item['desc']}</div>
             </div>
             """, unsafe_allow_html=True)
