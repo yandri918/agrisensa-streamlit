@@ -110,14 +110,35 @@ with tab1:
         
     with col_l2:
         st.subheader("3. Risiko Susut (Shrinkage)")
-        jenis_muatan = st.selectbox("Jenis Komoditas", ["Sayur Daun (Bayam/Sawit)", "Sayur Buah (Cabe/Tomat)", "Umbi-umbian (Kentang/Bawang)", "Buah Keras (Semangka/Melon)"])
+        jenis_muatan = st.selectbox("Jenis Komoditas", [
+            "Sayur Daun (Bayam)", 
+            "Sayur Daun (Sawi/Caisim)", 
+            "Sayur Daun (Kangkung)", 
+            "Sayur Daun (Selada)",
+            "Sayur Buah (Cabe/Tomat)", 
+            "Umbi-umbian (Kentang/Bawang)", 
+            "Buah Keras (Semangka/Melon)",
+            "Lainnya (Input Manual)"
+        ])
+        
+        # Manual Input for Shrinkage
+        manual_factor = 0.0
+        if jenis_muatan == "Lainnya (Input Manual)":
+            manual_factor = st.number_input("Input Susut Manual (% per 100km)", 0.0, 10.0, 1.0, step=0.1)
+
         
         # Shrinkage Logic per 100km/Time
         susut_factor = 0.0 # % per 100km roughly
-        if "Daun" in jenis_muatan: susut_factor = 2.5
-        elif "Sayur Buah" in jenis_muatan: susut_factor = 1.2
-        elif "Umbi" in jenis_muatan: susut_factor = 0.5
-        elif "Keras" in jenis_muatan: susut_factor = 0.3
+        if "Sayur Daun" in jenis_muatan: 
+            susut_factor = 2.5
+        elif "Sayur Buah" in jenis_muatan: 
+            susut_factor = 1.2
+        elif "Umbi" in jenis_muatan: 
+            susut_factor = 0.5
+        elif "Keras" in jenis_muatan: 
+            susut_factor = 0.3
+        elif jenis_muatan == "Lainnya (Input Manual)":
+            susut_factor = manual_factor
         
         est_susut_pct = (jarak / 100) * susut_factor
         berat_susut = muatan_kg * (est_susut_pct / 100)
