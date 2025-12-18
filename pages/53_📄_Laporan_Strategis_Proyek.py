@@ -187,130 +187,27 @@ with tab_editor:
 
 # --- TAB 3 (Langkah 3): FINAL PREVIEW ---
 with tab_preview:
-    try:
-        st.markdown("### 📑 Dokumentasi Resmi (Buku Putih)")
-        st.caption("Pratinjau akhir sebelum dicetak ke PDF. Gunakan sidebar jika ingin mengubah sumber data atau mencetak.")
-        
-        # ADD PRINT CSS
-        st.markdown("""
-        <style>
-            @media print {
-                /* Hide Streamlit UI elements */
-                header, .stSidebar, .stTabs, [data-testid="stHeader"], 
-                [data-testid="stToolbar"], .stDeployButton, .stDecoration,
-                .stMarkdown > div:first-child { display: none !important; }
-                
-                /* Make content full width */
-                .main .block-container { max-width: 100% !important; padding: 0 !important; }
-                
-                /* Ensure tables print properly */
-                table { page-break-inside: avoid; }
-                
-                /* Remove backgrounds */
-                body, .stApp { background: white !important; }
-            }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        # CALCULATE FALLBACKS FOR REPORT (Safe access)
-        r_total = f"Rp {rab_raw.get('total_biaya', 0):,.0f}" if rab_raw else "Rp 850,000,000"
-        r_roi = f"{rab_raw.get('roi_percent', 0):.1f}%" if rab_raw else "24 - 28 Bulan"
-        r_kap = f"{sim_raw.get('kapasitas_mingguan', 0)} kg" if sim_raw else "200 kg"
-        r_blocks = f"{len(ledger_raw)} Transaksi" if source_trace == "Sinkron Modul 48" else "Sistem Terintegrasi"
-        
-        # DEBUG INFO (Optional - can be removed later)
-        with st.expander("🔍 Debug: Status Data Sumber"):
-            st.write(f"**RAB Data:** {'✅ Tersedia' if rab_raw else '❌ Kosong'}")
-            st.write(f"**Greenhouse Data:** {'✅ Tersedia' if sim_raw else '❌ Kosong'}")
-            st.write(f"**Blockchain Data:** {len(ledger_raw)} entries")
-            st.write(f"**Source RAB:** {source_rab}")
-            st.write(f"**Source 3K:** {source_3k}")
-            st.write(f"**Source Trace:** {source_trace}")
-        
-        # === NATIVE STREAMLIT REPORT ===
-        st.markdown("---")
-        
-        # HEADER
-        st.markdown(f"""
-        <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, #059669 0%, #064e3b 100%); color: white; border-radius: 10px; margin-bottom: 30px;'>
-            <div style='font-size: 0.9rem; letter-spacing: 3px; margin-bottom: 10px;'>STRATEGIC DOSSIER</div>
-            <h1 style='margin: 0; font-size: 2.5rem;'>{proj_name}</h1>
-            <p style='margin-top: 10px; opacity: 0.9;'>Prepared for: Stakeholders & Management</p>
-            <p style='font-size: 0.85rem; opacity: 0.8;'>Official Release: {report_date.strftime('%d %B %Y')} | ID: AS-2025-V3</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # SECTION 1: RENCANA STRATEGIS
-        st.subheader("01. Rencana Strategis")
-        st.write(f"""
-        Proyek **{proj_name}** diinisiasi oleh **{company_name}** sebagai jawaban atas permintaan pasar modern 
-        terhadap produk pertanian yang konsisten. Melalui integrasi otomasi dan sistem 3K, proyek ini menargetkan 
-        kepuasan mitra strategis dan efisiensi biaya yang optimal.
-        """)
-        
-        st.markdown("---")
-        
-        # SECTION 2: SWOT
-        st.subheader("02. Matriks Analisis SWOT")
-        swot_col1, swot_col2 = st.columns(2)
-        with swot_col1:
-            st.success(f"**💪 Strengths**\n\n{st.session_state['swot_data']['Strengths']}")
-            st.info(f"**🌟 Opportunities**\n\n{st.session_state['swot_data']['Opportunities']}")
-        with swot_col2:
-            st.warning(f"**⚠️ Weaknesses**\n\n{st.session_state['swot_data']['Weaknesses']}")
-            st.error(f"**🚨 Threats**\n\n{st.session_state['swot_data']['Threats']}")
-        
-        st.markdown("---")
-        
-        # SECTION 3: KELAYAKAN EKONOMI
-        st.subheader("03. Kelayakan Ekonomi")
-        df_ekonomi = pd.DataFrame({
-            "Parameter Investasi": ["Total Investasi Awal", "Estimasi ROI", "Unit Kapasitas", "Kepatuhan Blockchain"],
-            "Nilai / Target": [r_total, r_roi, f"{r_kap} / Minggu", r_blocks]
-        })
-        st.table(df_ekonomi)
-        
-        st.markdown("---")
-        
-        # SECTION 4: TIMELINE
-        st.subheader("04. Timeline Implementasi")
-        df_timeline_display = pd.DataFrame(st.session_state['timeline_data'])
-        df_timeline_display.columns = ["Fase Proyek", "Ekspektasi Durasi"]
-        st.table(df_timeline_display)
-        
-        st.markdown("---")
-        
-        # SECTION 5: PENGESAHAN
-        st.subheader("05. Pernyataan & Pengesahan")
-        st.caption("_Seluruh data di atas dihasilkan dari sistem AgriSensa Intelligence dan dapat dipertanggungjawabkan keakuratannya berdasarkan masukan operasional terkini._")
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        sig_col1, sig_col2 = st.columns(2)
-        with sig_col1:
-            st.markdown(f"""
-            <div style='text-align: center; padding: 20px;'>
-                <p>Strategic Analyst,</p>
-                <div style='height: 60px;'></div>
-                <b>AgriSensa AI System</b><br>
-                <span style='font-size: 0.85rem; color: gray;'>Automated Report Engine</span>
-            </div>
-            """, unsafe_allow_html=True)
-        with sig_col2:
-            st.markdown(f"""
-            <div style='text-align: center; padding: 20px;'>
-                <p>Project Director,</p>
-                <div style='height: 60px;'></div>
-                <b>{owner_name}</b><br>
-                <span style='font-size: 0.85rem; color: gray;'>{company_name}</span>
-            </div>
-            """, unsafe_allow_html=True)
+    st.success("✅ Tab 3 berhasil dimuat!")
+    st.write(f"**Nama Proyek:** {proj_name}")
+    st.write(f"**Perusahaan:** {company_name}")
+    st.write(f"**Tanggal:** {report_date}")
     
-    except Exception as e:
-        st.error(f"❌ **Error saat me-render laporan:**\n\n```\n{str(e)}\n```")
-        st.info("💡 **Kemungkinan penyebab:**\n- Data dari modul lain belum tersedia\n- Session state belum ter-initialize\n- Variabel tidak terdefinisi")
-        
-        # Show traceback for debugging
-        import traceback
-        with st.expander("🔧 Detail Error (untuk debugging)"):
-            st.code(traceback.format_exc())
+    st.divider()
+    
+    st.subheader("� Data yang Tersedia:")
+    st.write(f"- RAB: {'✅ Ada' if rab_raw else '❌ Kosong'}")
+    st.write(f"- Greenhouse: {'✅ Ada' if sim_raw else '❌ Kosong'}")
+    st.write(f"- Blockchain: {len(ledger_raw)} entries")
+    
+    st.divider()
+    
+    st.subheader("📄 Laporan Strategis")
+    st.write("Konten laporan akan ditampilkan di sini.")
+    
+    # Test SWOT
+    if st.button("Test Tampilkan SWOT"):
+        st.json(st.session_state.get('swot_data', {}))
+    
+    # Test Timeline
+    if st.button("Test Tampilkan Timeline"):
+        st.json(st.session_state.get('timeline_data', []))
