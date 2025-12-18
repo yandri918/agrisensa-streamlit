@@ -490,35 +490,34 @@ def main():
         
         if timeline:
             import re
-            def clean_html(text):
+            def strip_html(text):
                 if not isinstance(text, str): return text
-                return re.sub('<[^<]+?>', '', text) # Strip any HTML tags
+                return re.sub('<[^<]+?>', '', text)
 
             for item in timeline:
-                icon = "📝" if item['type'] == 'activity' else "📈" if item['type'] == 'growth' else "💰"
-                
-                # Render content with sanitization to prevent raw tags from showing
-                if item['type'] == 'growth':
-                    val = float(clean_html(str(item['desc']))) if item['desc'] else 0
-                    content_html = f"<div class='metric-pill'>📏 {val:.1f} cm</div>"
-                else:
-                    safe_desc = clean_html(str(item['desc']))
-                    content_html = f"<div style='line-height:1.5;'>{safe_desc}</div>"
-
-                st.markdown(f"""
-                <div class="glass-card">
-                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#64748b; margin-bottom:8px; border-bottom:1px solid #f1f5f9; padding-bottom:5px;">
-                        <span>📅 {item['raw_date']} | 🏷️ {item['meta']}</span>
-                        {f'<span style="color:#ef4444; font-weight:700;">Rp {item["cost"]:,.0f}</span>' if item['cost'] > 0 else ""}
-                    </div>
-                    <h4 style="margin:10px 0 10px 0; color:#1e293b; display:flex; align-items:center; gap:8px;">
-                        <span style="background:#f1f5f9; padding:5px; border-radius:8px;">{icon}</span> {clean_html(item['title'])}
-                    </h4>
-                    <div style="font-size:0.95rem; color:#475569; padding-left:5px;">
-                        {content_html}
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                with st.container():
+                    # Header Row: Date and Cost
+                    c_h1, c_h2 = st.columns([3, 1])
+                    with c_h1:
+                        st.caption(f"📅 {item['raw_date']} | 🏷️ {strip_html(str(item['meta']))}")
+                    with c_h2:
+                        if item['cost'] > 0:
+                            st.markdown(f"<p style='text-align:right; color:#ef4444; font-weight:bold; margin:0;'>Rp {item['cost']:,.0f}</p>", unsafe_allow_html=True)
+                    
+                    # Title and Main Content
+                    icon = "📝" if item['type'] == 'activity' else "📈" if item['type'] == 'growth' else "💰"
+                    st.markdown(f"#### {icon} {strip_html(str(item['title']))}")
+                    
+                    if item['type'] == 'growth':
+                        val = strip_html(str(item['desc']))
+                        st.success(f"📏 Tinggi Tanaman: {val} cm")
+                    else:
+                        st.write(strip_html(str(item['desc'])))
+                    
+                    if item.get('location'):
+                        st.caption(f"📍 Lokasi: {strip_html(str(item['location']))}")
+                    
+                    st.divider()
         else:
             st.info("Belum ada data yang sesuai filter.")
 
