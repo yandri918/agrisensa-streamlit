@@ -59,19 +59,31 @@ tab_dashboard, tab_editor, tab_preview = st.tabs([
 ])
 
 # --- HELPER FUNCTIONS ---
-def parse_duration(d_str):
+def get_timeline_dates(d_str):
     try:
         # Simple parser for "Bulan 1-2" or "Bulan 5+"
+        # Returns (start_date, end_date) as strings
+        base_date = datetime.date(2025, 1, 1)
         d_str = d_str.replace("Bulan ", "").strip()
+        
         if "+" in d_str:
-            start = int(d_str.replace("+", ""))
-            return start, start + 1
-        if "-" in d_str:
+            s_val = int(d_str.replace("+", ""))
+            start = base_date + datetime.timedelta(days=s_val * 30)
+            end = start + datetime.timedelta(days=30)
+        elif "-" in d_str:
             parts = d_str.split("-")
-            return int(parts[0]), int(parts[1])
-        return int(d_str), int(d_str)
+            s_val = int(parts[0])
+            e_val = int(parts[1])
+            start = base_date + datetime.timedelta(days=s_val * 30)
+            end = base_date + datetime.timedelta(days=e_val * 30)
+        else:
+            val = int(d_str)
+            start = base_date + datetime.timedelta(days=val * 30)
+            end = start + datetime.timedelta(days=30)
+            
+        return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
     except:
-        return 0, 0
+        return "2025-01-01", "2025-02-01"
 
 # --- TAB 1: DASHBOARD ---
 with tab_dashboard:
@@ -103,8 +115,8 @@ with tab_dashboard:
         # Prepare Gantt Data
         gantt_list = []
         for stage in st.session_state['timeline_data']:
-            start, end = parse_duration(stage['Durasi'])
-            gantt_list.append(dict(Task=stage['Fase'], Start=str(start), Finish=str(end), Resource='Planning'))
+            start, end = get_timeline_dates(stage['Durasi'])
+            gantt_list.append(dict(Task=stage['Fase'], Start=start, Finish=end, Resource='Planning'))
         
         df_gantt = pd.DataFrame(gantt_list)
         if not df_gantt.empty:
