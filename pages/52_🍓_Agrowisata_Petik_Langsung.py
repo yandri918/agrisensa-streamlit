@@ -335,21 +335,46 @@ with tab6:
     with col_nur2:
         st.subheader("📈 Simulasi Penjualan (Dual Stream)")
         
-        # Stream 1: Retail Merchandise
-        st.markdown("**1. Penjualan Souvenir (Wisatawan)**")
-        retail_percent = st.slider("% Bibit Terjual ke Wisatawan", 0, 100, 20)
-        retail_price = st.number_input("Harga Jual Wisata (Rp/Pohon)", 5000, 50000, 15000, help="Dalam pot estetik")
+        # Stream 1: Retail Merchandise (Wisatawan)
+        with st.expander("🛍️ 1. Penjualan Souvenir (Wisatawan)", expanded=True):
+            retail_percent = st.slider("% Stok untuk Wisatawan", 0, 100, 20)
+            
+            # Age Standards
+            age_options = {
+                "🌿 Muda (10-15 HSS)": 1.0,
+                "🪴 Standar (20-30 HSS)": 1.5,
+                "🌳 Premium (40+ HSS - Siap Buah)": 2.5
+            }
+            selected_age = st.selectbox("Standar Usia Bibit", list(age_options.keys()))
+            base_retail_price = st.number_input("Harga Dasar Bibit (Rp/Pohon)", 1000, 10000, 3000)
+            
+            # Potting Parameters
+            pot_cost = st.number_input("Biaya Pot & Media Estetik (Rp/Unit)", 0, 20000, 5000)
+            packaging_cost = st.number_input("Biaya Label & Packaging (Rp/Unit)", 0, 5000, 1000)
+            
+            retail_price_per_unit = (base_retail_price * age_options[selected_age]) + pot_cost + packaging_cost
+            st.info(f"**Harga Jual Retail: Rp {retail_price_per_unit:,.0f} / Pot**")
         
-        # Stream 2: B2B / Farm Supply
-        st.markdown("**2. Penjualan B2B (Petani/Mitra)**")
-        b2b_percent = st.slider("% Bibit Terjual ke Petani", 0, (100-retail_percent), 60)
-        b2b_price = st.number_input("Harga Jual B2B (Rp/Pohon)", 500, 10000, 2500)
+        # Stream 2: B2B / Farm Supply (Petani)
+        with st.expander("🚜 2. Penjualan B2B (Petani/Mitra)", expanded=True):
+            b2b_percent = st.slider("% Stok untuk Petani", 0, (100-retail_percent), 60)
+            
+            # Pricing per Tray/Baki
+            tray_price = st.number_input("Harga Jual per Baki (Rp)", 10000, 500000, 150000, help="Satu baki sesuai kapasitas tray yang dipilih")
+            
+            # Derived price per seedling for calculation
+            seedlings_per_tray = int(tray_type.split()[0])
+            b2b_price_per_seedling = tray_price / seedlings_per_tray
+            st.info(f"**Ekuivalen: Rp {b2b_price_per_seedling:,.0f} / Bibit**")
         
         # Calculation
         qty_retail = (retail_percent/100) * total_seeds
-        qty_b2b = (b2b_percent/100) * total_seeds
+        qty_b2b_trays = (b2b_percent/100) * num_trays
         
-        rev_nursery = (qty_retail * retail_price) + (qty_b2b * b2b_price)
+        rev_retail = qty_retail * retail_price_per_unit
+        rev_b2b = qty_b2b_trays * tray_price
+        
+        rev_nursery = rev_retail + rev_b2b
         profit_nursery = rev_nursery - total_prod_cost
         
     st.markdown("---")
