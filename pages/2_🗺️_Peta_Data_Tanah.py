@@ -392,6 +392,19 @@ def main():
                     }
                     npk_data.append(npk_record)
                     save_json(NPK_DATA_FILE, npk_data)
+                    
+                    # --- AUTO-LOG TO JOURNAL ---
+                    try:
+                        from utils.journal_utils import log_to_journal
+                        log_to_journal(
+                            category="🌍 Peta Tanah",
+                            title=f"Uji Tanah: {soil_type}",
+                            notes=f"Hasil NPK: {n_value}/{p_value}/{k_value} ppm. pH: {ph}. Lokasi: {st.session_state['add_npk_lat']:.4f}, {st.session_state['add_npk_lon']:.4f}",
+                            priority="Sedang"
+                        )
+                    except Exception as e:
+                        pass
+                        
                     st.success("✅ Data NPK berhasil disimpan!")
                     del st.session_state['add_npk_lat']
                     del st.session_state['add_npk_lon']

@@ -173,6 +173,18 @@ if st.button("🔍 Hitung Kebutuhan Pupuk", type="primary", use_container_width=
     # Calculate NPK needs
     npk_needs = calculate_fertilizer_needs(area_ha, crop, soil_npk)
     
+    # --- AUTO-LOG TO JOURNAL ---
+    try:
+        from utils.journal_utils import log_to_journal
+        log_to_journal(
+            category="🧮 Kalkulator Pupuk",
+            title=f"Analisis Kebutuhan Pupuk: {crop}",
+            notes=f"Luas Lahan: {area_ha} ha. Target Nutrisi: N={npk_needs['N']:.1f}, P={npk_needs['P']:.1f}, K={npk_needs['K']:.1f} kg. Lahan: {area_ha} ha.",
+            priority="Sedang"
+        )
+    except Exception as e:
+        pass
+        
     st.markdown("---")
     st.subheader("📊 Hasil Perhitungan")
     

@@ -237,6 +237,20 @@ def main():
                     results.sort(key=lambda x: x['prob'], reverse=True)
                     st.session_state['diagnosis_v2_results'] = results
                     st.session_state['diagnosis_v2_symptoms'] = selected_symptoms
+                    
+                    # --- AUTO-LOG TO JOURNAL ---
+                    try:
+                        from utils.journal_utils import log_to_journal
+                        top_res = results[0]
+                        log_to_journal(
+                            category="🔍 Diagnostik AI",
+                            title=f"Diagnosis AI: {top_res['name']}",
+                            notes=f"Keyakinan: {top_res['prob']*100:.1f}%. Gejala terdeteksi: {', '.join(selected_symptoms)}.",
+                            priority="Tinggi" if top_res['info']['severity'] in ["Tinggi", "Sangat Tinggi"] else "Sedang"
+                        )
+                    except Exception as e:
+                        pass
+                        
                     st.rerun()
 
         # Display Results
