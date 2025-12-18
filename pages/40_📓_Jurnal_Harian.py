@@ -112,14 +112,14 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-    tab_dash, tab_activity, tab_growth, tab_analytics = st.tabs([
-        "🛸 Command Center", "📝 Jurnal Aktivitas", "📏 Pantau Pertumbuhan", "📊 Laporan Strategis"
+    tab_dash, tab_activity, tab_growth, tab_timeline, tab_analytics = st.tabs([
+        "🛸 Command Center", "📝 Input Aktivitas", "📏 Pantau Pertumbuhan", "📅 Timeline & Review", "📊 Laporan Strategis"
     ])
 
     # Load data for real-time stats
-    df_act = load_journal()
+    df_activities = load_journal()
     df_growth = load_growth()
-    df_cost = load_costs()
+    df_costs = load_costs()
 
     with tab_dash:
         st.subheader("🛸 Dashboard Monitoring Terpusat")
@@ -127,12 +127,12 @@ def main():
         # Top KPI bar
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.markdown(f"""<div class="kpi-card"><div class="kpi-value">{len(df_act)}</div><div class="kpi-label">Total Aktivitas</div></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="kpi-card"><div class="kpi-value">{len(df_activities)}</div><div class="kpi-label">Total Aktivitas</div></div>""", unsafe_allow_html=True)
         with col2:
             avg_height = df_growth['tinggi_cm'].mean() if not df_growth.empty and 'tinggi_cm' in df_growth else 0
             st.markdown(f"""<div class="kpi-card"><div class="kpi-value">{avg_height:.1f} cm</div><div class="kpi-label">Rata-rata Tinggi</div></div>""", unsafe_allow_html=True)
         with col3:
-            total_expense = df_cost['total'].sum() if not df_cost.empty and 'total' in df_cost else 0
+            total_expense = df_costs['total'].sum() if not df_costs.empty and 'total' in df_costs else 0
             st.markdown(f"""<div class="kpi-card"><div class="kpi-value">Rp {total_expense/1e6:.1f}jt</div><div class="kpi-label">Total Pengeluaran</div></div>""", unsafe_allow_html=True)
         with col4:
             st.markdown(f"""<div class="kpi-card"><div class="kpi-value">Normal</div><div class="kpi-label">Status Agroklimat</div></div>""", unsafe_allow_html=True)
@@ -143,7 +143,7 @@ def main():
         
         with c_left:
             st.markdown("### 📅 Timeline Strategis (7 Hari Terakhir)")
-            recent_acts = df_act.sort_values('tanggal', ascending=False).head(5) if not df_act.empty else pd.DataFrame()
+            recent_acts = df_activities.sort_values('tanggal', ascending=False).head(5) if not df_activities.empty else pd.DataFrame()
             if not recent_acts.empty:
                 for _, row in recent_acts.iterrows():
                     st.markdown(f"""
@@ -501,14 +501,14 @@ def main():
         
         # --- COST ANALYTICS ---
         st.markdown("### 💰 Analisis Biaya")
-        if not df_cost.empty:
+        if not df_costs.empty:
             col_chart1, col_chart2 = st.columns(2)
             with col_chart1:
-                fig_pie = px.pie(df_cost.groupby('kategori_biaya')['total'].sum().reset_index(), values='total', names='kategori_biaya', title='📊 Distribusi Kategori Biaya')
+                fig_pie = px.pie(df_costs.groupby('kategori_biaya')['total'].sum().reset_index(), values='total', names='kategori_biaya', title='📊 Distribusi Kategori Biaya')
                 st.plotly_chart(fig_pie, use_container_width=True)
             
             with col_chart2:
-                df_temp = df_cost.copy()
+                df_temp = df_costs.copy()
                 df_temp['tanggal'] = pd.to_datetime(df_temp['tanggal'])
                 daily_costs = df_temp.groupby('tanggal')['total'].sum().reset_index()
                 fig_time = px.line(daily_costs, x='tanggal', y='total', title='📈 Tren Pengeluaran', markers=True)
@@ -551,11 +551,11 @@ def main():
         st.markdown("### 📥 Export Data")
         col_e1, col_e2, col_e3 = st.columns(3)
         with col_e1:
-            if not df_act.empty: st.download_button("📄 Download Aktivitas (CSV)", df_act.to_csv(index=False).encode('utf-8'), "aktivitas.csv", "text/csv")
+            if not df_activities.empty: st.download_button("📄 Download Aktivitas (CSV)", df_activities.to_csv(index=False).encode('utf-8'), "aktivitas.csv", "text/csv")
         with col_e2:
             if not df_growth.empty: st.download_button("📊 Download Pertumbuhan (CSV)", df_growth.to_csv(index=False).encode('utf-8'), "pertumbuhan.csv", "text/csv")
         with col_e3:
-            if not df_cost.empty: st.download_button("💰 Download Pengeluaran (CSV)", df_cost.to_csv(index=False).encode('utf-8'), "pengeluaran.csv", "text/csv")
+            if not df_costs.empty: st.download_button("💰 Download Pengeluaran (CSV)", df_costs.to_csv(index=False).encode('utf-8'), "pengeluaran.csv", "text/csv")
 
 if __name__ == "__main__":
     main()
