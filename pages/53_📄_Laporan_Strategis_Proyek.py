@@ -96,112 +96,106 @@ with st.sidebar:
 # --- MAIN REPORT VIEW ---
 st.info("💡 Tip: Gunakan Sidebar untuk mengatur data, lalu gunakan tombol 'Print' untuk menyimpan sebagai PDF.")
 
-# Report Container
-with st.container():
-    st.markdown(f"""
-    <div class="report-card">
-        <div class="report-header">
-            <h4 style="color:#10b981; margin:0;">📄 LAPORAN STRATEGIS AGRIBISNIS</h4>
-            <h1 class="report-title">{proj_name}</h1>
-            <p>Diterbitkan Oleh: <b>{company_name}</b></p>
-            <p>Tanggal: {report_date.strftime('%d %B %Y')}</p>
-        </div>
-        
-        <div class="section-title">I. Ringkasan Eksekutif</div>
-        <p>
-            Proyek <b>{proj_name}</b> dirancang untuk menjawab tantangan pasar modern akan kebutuhan pangan yang memiliki kontinuitas, 
-            kualitas, dan kuantitas yang terstandarisasi. Laporan ini merangkum strategi budidaya, analisis finansial, 
-            serta sistem pelacakan (traceability) yang menjamin keamanan pangan dari kebun hingga ke tangan konsumen.
-        </p>
-        <p>
-            <b>Visi Utama:</b> Menjadi supplier utama sayuran/buah premium dengan efisiensi operasional berbasis data (Data-Driven Farming).
-        </p>
-    """, unsafe_allow_html=True)
-    
-    # Section II: Business & Financial
-    if include_fin:
-        # Pulling simulated data or existing session states
-        st.markdown("""
-        <div class="section-title">II. Analisis Bisnis & Finansial</div>
-        <p>Berdasarkan simulasi investasi dan operasional, berikut adalah parameter ekonomi proyek:</p>
-        <table class="kpi-table">
-            <tr><td class="kpi-label">Total CAPEX (Investasi Awal)</td><td>Rp 850,000,000</td></tr>
-            <tr><td class="kpi-label">Luas Area Produksi</td><td>1,000 m²</td></tr>
-            <tr><td class="kpi-label">Target Kapasitas (per Minggu)</td><td>200 kg</td></tr>
-            <tr><td class="kpi-label">Estimasi BEP (ROI)</td><td>24 - 28 Bulan</td></tr>
-            <tr><td class="kpi-label">Modal Kerja (Consignment Gap)</td><td>Rp 45,000,000</td></tr>
-        </table>
-        <p style="font-size:0.8rem; font-style:italic; color:gray; margin-top:5px;">
-            *Angka di atas adalah proyeksi berdasarkan model konsinyasi "Mati 1 Nota".
-        </p>
-        """, unsafe_allow_html=True)
-        
-    # Section III: Strategy 3K
-    if include_3k:
-        st.markdown("""
-        <div class="section-title">III. Strategi Operasional 3K</div>
-        <p>Proyek ini mengadopsi standar 3K AgriSensa sebagai pilar keberlanjutan:</p>
-        <ul>
-            <li><b>Kontinuitas:</b> Implementasi <i>Staggered Planting</i> (tanam bertahap) dalam 4-8 blok untuk menjamin panen mingguan tanpa putus.</li>
-            <li><b>Kualitas:</b> Pengendalian nutrisi presisi dan IPM (Integrated Pest Management) untuk mencapai Grade A (Premium).</li>
-            <li><b>Kuantitas:</b> Optimalisasi populasi tanaman per m² dan efisiensi Greenhouse mencapai 85% yield target.</li>
-        </ul>
-        """, unsafe_allow_html=True)
-
-    # Section IV: Traceability
-    if include_trace:
-        st.markdown("""
-        <div class="section-title">IV. Keamanan Pangan & Traceability</div>
-        <p>Guna menjamin kepercayaan konsumen dan akses ke pasar modern, proyek mengintegrasikan <b>AgriSensa Blockchain Ledger</b>:</p>
-        <ul>
-            <li><b>Digital Handover:</b> Setiap perpindahan barang dicatat dengan Immutable Hash.</li>
-            <li><b>QR Passport:</b> Setiap kemasan memiliki QR Code unik yang terhubung ke batch history.</li>
-            <li><b>Audit Trail:</b> Riwayat pupuk, pestisida, dan tanggal panen dapat diverifikasi secara publik oleh pembeli.</li>
-        </ul>
-        <div style="text-align:center; padding: 20px; background:#f0fdf4; border-radius:10px; border:1px solid #10b981;">
-            <p style="margin:0; font-weight:bold; color:#065f46;">VERIFIED PRODUCT STATUS</p>
-            <p style="font-size:0.8rem; margin:0;">Blockchain Network Secured</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Section V: Conclusion
-    st.markdown(f"""
-        <div class="section-title">V. Penutup & Pengesahan</div>
-        <p>
-            Laporan ini disusun sebagai dokumen panduan resmi bagi operasional dan manajemen <b>{company_name}</b>. 
-            Strategi yang tertuang di dalamnya bersifat dinamis dan akan terus ditingkatkan seiring perkembangan data lapangan.
-        </p>
-        
-        <table style="width:100%; margin-top:50px;">
-            <tr>
-                <td style="text-align:center;">
-                    Dipersiapkan oleh,<br/><br/><br/><br/>
-                    <b>Sistem AgriSensa AI</b><br/>
-                    Technical Intelligence
-                </td>
-                <td style="text-align:center;">
-                    Disetujui oleh,<br/><br/><br/><br/>
-                    <b>{owner_name}</b><br/>
-                    {company_name}
-                </td>
-            </tr>
-        </table>
+# Build the Full Report HTML as a single string
+report_html = f"""
+<div class="report-card">
+    <div class="report-header">
+        <h4 style="color:#10b981; margin:0;">📄 LAPORAN STRATEGIS AGRIBISNIS</h4>
+        <h1 class="report-title">{proj_name}</h1>
+        <p>Diterbitkan Oleh: <b>{company_name}</b></p>
+        <p>Tanggal: {report_date.strftime('%d %B %Y')}</p>
     </div>
-    """, unsafe_allow_html=True)
+    
+    <div class="section-title">I. Ringkasan Eksekutif</div>
+    <p>
+        Proyek <b>{proj_name}</b> dirancang untuk menjawab tantangan pasar modern akan kebutuhan pangan yang memiliki kontinuitas, 
+        kualitas, dan kuantitas yang terstandarisasi. Laporan ini merangkum strategi budidaya, analisis finansial, 
+        serta sistem pelacakan (traceability) yang menjamin keamanan pangan dari kebun hingga ke tangan konsumen.
+    </p>
+    <p>
+        <b>Visi Utama:</b> Menjadi supplier utama sayuran/buah premium dengan efisiensi operasional berbasis data (Data-Driven Farming).
+    </p>
+"""
 
-# CSS for Print specifically
+# Section II: Business & Financial
+if include_fin:
+    report_html += f"""
+    <div class="section-title">II. Analisis Bisnis & Finansial</div>
+    <p>Berdasarkan simulasi investasi dan operasional, berikut adalah parameter ekonomi proyek:</p>
+    <table class="kpi-table">
+        <tr><td class="kpi-label">Total CAPEX (Investasi Awal)</td><td>Rp 850,000,000</td></tr>
+        <tr><td class="kpi-label">Luas Area Produksi</td><td>1,000 m²</td></tr>
+        <tr><td class="kpi-label">Target Kapasitas (per Minggu)</td><td>200 kg</td></tr>
+        <tr><td class="kpi-label">Estimasi BEP (ROI)</td><td>24 - 28 Bulan</td></tr>
+        <tr><td class="kpi-label">Modal Kerja (Consignment Gap)</td><td>Rp {45000000:,.0f}</td></tr>
+    </table>
+    <p style="font-size:0.8rem; font-style:italic; color:gray; margin-top:5px;">
+        *Angka di atas adalah proyeksi berdasarkan model konsinyasi "Mati 1 Nota".
+    </p>
+    """
+
+# Section III: Strategy 3K
+if include_3k:
+    report_html += """
+    <div class="section-title">III. Strategi Operasional 3K</div>
+    <p>Proyek ini mengadopsi standar 3K AgriSensa sebagai pilar keberlanjutan:</p>
+    <ul>
+        <li><b>Kontinuitas:</b> Implementasi <i>Staggered Planting</i> (tanam bertahap) dalam 4-8 blok untuk menjamin panen mingguan tanpa putus.</li>
+        <li><b>Kualitas:</b> Pengendalian nutrisi presisi dan IPM (Integrated Pest Management) untuk mencapai Grade A (Premium).</li>
+        <li><b>Kuantitas:</b> Optimalisasi populasi tanaman per m² dan efisiensi Greenhouse mencapai 85% yield target.</li>
+    </ul>
+    """
+
+# Section IV: Traceability
+if include_trace:
+    report_html += """
+    <div class="section-title">IV. Keamanan Pangan & Traceability</div>
+    <p>Guna menjamin kepercayaan konsumen dan akses ke pasar modern, proyek mengintegrasikan <b>AgriSensa Blockchain Ledger</b>:</p>
+    <ul>
+        <li><b>Digital Handover:</b> Setiap perpindahan barang dicatat dengan Immutable Hash.</li>
+        <li><b>QR Passport:</b> Setiap kemasan memiliki QR Code unik yang terhubung ke batch history.</li>
+        <li><b>Audit Trail:</b> Riwayat pupuk, pestisida, dan tanggal panen dapat diverifikasi secara publik oleh pembeli.</li>
+    </ul>
+    <div style="text-align:center; padding: 20px; background:#f0fdf4; border-radius:10px; border:1px solid #10b981;">
+        <p style="margin:0; font-weight:bold; color:#065f46;">VERIFIED PRODUCT STATUS</p>
+        <p style="font-size:0.8rem; margin:0;">Blockchain Network Secured</p>
+    </div>
+    """
+
+# Section V: Conclusion
+report_html += f"""
+    <div class="section-title">V. Penutup & Pengesahan</div>
+    <p>
+        Laporan ini disusun sebagai dokumen panduan resmi bagi operasional dan manajemen <b>{company_name}</b>. 
+        Strategi yang tertuang di dalamnya bersifat dinamis dan akan terus ditingkatkan seiring perkembangan data lapangan.
+    </p>
+    
+    <table style="width:100%; margin-top:50px;">
+        <tr>
+            <td style="text-align:center;">
+                Dipersiapkan oleh,<br/><br/><br/><br/>
+                <b>Sistem AgriSensa AI</b><br/>
+                Technical Intelligence
+            </td>
+            <td style="text-align:center;">
+                Disetujui oleh,<br/><br/><br/><br/>
+                <b>{owner_name}</b><br/>
+                {company_name}
+            </td>
+        </tr>
+    </table>
+</div>
+"""
+
+# Render the single consolidated report block
+st.markdown(report_html, unsafe_allow_html=True)
+
+# Final Print CSS
 st.markdown("""
 <style>
-    /* Ensure the print result is clean */
     @media print {
-        .report-card { 
-            margin: 0; 
-            box-shadow: none; 
-            border: none; 
-            padding: 0;
-            display: block !important;
-        }
         .stApp { background: white !important; }
+        .report-card { margin: 0; padding: 0 !important; border:none; box-shadow:none; }
     }
 </style>
 """, unsafe_allow_html=True)
