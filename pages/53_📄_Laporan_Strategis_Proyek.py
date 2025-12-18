@@ -231,6 +231,11 @@ with tab_preview:
     st.info("📑 Mode Pratinjau Dokumen Aktif. Gunakan Sidebar untuk mencetak.")
 
     # BUILD CONTENT
+    # Build timeline rows first
+    timeline_rows = ""
+    for stage in st.session_state['timeline_data']:
+        timeline_rows += f"<tr><td class='label-cell'>{stage['Fase']}</td><td>{stage['Durasi']}</td></tr>"
+    
     html_report = f"""
     <div class="paper-view">
         <div class="paper-header">
@@ -262,11 +267,7 @@ with tab_preview:
 
         <div class="paper-section">04. Timeline Implementasi</div>
         <table class="data-table">
-    """
-    for stage in st.session_state['timeline_data']:
-        html_report += f"<tr><td class='label-cell'>{stage['Fase']}</td><td>{stage['Durasi']}</td></tr>"
-    
-    html_report += f"""
+            {timeline_rows}
         </table>
 
         <div class="paper-section">05. Pernyataan & Pengesahan</div>
