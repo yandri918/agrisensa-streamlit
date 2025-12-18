@@ -1388,6 +1388,78 @@ with tab_3k:
 
     st.success("Sistem Manajemen 3K Aktif: Siap mensuplai pasar modern secara berkelanjutan.")
 
-# Footer
+    st.divider()
+
+    # --- SECTION: SUPPLIER SUPERMARKET SIMULATION ---
+    st.subheader("🏢 Simulasi Bisnis: Supplier Supermarket (Consignment)")
+    st.markdown("""
+    Model bisnis konsinyasi memiliki tantangan **Cash Flow (Modal Kerja)** karena pembayaran biasanya tertunda (Mati 1 Nota/Tempo).
+    """)
+
+    s_col1, s_col2 = st.columns([1, 2])
+    
+    with s_col1:
+        st.info("⚙️ Parameter Pengiriman:")
+        kapasitas_mingguan = st.number_input("Kapasitas Pengiriman (kg/minggu)", 50, 1000, 200, step=50)
+        harga_supplier = st.number_input("Harga Jual ke Supermarket (Rp/kg)", 10000, 100000, 45000, step=1000)
+        biaya_ops_per_kg = st.number_input("Biaya Ops + Packing (Rp/kg)", 2000, 20000, 8000, step=500)
+        gap_pembayaran = st.selectbox("Model Pembayaran (Term of Payment)", ["Mati 1 Nota (Tempo 2 Minggu)", "Tempo 1 Bulan", "Cash on Delivery (Jarang)"], index=0)
+        
+        # Risk factor (Retur/Susut di Toko)
+        retur_factor = st.slider("Estimasi Retur/Susut di Rak Toko (%)", 0, 20, 5)
+    
+    with s_col2:
+        # Business Simulation Logic (12 Weeks)
+        weeks = list(range(1, 13))
+        income = []
+        expense = []
+        net_cashflow = []
+        cumulative_cash = []
+        
+        current_cumulative = 0
+        payment_lag = 2 if "1 Nota" in gap_pembayaran else (4 if "1 Bulan" in gap_pembayaran else 0)
+        
+        for w in weeks:
+            # Operational Cost is every week
+            ops_cost = kapasitas_mingguan * biaya_ops_per_kg
+            expense.append(ops_cost)
+            
+            # Revenue depends on lag and retur
+            if w > payment_lag:
+                revenue = kapasitas_mingguan * harga_supplier * (1 - (retur_factor/100))
+            else:
+                revenue = 0
+            income.append(revenue)
+            
+            weekly_net = revenue - ops_cost
+            net_cashflow.append(weekly_net)
+            
+            current_cumulative += weekly_net
+            cumulative_cash.append(current_cumulative)
+            
+        # Charting
+        sim_df = pd.DataFrame({
+            "Minggu": weeks,
+            "Pendapatan (Rp)": income,
+            "Biaya Ops (Rp)": expense,
+            "Arus Kas Kumulatif (Rp)": cumulative_cash
+        })
+        
+        fig_sim = go.Figure()
+        fig_sim.add_trace(go.Bar(x=sim_df["Minggu"], y=sim_df["Pendapatan (Rp)"], name="Pendapatan (Paid)", marker_color='#10b981'))
+        fig_sim.add_trace(go.Bar(x=sim_df["Minggu"], y=sim_df["Biaya Ops (Rp)"], name="Biaya Ops", marker_color='#ef4444'))
+        fig_sim.add_trace(go.Scatter(x=sim_df["Minggu"], y=sim_df["Arus Kas Kumulatif (Rp)"], name="Saldo Kas Kumulatif", line=dict(color='#3b82f6', width=4)))
+        
+        fig_sim.update_layout(title="Proyeksi Cash Flow Supplier (12 Minggu)", barmode='group', xaxis_title="Minggu Ke-")
+        st.plotly_chart(fig_sim, use_container_width=True)
+        
+        working_capital_needed = abs(min(cumulative_cash)) if min(cumulative_cash) < 0 else 0
+        
+        st.warning(f"""
+        💡 **Analisis Modal Kerja:**
+        Anda membutuhkan modal kerja minimal **Rp {working_capital_needed:,.0f}** untuk membiayai operasional selama masa tunggu pembayaran (Mati 1 Nota).
+        """)
+
+    st.divider()
 st.markdown("---")
 st.caption("AgriSensa Sustainable Greenhouse - Membangun Pertanian yang Terukur dan Berkelanjutan.")
