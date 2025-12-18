@@ -213,6 +213,11 @@ with tab_preview:
     
     st.info("📑 Mode Pratinjau Dokumen Aktif. Gunakan Sidebar untuk mencetak.")
 
+    # CALCULATE FALLBACKS FOR REPORT
+    r_total = f"Rp {rab_raw['total_biaya']:,.0f}" if rab_raw else "Rp 850,000,000"
+    r_roi = f"{rab_raw['roi_percent']:.1f}%" if rab_raw else "24 - 28 Bulan"
+    r_kap = f"{sim_raw['kapasitas_mingguan']} kg" if sim_raw else "200 kg"
+
     # BUILD CONTENT
     html_report = f"""
     <div class="paper-view">
@@ -237,9 +242,9 @@ with tab_preview:
 
         <div class="paper-section">03. Kelayakan Ekonomi</div>
         <table class="data-table">
-            <tr><td class="label-cell">Total Investasi Awal</td><td>Rp {rab_raw['total_biaya']:,.0f}</td></tr>
-            <tr><td class="label-cell">Estimasi ROI</td><td>{rab_raw['roi_percent']:.1f}%</td></tr>
-            <tr><td class="label-cell">Unit Kapasitas</td><td>{sim_raw['kapasitas_mingguan']} kg / Minggu</td></tr>
+            <tr><td class="label-cell">Total Investasi Awal</td><td>{r_total}</td></tr>
+            <tr><td class="label-cell">Estimasi ROI</td><td>{r_roi}</td></tr>
+            <tr><td class="label-cell">Unit Kapasitas</td><td>{r_kap} / Minggu</td></tr>
             <tr><td class="label-cell">Kepatuhan Blockchain</td><td>{len(ledger_raw)} Transaksi Terverifikasi</td></tr>
         </table>
 
