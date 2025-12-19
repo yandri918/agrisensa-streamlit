@@ -9,6 +9,69 @@ from datetime import datetime
 
 st.set_page_config(page_title="Panduan Hama & Penyakit", page_icon="🐛", layout="wide")
 
+# Custom CSS for Glassmorphism and Premium Feel
+st.markdown("""
+<style>
+    .main {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .stApp {
+        background: transparent;
+    }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        padding: 25px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    .glass-card:hover {
+        transform: translateY(-5px);
+    }
+    .metric-card {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+        border-left: 5px solid #4CAF50;
+    }
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    .badge-primary { background: #e3f2fd; color: #1976d2; }
+    .badge-warning { background: #fff3e0; color: #f57c00; }
+    .badge-danger { background: #ffebee; color: #d32f2f; }
+    .badge-success { background: #e8f5e9; color: #388e3c; }
+    
+    .section-header {
+        color: #2e7d32;
+        border-bottom: 2px solid #a5d6a7;
+        padding-bottom: 10px;
+        margin-top: 30px;
+        margin-bottom: 20px;
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # ========== DATABASE HAMA ==========
 
 HAMA_DATABASE = {
@@ -32,6 +95,8 @@ HAMA_DATABASE = {
         "siklus_hidup": "28-35 hari (telur 3 hari, larva 14-21 hari, pupa 7-10 hari)",
         "tingkat_kerusakan": "Sangat Tinggi (dapat merusak 100% daun)",
         "ambang_ekonomi": "2 ekor larva/tanaman atau 10% tanaman terserang",
+        "ae_threshold": 2,
+        "ae_unit": "ekor larva/tanaman",
         "pengendalian": {
             "Kultur Teknis": [
                 "Sanitasi lahan - bersihkan gulma dan sisa tanaman",
@@ -90,6 +155,8 @@ HAMA_DATABASE = {
         "siklus_hidup": "7-10 hari (reproduksi parthenogenesis - tanpa kawin)",
         "tingkat_kerusakan": "Tinggi (vektor virus berbahaya)",
         "ambang_ekonomi": "5-10 ekor/daun atau 25% tanaman terserang",
+        "ae_threshold": 7.5,
+        "ae_unit": "ekor/daun",
         "pengendalian": {
             "Kultur Teknis": [
                 "Gunakan mulsa plastik perak (reflektif)",
@@ -146,6 +213,8 @@ HAMA_DATABASE = {
         "siklus_hidup": "30-40 hari",
         "tingkat_kerusakan": "Sangat Tinggi (kehilangan hasil 20-80%)",
         "ambang_ekonomi": "2 kelompok telur/m² atau 5% sundep",
+        "ae_threshold": 5,
+        "ae_unit": "% sundep/beluk",
         "pengendalian": {
             "Kultur Teknis": [
                 "Tanam varietas tahan (batang keras)",
@@ -198,6 +267,8 @@ HAMA_DATABASE = {
         "siklus_hidup": "25-30 hari",
         "tingkat_kerusakan": "Sangat Tinggi (dapat gagal panen total)",
         "ambang_ekonomi": "5-10 ekor/rumpun (fase vegetatif), 10-15 ekor/rumpun (generatif)",
+        "ae_threshold": 12.5,
+        "ae_unit": "ekor/rumpun",
         "pengendalian": {
             "Kultur Teknis": [
                 "Tanam varietas tahan (IR64, Ciherang, Inpari)",
@@ -225,7 +296,7 @@ HAMA_DATABASE = {
             "Kimia": [
                 "HANYA jika populasi >15 ekor/rumpun",
                 "Gunakan insektisida selektif (buprofezin, pimetrozin)",
-                "HINDARI piretroid dan organofosfat (bunuh predator)",
+                "HINDARI piretroid and organofosfat (bunuh predator)",
                 "Rotasi bahan aktif"
             ]
         },
@@ -250,6 +321,8 @@ HAMA_DATABASE = {
         "siklus_hidup": "60-90 hari",
         "tingkat_kerusakan": "Sangat Tinggi (dapat gagal tanam)",
         "ambang_ekonomi": "1-2 ekor/m² (bibit muda)",
+        "ae_threshold": 1.5,
+        "ae_unit": "ekor/m²",
         "pengendalian": {
             "Kultur Teknis": [
                 "Tanam bibit umur >21 hari (batang keras)",
@@ -281,8 +354,98 @@ HAMA_DATABASE = {
         },
         "tips_pengendalian": "Bebek adalah solusi terbaik! Tanam bibit tua. Keringkan sawah sebelum tanam. Hancurkan telur!",
         "link_pestisida": "Akar Tuba, Jarak"
+    },
+    "Thrips Cabai (Scirtothrips dorsalis)": {
+        "kategori": "Hama Penghisap",
+        "nama_latin": "Scirtothrips dorsalis",
+        "tanaman_inang": ["Cabai", "Tomat", "Semangka", "Melon", "Mangga", "Jeruk"],
+        "gejala": [
+            "Daun mengeriting ke atas (cekung)",
+            "Warna perak pada sisi bawah daun",
+            "Pertumbuhan kerdil",
+            "Bunga rontok",
+            "Bercak coklat pada buah"
+        ],
+        "ciri_hama": {
+            "Larva": "Kecil, putih/kuning, lincah",
+            "Dewasa": "Coklat kekuningan, sayap seperti sisir, sangat kecil (1 mm)"
+        },
+        "siklus_hidup": "15-20 hari",
+        "tingkat_kerusakan": "Sangat Tinggi (vektor virus keriting)",
+        "ambang_ekonomi": "10-20 ekor/daun",
+        "ae_threshold": 15,
+        "ae_unit": "ekor/daun",
+        "pengendalian": {
+            "Kultur Teknis": ["Mulsa perak", "Irigasi drenching", "Tanam serentak"],
+            "Hayati": ["Kumbang Macan", "Jamur Beauveria bassiana"],
+            "Nabati": ["Ekstrak tembakau", "Ekstrak sirsak", "Minyak Nimba"]
+        },
+        "tips_pengendalian": "Gunakan mulsa perak dan monitoring sejak pembibitan!",
+        "link_pestisida": "Tembakau, Sirsak, Nimba"
+    },
+    "Tikus Sawah (Rattus argentiventer)": {
+        "kategori": "Vertebrata",
+        "nama_latin": "Rattus argentiventer",
+        "tanaman_inang": ["Padi", "Jagung", "Singkong"],
+        "gejala": [
+            "Tanaman dipotong di batang",
+            "Banyak ditemukan liang/lubang di pematang",
+            "Serangan biasanya di tengah lahan",
+            "Kehilangan hasil sangat mendadak"
+        ],
+        "ciri_hama": {
+            "Dewasa": "Pengerat, coklat kelabu, ekor panjang",
+            "Karakter": "Aktif malam hari (nocturnal)"
+        },
+        "siklus_hidup": "Reproduksi sangat cepat (masa bunting 21 hari)",
+        "tingkat_kerusakan": "Sangat Tinggi (dapat menghancurkan seluruh petak)",
+        "ambang_ekonomi": "Ada tanda lubang aktif",
+        "ae_threshold": 1,
+        "ae_unit": "lubang aktif/ha",
+        "pengendalian": {
+            "Mekanis": ["Gropyokan", "TBS (Trap Barrier System)", "Linear Trap"],
+            "Hayati": ["Burung hantu (Tyto alba)", "Ular sawah"],
+            "Kimia": ["Rodentisida antikoagulan (umpan)"]
+        },
+        "tips_pengendalian": "Gropyokan serentak di awal musim tanam sangat efektif!",
+        "link_pestisida": "Tidak ada (Gunakan predator burung hantu)"
+    },
+    "Walang Sangit (Leptocorisa oratorius)": {
+        "kategori": "Hama Pengisap Biji",
+        "nama_latin": "Leptocorisa oratorius",
+        "tanaman_inang": ["Padi"],
+        "gejala": [
+            "Bulir padi hampa atau bercak coklat",
+            "Bau menyengat di sekitar lahan",
+            "Serangan pada fase masak susu"
+        ],
+        "ciri_hama": {
+            "Dewasa": "Bentuk panjang, hijau kecoklatan, bau sangit"
+        },
+        "siklus_hidup": "35-45 hari",
+        "tingkat_kerusakan": "Tinggi",
+        "ambang_ekonomi": "10 ekor/20 rumpun",
+        "ae_threshold": 0.5,
+        "ae_unit": "ekor/rumpun",
+        "pengendalian": {
+            "Kultur Teknis": ["Tanam serentak", "Bersihkan rumputan"],
+            "Mekanis": ["Perangkap bangkai kepiting/ikan"],
+            "Nabati": ["Ekstrak daun sirsak"]
+        },
+        "tips_pengendalian": "Gunakan perangkap bau bau busuk (ikan/kepiting) untuk menarik walang sangit!",
+        "link_pestisida": "Sirsak"
     }
 }
+
+# Update AE thresholds for existing HAMA
+HAMA_DATABASE["Ulat Grayak (Spodoptera litura)"]["ae_threshold"] = 2
+HAMA_DATABASE["Ulat Grayak (Spodoptera litura)"]["ae_unit"] = "ekor larva/tanaman"
+HAMA_DATABASE["Kutu Daun (Aphids)"]["ae_threshold"] = 7.5
+HAMA_DATABASE["Kutu Daun (Aphids)"]["ae_unit"] = "ekor/daun"
+HAMA_DATABASE["Penggerek Batang (Stem Borer)"]["ae_threshold"] = 5
+HAMA_DATABASE["Penggerek Batang (Stem Borer)"]["ae_unit"] = "% sundep/beluk"
+HAMA_DATABASE["Wereng Coklat (Brown Planthopper)"]["ae_threshold"] = 12.5
+HAMA_DATABASE["Wereng Coklat (Brown Planthopper)"]["ae_unit"] = "ekor/rumpun"
 
 
 
@@ -294,11 +457,17 @@ COMMERCIAL_SOLUTIONS = {
     "Penggerek Batang (Stem Borer)": ["Regent 50SC", "Prevathon 50SC"],
     "Wereng Coklat (Brown Planthopper)": ["Regent 50SC", "Alika 247ZC", "Marshall 200EC"],
     "Keong Mas (Golden Snail)": ["Molluscicide 6GR"],
+    "Thrips Cabai (Scirtothrips dorsalis)": ["Curacron 500EC", "Regent 50SC", "Movento Energy"],
+    "Tikus Sawah (Rattus argentiventer)": ["Petrokum 0.005 BB", "Klerat 0.005 BB"],
+    "Walang Sangit (Leptocorisa oratorius)": ["Confidor 200SL", "Curacron 500EC"],
     
     # PENYAKIT
     "Busuk Daun (Late Blight)": ["Amistartop 325SC", "Antracol 70WP", "Dithane M-45"],
-    "Layu Bakteri (Bacterial Wilt)": ["Agriycin (Bakterisida)"], # Generic
+    "Layu Bakteri (Bacterial Wilt)": ["Agriycin (Bakterisida)", "Plantomycin"],
     "Antraknosa (Anthracnose)": ["Amistartop 325SC", "Score 250EC", "Nativo 75WG"],
+    "Bercak Ungu (Purple Blotch)": ["Score 250EC", "Dakonil 75WP"],
+    "Blast Padi (Neck Blast)": ["Fujiwan 400EC", "Bim 75WP", "Amistartop 325SC"],
+    "Virus Kuning (Bule/Gemini)": ["Mesurol 50WP (Vektor)", "Confidor 200SL (Vektor)"]
 }
 
 # ========== DATABASE PENYAKIT ==========
@@ -465,6 +634,67 @@ PENYAKIT_DATABASE = {
         },
         "tips_pengendalian": "Sanitasi buah busuk penting! Pemupukan K untuk kulit buah kuat. Kunyit sangat efektif!",
         "link_pestisida": "Kunyit, Bawang Putih, Jahe, Sirih"
+    },
+    "Bercak Ungu (Purple Blotch)": {
+        "kategori": "Penyakit Jamur",
+        "nama_latin": "Alternaria porri",
+        "tanaman_inang": ["Bawang Merah", "Bawang Putih"],
+        "gejala": [
+            "Bercak putih kecil di daun",
+            "Melebar menjadi warna ungu",
+            "Pusat bercak coklat kehitaman",
+            "Ujung daun mengering",
+            "Umbi membusuk"
+        ],
+        "kondisi_ideal": {"Suhu": "25-30°C", "Kelembaban": "Tinggi"},
+        "tingkat_kerusakan": "Tinggi",
+        "pengendalian": {
+            "Kultur Teknis": ["Benih sehat", "Drainase lancar"],
+            "Hayati": ["Trichoderma"],
+            "Nabati": ["Ekstrak bawang putih", "Sirih"]
+        },
+        "tips_pengendalian": "Hindari genangan air dan pastikan ventilasi lahan baik!",
+        "link_pestisida": "Bawang Putih, Sirih"
+    },
+    "Blast Padi (Neck Blast)": {
+        "kategori": "Penyakit Jamur",
+        "nama_latin": "Pyricularia oryzae",
+        "tanaman_inang": ["Padi"],
+        "gejala": [
+            "Bercak coklat bentuk belah ketupat di daun",
+            "Busuk pada leher malai (potong leher)",
+            "Malai hampa atau gabah hampa",
+            "Daun menguning dan mengering"
+        ],
+        "kondisi_ideal": {"Suhu": "Malam dingin, siang hangat", "Kelembaban": "Sangat tinggi"},
+        "tingkat_kerusakan": "Sangat Tinggi (dapat merusak 50-80% hasil)",
+        "pengendalian": {
+            "Kultur Teknis": ["Gunakan varietas tahan", "Atur jarak tanam", "Pupuk Nitrogen secukupnya"],
+            "Hayati": ["Pseudomonas fluorescens"],
+            "Kimia": ["Fungisida sistemik"]
+        },
+        "tips_pengendalian": "Jangan beri pupuk N berlebih saat musim hujan!",
+        "link_pestisida": "Lengkuas, Jahe"
+    },
+    "Virus Kuning (Bule/Gemini)": {
+        "kategori": "Penyakit Virus",
+        "nama_latin": "Gemini Virus / Peronosclerospora",
+        "tanaman_inang": ["Cabai", "Jagung", "Tomat"],
+        "gejala": [
+            "Daun menguning cerah",
+            "Pertumbuhan kerdil",
+            "Daun mengeriting dan menebal",
+            "Produksi buah menurun drastis"
+        ],
+        "kondisi_ideal": {"Vektor": "Kutu Kebul (Bemisia tabaci)"},
+        "tingkat_kerusakan": "Sangat Tinggi",
+        "pengendalian": {
+            "Kultur Teknis": ["Benih tahan", "Mulsa perak"],
+            "Mekanis": ["Cabut tanaman sakit sejak awal"],
+            "Nabati": ["Kendalikan vektor dengan Nimba/Bawang Putih"]
+        },
+        "tips_pengendalian": "Kendalikan kutu kebul sebagai pembawa virus! Cabut tanaman yang menunjukkan gejala kuning sejak dini.",
+        "link_pestisida": "Nimba, Bawang Putih"
     }
 }
 
@@ -485,23 +715,47 @@ def get_pestisida_recommendation(hama_penyakit_name):
     
     return recommendations
 
+def render_glassy_card(title, content, type="primary"):
+    """Render a premium glassmorphic card"""
+    color_map = {
+        "primary": "#1976d2",
+        "warning": "#f57c00",
+        "danger": "#d32f2f",
+        "success": "#388e3c"
+    }
+    color = color_map.get(type, "#1976d2")
+    
+    html = f"""
+    <div class="glass-card animate-in">
+        <h3 style="color: {color}; margin-top: 0; display: flex; align-items: center;">
+            <span style="background: {color}20; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 0.8em;">•</span>
+            {title}
+        </h3>
+        <div style="color: #444; line-height: 1.6;">
+            {content}
+        </div>
+    </div>
+    """
+    st.markdown(html, unsafe_allow_html=True)
+
 # ========== MAIN APP ==========
 
 st.title("🐛 Panduan Lengkap Hama & Penyakit Tanaman")
 st.markdown("**Database komprehensif dengan strategi pengendalian terpadu (PHT)**")
 
 # Tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "🔍 Cari Berdasarkan Tanaman",
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "🔍 Cari Tanaman",
     "🐛 Database Hama",
     "🦠 Database Penyakit",
+    "🧮 Kalkulator PHT",
     "📊 Strategi PHT",
     "📖 Panduan Monitoring"
 ])
 
 # TAB 1: SEARCH BY CROP
 with tab1:
-    st.header("🔍 Cari Hama & Penyakit Berdasarkan Tanaman")
+    st.markdown("<h2 class='section-header'>🔍 Cari Berdasar Tanaman</h2>", unsafe_allow_html=True)
     
     # Collect all crops
     all_crops = set()
@@ -511,15 +765,16 @@ with tab1:
         all_crops.update(data['tanaman_inang'])
     
     selected_crop = st.selectbox(
-        "Pilih Tanaman:",
-        sorted(list(all_crops))
+        "Pilih Komoditas Tanaman Anda:",
+        sorted(list(all_crops)),
+        help="Pilih tanaman untuk melihat ancaman hama dan penyakit spesifik"
     )
     
     if selected_crop:
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader(f"🐛 Hama pada {selected_crop}")
+            st.markdown(f"### 🐛 Hama pada {selected_crop}")
             
             hama_matches = []
             for nama, data in HAMA_DATABASE.items():
@@ -528,32 +783,22 @@ with tab1:
             
             if hama_matches:
                 for nama, data in hama_matches:
-                    with st.expander(f"**{nama}** - {data['tingkat_kerusakan']}", expanded=False):
-                        st.markdown(f"**Kategori:** {data['kategori']}")
-                        st.markdown(f"**Nama Latin:** {data['nama_latin']}")
-                        
-                        st.markdown("**Gejala Serangan:**")
-                        for gejala in data['gejala']:
-                            st.markdown(f"- {gejala}")
-                        
-                        st.markdown(f"**Ambang Ekonomi:** {data['ambang_ekonomi']}")
-                        
-                        st.markdown("**Pengendalian Terpadu:**")
-                        for metode, tindakan in data['pengendalian'].items():
-                            with st.expander(f"{metode}"):
-                                for item in tindakan:
-                                    st.markdown(f"- {item}")
-                        
-                        st.info(f"💡 **Tips:** {data['tips_pengendalian']}")
-                        
-                        # Link to pestisida
-                        if 'link_pestisida' in data:
-                            st.success(f"🌿 **Pestisida Nabati:** {data['link_pestisida']}")
+                    content = f"""
+                    <div style='margin-bottom: 10px;'>
+                        <span class='badge badge-primary'>{data['kategori']}</span>
+                        <span class='badge badge-danger'>{data['tingkat_kerusakan']}</span>
+                    </div>
+                    <b>Latin:</b> <i>{data['nama_latin']}</i><br>
+                    <b>Gejala:</b> {", ".join(data['gejala'][:3])}...<br>
+                    <hr style='margin: 10px 0;'>
+                    <div style='color: #2e7d32; font-weight: bold;'>💡 Tips: {data['tips_pengendalian']}</div>
+                    """
+                    render_glassy_card(nama, content, type="warning" if "Tinggi" in data['tingkat_kerusakan'] else "primary")
             else:
                 st.info("Belum ada data hama untuk tanaman ini")
         
         with col2:
-            st.subheader(f"🦠 Penyakit pada {selected_crop}")
+            st.markdown(f"### 🦠 Penyakit pada {selected_crop}")
             
             penyakit_matches = []
             for nama, data in PENYAKIT_DATABASE.items():
@@ -562,149 +807,191 @@ with tab1:
             
             if penyakit_matches:
                 for nama, data in penyakit_matches:
-                    with st.expander(f"**{nama}** - {data['tingkat_kerusakan']}", expanded=False):
-                        st.markdown(f"**Kategori:** {data['kategori']}")
-                        st.markdown(f"**Nama Latin:** {data['nama_latin']}")
-                        
-                        st.markdown("**Gejala:**")
-                        for gejala in data['gejala']:
-                            st.markdown(f"- {gejala}")
-                        
-                        st.markdown("**Kondisi Ideal Perkembangan:**")
-                        for key, value in data['kondisi_ideal'].items():
-                            st.markdown(f"- {key}: {value}")
-                        
-                        st.markdown("**Pengendalian Terpadu:**")
-                        for metode, tindakan in data['pengendalian'].items():
-                            with st.expander(f"{metode}"):
-                                for item in tindakan:
-                                    st.markdown(f"- {item}")
-                        
-                        st.info(f"💡 **Tips:** {data['tips_pengendalian']}")
-                        
-                        # Link to pestisida
-                        if 'link_pestisida' in data:
-                            st.success(f"🌿 **Pestisida Nabati:** {data['link_pestisida']}")
+                    content = f"""
+                    <div style='margin-bottom: 10px;'>
+                        <span class='badge badge-warning'>{data['kategori']}</span>
+                        <span class='badge badge-danger'>{data['tingkat_kerusakan']}</span>
+                    </div>
+                    <b>Latin:</b> <i>{data['nama_latin']}</i><br>
+                    <b>Kondisi Ideal:</b> {data['kondisi_ideal'].get('Suhu', 'N/A')}, {data['kondisi_ideal'].get('Kelembaban', 'N/A')}<br>
+                    <hr style='margin: 10px 0;'>
+                    <div style='color: #2e7d32; font-weight: bold;'>💡 Tips: {data['tips_pengendalian']}</div>
+                    """
+                    render_glassy_card(nama, content, type="danger" if "Sangat Tinggi" in data['tingkat_kerusakan'] else "warning")
             else:
                 st.info("Belum ada data penyakit untuk tanaman ini")
 
 # TAB 2: PEST DATABASE
 with tab2:
-    st.header("🐛 Database Hama Lengkap")
+    st.markdown("<h2 class='section-header'>🐛 Database Hama Lengkap</h2>", unsafe_allow_html=True)
     
-    search_hama = st.text_input("🔍 Cari hama...", key="search_hama")
+    search_hama = st.text_input("🔍 Cari hama spesifik...", key="search_hama", placeholder="Contoh: ulat, wereng, kutu...")
     
     for nama, data in HAMA_DATABASE.items():
         if search_hama.lower() in nama.lower() or search_hama == "":
             with st.expander(f"**{nama}**"):
-                col1, col2, col3 = st.columns(3)
+                col1, col2 = st.columns([1, 1])
                 
                 with col1:
-                    st.markdown(f"**Kategori:** {data['kategori']}")
-                    st.markdown(f"**Nama Latin:** *{data['nama_latin']}*")
-                    st.markdown(f"**Siklus Hidup:** {data['siklus_hidup']}")
-                    st.markdown(f"**Tingkat Kerusakan:** {data['tingkat_kerusakan']}")
-                
-                with col2:
-                    st.markdown("**Tanaman Inang:**")
-                    for tanaman in data['tanaman_inang']:
-                        st.markdown(f"- {tanaman}")
+                    content = f"""
+                    <b>Kategori:</b> {data['kategori']}<br>
+                    <b>Latin:</b> <i>{data['nama_latin']}</i><br>
+                    <b>Target:</b> {", ".join(data['tanaman_inang'][:5])}...<br>
+                    <b>AE:</b> {data.get('ambang_ekonomi', 'N/A')}
+                    """
+                    st.markdown(content, unsafe_allow_html=True)
                     
-                    st.markdown(f"**Ambang Ekonomi:**")
-                    st.markdown(data['ambang_ekonomi'])
+                with col2:
+                    st.markdown(f"**Tingkat Kerusakan:** <span class='badge badge-danger'>{data['tingkat_kerusakan']}</span>", unsafe_allow_html=True)
+                    st.markdown(f"**Siklus Hidup:** {data['siklus_hidup']}")
                 
-                with col3:
-                    st.markdown("**Ciri-ciri Hama:**")
-                    for stage, ciri in data['ciri_hama'].items():
-                        st.markdown(f"- **{stage}:** {ciri}")
+                # Integration Buttons
+                btn_col1, btn_col2 = st.columns(2)
+                with btn_col1:
+                    if st.button("🔬 Diagnostik Lanjut", key=f"diag_{nama}"):
+                        st.switch_page("pages/10_🔍_Diagnostik_Gejala.py")
+                with btn_col2:
+                    if st.button("🌿 Ramuan Nabati", key=f"nab_{nama}"):
+                        st.switch_page("pages/18_🌿_Pestisida_Nabati.py")
                 
                 st.markdown("---")
-                st.markdown("**Gejala Serangan:**")
-                for gejala in data['gejala']:
-                    st.markdown(f"✓ {gejala}")
-                
-                st.markdown("---")
-                st.markdown("### Strategi Pengendalian Terpadu")
-                
-                for metode, tindakan in data['pengendalian'].items():
-                    with st.expander(f"**{metode}**", expanded=False):
-                        for item in tindakan:
-                            st.markdown(f"• {item}")
-                
-                st.info(f"💡 **Tips Pengendalian:** {data['tips_pengendalian']}")
+                st.markdown("#### Detail Gejala & Pengendalian")
+                st.write(f"✓ **Gejala:** {', '.join(data['gejala'])}")
+                st.info(f"💡 **Tips:** {data['tips_pengendalian']}")
                 
                 if 'link_pestisida' in data:
-                    st.success(f"🌿 **Pestisida Nabati yang Efektif:** {data['link_pestisida']}")
-                    st.caption("Klik tab 'Pestisida Nabati' di sidebar untuk detail formula")
+                    st.success(f"🌿 **Bahan Aktiv Nabati:** {data['link_pestisida']}")
                 
-                # Commercial Recommendation
+                # Commercial Section in List
                 if nama in COMMERCIAL_SOLUTIONS:
-                    st.info(f"🛒 **Solusi Komersial (AgriShop):**")
-                    products = COMMERCIAL_SOLUTIONS[nama]
-                    cols = st.columns(len(products))
-                    for i, prod in enumerate(products):
-                        with cols[i]:
-                            st.markdown(f"**{prod}**")
-                            if st.button(f"Beli {prod.split()[0]}", key=f"btn_hama_{nama}_{i}"):
-                                st.switch_page("pages/25_🧪_Katalog_Pupuk_Harga.py")
+                    with st.expander("🛒 Saran Pestisida Kimia (Komersial)"):
+                        st.write(f"Berikut produk yang tersedia di AgriShop untuk **{nama}**:")
+                        prods = COMMERCIAL_SOLUTIONS[nama]
+                        for p in prods:
+                            st.markdown(f"- **{p}**")
+                        if st.button(f"Cek Harga & Stok", key=f"shop_{nama}"):
+                            st.switch_page("pages/25_🧪_Katalog_Pupuk_Harga.py")
 
 # TAB 3: DISEASE DATABASE
 with tab3:
-    st.header("🦠 Database Penyakit Lengkap")
+    st.markdown("<h2 class='section-header'>🦠 Database Penyakit Lengkap</h2>", unsafe_allow_html=True)
     
-    search_penyakit = st.text_input("🔍 Cari penyakit...", key="search_penyakit")
+    search_penyakit = st.text_input("🔍 Cari penyakit spesifik...", key="search_penyakit", placeholder="Contoh: busuk, layu, bintik...")
     
     for nama, data in PENYAKIT_DATABASE.items():
         if search_penyakit.lower() in nama.lower() or search_penyakit == "":
             with st.expander(f"**{nama}**"):
-                col1, col2 = st.columns(2)
+                col1, col2 = st.columns([1, 1])
                 
                 with col1:
                     st.markdown(f"**Kategori:** {data['kategori']}")
-                    st.markdown(f"**Nama Latin:** *{data['nama_latin']}*")
-                    st.markdown(f"**Tingkat Kerusakan:** {data['tingkat_kerusakan']}")
-                    
-                    st.markdown("**Tanaman Inang:**")
-                    for tanaman in data['tanaman_inang']:
-                        st.markdown(f"- {tanaman}")
+                    st.markdown(f"**Latin:** <i>{data['nama_latin']}</i>", unsafe_allow_html=True)
+                    st.write(f"**Inang:** {', '.join(data['tanaman_inang'][:4])}...")
                 
                 with col2:
-                    st.markdown("**Kondisi Ideal Perkembangan:**")
-                    for key, value in data['kondisi_ideal'].items():
-                        st.markdown(f"- **{key}:** {value}")
-                
-                st.markdown("---")
-                st.markdown("**Gejala:**")
-                for gejala in data['gejala']:
-                    st.markdown(f"✓ {gejala}")
-                
-                st.markdown("---")
-                st.markdown("### Strategi Pengendalian Terpadu")
-                
-                for metode, tindakan in data['pengendalian'].items():
-                    with st.expander(f"**{metode}**", expanded=False):
-                        for item in tindakan:
-                            st.markdown(f"• {item}")
-                
-                st.info(f"💡 **Tips Pengendalian:** {data['tips_pengendalian']}")
-                
-                if 'link_pestisida' in data:
-                    st.success(f"🌿 **Pestisida Nabati yang Efektif:** {data['link_pestisida']}")
-                    st.caption("Klik tab 'Pestisida Nabati' di sidebar untuk detail formula")
+                    st.markdown(f"**Kerusakan:** <span class='badge badge-danger'>{data['tingkat_kerusakan']}</span>", unsafe_allow_html=True)
+                    st.write(f"**Kondisi Ideal:** {str(data['kondisi_ideal'])}")
 
-                # Commercial Recommendation
+                # Integration
+                if st.button("🤖 Konsultasi Dokter AI", key=f"ai_doc_{nama}"):
+                    st.switch_page("pages/13_🌿_Dokter_Tanaman_AI.py")
+                
+                st.markdown("---")
+                st.write(f"✓ **Gejala Utama:** {', '.join(data['gejala'][:3])}...")
+                st.info(f"💡 **Tips:** {data['tips_pengendalian']}")
+                
+                # Commercial Section in List (Disease)
                 if nama in COMMERCIAL_SOLUTIONS:
-                    st.info(f"🛒 **Solusi Komersial (AgriShop):**")
-                    products = COMMERCIAL_SOLUTIONS[nama]
-                    cols = st.columns(len(products))
-                    for i, prod in enumerate(products):
-                        with cols[i]:
-                            st.markdown(f"**{prod}**")
-                            if st.button(f"Beli {prod.split()[0]}", key=f"btn_penyakit_{nama}_{i}"):
-                                st.switch_page("pages/25_🧪_Katalog_Pupuk_Harga.py")
+                    with st.expander("🛒 Saran Pestisida Kimia (Komersial)"):
+                        st.write(f"Berikut produk yang tersedia di AgriShop untuk **{nama}**:")
+                        prods = COMMERCIAL_SOLUTIONS[nama]
+                        for p in prods:
+                            st.markdown(f"- **{p}**")
+                        if st.button(f"Cek Harga & Stok", key=f"shop_dis_{nama}"):
+                            st.switch_page("pages/25_🧪_Katalog_Pupuk_Harga.py")
 
-# TAB 4: IPM STRATEGY
+# TAB 4: IPM CALCULATOR
 with tab4:
+    st.markdown("<h2 class='section-header'>🧮 Kalkulator Ambang Ekonomi (PHT)</h2>", unsafe_allow_html=True)
+    st.info("Alat bantu untuk memutuskan apakah populasi hama sudah memerlukan tindakan pengendalian kimia atau cukup pemantauan.")
+    
+    col_calc1, col_calc2 = st.columns([1, 1.5])
+    
+    with col_calc1:
+        selected_hama_calc = st.selectbox("Pilih Hama yang Diamati:", sorted(list(HAMA_DATABASE.keys())), key="calc_hama")
+        hama_data = HAMA_DATABASE[selected_hama_calc]
+        
+        ae_thresh = hama_data.get('ae_threshold', 5)
+        ae_unit = hama_data.get('ae_unit', 'ekor/tanaman')
+        
+        st.markdown(f"**Ambang Ekonomi Standar:** `{ae_thresh} {ae_unit}`")
+        
+        obs_value = st.number_input(f"Input Hasil Pengamatan ({ae_unit}):", min_value=0.0, step=0.1, key="obs_val")
+        
+        st.markdown("---")
+        st.markdown("### 🏹 Faktor Koreksi (Opsional)")
+        fase_tanaman = st.select_slider("Fase Pertumbuhan:", options=["Awal", "Vegetatif", "Generatif", "Panen"])
+        cuaca_current = st.selectbox("Kondisi Cuaca:", ["Cerah", "Mendung", "Hujan Ringan", "Hujan Lebat"])
+        
+        # Simple Logic Adjuster
+        adjusted_thresh = ae_thresh
+        if cuaca_current == "Hujan Lebat": adjusted_thresh *= 0.8 # Hama tertentu cepat menyebar saat hujan
+        if fase_tanaman == "Generatif": adjusted_thresh *= 0.7 # Lebih sensitif saat pembungaan
+    
+    with col_calc2:
+        st.markdown("### 📊 Analisis Keputusan")
+        
+        status_color = "green"
+        decision = "MONITORING RUTIN"
+        reason = "Populasi masih di bawah ambang ekonomi."
+        type_card = "success"
+        
+        if obs_value >= adjusted_thresh:
+            status_color = "red"
+            decision = "KENDALIKAN SEGERA!"
+            reason = f"Populasi ({obs_value}) telah mencapai/melebihi ambang ekonomi ({adjusted_thresh:.1f})."
+            type_card = "danger"
+        elif obs_value >= (adjusted_thresh * 0.7):
+            status_color = "orange"
+            decision = "WASPADA (Tindakan Preventif)"
+            reason = "Populasi mendekati ambang batas ekonomi. Siapkan metode non-kimia."
+            type_card = "warning"
+            
+        render_glassy_card(decision, f"""
+        <div style='font-size: 1.2rem; color: {status_color}; font-weight: bold;'>Status: {decision}</div>
+        <p>{reason}</p>
+        <hr>
+        <b>Rekomendasi Tindakan:</b><br>
+        1. {'Gunakan Nabati/Hayati' if decision != "MONITORING RUTIN" else 'Lanjutkan pengamatan visual'}<br>
+        2. {'Evaluasi dalam 3 hari' if decision == "KENDALIKAN SEGERA!" else 'Cek musuh alami di lahan'}<br>
+        3. {'Pertimbangkan Kimia jika non-kimia gagal' if decision == "KENDALIKAN SEGERA!" else 'Tanam Refugia'}
+        """, type=type_card)
+        
+        # Chemical Suggestion in Calculator
+        if decision == "KENDALIKAN SEGERA!" and selected_hama_calc in COMMERCIAL_SOLUTIONS:
+            st.warning(f"⚠️ **Saran Pestisida Kimia (Opsi Terakhir):** {', '.join(COMMERCIAL_SOLUTIONS[selected_hama_calc])}")
+            if st.button("🛒 Beli di AgriShop", key="btn_buy_calc"):
+                st.switch_page("pages/25_🧪_Katalog_Pupuk_Harga.py")
+        
+        # PHT Decision Flow
+        with st.expander("🛠️ Decision Engine: Alur Pengendalian"):
+            st.markdown(f"""
+            #### Strategi Pengendalian untuk {selected_hama_calc}:
+            
+            **1. Prioritas Utama (Hingga {fase_tanaman}):**
+            {', '.join(hama_data['pengendalian'].get('Kultur Teknis', ['Sanitasi']))}
+            
+            **2. Musuh Alami yang Harus Dijaga:**
+            {', '.join(hama_data['pengendalian'].get('Hayati', ['Laba-laba']))}
+            
+            **3. Formula Pestisida Nabati:**
+            {hama_data.get('link_pestisida', 'Mimba')}
+            """)
+            if st.button("Lihat Formula Detail"):
+                st.switch_page("pages/18_🌿_Pestisida_Nabati.py")
+
+# TAB 5: IPM STRATEGY (Renumbered original Tab 4)
+with tab5:
     st.header("📊 Strategi Pengendalian Hama Terpadu (PHT)")
     
     st.markdown("""
