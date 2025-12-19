@@ -17,6 +17,7 @@ def init_waste_data():
         df = pd.DataFrame(columns=['tanggal', 'tipe', 'berat_kg', 'created_at'])
         df.to_csv(WASTE_LOG_FILE, index=False)
 
+@st.cache_data(ttl=60)  # Cache for 60 seconds to improve performance
 def load_waste_logs():
     if os.path.exists(WASTE_LOG_FILE):
         return pd.read_csv(WASTE_LOG_FILE)
@@ -32,6 +33,7 @@ def save_waste_entry(date, waste_type, weight):
     }
     df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
     df.to_csv(WASTE_LOG_FILE, index=False)
+    st.cache_data.clear()  # Clear cache after new entry
 
 def reset_waste_logs():
     if os.path.exists(WASTE_LOG_FILE):
@@ -45,6 +47,13 @@ st.set_page_config(
     page_icon="♻️",
     layout="wide"
 )
+
+# Import and inject Design System
+try:
+    from utils.styles import inject_styles, COLORS
+    inject_styles()
+except ImportError:
+    pass  # Fallback if styles module not available
 
 # Custom CSS for Premium UI
 st.markdown("""
