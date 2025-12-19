@@ -319,34 +319,68 @@ with tabs[4]:
     }
     st.table(pd.DataFrame(m_data))
     
-    # ROI Calculator (Moved here)
+    # ROI Calculator
     st.markdown("---")
-    st.subheader("💰 ROI Kalkulator Pengolahan Sampah")
-    col_roi1, col_roi2 = st.columns(2)
+    st.subheader("💰 ROI Kalkulator Lanjut (Feasibility Study)")
+    st.write("Analisis finansial mendalam untuk pengadaan infrastruktur pengolahan sampah.")
     
-    with col_roi1:
-        invest_mesin = st.number_input("Investasi Mesin (Shredder & Extruder) - Rp", 5000000, 100000000, 15000000)
-        opex_listrik = st.number_input("Biaya Operasional Bulanan (Listrik/Labor) - Rp", 500000, 10000000, 1500000)
+    roi_col1, roi_col2 = st.columns(2)
+    
+    with roi_col1:
+        st.markdown("**🏗️ Investasi Awal (CAPEX)**")
+        c_shredder = st.number_input("Mesin Shredder (Rp)", 2000000, 50000000, 8000000)
+        c_extruder = st.number_input("Mesin Extruder Filamen (Rp)", 5000000, 100000000, 12000000)
+        c_compost = st.number_input("Instalasi Komposter (Rp)", 1000000, 20000000, 5000000)
+        c_other = st.number_input("Peralatan Lainnya (Rp)", 0, 10000000, 2000000)
         
-    with col_roi2:
-        harga_pupuk_pasar = st.number_input("Harga Pupuk Organik Pasar (Rp/kg)", 1000, 5000, 2500)
-        harga_filamen_pasar = st.number_input("Harga Filamen 3D Pasar (Rp/kg)", 50000, 500000, 150000)
+        total_capex = c_shredder + c_extruder + c_compost + c_other
+        st.info(f"Total Investasi: **Rp {total_capex:,.0f}**")
         
-    # Result Calculation
-    total_rev_pupuk = (fertilizer_output * 30) * harga_pupuk_pasar
-    total_rev_filament = (waste_input * 0.1 * 30) * harga_filamen_pasar # Assume 10% plastic from total waste
-    total_revenue_month = total_rev_pupuk + total_rev_filament
-    profit_month = total_revenue_month - opex_listrik
+    with roi_col2:
+        st.markdown("**⚙️ Biaya Operasional/Bulan (OPEX)**")
+        o_labor = st.number_input("Tenaga Kerja (Rp)", 0, 20000000, 3000000)
+        o_electric = st.number_input("Listrik & Maintenance (Rp)", 100000, 5000000, 750000)
+        o_consumable = st.number_input("Bahan Habis Pakai/Agen Hayati (Rp)", 50000, 2000000, 250000)
+        
+        total_opex = o_labor + o_electric + o_consumable
+        st.warning(f"Total Biaya Bulanan: **Rp {total_opex:,.0f}**")
+        
+    # Potential Revenue Calculation
+    st.markdown("---")
+    st.markdown("**💸 Proyeksi Pendapatan & Penghematan / Bulan**")
+    
+    rev_col1, rev_col2, rev_col3 = st.columns(3)
+    
+    # Logic: organic output and plastic output based on input samples
+    # Using organic_processed and plastic_recycled from earlier logic
+    
+    val_rev_pupuk = (organic_processed * 30) * price_organic # 30 days
+    val_rev_filament = (plastic_recycled * 30) * price_filament # 30 days
+    
+    rev_col1.metric("Pendapatan Pupuk", f"Rp {val_rev_pupuk:,.0f}")
+    rev_col2.metric("Pendapatan Filamen", f"Rp {val_rev_filament:,.0f}")
+    
+    total_revenue_month = val_rev_pupuk + val_rev_filament
+    profit_month = total_revenue_month - total_opex
+    
+    rev_col3.metric("Total Income", f"Rp {total_revenue_month:,.0f}")
     
     st.markdown("---")
-    res1, res2, res3 = st.columns(3)
-    res1.metric("Revenue Bulanan", f"Rp {total_revenue_month:,.0f}")
-    res2.metric("Laba Bersih", f"Rp {profit_month:,.0f}")
+    res1, res2, res3, res4 = st.columns(4)
+    
+    res1.metric("Laba Bersih/Bulan", f"Rp {profit_month:,.0f}")
     
     if profit_month > 0:
-        res3.metric("Break Even Point", f"{(invest_mesin / profit_month):.1f} Bulan")
+        bep_months = total_capex / profit_month
+        res2.metric("Payback Period", f"{bep_months:.1f} Bulan")
+        
+        roi_annual = ((profit_month * 12) / total_capex) * 100
+        res3.metric("ROI Tahunan", f"{roi_annual:.1f} %")
+        
+        margin = (profit_month / total_revenue_month) * 100
+        res4.metric("Profit Margin", f"{margin:.1f} %")
     else:
-        st.error("Biaya operasional lebih besar dari potensi income. Tingkatkan volume input sampah!")
+        st.error("⚠️ Skema saat ini belum menguntungkan (Negatif). Tambahkan volume sampah atau kurangi biaya operasional.")
 
 # --- TAB 5: ROADMAP ---
 with tabs[5]:
