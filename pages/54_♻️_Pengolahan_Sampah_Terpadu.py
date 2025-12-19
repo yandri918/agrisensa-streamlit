@@ -238,27 +238,91 @@ with tabs[1]:
     st.header("🇯🇵 Pola Pemilahan Gaya Jepang (Gomi Hiroi)")
     st.info("Kunci keberhasilan pengolahan adalah pada **Disiplin Pemilahan di Sumber**.")
     
-    col1, col2 = st.columns([1, 1])
+    # --- SECTION 1: VISUAL GOMI BOARD ---
+    st.subheader("🗺️ Visual Gomi Board (Standardized Segregation)")
+    g_col1, g_col2, g_col3, g_col4 = st.columns(4)
     
-    with col1:
-        st.markdown('<div class="jap-sorting-card">', unsafe_allow_html=True)
-        st.subheader("🗑️ Kategori Pemilahan Utama")
-        st.markdown("""
-        1. **Moeru Gomi (Combustible):** Sampah sisa makanan, kertas tisu, sampah organik dapur. -> *Output: Pupuk Cair/Kompos.*
-        2. **Moenai Gomi (Non-Combustible):** Kaca, keramik, logam kecil. -> *Output: Bank Sampah.*
-        3. **Shigen Gomi (Recyclable):** Botol PET, kaleng, koran/kardus. -> *Output: Bahan Baku 3D / Industri.*
-        4. **Plastic Spesifik:** LDPE/HDPE bersih. -> *Output: Filamen Pita 3D.*
-        """)
+    with g_col1:
+        st.markdown('<div class="jap-sorting-card" style="border-top-color: #ef4444; min-height: 280px;">', unsafe_allow_html=True)
+        st.markdown("**🔴 MOERU GOMI**")
+        st.caption("Combustible / Bakar")
+        st.write("- Sisa Makanan")
+        st.write("- Kertas Kotor/Tisu")
+        st.write("- Daun/Ranting Kecil")
+        st.image("https://img.icons8.com/isometric/100/Organic-Food.png", width=60)
         st.markdown('</div>', unsafe_allow_html=True)
         
-    with col2:
+    with g_col2:
+        st.markdown('<div class="jap-sorting-card" style="border-top-color: #3b82f6; min-height: 280px;">', unsafe_allow_html=True)
+        st.markdown("**🔵 SHIGEN GOMI**")
+        st.caption("Recyclable / Daur Ulang")
+        st.write("- Botol PET")
+        st.write("- Kaleng Logam")
+        st.write("- Koran & Kardus")
+        st.image("https://img.icons8.com/isometric/100/Plastic-Bottle.png", width=60)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    with g_col3:
+        st.markdown('<div class="jap-sorting-card" style="border-top-color: #10b981; min-height: 280px;">', unsafe_allow_html=True)
+        st.markdown("**🟢 FILAMEN SPECIFIC**")
+        st.caption("Premium Plastics Only")
+        st.write("- Botol PET Bening")
+        st.write("- Tutup HDPE")
+        st.write("- Label PP")
+        st.image("https://img.icons8.com/isometric/100/3D-Printer.png", width=60)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    with g_col4:
+        st.markdown('<div class="jap-sorting-card" style="border-top-color: #6b7280; min-height: 280px;">', unsafe_allow_html=True)
+        st.markdown("**⚫ MOENAI GOMI**")
+        st.caption("Non-Combustible")
+        st.write("- Kaca/Keramik")
+        st.write("- Baterai (B3)")
+        st.write("- Logam Berbahaya")
+        st.image("https://img.icons8.com/isometric/100/Battery-Level.png", width=60)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.divider()
+
+    # --- SECTION 2: INTERACTIVE PERFECTION CHECKLIST ---
+    st.subheader("✅ Japanese Perfection Checklist (Standard SOP)")
+    st.write("Lakukan 3 langkah ini sebelum menaruh sampah di wadah koleksi:")
+    
+    chk_c1, chk_c2, chk_c3 = st.columns(3)
+    with chk_c1:
+        st.checkbox("🚿 **WASH & CLEAN**: Sudah dibilas dari sisa makanan/cairan?")
+    with chk_c2:
+        st.checkbox("🏷️ **DETACH**: Label dan Tutup sudah dipisahkan?")
+    with chk_c3:
+        st.checkbox("📉 **COMPRESS**: Kardus/Botol sudah digepengkan?")
+    
+    st.divider()
+
+    # --- SECTION 3: CALENDAR & FLOW ---
+    c_col1, c_col2 = st.columns([1, 1])
+    
+    with c_col1:
         st.subheader("📅 Jadwal Pengumpulan Kolektif")
         schedule = {
             "Hari": ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
-            "Kategori": ["Organik Basah", "Plastik (Filamen)", "Organik Basah", "Kertas/Kardus", "Organik Basah", "Sampah Spesial/B3"],
+            "Kategori": ["🔴 Organik", "🔵 Plastik (Filamen)", "🔴 Organik", "📦 Kertas/Kardus", "🔴 Organik", "⚠️ Spesial/B3"],
             "Tujuan": ["Unit Kompos", "Unit Shredding", "Unit Kompos", "Bank Sampah", "Unit Kompos", "Karantina B3"]
         }
         st.table(pd.DataFrame(schedule))
+        
+    with c_col2:
+        st.subheader("🔗 Supply Chain Impact")
+        st.write("Efisiensi pemilahan Anda berdampak langsung pada kualitas produk:")
+        
+        # Funnel Chart Simulation
+        fig_funnel = go.Figure(go.Funnel(
+            y=["Total Sampah Input", "Sampah Terpilah Disiplin", "Bahan Baku Berkualitas", "Produk Jadi (Pupuk/Filamen)"],
+            x=[100, 85, 70, 60],
+            marker = {"color": ["#d1d5db", "#94a3b8", "#3b82f6", "#10b981"]}
+        ))
+        fig_funnel.update_layout(height=300, margin=dict(t=20, b=20, l=100))
+        st.plotly_chart(fig_funnel, use_container_width=True)
+        st.caption("⚠️ **Catatan AI:** Pemilahan yang buruk (kontaminasi) menurunkan yield produksi sebesar 30-40%.")
 
 # --- TAB 2: TRANSFORMASI ORGANIK ---
 with tabs[2]:
