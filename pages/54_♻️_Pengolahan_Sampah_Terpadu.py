@@ -2,6 +2,36 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
+import os
+from datetime import datetime
+
+# --- CONFIG & DATA PATHS ---
+DATA_DIR = "data"
+WASTE_LOG_FILE = os.path.join(DATA_DIR, "waste_log.csv")
+
+def init_waste_data():
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+    if not os.path.exists(WASTE_LOG_FILE):
+        df = pd.DataFrame(columns=['tanggal', 'tipe', 'berat_kg', 'created_at'])
+        df.to_csv(WASTE_LOG_FILE, index=False)
+
+def load_waste_logs():
+    if os.path.exists(WASTE_LOG_FILE):
+        return pd.read_csv(WASTE_LOG_FILE)
+    return pd.DataFrame(columns=['tanggal', 'tipe', 'berat_kg', 'created_at'])
+
+def save_waste_entry(date, waste_type, weight):
+    df = load_waste_logs()
+    new_entry = {
+        'tanggal': date,
+        'tipe': waste_type,
+        'berat_kg': weight,
+        'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
+    df.to_csv(WASTE_LOG_FILE, index=False)
+    return df
 
 # Page Config
 st.set_page_config(
@@ -54,6 +84,10 @@ Modul ini mengadopsi disiplin pengelolaan sampah ala Jepang untuk mendukung ekos
 
 st.markdown("---")
 
+# Init Data
+init_waste_data()
+df_logs = load_waste_logs()
+
 # Navigation Tabs
 tabs = st.tabs([
     "📊 Dashboard & KPI",
@@ -73,10 +107,9 @@ with tabs[0]:
     kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
     
     # Calculation Logic for Dashboard
-    # (In real app, this would come from a database)
-    total_waste_collected = st.session_state.get('total_waste', 1540) # kg
-    organic_processed = total_waste_collected * 0.6
-    plastic_recycled = total_waste_collected * 0.15
+    total_waste_collected = df_logs['berat_kg'].sum() if not df_logs.empty else 1540 # Default demo value if empty
+    organic_processed = df_logs[df_logs['tipe'] == "Organik Basah"]['berat_kg'].sum() if not df_logs.empty else (total_waste_collected * 0.6)
+    plastic_recycled = df_logs[df_logs['tipe'] == "Plastik PET/HDPE"]['berat_kg'].sum() if not df_logs.empty else (total_waste_collected * 0.15)
     
     sustainability_rate = ( (organic_processed + plastic_recycled) / total_waste_collected ) * 100
     carbon_offset = total_waste_collected * 0.53 # Roughly 0.53kg CO2 per kg waste diverted from landfill
@@ -90,20 +123,26 @@ with tabs[0]:
     st.markdown("---")
     
     # Daily Log Simulation
-    st.subheader("📝 Daily Collection Log (Simulasi)")
+    st.subheader("📝 Daily Collection Log")
     log_col1, log_col2 = st.columns([1, 2])
     
     with log_col1:
-        log_date = st.date_input("Tanggal Transaksi")
+        log_date = st.date_input("Tanggal Transaksi", datetime.now())
         waste_type = st.selectbox("Tipe Sampah", ["Organik Basah", "Plastik PET/HDPE", "Kertas/Kardus"])
         weight_in = st.number_input("Berat Masuk (kg)", 0.0, 500.0, 25.0)
         if st.button("Simpan Log Aktivitas"):
-            st.success(f"Berhasil mencatat {weight_in}kg {waste_type} untuk tanggal {log_date}")
+            save_waste_entry(log_date.strftime("%Y-%m-%d"), waste_type, weight_in)
+            st.success(f"Berhasil mencatat {weight_in}kg {waste_type} ke database!")
+            st.rerun()
             
     with log_col2:
-        # Mini Chart for Progress
-        target_monthly = 5000 # kg
-        current_progress = total_waste_collected
+        if not df_logs.empty:
+            st.markdown("**📜 Log Terakhir**")
+            st.dataframe(df_logs.tail(5), use_container_width=True)
+        else:
+            # Mini Chart for Progress
+            target_monthly = 5000 # kg
+            current_progress = total_waste_collected
         
         fig_progress = go.Figure(go.Indicator(
             mode = "gauge+number+delta",
