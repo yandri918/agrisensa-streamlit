@@ -111,9 +111,21 @@ with st.sidebar:
             step=10000,
             help="Asumsi nilai ekonomi hasil upcycling plastik."
         )
+
+    with st.expander("🏗️ Parameter Investasi (CAPEX)", expanded=False):
+        c_shredder = st.number_input("Mesin Shredder (Rp)", 2000000, 50000000, 8000000)
+        c_extruder = st.number_input("Mesin Extruder (Rp)", 5000000, 100000000, 12000000)
+        c_compost = st.number_input("Instalasi Komposter (Rp)", 1000000, 20000000, 5000000)
+        c_other = st.number_input("Peralatan Lainnya (Rp)", 0, 10000000, 2000000)
+        total_capex = c_shredder + c_extruder + c_compost + c_other
+        
+    with st.expander("⚙️ Biaya Operasional (OPEX)", expanded=False):
+        o_labor_base = st.number_input("Gaji per Orang (Rp/Bulan)", 1000000, 10000000, 3000000)
+        o_maint = st.number_input("Maintenance & Listrik Dasar (Rp)", 100000, 5000000, 750000)
+        total_opex_base = o_maint # Dynamic labor added later in simulator
         
     st.divider()
-    st.caption("AgriSensa Eco v1.1 - Adjustable Parameters")
+    st.caption("AgriSensa Eco v1.2 - Financial Ready")
 
 # Init Data
 init_waste_data()
@@ -787,8 +799,9 @@ with tabs[7]:
         st.markdown(f"""
         **Sektor Ekonomi & ROI:**
         - **Proyeksi Omzet:** Rp {(s_target_ferti + s_target_filam):,.0f} / Bulan
-        - **Target Capex:** Rp {total_capex:,.0f}
-        - **Net Profit Target:** Rp {(s_target_ferti + s_target_filam - (operators_needed * 3e6 + energy_cost_daily * 30)):,.0f} / Bulan
+        - **Total Investasi (CAPEX):** Rp {total_capex:,.0f}
+        - **Beban Kerja (Operator):** {operators_needed} Orang
+        - **Net Profit Target:** Rp {(s_target_ferti + s_target_filam - (operators_needed * o_labor_base + energy_cost_daily * 30 + o_maint)):,.0f} / Bulan
         - **Profit Margin:** Proyeksi di atas 25% (Sesuai simulator)
         """)
     
