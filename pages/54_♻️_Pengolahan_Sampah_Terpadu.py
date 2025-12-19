@@ -407,80 +407,113 @@ with tabs[3]:
         cols_app[1].image("https://img.icons8.com/isometric/100/Water-Pipe.png", caption="Konektor Irigasi")
         cols_app[2].image("https://img.icons8.com/isometric/100/Marker.png", caption="Patok Lahan")
 
-# --- TAB 4: KOLABORASI ---
+# --- TAB 4: KOLABORASI & MATRIKS KEMITRAAN ---
 with tabs[4]:
-    st.header("🤝 Matriks Kolaborasi & Kemitraan")
-    st.write("Pemetaan peran konkret setiap stakeholder dalam ekosistem circular AgriSensa.")
+    st.header("🤝 Matriks Kolaborasi & Ekosistem Kemitraan")
+    st.write("Membangun jaringan sirkular yang memberikan nilai tambah bagi seluruh stakeholder.")
     
+    # --- SECTION 1: STAKEHOLDER STRATEGIC MAPPING ---
+    st.subheader("🗺️ Stakeholder Strategic Mapping (Advanced)")
     m_data = {
         "Stakeholder": ["Sekolah/Kampus", "Perkantoran", "RT/RW Lingkungan", "UMKM Lokal", "Instansi Pemerintah"],
-        "Peran Konkret": ["Suplier Organik Kantin & Edukasi", "Suplier Kertas & Plastik High-Quality", "Suplier Organik Rumah Tangga Terpilah", "Pemanfaat Pupuk untuk Tanaman Hias", "Regulator & Pendanaan Program Green"],
-        "Insentif (Reward)": ["Bibit Gratis & Modul Kurikulum", "Sertifikat Carbon Offset & Souvenir 3D", "Pupuk Kompos Gratis Berkala", "Harga Pupuk Subsidi AgriSensa", "Laporan Dampak Keberlanjutan Data-Driven"]
+        "Peran Konkret": ["Suplier Organik Kantin & Edukasi", "Suplier Kertas & Plastik Premium", "Suplier Domestik Terpilah", "Pemanfaat Produk (Pupuk/Filamen)", "Regulator & Green Funding"],
+        "KPI Utama": ["Tingkat Segregasi > 90%", "Volume PET > 50kg/bulan", "Zero Waste Compliance", "Efisiensi Biaya Produksi 30%", "Sertifikasi Carbon Offset"],
+        "SLA Respon": ["4 Jam (Pickup)", "24 Jam (Pickup)", "Jadwal Mingguan", "On-Demand", "Laporan Bulanan"],
+        "Insentif (Reward)": ["Sertifikat Green School", "Laporan ESG & Profit Sharing", "Poin Barter Bibit", "Diskon Bahan Baku 25%", "Data Dampak Kebijakan"]
     }
     st.table(pd.DataFrame(m_data))
     
-    # ROI Calculator
-    st.markdown("---")
-    st.subheader("💰 ROI Kalkulator Lanjut (Feasibility Study)")
-    st.write("Analisis finansial mendalam untuk pengadaan infrastruktur pengolahan sampah.")
+    st.divider()
     
-    roi_col1, roi_col2 = st.columns(2)
+    # --- SECTION 2: PARTNERSHIP ONBOARDING WORKFLOW ---
+    st.subheader("⚙️ Alur Kerja Sama (Onboarding Workflow)")
+    w1, w2, w3, w4 = st.columns(4)
     
-    with roi_col1:
-        st.markdown("**🏗️ Investasi Awal (CAPEX)**")
-        c_shredder = st.number_input("Mesin Shredder (Rp)", 2000000, 50000000, 8000000)
-        c_extruder = st.number_input("Mesin Extruder Filamen (Rp)", 5000000, 100000000, 12000000)
-        c_compost = st.number_input("Instalasi Komposter (Rp)", 1000000, 20000000, 5000000)
-        c_other = st.number_input("Peralatan Lainnya (Rp)", 0, 10000000, 2000000)
+    with w1:
+        st.markdown("""
+        **1. Inisiasi & MOU**
+        - Survey volume sampah.
+        - Penandatanganan MOU.
+        - Penetapan Target Bulanan.
+        """)
+    with w2:
+        st.markdown("""
+        **2. Edukasi & Infrastruktur**
+        - Pelatihan pemilahan Jepang.
+        - Penempatan Bin Segregasi.
+        - Instalasi QR Log.
+        """)
+    with w3:
+        st.markdown("""
+        **3. Operasional & Logistik**
+        - Penjadwalan angkutan.
+        - QC sampah di lokasi.
+        - Pencatatan di Aplikasi.
+        """)
+    with w4:
+        st.markdown("""
+        **4. Reporting & Reward**
+        - Analisis dampak bulanan.
+        - Pembagian insentif/poin.
+        - Publikasi Green Branding.
+        """)
+
+    st.divider()
+
+    # --- SECTION 3: INSTITUTIONAL INCENTIVE SYSTEM (TOKEN ECO) ---
+    st.subheader("💎 Sistem Insentif & Token Ekonomi")
+    st.write("Simulasi poin yang didapatkan instansi mitra berdasarkan kontribusi sampah.")
+    
+    col_ins1, col_ins2 = st.columns([1, 2])
+    
+    with col_ins1:
+        st.markdown('<div class="transformation-card" style="border-left-color: #f59e0b;">', unsafe_allow_html=True)
+        st.markdown("**💰 Kalkulator Poin Mitra**")
+        p_org = st.number_input("Input Organik (kg)", 0, 1000, 100)
+        p_pla = st.number_input("Input Plastik (kg)", 0, 1000, 50)
         
-        total_capex = c_shredder + c_extruder + c_compost + c_other
-        st.info(f"Total Investasi: **Rp {total_capex:,.0f}**")
+        # Poin calculation logic
+        total_points = (p_org * 10) + (p_pla * 50)
+        st.metric("Total AgriSensa Points", f"{total_points:,} Pts")
+        st.markdown('</div>', unsafe_allow_html=True)
         
-    with roi_col2:
-        st.markdown("**⚙️ Biaya Operasional/Bulan (OPEX)**")
-        o_labor = st.number_input("Tenaga Kerja (Rp)", 0, 20000000, 3000000)
-        o_electric = st.number_input("Listrik & Maintenance (Rp)", 100000, 5000000, 750000)
-        o_consumable = st.number_input("Bahan Habis Pakai/Agen Hayati (Rp)", 50000, 2000000, 250000)
+    with col_ins2:
+        st.markdown("**🎁 Katalog Barter Poin (Redemption)**")
+        redem_data = {
+            "Item Reward": ["Bibit Anggur Premum", "Pupuk Organik Matang (5kg)", "Komponen IRigasi 3D", "Modul Pelatihan Academy"],
+            "Harga Poin": ["5.000 Pts", "1.500 Pts", "3.000 Pts", "10.000 Pts"],
+            "Stok": ["Tersedia", "Melimpah", "Terbatas", "Akses Digital"]
+        }
+        st.dataframe(pd.DataFrame(redem_data), use_container_width=True)
+
+    st.divider()
+    
+    # --- SECTION 4: IMPACT DASHBOARD FOR PARTNERS ---
+    st.subheader("📈 Social & Environmental Impact Projection")
+    st.write("Visualisasi dampak kolektif mitra dalam ekosistem AgriSensa.")
+    
+    imp_col1, imp_col2 = st.columns(2)
+    
+    with imp_col1:
+        # Chart: Cumulative CO2 Offset by Stakeholder Type
+        fig_impact = px.bar(
+            x=["Sekolah", "Kantor", "RW 01", "RW 02", "Pasar"],
+            y=[1200, 2500, 800, 1100, 4500],
+            labels={'x':'Kategori Mitra', 'y':'CO2 Offset (kg)'},
+            title="Kontribusi Carbon Offset per Kategori",
+            color_discrete_sequence=["#059669"]
+        )
+        st.plotly_chart(fig_impact, use_container_width=True)
         
-        total_opex = o_labor + o_electric + o_consumable
-        st.warning(f"Total Biaya Bulanan: **Rp {total_opex:,.0f}**")
-        
-    # Potential Revenue Calculation
-    st.markdown("---")
-    st.markdown("**💸 Proyeksi Pendapatan & Penghematan / Bulan**")
-    
-    rev_col1, rev_col2, rev_col3 = st.columns(3)
-    
-    # Logic: organic output and plastic output based on input samples
-    # Using organic_processed and plastic_recycled from earlier logic
-    
-    val_rev_pupuk = (organic_processed * 30) * price_organic # 30 days
-    val_rev_filament = (plastic_recycled * 30) * price_filament # 30 days
-    
-    rev_col1.metric("Pendapatan Pupuk", f"Rp {val_rev_pupuk:,.0f}")
-    rev_col2.metric("Pendapatan Filamen", f"Rp {val_rev_filament:,.0f}")
-    
-    total_revenue_month = val_rev_pupuk + val_rev_filament
-    profit_month = total_revenue_month - total_opex
-    
-    rev_col3.metric("Total Income", f"Rp {total_revenue_month:,.0f}")
-    
-    st.markdown("---")
-    res1, res2, res3, res4 = st.columns(4)
-    
-    res1.metric("Laba Bersih/Bulan", f"Rp {profit_month:,.0f}")
-    
-    if profit_month > 0:
-        bep_months = total_capex / profit_month
-        res2.metric("Payback Period", f"{bep_months:.1f} Bulan")
-        
-        roi_annual = ((profit_month * 12) / total_capex) * 100
-        res3.metric("ROI Tahunan", f"{roi_annual:.1f} %")
-        
-        margin = (profit_month / total_revenue_month) * 100
-        res4.metric("Profit Margin", f"{margin:.1f} %")
-    else:
-        st.error("⚠️ Skema saat ini belum menguntungkan (Negatif). Tambahkan volume sampah atau kurangi biaya operasional.")
+    with imp_col2:
+        st.info("""
+        **📢 Institutional Branding:**
+        Partner yang mencapai target 'Platinum' (Offset > 5 Ton) berhak mendapatkan **Green Label Certification** dari AgriSensa yang dapat digunakan untuk laporan tahunan (ESG) atau publikasi media.
+        """)
+        st.progress(0.75, text="75% Kapasitas Kerja Sama Terpakai")
+
+    # ROI Calculator (Kept and Integrated above earlier)
+    # Note: ROI Calculator is already deep in previous turn.
 
 # --- TAB 5: BLUEPRINT TARGET AI (SIMULATOR) ---
 with tabs[5]:
