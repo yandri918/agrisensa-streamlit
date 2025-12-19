@@ -725,17 +725,13 @@ def render_glassy_card(title, content, type="primary"):
     }
     color = color_map.get(type, "#1976d2")
     
-    html = f"""
-    <div class="glass-card animate-in">
-        <h3 style="color: {color}; margin-top: 0; display: flex; align-items: center;">
-            <span style="background: {color}20; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 0.8em;">•</span>
-            {title}
-        </h3>
-        <div style="color: #444; line-height: 1.6;">
-            {content}
-        </div>
-    </div>
-    """
+    # Flatten HTML to avoid Streamlit markdown interpretation issues with indentation
+    html = f"<div class='glass-card animate-in'>" \
+           f"<h3 style='color: {color}; margin-top: 0; display: flex; align-items: center;'>" \
+           f"<span style='background: {color}20; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 0.8em;'>•</span>" \
+           f"{title}</h3>" \
+           f"<div style='color: #444; line-height: 1.6;'>{content}</div>" \
+           f"</div>"
     st.markdown(html, unsafe_allow_html=True)
 
 # ========== MAIN APP ==========
@@ -783,16 +779,16 @@ with tab1:
             
             if hama_matches:
                 for nama, data in hama_matches:
-                    content = f"""
-                    <div style='margin-bottom: 10px;'>
-                        <span class='badge badge-primary'>{data['kategori']}</span>
-                        <span class='badge badge-danger'>{data['tingkat_kerusakan']}</span>
-                    </div>
-                    <b>Latin:</b> <i>{data['nama_latin']}</i><br>
-                    <b>Gejala:</b> {", ".join(data['gejala'][:3])}...<br>
-                    <hr style='margin: 10px 0;'>
-                    <div style='color: #2e7d32; font-weight: bold;'>💡 Tips: {data['tips_pengendalian']}</div>
-                    """
+                    content = (
+                        f"<div style='margin-bottom: 10px;'>"
+                        f"<span class='badge badge-primary'>{data['kategori']}</span>"
+                        f"<span class='badge badge-danger'>{data['tingkat_kerusakan']}</span>"
+                        f"</div>"
+                        f"<b>Latin:</b> <i>{data['nama_latin']}</i><br>"
+                        f"<b>Gejala:</b> {', '.join(data['gejala'][:3])}...<br>"
+                        f"<hr style='margin: 10px 0;'>"
+                        f"<div style='color: #2e7d32; font-weight: bold;'>💡 Tips: {data['tips_pengendalian']}</div>"
+                    )
                     render_glassy_card(nama, content, type="warning" if "Tinggi" in data['tingkat_kerusakan'] else "primary")
             else:
                 st.info("Belum ada data hama untuk tanaman ini")
@@ -807,16 +803,16 @@ with tab1:
             
             if penyakit_matches:
                 for nama, data in penyakit_matches:
-                    content = f"""
-                    <div style='margin-bottom: 10px;'>
-                        <span class='badge badge-warning'>{data['kategori']}</span>
-                        <span class='badge badge-danger'>{data['tingkat_kerusakan']}</span>
-                    </div>
-                    <b>Latin:</b> <i>{data['nama_latin']}</i><br>
-                    <b>Kondisi Ideal:</b> {data['kondisi_ideal'].get('Suhu', 'N/A')}, {data['kondisi_ideal'].get('Kelembaban', 'N/A')}<br>
-                    <hr style='margin: 10px 0;'>
-                    <div style='color: #2e7d32; font-weight: bold;'>💡 Tips: {data['tips_pengendalian']}</div>
-                    """
+                    content = (
+                        f"<div style='margin-bottom: 10px;'>"
+                        f"<span class='badge badge-warning'>{data['kategori']}</span>"
+                        f"<span class='badge badge-danger'>{data['tingkat_kerusakan']}</span>"
+                        f"</div>"
+                        f"<b>Latin:</b> <i>{data['nama_latin']}</i><br>"
+                        f"<b>Kondisi Ideal:</b> {data['kondisi_ideal'].get('Suhu', 'N/A')}, {data['kondisi_ideal'].get('Kelembaban', 'N/A')}<br>"
+                        f"<hr style='margin: 10px 0;'>"
+                        f"<div style='color: #2e7d32; font-weight: bold;'>💡 Tips: {data['tips_pengendalian']}</div>"
+                    )
                     render_glassy_card(nama, content, type="danger" if "Sangat Tinggi" in data['tingkat_kerusakan'] else "warning")
             else:
                 st.info("Belum ada data penyakit untuk tanaman ini")
@@ -833,12 +829,12 @@ with tab2:
                 col1, col2 = st.columns([1, 1])
                 
                 with col1:
-                    content = f"""
-                    <b>Kategori:</b> {data['kategori']}<br>
-                    <b>Latin:</b> <i>{data['nama_latin']}</i><br>
-                    <b>Target:</b> {", ".join(data['tanaman_inang'][:5])}...<br>
-                    <b>AE:</b> {data.get('ambang_ekonomi', 'N/A')}
-                    """
+                    content = (
+                        f"<b>Kategori:</b> {data['kategori']}<br>"
+                        f"<b>Latin:</b> <i>{data['nama_latin']}</i><br>"
+                        f"<b>Target:</b> {', '.join(data['tanaman_inang'][:5])}...<br>"
+                        f"<b>AE:</b> {data.get('ambang_ekonomi', 'N/A')}"
+                    )
                     st.markdown(content, unsafe_allow_html=True)
                     
                 with col2:
@@ -957,15 +953,16 @@ with tab4:
             reason = "Populasi mendekati ambang batas ekonomi. Siapkan metode non-kimia."
             type_card = "warning"
             
-        render_glassy_card(decision, f"""
-        <div style='font-size: 1.2rem; color: {status_color}; font-weight: bold;'>Status: {decision}</div>
-        <p>{reason}</p>
-        <hr>
-        <b>Rekomendasi Tindakan:</b><br>
-        1. {'Gunakan Nabati/Hayati' if decision != "MONITORING RUTIN" else 'Lanjutkan pengamatan visual'}<br>
-        2. {'Evaluasi dalam 3 hari' if decision == "KENDALIKAN SEGERA!" else 'Cek musuh alami di lahan'}<br>
-        3. {'Pertimbangkan Kimia jika non-kimia gagal' if decision == "KENDALIKAN SEGERA!" else 'Tanam Refugia'}
-        """, type=type_card)
+        content = (
+            f"<div style='font-size: 1.2rem; color: {status_color}; font-weight: bold;'>Status: {decision}</div>"
+            f"<p>{reason}</p>"
+            f"<hr>"
+            f"<b>Rekomendasi Tindakan:</b><br>"
+            f"1. {'Gunakan Nabati/Hayati' if decision != 'MONITORING RUTIN' else 'Lanjutkan pengamatan visual'}<br>"
+            f"2. {'Evaluasi dalam 3 hari' if decision == 'KENDALIKAN SEGERA!' else 'Cek musuh alami di lahan'}<br>"
+            f"3. {'Pertimbangkan Kimia jika non-kimia gagal' if decision == 'KENDALIKAN SEGERA!' else 'Tanam Refugia'}"
+        )
+        render_glassy_card(decision, content, type=type_card)
         
         # Chemical Suggestion in Calculator
         if decision == "KENDALIKAN SEGERA!" and selected_hama_calc in COMMERCIAL_SOLUTIONS:
