@@ -56,14 +56,74 @@ st.markdown("---")
 
 # Navigation Tabs
 tabs = st.tabs([
-    "🇯🇵 Sistem Pemilahan (Gomi Hiroi)", 
+    "📊 Dashboard & KPI",
+    "🇯🇵 Sistem Pemilahan", 
     "🍃 Transformasi Organik", 
-    "🧵 Upcycling Plastik (3D Filament)", 
-    "🤝 Kolaborasi & ROI"
+    "🧵 Upcycling Plastik", 
+    "🤝 Kolaborasi & Matriks",
+    "🗓️ Roadmap 12 Minggu"
 ])
 
-# --- TAB 1: SISTEM PEMILAHAN ---
+# --- TAB 0: DASHBOARD & KPI ---
 with tabs[0]:
+    st.header("📊 Sustainability Command Center")
+    st.write("Metrik konkret untuk mengukur dampak implementasi pengelolaan sampah terpadu.")
+    
+    # KPI Metrics
+    kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
+    
+    # Calculation Logic for Dashboard
+    # (In real app, this would come from a database)
+    total_waste_collected = st.session_state.get('total_waste', 1540) # kg
+    organic_processed = total_waste_collected * 0.6
+    plastic_recycled = total_waste_collected * 0.15
+    
+    sustainability_rate = ( (organic_processed + plastic_recycled) / total_waste_collected ) * 100
+    carbon_offset = total_waste_collected * 0.53 # Roughly 0.53kg CO2 per kg waste diverted from landfill
+    money_saved = (organic_processed * 2500) + (plastic_recycled * 150000)
+    
+    kpi_col1.metric("Sustainability Rate", f"{sustainability_rate:.1f}%", "+2.3%")
+    kpi_col2.metric("Carbon Offset (CO2e)", f"{carbon_offset:,.0f} kg", "+120 kg")
+    kpi_col3.metric("Economic Value", f"Rp {money_saved/1e6:.1f}M", "Saving")
+    kpi_col4.metric("Instansi Mitra", "12", "+2")
+    
+    st.markdown("---")
+    
+    # Daily Log Simulation
+    st.subheader("📝 Daily Collection Log (Simulasi)")
+    log_col1, log_col2 = st.columns([1, 2])
+    
+    with log_col1:
+        log_date = st.date_input("Tanggal Transaksi")
+        waste_type = st.selectbox("Tipe Sampah", ["Organik Basah", "Plastik PET/HDPE", "Kertas/Kardus"])
+        weight_in = st.number_input("Berat Masuk (kg)", 0.0, 500.0, 25.0)
+        if st.button("Simpan Log Aktivitas"):
+            st.success(f"Berhasil mencatat {weight_in}kg {waste_type} untuk tanggal {log_date}")
+            
+    with log_col2:
+        # Mini Chart for Progress
+        target_monthly = 5000 # kg
+        current_progress = total_waste_collected
+        
+        fig_progress = go.Figure(go.Indicator(
+            mode = "gauge+number+delta",
+            value = current_progress,
+            domain = {'x': [0, 1], 'y': [0, 1]},
+            title = {'text': "Progress Target Bulanan (kg)"},
+            delta = {'reference': target_monthly},
+            gauge = {
+                'axis': {'range': [None, target_monthly]},
+                'bar': {'color': "#0fb981"},
+                'steps' : [
+                    {'range': [0, 2500], 'color': "#ecfdf5"},
+                    {'range': [2500, 5000], 'color': "#d1fae5"}]
+            }
+        ))
+        fig_progress.update_layout(height=280, margin=dict(t=50, b=10))
+        st.plotly_chart(fig_progress, use_container_width=True)
+
+# --- TAB 1: SISTEM PEMILAHAN ---
+with tabs[1]:
     st.header("🇯🇵 Pola Pemilahan Gaya Jepang (Gomi Hiroi)")
     st.info("Kunci keberhasilan pengolahan adalah pada **Disiplin Pemilahan di Sumber**.")
     
@@ -90,7 +150,7 @@ with tabs[0]:
         st.table(pd.DataFrame(schedule))
 
 # --- TAB 2: TRANSFORMASI ORGANIK ---
-with tabs[1]:
+with tabs[2]:
     st.header("🍃 Transformasi Limbah ke Pupuk Organik")
     st.write("Mengubah sisa dapur instansi menjadi nutrisi premium untuk AgriSensa Nursery.")
     
@@ -126,7 +186,7 @@ with tabs[1]:
         st.plotly_chart(fig_hara, use_container_width=True)
 
 # --- TAB 3: UPCYCLING PLASTIK ---
-with tabs[2]:
+with tabs[3]:
     st.header("🧵 Upcycling Plastik ke Filamen 3D (Pita 3D)")
     st.warning("Eksperimental: Fokus pada sampah botol plastik (PET) dan tutup botol (HDPE).")
     
@@ -151,22 +211,19 @@ with tabs[2]:
         cols_app[1].image("https://img.icons8.com/isometric/100/Water-Pipe.png", caption="Konektor Irigasi")
         cols_app[2].image("https://img.icons8.com/isometric/100/Marker.png", caption="Patok Lahan")
 
-# --- TAB 4: KOLABORASI & ROI ---
-with tabs[3]:
-    st.header("🤝 Model Kolaborasi & Analisis Bisnis")
+# --- TAB 4: KOLABORASI ---
+with tabs[4]:
+    st.header("🤝 Matriks Kolaborasi & Kemitraan")
+    st.write("Pemetaan peran konkret setiap stakeholder dalam ekosistem circular AgriSensa.")
     
-    # Collaborative Model
-    st.subheader("🏛️ Skema Kemitraan Instansi (Sekolah/Kantor/RT)")
-    with st.expander("Lihat Detail Alur Kerjasama", expanded=True):
-        st.markdown("""
-        1. **Penyediaan Drop-box:** AgriSensa menyediakan bin sampah terpilah di instansi mitra.
-        2. **Koleksi Terjadwal:** Mitra menyetor sampah Moeru Gomi (Organik) & Plastik bersih.
-        3. **Reward System (Barter Value):**
-            - Setiap 10kg sampah organik = **1 Paket Bibit Sayuran + 1kg Pupuk Olahan.**
-            - Setiap 5kg botol plastik = **Voucher Masuk Agrowisata / Souvenir 3D Lab.**
-        """)
+    m_data = {
+        "Stakeholder": ["Sekolah/Kampus", "Perkantoran", "RT/RW Lingkungan", "UMKM Lokal", "Instansi Pemerintah"],
+        "Peran Konkret": ["Suplier Organik Kantin & Edukasi", "Suplier Kertas & Plastik High-Quality", "Suplier Organik Rumah Tangga Terpilah", "Pemanfaat Pupuk untuk Tanaman Hias", "Regulator & Pendanaan Program Green"],
+        "Insentif (Reward)": ["Bibit Gratis & Modul Kurikulum", "Sertifikat Carbon Offset & Souvenir 3D", "Pupuk Kompos Gratis Berkala", "Harga Pupuk Subsidi AgriSensa", "Laporan Dampak Keberlanjutan Data-Driven"]
+    }
+    st.table(pd.DataFrame(m_data))
     
-    # ROI Calculator
+    # ROI Calculator (Moved here)
     st.markdown("---")
     st.subheader("💰 ROI Kalkulator Pengolahan Sampah")
     col_roi1, col_roi2 = st.columns(2)
@@ -194,6 +251,41 @@ with tabs[3]:
         res3.metric("Break Even Point", f"{(invest_mesin / profit_month):.1f} Bulan")
     else:
         st.error("Biaya operasional lebih besar dari potensi income. Tingkatkan volume input sampah!")
+
+# --- TAB 5: ROADMAP ---
+with tabs[5]:
+    st.header("🗓️ Roadmap Implementasi (12 Minggu)")
+    st.write("Langkah konkret transisi dari perencanaan ke operasional penuh.")
+    
+    r_col1, r_col2 = st.columns(2)
+    
+    with r_col1:
+        with st.expander("🚀 Fase 1: Setup & Inisiasi (Minggu 1-4)", expanded=True):
+            st.markdown("""
+            - **W1:** Sosialisasi sistem pemilahan gaya Jepang ke calon mitra.
+            - **W2:** Pengadaan bin sampah tersegregasi dan unit shredder plastik.
+            - **W3:** Pelatihan SDM operasional (Teknik Composting & 3D Lab).
+            - **W4:** Pilot project di 1 instansi (Sekolah/Kantor).
+            """)
+        
+        with st.expander("⚙️ Fase 2: Optimasi Produksi (Minggu 5-8)"):
+            st.markdown("""
+            - **W5:** Uji lab pertama hasil pupuk organik (Parameter NPK).
+            - **W6:** Kalibrasi mesin ekstrusi filamen untuk kualitas pita 3D.
+            - **W7:** Peluncuran aplikasi log monitoring harian.
+            - **W8:** Evaluasi sistem reward dan barter bibit.
+            """)
+
+    with r_col2:
+        with st.expander("📈 Fase 3: Scale-up & Komersial (Minggu 9-12)"):
+            st.markdown("""
+            - **W9:** Ekspansi ke 5-10 instansi mitra baru.
+            - **W10:** Integrasi penuh output pupuk ke unit Nursery AgriSensa.
+            - **W11:** Penjualan perdana surplus filamen 3D ke komunitas maker.
+            - **W12:** Audit dampak lingkungan (Carbon Offset Report).
+            """)
+            
+        st.success("🎯 **Goal Akhir:** Sistem mandiri (Self-Sustaining Eco-System) yang menghasilkan profit dari sampah.")
 
 # Footer
 st.markdown("---")
