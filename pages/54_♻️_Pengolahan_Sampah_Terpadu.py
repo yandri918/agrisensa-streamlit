@@ -223,11 +223,69 @@ with st.sidebar:
         total_opex_base = o_maint # Dynamic labor added later in simulator
         
     st.divider()
-    st.caption("AgriSensa Eco v1.2 - Financial Ready")
+    
+    with st.expander("🎯 Target & Efisiensi (Simulator API)", expanded=True):
+        st.markdown("**💰 Target Omzet Bulanan**")
+        s_target_ferti = st.slider("Target Omzet Pupuk (Juta Rp)", 1, 100, 18, help="Target pendapatan dari penjualan pupuk organik.") * 1e6
+        s_target_filam = st.slider("Target Omzet Filamen (Juta Rp)", 10, 500, 225, help="Target pendapatan dari upcycling plastik.") * 1e6
+        
+        st.markdown("**⚙️ Efisiensi & Kapasitas**")
+        s_yield_organic = st.slider("Efisiensi Rendemen Kompos (%)", 20, 60, 40) / 100
+        s_machine_cap = st.slider("Kapasitas Mesin (kg/jam)", 1, 20, 5)
+        s_waste_per_partner = st.slider("Sampah/Instansi (kg/hari)", 5, 100, 20)
 
+    st.divider()
+    
 # Init Data
 init_waste_data()
 df_logs = load_waste_logs()
+
+# --- KPI & BASICS (GLOBAL) ---
+total_waste_collected = df_logs['berat_kg'].sum() if not df_logs.empty else 0
+organic_processed = df_logs[df_logs['tipe'].str.contains("Organik", na=False)]['berat_kg'].sum() if not df_logs.empty else 0
+plastic_recycled = df_logs[df_logs['tipe'].str.contains("Plastik", na=False)]['berat_kg'].sum() if not df_logs.empty else 0
+
+sustainability_rate = ( (organic_processed + plastic_recycled) / total_waste_collected ) * 100 if total_waste_collected > 0 else 0
+carbon_offset = total_waste_collected * coef_carbon
+money_saved = (organic_processed * price_organic) + (plastic_recycled * price_filament)
+
+# --- STRATEGIC AI & ESG ENGINE (GLOBAL SCOPE) ---
+# Monthly required output
+req_ferti_month = s_target_ferti / price_organic
+req_filam_month = s_target_filam / price_filament
+
+# Daily required weight (30 days)
+daily_ferti = req_ferti_month / 30
+daily_filam = req_filam_month / 30
+
+# Raw waste required
+raw_org_needed = daily_ferti / s_yield_organic
+raw_pla_needed = daily_filam / 0.9 # Constant high yield for plastic
+total_raw_daily = raw_org_needed + raw_pla_needed
+
+# Infrastructure & Logistics
+partners_needed = total_raw_daily / s_waste_per_partner
+machine_hours_extrude = daily_filam / s_machine_cap
+
+# Labor & Energy
+shifts_needed = max(1, int(machine_hours_extrude / 8) + (1 if machine_hours_extrude % 8 > 0 else 0))
+operators_needed = shifts_needed * 2
+energy_kwh_daily = machine_hours_extrude * 3.5
+energy_cost_daily = energy_kwh_daily * 1500
+
+# Net Carbon
+co2_saved_daily = total_raw_daily * coef_carbon
+co2_emitted_ops = (energy_kwh_daily * 0.8) + (partners_needed * 0.2)
+net_carbon_daily = co2_saved_daily - co2_emitted_ops
+
+# ESG Dimensions
+methane_avoided = (organic_processed * 0.5) 
+landfill_m3_saved = total_waste_collected / 500
+tree_equivalent = (total_waste_collected * coef_carbon) / 22
+value_per_kg = ((organic_processed * price_organic) + (plastic_recycled * price_filament)) / (total_waste_collected or 1)
+social_jobs = (total_waste_collected / 500) + (partners_needed / 10)
+edu_reach = partners_needed * 50
+trace_hash = hashlib.sha256(f"AgriSensa_{total_waste_collected}_{datetime.now().strftime('%Y%m%d')}".encode()).hexdigest()[:16].upper()
 
 # Navigation Tabs
 tabs = st.tabs([
@@ -250,19 +308,10 @@ with tabs[0]:
     # KPI Metrics
     kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
     
-    # Calculation Logic for Dashboard
-    total_waste_collected = df_logs['berat_kg'].sum() if not df_logs.empty else 0
-    organic_processed = df_logs[df_logs['tipe'].str.contains("Organik", na=False)]['berat_kg'].sum() if not df_logs.empty else 0
-    plastic_recycled = df_logs[df_logs['tipe'].str.contains("Plastik", na=False)]['berat_kg'].sum() if not df_logs.empty else 0
-    
-    sustainability_rate = ( (organic_processed + plastic_recycled) / total_waste_collected ) * 100 if total_waste_collected > 0 else 0
-    carbon_offset = total_waste_collected * coef_carbon
-    money_saved = (organic_processed * price_organic) + (plastic_recycled * price_filament)
-    
     kpi_col1.metric("Sustainability Rate", f"{sustainability_rate:.1f}%")
     kpi_col2.metric("Carbon Offset (CO2e)", f"{carbon_offset:,.1f} kg")
-    kpi_col3.metric("Economic Value", f"Rp {money_saved/1e6:.2f}M")
-    kpi_col4.metric("Instansi Mitra", "12", "+2")
+    kpi_col3.metric("Economic Value", f"Rp {money_saved/1000000:.2f}M")
+    kpi_col4.metric("Instansi Mitra", f"{partners_needed:.0f}", "AI Est.")
     
     st.markdown("---")
     
@@ -820,56 +869,14 @@ with tabs[4]:
     # ROI Calculator (Kept and Integrated above earlier)
     # Note: ROI Calculator is already deep in previous turn.
 
+    # ROI Calculator 
+
 # --- TAB 5: BLUEPRINT TARGET AI (SIMULATOR) ---
 with tabs[5]:
     st.header("🎯 AI Strategic Simulator (Dynamic Blueprint)")
-    st.write("Tentukan target omzet Anda dan biarkan AI menghitung beban operasional yang diperlukan.")
+    st.write("Target omzet dan beban operasional didasarkan pada parameter di Sidebar.")
     
-    # --- SIMULATOR CONTROLS ---
-    st.markdown('<div class="jap-sorting-card" style="border-top-color: #3b82f6; background: #f8fafc;">', unsafe_allow_html=True)
-    sim_col1, sim_col2 = st.columns(2)
-    
-    with sim_col1:
-        st.markdown("**💰 Target Omzet Bulanan**")
-        s_target_ferti = st.slider("Target Omzet Pupuk (Juta Rp)", 1, 100, 18, help="Target pendapatan dari penjualan pupuk organik.") * 1e6
-        s_target_filam = st.slider("Target Omzet Filamen (Juta Rp)", 10, 500, 225, help="Target pendapatan dari upcycling plastik.") * 1e6
-        
-    with sim_col2:
-        st.markdown("**⚙️ Efisiensi & Kapasitas**")
-        s_yield_organic = st.slider("Efisiensi Rendemen Kompos (%)", 20, 60, 40) / 100
-        s_machine_cap = st.slider("Kapasitas Mesin (kg/jam)", 1, 20, 5)
-        s_waste_per_partner = st.slider("Sampah/Instansi (kg/hari)", 5, 100, 20)
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # --- DYNAMIC CALCULATIONS (ADVANCED) ---
-    # Monthly required output
-    req_ferti_month = s_target_ferti / price_organic
-    req_filam_month = s_target_filam / price_filament
-    
-    # Daily required weight (30 days)
-    daily_ferti = req_ferti_month / 30
-    daily_filam = req_filam_month / 30
-    
-    # Raw waste required
-    raw_org_needed = daily_ferti / s_yield_organic
-    raw_pla_needed = daily_filam / 0.9 # Constant high yield for plastic
-    total_raw_daily = raw_org_needed + raw_pla_needed
-    
-    # Infrastructure & Logistics
-    partners_needed = total_raw_daily / s_waste_per_partner
-    machine_hours_extrude = daily_filam / s_machine_cap
-    
-    # Labor & Energy (Detailed)
-    # Estimate: 1 operator per 8 hours shift per machine
-    shifts_needed = max(1, int(machine_hours_extrude / 8) + (1 if machine_hours_extrude % 8 > 0 else 0))
-    operators_needed = shifts_needed * 2 # 2 people per shift
-    energy_kwh_daily = machine_hours_extrude * 3.5 # Avg 3.5kW for extruder
-    energy_cost_daily = energy_kwh_daily * 1500 # Rp 1500/kWh
-    
-    # Carbon Analysis (Net Carbon)
-    co2_saved_daily = total_raw_daily * coef_carbon
-    co2_emitted_ops = (energy_kwh_daily * 0.8) + (partners_needed * 0.2) # Est 0.8kg/kWh and 0.2kg per pickup
-    net_carbon_daily = co2_saved_daily - co2_emitted_ops
+    # --- DYNAMIC CALCULATIONS (NOW GLOBAL) ---
 
     st.divider()
     
@@ -1117,28 +1124,7 @@ with tabs[8]:
     st.header("🌍 Advanced ESG Sustainability Command Center")
     st.write("Monitoring multi-dimensi dampak lingkungan, sosial, dan tata kelola berbasis standar internasional.")
     
-    # --- ESG CORE CALCULATIONS ---
-    total_managed = total_waste_collected
-    
-    # 1. Environmental (E)
-    # 1 ton organic = approx 0.5 ton CO2e methane avoidance (standard EPA/IPCC simplified)
-    methane_avoided = (organic_processed * 0.5) 
-    # Landfill space: Assume density 500kg/m3
-    landfill_m3_saved = total_managed / 500
-    # 1 Mature Tree = approx 22kg CO2/year. 
-    tree_equivalent = (total_managed * coef_carbon) / 22
-    
-    # Circular Economy Value (Value per KG)
-    value_per_kg = ((organic_processed * price_organic) + (plastic_recycled * price_filament)) / (total_managed or 1)
-    
-    # 2. Social (S)
-    # Formula: 1 operator per 500kg daily waste + 1 admin/logistics per 10 partners
-    social_jobs = (total_managed / 500) + (partners_needed / 10)
-    edu_reach = partners_needed * 50 # Avg 50 people reached per partner instansi
-    
-    # 3. Governance (G)
-    # Simulated Blockchain Hash for current state
-    trace_hash = hashlib.sha256(f"AgriSensa_{total_managed}_{datetime.now().strftime('%Y%m%d')}".encode()).hexdigest()[:16].upper()
+    # --- ESG CORE CALCULATIONS (NOW GLOBAL) ---
     compliance_score = 94.5 # Fixed simulation for now
     
     # --- ESG TOP METRICS ---
