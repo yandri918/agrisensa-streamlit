@@ -130,16 +130,28 @@ with tab2:
     st.header("🍇 Panduan Komoditas Agrowisata")
     
     # 1. Anggur
-    with st.expander("🍇 Anggur Import (Table Grapes)", expanded=True):
+    with st.expander("🍇 Anggur Import (Industrial Scale)", expanded=True):
         st.markdown("""
-        **Kenapa Anggur?** Estetika "Lorong Buah" sangat menjual untuk foto. Buah tahan lama di pohon.
+        **Transformasi Produksi:** Dari hobi menjadi industri berbasis data.
         
-        *   **Varietas Manis:** Jupiter (Aroma mangga), Transfiguration (Buah besar), Ninel (Tahan banting/pemula), Julian.
-        *   **Sistem Tanam:** Para-para (Datar di atas kepala) untuk *Experience* berjalan di bawah buah.
-        *   **Kunci Sukses:**
-            *   **Naungan UV:** Wajib pakai plastik UV untuk cegah jamur karena hujan.
-            *   **Pruning (Pemangkasan):** Mengatur jadwal berbuah agar bisa panen *saat liburan*.
+        *   **Varietas High-Value:** 
+            *   *Shine Muscat:* Tekstur crunchy, aroma muscat kuat, harga premium.
+            *   *Tamaki:* Sangat manis, kulit tipis.
+            *   *Autumn Royal:* Tanpa biji (seedless), buah besar hitam.
+        *   **Parameter Kualitas (Target Industri):**
+            *   **Brix Level:** Min 18-22% (Sangat Manis).
+            *   **Firmness:** Buah harus garing/crunchy (tidak lembek).
+            *   **Uniformity:** Berat dompolan seragam 500-800 gram.
+        *   **Sistem Konstruksi:** 
+            *   *Y-System:* Sirkulasi udara maksimal, mudah perawatan.
+            *   *T-System:* Estetik, buah menggantung rapi untuk wisata.
         """)
+        
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            st.info("**Scientific Parameter - Vegetatif:**\n- EC Nutrisi: 1.2 - 1.5 mS/cm\n- pH: 5.5 - 6.5\n- Humidity: 60-70%")
+        with col_g2:
+            st.success("**Scientific Parameter - Generatif:**\n- EC Nutrisi: 2.0 - 2.5 mS/cm\n- Target Brix: >18%\n- Humidity: 50-60%")
         
     # 2. Melon
     with st.expander("🍈 Melon Premium (Eksklusif)", expanded=False):
@@ -164,22 +176,12 @@ with tab2:
         *   **Kunci Sukses:** Pupuk Kalium tinggi saat berbunga, buang sulur (runner) agar fokus ke buah.
         """)
         
-    # 4. Bunga & Refugia
+    # 4. Bunga & Refugia (Moved to end)
     with st.expander("🌻 Bunga Estetik & Refugia (Wajib Ada!)", expanded=False):
         st.markdown("""
-        **Fungsi Ganda:** Spot Selfie (Daya tarik visual) + Rumah Predator Alami (Pengendali Hama).
-        
-        *   **Bunga Matahari (Helianthus):**
-            *   *Estetika:* Sangat megah untuk background foto.
-            *   *Fungsi:* Menarik lebah (polinator) untuk membantu penyerbukan Melon/Strawberry.
-        *   **Marigold (Tagetes):**
-            *   *Estetika:* Warna oranye/kuning mencolok, hamparan indah.
-            *   *Fungsi:* **Anti-Nematoda** tanah dan mengalihkan perhatian kutu kebul dari tanaman utama.
-        *   **Zinnia (Bunga Kertas):**
-            *   *Estetika:* Warni-warni ceria.
-            *   *Fungsi:* Mengundang musuh alami (kumbang/laba-laba) yang memakan hama ulat.
-            
-        **Tips Tata Letak:** Tanam bunga di PINGGIR green house atau di sela-sela bedengan sebagai pagar hidup.
+        **Fungsi Ganda:** Spot Selfie + Rumah Predator Alami.
+        *   **Marigold/Kenikir:** Usir nematoda tanah & kutu kebul.
+        *   **Zinnia/Matahari:** Menarik polinator & musuh alami ulat.
         """)
 
 # --- TAB 3: BISNIS & ROI ---
@@ -235,6 +237,38 @@ with tab3:
     else:
         st.error("⚠️ Operasional masih defisit. Perlu menaikkan harga tiket atau target pengunjung.")
 
+    # --- NEW: INDUSTRIAL RAB DETAIL ---
+    st.markdown("### 📊 Rincian Detail RAB Anggur Skala Industri")
+    with st.expander("📑 Lihat Detail Komponen Biaya (Scientific & Industrial)"):
+        area_ha = (gh_size / 10000)
+        st.write(f"Estimasi untuk luas {gh_size} m² ({area_ha:.2f} Ha)")
+        
+        rab_cols = st.columns(2)
+        with rab_cols[0]:
+            st.markdown("""
+            **A. Capex (Infrastruktur Industri):**
+            1. **Greenhouse Standard IPB/Yamasa:** Rp 350k - 500k/m²
+            2. **Otomasi Irigasi (Fertigasi Drip):** IoT Based, Solenoid valve.
+            3. **Konstruksi Trellis Baja Ringan:** Sistem Y/T.
+            4. **Bibit Import Grafts (Rootstock RM/DOX):** Rp 150k - 250k/pohon.
+            5. **Lab QC Sederhana:** Refraktometer (Brix), pH/EC Meter, Soil Tester.
+            """)
+        with rab_cols[1]:
+            st.markdown("""
+            **B. Opex (Maintenance Saintifik):**
+            1. **Nutrisi AB Mix Khusus Anggur:** Rp 15k - 25k / baki-liter pekatan.
+            2. **Fungisida/Insektisida Preventif:** Rotasi bahan aktif.
+            3. **Labor (Crop Manager & Maintenance):** Standar teknis tinggi.
+            4. **Listrik (Pompa & IoT):** 24 Jam.
+            """)
+            
+        # Table of Assumptions
+        rab_data = {
+            "Komponen": ["Greenhouse + UV 200mic", "System Fertigasi IoT", "Bibit Premium (Siap Buah)", "Media Tanam (Cocopeat/Sekam)", "Trellis & Wiring"],
+            "Estimasi Biaya (Persen)": ["60%", "15%", "10%", "5%", "10%"]
+        }
+        st.table(pd.DataFrame(rab_data))
+
     # Chart Profit Projection
     months = np.arange(1, 25)
     cumulative_profit = (profit_month * months) - capex_total
@@ -255,34 +289,43 @@ with tab4:
     col_sop1, col_sop2 = st.columns(2)
     
     with col_sop1:
-        with st.expander("🛡️ Protokol Biosecurity (Wajib)", expanded=True):
+        with st.expander("🛡️ SOP Budidaya Anggur Saintifik", expanded=True):
             st.markdown("""
-            1. **Footbath:** Wisatawan wajib menginjak karpet desinfektan sebelum masuk Greenhouse.
-            2. **Hand Sanitizer:** Cegah penularan virus dari tangan manusia ke tanaman (terutama Melon/Tomat).
-            3. **No Smoking:** Area Greenhouse wajib bebas rokok (asap merusak stomata & residu nikotin beracun).
-            4. **Jalur Satu Arah:** Atur alur jalan agar tidak terjadi penumpukan massa di satu titik.
+            **1. Fase Pruning (Pemangkasan):**
+            - *Foundation Pruning:* Pembentukan cabang tersier (10-15 mata tunas).
+            - *Production Pruning:* Pemangkasan untuk bunga (Long/Medium/Short pruning sesuai varietas).
+            - *H-7 Pruning:* Pemberian nutrisi MKP & KNO3 Putih dosis tinggi.
+            
+            **2. Manajemen Nutrisi (Fertigasi):**
+            - **Fase Grow:** Perbandingan N:P:K (3:1:1) - EC 1.5.
+            - **Fase Fruit:** Perbandingan N:P:K (1:2:3) - EC 2.5.
+            - **pH Control:** Wajib 5.8 - 6.2 (Kunci serapan unsur hara).
+            
+            **3. Penjarangan Buah (Berry Thinning):**
+            - Wajib dilakukan saat buah sebesar biji kacang hijau.
+            - Buang 30-50% buah agar sisa buah membesar maksimal & anti-jamur.
             """)
             
-        with st.expander("🧺 Teknik Petik & Penanganan"):
+        with st.expander("🧺 Protokol Biosecurity (Wisatawan)"):
             st.markdown("""
-            1. **Gunting Steril:** Jangan memetik dengan menarik paksa. Gunakan gunting kecil yang disediakan.
-            2. **Leave No Trace:** Pastikan pengunjung tidak membuang sisa tangkai atau buah rusak di dalam bedengan.
-            3. **Sorting di Kasir:** Berikan edukasi cara memilih buah yang benar-benar matang (Brix tinggi).
+            1. **Footbath:** Wajib desinfeksi alas kaki.
+            2. **Strict No Smoking:** Asap merusak stomata tanaman anggur.
+            3. **Steril Tools:** Gunting petik direndam alkohol 70% tiap batch.
             """)
 
     with col_sop2:
-        with st.expander("🤳 Strategi Digital Marketing"):
+        with st.expander("🌡️ Parameter Lingkungan Industri"):
             st.markdown("""
-            1. **TikTok/Reels Spots:** Sediakan 3 titik dengan pencahayaan terbaik (Golden Hour) dan background 'lorong buah'.
-            2. **User Generated Content (UGC):** Diskon 5% bagi pengunjung yang tag lokasi di Instagram Story.
-            3. **Google Maps SEO:** Pastikan titik lokasi akurat dan foto terbaru diupload setiap minggu.
+            - **Intensitas Cahaya:** 35k - 45k Lux (Gunakan Parameter PAR jika ada).
+            - **VPD (Vapor Pressure Deficit):** Target 0.8 - 1.2 kPa (Optimasi transpirasi).
+            - **CO2 Level:** Target 400-800 ppm.
             """)
             
-        with st.expander("🎟️ Strategi Pricing & Tiket"):
+        with st.expander("🤳 Integrated Marketing & Edu"):
             st.markdown("""
-            1. **Sistem Voucher:** Tiket masuk Rp 20rb dapat ditukar dengan 1 pack bibit atau potongan harga beli buah.
-            2. **Paket Edukasi:** Tiket + Panduan Budidaya Singkat + Jus Buah Segar.
-            3. **Early Bird:** Diskon untuk kunjungan hari kerja (Weekdays).
+            1. **Brix Testing Show:** Pengunjung diajak tes kemanisan buah sendiri.
+            2. **Pruning Experience:** Workshop memangkas dengan bimbingan.
+            3. **Digital Labeling:** Setiap pohon punya history budidaya digital (Scan QR).
             """)
 
 # --- TAB 5: KALENDER OPERASIONAL ---
@@ -316,8 +359,16 @@ with tab6:
     st.header("🌱 Yamasa Seedling Business Simulation")
     st.markdown("""
     **Inspirasi: Yamasa No Niwa, Japan.** 
-    Pusat pembibitan yang menggabungkan presisi produksi dengan estetika ruang pajang.
+    Pusat pembibitan modern yang mengutamakan kemurnian genetika (Genetic Purity) dan efisiensi ruang produksi.
     """)
+    
+    with st.expander("🌳 Mother Plant Management (Blok Fondasi)", expanded=True):
+        st.markdown("""
+        Pohon induk (Mother Plant) adalah aset terpenting. 
+        - **Karantina Ketat:** Area terpisah dari jalur pengunjung.
+        - **Virus-Free Testing:** Uji lab berkala untuk memastikan bebas virus mosaik.
+        - **Scion Production:** Target 50-100 mata tunas (scion) per pohon induk per tahun.
+        """)
     
     col_nur1, col_nur2 = st.columns([1, 1])
     
@@ -386,10 +437,11 @@ with tab6:
     res_n3.metric("Margin Keuntungan", f"{(profit_nursery/rev_nursery*100):.1f}%" if rev_nursery > 0 else "0%")
 
     with st.expander("🇯🇵 Yamasa Standards Checklist (Japan Quality)"):
-        st.checkbox("Kebersihan Lantai: Bebas lumut, tanah, dan genangan air.", value=True)
-        st.checkbox("Pencahayaan: Minimal 30.000 Lux untuk bibit melon/cabai.", value=True)
-        st.checkbox("Pelabelan: Nama varietas, tgl semai, dan tgl siap tanam di setiap tray.", value=True)
-        st.checkbox("Uniformity: Tinggi tanaman dalam satu tray harus seragam >95%.", value=True)
+        st.checkbox("Kebersihan Lantai: Bebas lumut, tanah, dan genangan air (Sanitation First).", value=True)
+        st.checkbox("Pencahayaan: Minimal 30.000 Lux / DLI (Daily Light Integral) optimal.", value=True)
+        st.checkbox("Pelabelan Digital: QR Code di setiap tray untuk traceability.", value=True)
+        st.checkbox("Uniformity: Tinggi dan diameter batang (calliper) seragam >95%.", value=True)
+        st.checkbox("Grafting Success Rate: Target minimal 90% keberhasilan.", value=True)
         st.success("✅ Memenuhi Standar Yamasa No Niwa")
 
 # --- TAB 7: MASTERPLAN & EDUKASI ---
