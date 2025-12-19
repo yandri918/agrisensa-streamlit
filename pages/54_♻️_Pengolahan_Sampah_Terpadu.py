@@ -297,7 +297,8 @@ tabs = st.tabs([
     "🎯 Blueprint Target AI",
     "🗓️ Roadmap 12 Minggu",
     "📁 Laporan Strategis",
-    "🌍 Sustainability Command"
+    "🌍 Sustainability Command",
+    "💼 Business Intelligence"
 ])
 
 # --- TAB 0: DASHBOARD & KPI ---
@@ -1285,6 +1286,142 @@ with tabs[8]:
             <p style="font-family: monospace; color: #94a3b8;">Current Ref ID: PENDING-LOGS-{datetime.now().strftime('%Y%m')}</p>
         </div>
         """, unsafe_allow_html=True)
+# --- TAB 9: BUSINESS INTELLIGENCE ---
+with tabs[9]:
+    st.header("💼 Business Intelligence Center")
+    st.write("Analisis keuangan mendalam untuk pengambilan keputusan strategis.")
+    
+    bi_tab1, bi_tab2, bi_tab3 = st.tabs(["💹 Harga Pasar Real-Time", "🏦 Model Pendanaan", "📊 Break-Even Analysis"])
+    
+    # --- BI TAB 1: MARKET PRICE SIMULATION ---
+    with bi_tab1:
+        st.subheader("💹 Simulasi Harga Pasar (Market Price Feed)")
+        st.info("💡 **Catatan:** Ini adalah simulasi. Data aktual dapat diintegrasikan dengan API e-commerce di masa depan.")
+        
+        mp_col1, mp_col2 = st.columns(2)
+        
+        with mp_col1:
+            st.markdown("**🟢 Harga Jual Produk Anda**")
+            sim_price_fertilizer = st.slider("Harga Pupuk Organik (Rp/kg)", 1000, 10000, price_organic, step=100, key="mp_fert")
+            sim_price_filament = st.slider("Harga Filamen 3D (Rp/kg)", 50000, 500000, price_filament, step=5000, key="mp_fila")
+            
+            st.markdown("**🟡 Harga Beli Bahan Baku (Simulasi WasteBank)")
+            sim_buy_organic = st.slider("Harga Beli Sampah Organik (Rp/kg)", 0, 1000, 200, step=50, key="mp_buyorg")
+            sim_buy_plastic = st.slider("Harga Beli Sampah Plastik (Rp/kg)", 0, 5000, 1500, step=100, key="mp_buypla")
+        
+        with mp_col2:
+            st.markdown("**📊 Margin Analisis**")
+            
+            margin_fertilizer = sim_price_fertilizer - (sim_buy_organic / s_yield_organic)
+            margin_filament = sim_price_filament - (sim_buy_plastic / 0.9)
+            
+            st.metric("Gross Margin Pupuk", f"Rp {margin_fertilizer:,.0f}/kg", delta=f"{(margin_fertilizer/sim_price_fertilizer)*100:.1f}%")
+            st.metric("Gross Margin Filamen", f"Rp {margin_filament:,.0f}/kg", delta=f"{(margin_filament/sim_price_filament)*100:.1f}%")
+            
+            # Chart: Price Comparison
+            price_df = pd.DataFrame({
+                "Produk": ["Pupuk", "Filamen"],
+                "Harga Jual": [sim_price_fertilizer, sim_price_filament],
+                "HPP (Bahan Baku)": [sim_buy_organic / s_yield_organic, sim_buy_plastic / 0.9]
+            })
+            fig_price = px.bar(price_df, x="Produk", y=["Harga Jual", "HPP (Bahan Baku)"], barmode="group", title="Perbandingan Harga Jual vs HPP")
+            st.plotly_chart(fig_price, use_container_width=True)
+    
+    # --- BI TAB 2: FUNDING MODEL ---
+    with bi_tab2:
+        st.subheader("🏦 Simulasi Struktur Pendanaan Proyek")
+        st.write("Tentukan komposisi sumber modal untuk proyek Waste-to-Value Anda.")
+        
+        fund_col1, fund_col2 = st.columns([1, 2])
+        
+        with fund_col1:
+            st.markdown("**💰 Sumber Pendanaan (Rp Juta)**")
+            fund_internal = st.number_input("Kas Internal / Swadaya", 0, 1000, 50, step=10) * 1e6
+            fund_investor = st.number_input("Investor (Equity)", 0, 1000, 100, step=10) * 1e6
+            fund_loan = st.number_input("Pinjaman Bank", 0, 1000, 50, step=10) * 1e6
+            fund_csr = st.number_input("Hibah CSR / Donasi", 0, 500, 20, step=5) * 1e6
+            fund_gov = st.number_input("Subsidi Pemerintah", 0, 500, 30, step=5) * 1e6
+            
+            total_funding = fund_internal + fund_investor + fund_loan + fund_csr + fund_gov
+        
+        with fund_col2:
+            st.markdown("**📊 Visualisasi & Analisis Keuangan**")
+            
+            # Pie Chart
+            funding_data = {
+                "Sumber": ["Kas Internal", "Investor", "Pinjaman Bank", "Hibah CSR", "Subsidi Pemerintah"],
+                "Nominal": [fund_internal, fund_investor, fund_loan, fund_csr, fund_gov]
+            }
+            fig_fund = px.pie(funding_data, values="Nominal", names="Sumber", title=f"Struktur Pendanaan (Total: Rp {total_funding/1e6:,.0f} Juta)", hole=0.4)
+            st.plotly_chart(fig_fund, use_container_width=True)
+            
+            # Financial Ratios
+            debt = fund_loan
+            equity = fund_internal + fund_investor + fund_csr + fund_gov
+            der = (debt / equity) * 100 if equity > 0 else 0
+            
+            ratio_col1, ratio_col2, ratio_col3 = st.columns(3)
+            ratio_col1.metric("Total Modal", f"Rp {total_funding/1e6:,.0f}M")
+            ratio_col2.metric("Debt-to-Equity Ratio", f"{der:.1f}%", delta="Sehat" if der < 100 else "Risiko Tinggi")
+            ratio_col3.metric("Coverage CAPEX", f"{(total_funding/total_capex)*100:.0f}%" if total_capex > 0 else "N/A")
+            
+            if total_funding < total_capex:
+                st.warning(f"⚠️ **Funding Gap:** Modal Anda masih kurang **Rp {(total_capex - total_funding)/1e6:,.0f} Juta** untuk menutup kebutuhan CAPEX.")
+            else:
+                st.success(f"✅ **Fully Funded:** Modal Anda cukup dengan surplus **Rp {(total_funding - total_capex)/1e6:,.0f} Juta** untuk modal kerja awal.")
+    
+    # --- BI TAB 3: BREAK-EVEN ANALYSIS ---
+    with bi_tab3:
+        st.subheader("📊 Break-Even Point (BEP) Analysis")
+        st.write("Analisis titik impas untuk mengetahui kapan bisnis mulai menghasilkan profit.")
+        
+        bep_col1, bep_col2 = st.columns([1, 2])
+        
+        with bep_col1:
+            st.markdown("**⚙️ Parameter BEP**")
+            bep_fixed_cost = st.number_input("Biaya Tetap Bulanan (Rp Juta)", 1, 500, int((o_maint + (operators_needed * o_labor_base))/1e6), step=1) * 1e6
+            bep_var_cost = st.number_input("Biaya Variabel per Kg (Rp)", 100, 50000, 500, step=100)
+            bep_sell_price = st.number_input("Harga Jual Rata-rata per Kg (Rp)", 1000, 500000, int((price_organic + price_filament)/2), step=500)
+            
+            # BEP Calculation
+            contribution_margin = bep_sell_price - bep_var_cost
+            bep_units = bep_fixed_cost / contribution_margin if contribution_margin > 0 else 0
+            bep_revenue = bep_units * bep_sell_price
+        
+        with bep_col2:
+            st.markdown("**🎯 Hasil Analisis BEP**")
+            
+            bep_m1, bep_m2, bep_m3 = st.columns(3)
+            bep_m1.metric("BEP Unit", f"{bep_units:,.0f} kg/bulan")
+            bep_m2.metric("BEP Revenue", f"Rp {bep_revenue/1e6:,.1f} Juta")
+            bep_m3.metric("Contribution Margin", f"Rp {contribution_margin:,.0f}/kg")
+            
+            # BEP Chart
+            units_range = list(range(0, int(bep_units * 2.5) + 100, max(1, int(bep_units / 10))))
+            bep_chart_data = pd.DataFrame({
+                "Produksi (kg)": units_range,
+                "Total Revenue": [u * bep_sell_price for u in units_range],
+                "Total Cost": [bep_fixed_cost + (u * bep_var_cost) for u in units_range]
+            })
+            
+            fig_bep = go.Figure()
+            fig_bep.add_trace(go.Scatter(x=bep_chart_data["Produksi (kg)"], y=bep_chart_data["Total Revenue"], name="Revenue", line=dict(color="#10b981", width=3)))
+            fig_bep.add_trace(go.Scatter(x=bep_chart_data["Produksi (kg)"], y=bep_chart_data["Total Cost"], name="Total Cost", line=dict(color="#ef4444", width=3)))
+            fig_bep.add_vline(x=bep_units, line_dash="dash", line_color="#3b82f6", annotation_text=f"BEP: {bep_units:,.0f} kg")
+            fig_bep.update_layout(title="Grafik Break-Even Point", xaxis_title="Produksi (kg)", yaxis_title="Nilai (Rp)", legend=dict(orientation="h"))
+            st.plotly_chart(fig_bep, use_container_width=True)
+            
+            # Sensitivity Analysis
+            st.markdown("**🔬 Analisis Sensitivitas (What-If)**")
+            sens_price_change = st.slider("Jika Harga Jual Berubah (%)", -30, 30, 0, step=5)
+            
+            new_price = bep_sell_price * (1 + sens_price_change/100)
+            new_cm = new_price - bep_var_cost
+            new_bep = bep_fixed_cost / new_cm if new_cm > 0 else float('inf')
+            
+            if sens_price_change != 0:
+                delta_bep = ((new_bep - bep_units) / bep_units) * 100 if bep_units > 0 else 0
+                st.info(f"💡 Jika harga jual berubah **{sens_price_change:+d}%**, BEP menjadi **{new_bep:,.0f} kg** ({delta_bep:+.1f}% dari baseline).")
 
 # Footer
 st.markdown("---")
