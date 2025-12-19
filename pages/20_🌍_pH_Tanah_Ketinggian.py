@@ -392,6 +392,26 @@ TANAMAN_DATABASE = {
 
 # ========== HELPER FUNCTIONS ==========
 
+def safe_parse_altitude(alt_str):
+    """Safely parse altitude strings with multiple ranges or text"""
+    import re
+    try:
+        # Find all X-Y patterns
+        matches = re.findall(r'(\d+)\s*-\s*(\d+)', alt_str)
+        if matches:
+            # Flatten all numbers and find overall min/max
+            nums = [float(val) for match in matches for val in match]
+            return min(nums), max(nums)
+        
+        # Fallback to single numbers
+        nums = re.findall(r'(\d+)', alt_str)
+        if nums:
+            vals = [float(n) for n in nums]
+            return min(vals), max(vals)
+    except:
+        pass
+    return 0.0, 3000.0
+
 def get_ph_color(ph_value):
     """Get color based on pH value"""
     if ph_value < 4.5:
@@ -478,23 +498,23 @@ with tab1:
                 elif p_min <= user_ph <= p_max:
                     score += 20
                 
-                # Altitude Score (30%)
-                alt_opt = d['ketinggian_optimal'].replace(' mdpl', '').split('-')
-                a_min, a_max = float(alt_opt[0]), float(alt_opt[1])
-                alt_ideal = d['ketinggian_ideal'].replace(' mdpl', '').split('-')
-                ai_min, ai_max = float(alt_ideal[0]), float(alt_ideal[1])
+                # Altitude Score (30%) - USE ROBUST PARSER
+                a_min, a_max = safe_parse_altitude(d['ketinggian_optimal'])
+                ai_min, ai_max = safe_parse_altitude(d['ketinggian_ideal'])
                 
                 if ai_min <= user_alt <= ai_max:
                     score += 30
                 elif a_min <= user_alt <= a_max:
                     score += 15
                 
-                # Climate Score (20%)
-                if user_oldeman in d.get('oldeman_type', ''):
+                # Climate Score (20%) - Precise Match
+                allowed_climates = [x.strip() for x in d.get('oldeman_type', '').split(',')]
+                if user_oldeman in allowed_climates:
                     score += 20
                 
-                # BO Score (10%)
-                if user_bo.split(' ')[0] in d.get('bo_requirement', ''):
+                # BO Score (10%) - Precise Match
+                user_bo_clean = user_bo.split(' ')[0]
+                if user_bo_clean in d.get('bo_requirement', ''):
                     score += 10
                 
                 recommendations.append({"name": name, "score": score})
@@ -665,10 +685,9 @@ with tab2:
         ph_range = row['pH Range'].split('-')
         ph_min, ph_max = float(ph_range[0]), float(ph_range[1])
         
-        # Get Altitude ranges
+        # Get Altitude ranges - USE ROBUST PARSER
         alt_data = TANAMAN_DATABASE[row['Tanaman']]
-        alt_range = alt_data['ketinggian_optimal'].replace(' mdpl', '').split('-')
-        alt_min, alt_max = float(alt_range[0]), float(alt_range[1])
+        alt_min, alt_max = safe_parse_altitude(alt_data['ketinggian_optimal'])
         
         # Add a 3D bubble for each plant
         fig_3d.add_trace(go.Scatter3d(
