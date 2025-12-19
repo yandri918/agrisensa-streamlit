@@ -128,12 +128,37 @@ with tabs[0]:
     
     with log_col1:
         log_date = st.date_input("Tanggal Transaksi", datetime.now())
-        waste_type = st.selectbox("Tipe Sampah", ["Organik Basah", "Plastik PET/HDPE", "Kertas/Kardus"])
+        
+        waste_categories = [
+            "🍃 Organik (Sisa Makanan)", 
+            "🍃 Organik (Ranting/Daun)",
+            "🧵 Plastik PET (Botol)", 
+            "🧵 Plastik HDPE/LDPE (Kemasan)",
+            "📦 Kertas & Kardus",
+            "🧴 Kaca & Keramik",
+            "🥫 Logam & Kaleng",
+            "🔌 Elektronik (E-Waste)",
+            "🧤 Tekstil/Kain",
+            "⚠️ Limbah B3 (Baterai/Lampu)",
+            "➕ Lainnya (Input Manual)"
+        ]
+        
+        selected_cat = st.selectbox("Tipe Sampah", waste_categories)
+        
+        # Manual Input Logic
+        if selected_cat == "➕ Lainnya (Input Manual)":
+            waste_type_final = st.text_input("Sebutkan Tipe Sampah", placeholder="Misal: Karet, Kayu Besar, dll")
+        else:
+            waste_type_final = selected_cat
+
         weight_in = st.number_input("Berat Masuk (kg)", 0.0, 500.0, 25.0)
         if st.button("Simpan Log Aktivitas"):
-            save_waste_entry(log_date.strftime("%Y-%m-%d"), waste_type, weight_in)
-            st.success(f"Berhasil mencatat {weight_in}kg {waste_type} ke database!")
-            st.rerun()
+            if selected_cat == "➕ Lainnya (Input Manual)" and not waste_type_final:
+                st.error("Silakan tulis tipe sampah manual Anda!")
+            else:
+                save_waste_entry(log_date.strftime("%Y-%m-%d"), waste_type_final, weight_in)
+                st.success(f"Berhasil mencatat {weight_in}kg {waste_type_final} ke database!")
+                st.rerun()
             
     with log_col2:
         # Mini Chart for Progress
