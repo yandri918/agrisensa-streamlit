@@ -7,39 +7,55 @@ import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 
-st.set_page_config(page_title="pH Tanah & Ketinggian", page_icon="🌍", layout="wide")
+st.set_page_config(page_title="AgriSensa Advanced pH & Altitude", page_icon="🌍", layout="wide")
 
-# Custom CSS for Glassmorphism and Advanced UI
+# Custom CSS for Eco-Light Theme and Advanced UI
 st.markdown("""
 <style>
     .stApp {
-        background: linear-gradient(135deg, #1a2a1a 0%, #0a0f0a 100%);
+        background: linear-gradient(135deg, #f0f9f0 0%, #ffffff 100%);
+        color: #263238;
     }
     .glass-card {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 25px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid rgba(39, 174, 96, 0.15);
+        margin-bottom: 25px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        transition: all 0.3s ease;
     }
     .glass-card:hover {
-        transform: translateY(-5px);
-        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.12);
+        background: rgba(255, 255, 255, 0.95);
     }
     .parameter-box {
-        background: rgba(0, 255, 0, 0.05);
-        border-radius: 10px;
+        background: #f1f8f5;
+        border-radius: 12px;
+        padding: 20px;
+        border-left: 6px solid #2ecc71;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+    h1, h2, h3 {
+        color: #1b5e20 !important;
+        font-family: 'Inter', sans-serif;
+    }
+    .stMetric {
+        background: rgba(255, 255, 255, 0.5);
         padding: 15px;
-        border-left: 4px solid #2ecc71;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
     }
     .scientific-tag {
-        background: #27ae60;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 5px;
-        font-size: 0.8em;
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+        border: 1px solid #c8e6c9;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -489,13 +505,15 @@ with tab1:
             # Display Top 3 in glass cards
             for i, rec in enumerate(recommendations[:3]):
                 match_color = "#2ecc71" if rec['score'] > 70 else "#f1c40f" if rec['score'] > 40 else "#e74c3c"
+                text_color = "#1b5e20" if rec['score'] > 70 else "#7d6608" if rec['score'] > 40 else "#7b241c"
+                
                 st.markdown(f"""
-                <div class="glass-card" style="border-left: 5px solid {match_color};">
+                <div class="glass-card" style="border-left: 8px solid {match_color}; padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h4 style="margin:0; color: {match_color};">{i+1}. {rec['name']}</h4>
-                        <span style="background: {match_color}; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.8em;">{rec['score']}% Cocok</span>
+                        <h4 style="margin:0; color: {text_color}; font-size: 1.2em;">{i+1}. {rec['name']}</h4>
+                        <span style="background: {match_color}; color: white; padding: 4px 15px; border-radius: 30px; font-size: 0.85em; font-weight: bold;">{rec['score']}% MATCH</span>
                     </div>
-                    <p style="margin-top: 5px; font-size: 0.9em; color: #bdc3c7;">{TANAMAN_DATABASE[rec['name']]['tips']}</p>
+                    <p style="margin-top: 10px; font-size: 0.95em; color: #34495e; line-height: 1.4;">{TANAMAN_DATABASE[rec['name']]['tips']}</p>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -504,11 +522,11 @@ with tab1:
     if selected_plant:
         data = TANAMAN_DATABASE[selected_plant]
         
-        # UI Header with Glassmorphism
+        # UI Header with Refined Glassmorphism
         st.markdown(f"""
-        <div class="glass-card">
-            <h2 style='color: #2ecc71; margin-bottom: 0;'>{selected_plant}</h2>
-            <p style='color: #bdc3c7; font-style: italic;'>Kategori: {data['kategori']}</p>
+        <div class="glass-card" style="background: white; border-bottom: 4px solid #2ecc71;">
+            <h2 style='color: #1b5e20; margin: 0;'>{selected_plant}</h2>
+            <p style='color: #7f8c8d; font-size: 1.1em; margin-top: 5px;'>Kategori: <span class="scientific-tag">{data['kategori']}</span></p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -532,27 +550,27 @@ with tab1:
         sc1, sc2, sc3 = st.columns(3)
         with sc1:
             st.markdown(f"""
-            <div class='parameter-box'>
-                <small>KTK (CEC)</small><br>
-                <b>{data.get('ktk_requirement', 'N/A')}</b>
+            <div class='parameter-box' style='background: #f1f8e9; border-left: 6px solid #2ecc71;'>
+                <small style='color: #2e7d32; font-weight: bold;'>KTK (CEC)</small><br>
+                <b style='color: #1b5e20; font-size: 1.1em;'>{data.get('ktk_requirement', 'N/A')}</b>
             </div>
             """, unsafe_allow_html=True)
         with sc2:
             st.markdown(f"""
-            <div class='parameter-box' style='border-left-color: #3498db;'>
-                <small>Bahan Organik (BO)</small><br>
-                <b>{data.get('bo_requirement', 'N/A')}</b>
+            <div class='parameter-box' style='background: #e3f2fd; border-left: 6px solid #2ecc71; border-left-color: #3498db;'>
+                <small style='color: #1565c0; font-weight: bold;'>Bahan Organik (BO)</small><br>
+                <b style='color: #0d47a1; font-size: 1.1em;'>{data.get('bo_requirement', 'N/A')}</b>
             </div>
             """, unsafe_allow_html=True)
         with sc3:
             st.markdown(f"""
-            <div class='parameter-box' style='border-left-color: #e67e22;'>
-                <small>Iklim Oldeman</small><br>
-                <b>Tipe {data.get('oldeman_type', 'N/A')}</b>
+            <div class='parameter-box' style='background: #fff3e0; border-left: 6px solid #2ecc71; border-left-color: #e67e22;'>
+                <small style='color: #ef6c00; font-weight: bold;'>Iklim Oldeman</small><br>
+                <b style='color: #e65100; font-size: 1.1em;'>Tipe {data.get('oldeman_type', 'N/A')}</b>
             </div>
             """, unsafe_allow_html=True)
             
-        st.markdown(f"**Pola Tanam Rekomendasi:** `{data.get('pola_tanam', 'N/A')}`")
+        st.markdown(f"**Pola Tanam Rekomendasi:** <span class='scientific-tag'>{data.get('pola_tanam', 'N/A')}</span>", unsafe_allow_html=True)
         st.markdown("---")
         
         # pH Information
@@ -674,10 +692,10 @@ with tab2:
             xaxis_title='pH Tanah',
             yaxis_title='Ketinggian (mdpl)',
             zaxis_title='Potensi Hasil',
-            xaxis=dict(range=[3, 9]),
-            yaxis=dict(range=[0, 2000]),
-            zaxis=dict(range=[0, 15]),
-            bgcolor='rgba(0,0,0,0)'
+            xaxis=dict(range=[3, 9], gridcolor='#ecf0f1'),
+            yaxis=dict(range=[0, 2000], gridcolor='#ecf0f1'),
+            zaxis=dict(range=[0, 15], gridcolor='#ecf0f1'),
+            bgcolor='rgba(255,255,255,0.8)'
         ),
         margin=dict(l=0, r=0, b=0, t=30),
         height=600,
