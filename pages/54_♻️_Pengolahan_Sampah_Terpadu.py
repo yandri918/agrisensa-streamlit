@@ -84,6 +84,37 @@ Modul ini mengadopsi disiplin pengelolaan sampah ala Jepang untuk mendukung ekos
 
 st.markdown("---")
 
+# --- SIDEBAR CONFIGURATION ---
+with st.sidebar:
+    st.header("⚙️ Konfigurasi Parameter")
+    st.write("Sesuaikan angka pengali untuk kalkulasi dashboard.")
+    
+    with st.expander("🌍 Parameter Lingkungan", expanded=True):
+        coef_carbon = st.number_input(
+            "Koefisien CO2 (kg/kg sampah)", 
+            value=0.53, 
+            step=0.01,
+            help="Jumlah emisi CO2 yang dikurangi per 1kg sampah yang dikelola."
+        )
+        target_monthly = st.number_input("Target Bulanan (kg)", value=5000, step=500)
+
+    with st.expander("💰 Parameter Ekonomi", expanded=True):
+        price_organic = st.number_input(
+            "Harga Pupuk (Rp/kg)", 
+            value=2500, 
+            step=500,
+            help="Asumsi nilai ekonomi hasil olahan organik."
+        )
+        price_filament = st.number_input(
+            "Harga Filamen (Rp/kg)", 
+            value=150000, 
+            step=10000,
+            help="Asumsi nilai ekonomi hasil upcycling plastik."
+        )
+        
+    st.divider()
+    st.caption("AgriSensa Eco v1.1 - Adjustable Parameters")
+
 # Init Data
 init_waste_data()
 df_logs = load_waste_logs()
@@ -108,16 +139,16 @@ with tabs[0]:
     
     # Calculation Logic for Dashboard
     total_waste_collected = df_logs['berat_kg'].sum() if not df_logs.empty else 1540 # Default demo value if empty
-    organic_processed = df_logs[df_logs['tipe'] == "Organik Basah"]['berat_kg'].sum() if not df_logs.empty else (total_waste_collected * 0.6)
-    plastic_recycled = df_logs[df_logs['tipe'] == "Plastik PET/HDPE"]['berat_kg'].sum() if not df_logs.empty else (total_waste_collected * 0.15)
+    organic_processed = df_logs[df_logs['tipe'].str.contains("Organik", na=False)]['berat_kg'].sum() if not df_logs.empty else (total_waste_collected * 0.6)
+    plastic_recycled = df_logs[df_logs['tipe'].str.contains("Plastik", na=False)]['berat_kg'].sum() if not df_logs.empty else (total_waste_collected * 0.15)
     
-    sustainability_rate = ( (organic_processed + plastic_recycled) / total_waste_collected ) * 100
-    carbon_offset = total_waste_collected * 0.53 # Roughly 0.53kg CO2 per kg waste diverted from landfill
-    money_saved = (organic_processed * 2500) + (plastic_recycled * 150000)
+    sustainability_rate = ( (organic_processed + plastic_recycled) / total_waste_collected ) * 100 if total_waste_collected > 0 else 0
+    carbon_offset = total_waste_collected * coef_carbon
+    money_saved = (organic_processed * price_organic) + (plastic_recycled * price_filament)
     
-    kpi_col1.metric("Sustainability Rate", f"{sustainability_rate:.1f}%", "+2.3%")
-    kpi_col2.metric("Carbon Offset (CO2e)", f"{carbon_offset:,.0f} kg", "+120 kg")
-    kpi_col3.metric("Economic Value", f"Rp {money_saved/1e6:.1f}M", "Saving")
+    kpi_col1.metric("Sustainability Rate", f"{sustainability_rate:.1f}%")
+    kpi_col2.metric("Carbon Offset (CO2e)", f"{carbon_offset:,.1f} kg")
+    kpi_col3.metric("Economic Value", f"Rp {money_saved/1e6:.2f}M")
     kpi_col4.metric("Instansi Mitra", "12", "+2")
     
     st.markdown("---")
@@ -162,7 +193,7 @@ with tabs[0]:
             
     with log_col2:
         # Mini Chart for Progress
-        target_monthly = 5000 # kg
+        # (Target taken from sidebar)
         current_progress = total_waste_collected
 
         if not df_logs.empty:
