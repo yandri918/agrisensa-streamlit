@@ -211,9 +211,9 @@ with tabs[0]:
     kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
     
     # Calculation Logic for Dashboard
-    total_waste_collected = df_logs['berat_kg'].sum() if not df_logs.empty else 1540 # Default demo value if empty
-    organic_processed = df_logs[df_logs['tipe'].str.contains("Organik", na=False)]['berat_kg'].sum() if not df_logs.empty else (total_waste_collected * 0.6)
-    plastic_recycled = df_logs[df_logs['tipe'].str.contains("Plastik", na=False)]['berat_kg'].sum() if not df_logs.empty else (total_waste_collected * 0.15)
+    total_waste_collected = df_logs['berat_kg'].sum() if not df_logs.empty else 0
+    organic_processed = df_logs[df_logs['tipe'].str.contains("Organik", na=False)]['berat_kg'].sum() if not df_logs.empty else 0
+    plastic_recycled = df_logs[df_logs['tipe'].str.contains("Plastik", na=False)]['berat_kg'].sum() if not df_logs.empty else 0
     
     sustainability_rate = ( (organic_processed + plastic_recycled) / total_waste_collected ) * 100 if total_waste_collected > 0 else 0
     carbon_offset = total_waste_collected * coef_carbon
@@ -1052,9 +1052,20 @@ with tabs[8]:
     
     with r_col1:
         st.subheader("🎯 ESG Balance Radar")
-        # Radar Chart Data
+        # Dynamic Radar Chart Data based on actual progress
+        # If 0 data, all scores are 0
+        if total_managed > 0:
+            esg_values = [
+                min(100, (carbon_offset/1000)*100), # Norm 1 ton carbon
+                sustainability_rate, 
+                min(100, (partners_needed/20)*100), # Norm 20 partners
+                min(100, (money_saved/1e7)*100),    # Norm 10jt economic
+                95 # Governance fixed simulation
+            ]
+        else:
+            esg_values = [0, 0, 0, 0, 0]
+            
         esg_labels = ['Carbon Offset', 'Resource Circularity', 'Community Reach', 'Economic Value', 'Data Transparency']
-        esg_values = [85, 90, 75, 80, 95] # Normalized scores
         
         fig_radar = go.Figure()
         fig_radar.add_trace(go.Scatterpolar(
@@ -1075,10 +1086,17 @@ with tabs[8]:
     with r_col2:
         st.subheader("🏆 Sustainability Rating")
         st.markdown('<div class="jap-sorting-card" style="text-align: center; border-top-color: #f59e0b; background: #fffcf0;">', unsafe_allow_html=True)
-        st.markdown("<h1 style='font-size: 5rem; color: #f59e0b; margin: 0;'>AA+</h1>", unsafe_allow_html=True)
+        # Dynamic Rating based on progress
+        if total_managed > 5000: rating = "AAA"
+        elif total_managed > 1000: rating = "AA+"
+        elif total_managed > 500: rating = "A"
+        elif total_managed > 0: rating = "B"
+        else: rating = "Pending"
+        
+        st.markdown(f"<h1 style='font-size: 5rem; color: #f59e0b; margin: 0;'>{rating}</h1>", unsafe_allow_html=True)
         st.markdown("**AgriSensa Strategic ESG Rating**")
-        st.write("Status: *Excellent - Market Leader*")
-        st.progress(0.92, text="92% Compliance to UN SDGs")
+        st.write(f"Status: *{'Market Leader' if rating != 'Pending' else 'Awaiting Initial Logs'}*")
+        st.progress(sustainability_rate/100 if sustainability_rate > 0 else 0, text=f"{sustainability_rate:.0f}% Compliance to Strategy")
         st.markdown('</div>', unsafe_allow_html=True)
         
         st.markdown(f"""
