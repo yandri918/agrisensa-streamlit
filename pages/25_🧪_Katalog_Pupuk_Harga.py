@@ -356,6 +356,34 @@ FERTILIZER_DATABASE_DEFAULT = {
         "dosage": "3-5 tutup botol per tangki",
         "application": "Semprot daun"
     },
+    "DI GROW Hijau (Growth)": {
+        "category": "Organik Cair",
+        "brand": "Dynapharm",
+        "formula": "Biostimulan Vegetatif",
+        "n_content": 4,
+        "p_content": 2,
+        "k_content": 2,
+        "price_per_kg": 175000, # per Liter
+        "package_sizes": ["500 ml", "1 Liter", "4 Liter"],
+        "description": "Growth Booster dari ekstrak rumput laut Atlantik Utara untuk fase vegetatif.",
+        "usage": "Padi, cabai, sayuran, bawang",
+        "dosage": "3-5 ml per liter air",
+        "application": "Semprot daun (7-10 hari sekali)"
+    },
+    "DI GROW Merah (Fruits)": {
+        "category": "Organik Cair",
+        "brand": "Dynapharm",
+        "formula": "Biostimulan Generatif",
+        "n_content": 2,
+        "p_content": 4,
+        "k_content": 5,
+        "price_per_kg": 185000, # per Liter
+        "package_sizes": ["500 ml", "1 Liter", "4 Liter"],
+        "description": "Fruit & Flower Booster untuk merangsang pembuahan dan mencegah rontok.",
+        "usage": "Melon, buah-buahan, tanaman berbunga",
+        "dosage": "3-5 ml per liter air",
+        "application": "Semprot daun (7-10 hari sekali)"
+    },
     
     # MIKRO & SEKUNDER
     "Gandasil D": {
@@ -659,7 +687,7 @@ PESTICIDE_DATABASE_DEFAULT = {
 }
 
 # Session State Init
-DB_VERSION = "1.3" # Increment to force refresh
+DB_VERSION = "1.4" # Increment to force refresh
 
 if 'db_version' not in st.session_state or st.session_state.db_version != DB_VERSION:
     st.session_state.fertilizer_db = FERTILIZER_DATABASE_DEFAULT.copy()
