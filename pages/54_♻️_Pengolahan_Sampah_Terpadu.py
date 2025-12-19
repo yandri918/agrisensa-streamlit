@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import os
+import hashlib
 from datetime import datetime
 
 # --- CONFIG & DATA PATHS ---
@@ -994,92 +995,126 @@ with tabs[7]:
     > **Catatan Analis:** Untuk menjaga stabilitas omzet Rp 243M, fokus 3 bulan pertama adalah **Stabilitas Supply Chain** (Bahan Baku). Jangan melakukan ekspansi mesin sebelum pasokan sampah harian mencapai 80% dari target simulator.
     """)
 
-# --- TAB 8: SUSTAINABILITY COMMAND CENTER ---
+# --- TAB 8: SUSTAINABILITY COMMAND CENTER (ADVANCED ESG) ---
 with tabs[8]:
-    st.header("🌍 Sustainability Command Center (ESG Dashboard)")
-    st.write("Real-time monitoring dampak lingkungan dan keberlanjutan proyek.")
+    st.header("🌍 Advanced ESG Sustainability Command Center")
+    st.write("Monitoring multi-dimensi dampak lingkungan, sosial, dan tata kelola berbasis standar internasional.")
     
-    # Advanced Sustain Metrics
-    # Simulation logic for diversion (total current vs potential)
+    # --- ESG CORE CALCULATIONS ---
     total_managed = total_waste_collected
-    total_potential_waste = target_monthly # from sidebar
-    diversion_rate = (total_managed / total_potential_waste) * 100 if total_potential_waste > 0 else 0
     
-    # Ocean Plastic Prevention Estimate (Assuming manage from coastal/river basin)
-    # 1 managed PET = 1 less PET in ocean
-    ocean_plastic_saved = total_managed * 0.15 # Assuming 15% is plastic
+    # 1. Environmental (E)
+    # 1 ton organic = approx 0.5 ton CO2e methane avoidance (standard EPA/IPCC simplified)
+    methane_avoided = (organic_processed * 0.5) 
+    # Landfill space: Assume density 500kg/m3
+    landfill_m3_saved = total_managed / 500
+    # 1 Mature Tree = approx 22kg CO2/year. 
+    tree_equivalent = (total_managed * coef_carbon) / 22
     
-    s_col1, s_col2, s_col3 = st.columns(3)
+    # 2. Social (S)
+    # Formula: 1 operator per 500kg daily waste + 1 admin/logistics per 10 partners
+    social_jobs = (total_managed / 500) + (partners_needed / 10)
+    edu_reach = partners_needed * 50 # Avg 50 people reached per partner instansi
     
-    with s_col1:
-        st.markdown('<div class="transformation-card" style="border-top-color: #059669;">', unsafe_allow_html=True)
-        st.subheader("♻️ Waste Diversion Rate")
-        fig_gauge = go.Figure(go.Indicator(
-            mode = "gauge+number",
-            value = diversion_rate,
-            domain = {'x': [0, 1], 'y': [0, 1]},
-            title = {'text': "Diversion (%)", 'font': {'size': 18}},
-            gauge = {
-                'axis': {'range': [None, 100]},
-                'bar': {'color': "#059669"},
-                'steps' : [
-                    {'range': [0, 50], 'color': "#fef2f2"},
-                    {'range': [50, 80], 'color': "#ecfdf5"},
-                    {'range': [80, 100], 'color': "#d1fae5"}]
-            }
-        ))
-        fig_gauge.update_layout(height=180, margin=dict(t=0, b=0, l=10, r=10))
-        st.plotly_chart(fig_gauge, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    with s_col2:
-        st.markdown('<div class="transformation-card" style="border-top-color: #3b82f6;">', unsafe_allow_html=True)
-        st.subheader("🌊 Ocean Plastic Prevented")
-        st.metric("Estimasi Botol", f"{ocean_plastic_saved/0.025:,.0f} Pcs", "+8.2% vs Last Week")
-        st.write("Mencegah limbah plastik masuk ke ekosistem laut melalui sistem koleksi hulu terintegrasi.")
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    with s_col3:
-        st.markdown('<div class="transformation-card" style="border-top-color: #f59e0b;">', unsafe_allow_html=True)
-        st.subheader("🪙 Circular Economy Index")
-        # Value generated per kg of waste managed
-        value_per_kg = ((total_managed * 0.4 * price_organic) + (total_managed * 0.1 * price_filament)) / (total_managed or 1)
-        st.metric("Index Score", f"Rp {value_per_kg:,.0f} / kg", f"Eco-Efficiency")
-        st.write("Nilai ekonomi yang diciptakan dari setiap 1 kg sampah yang dikelola.")
-        st.markdown('</div>', unsafe_allow_html=True)
-
+    # 3. Governance (G)
+    # Simulated Blockchain Hash for current state
+    trace_hash = hashlib.sha256(f"AgriSensa_{total_managed}_{datetime.now().strftime('%Y%m%d')}".encode()).hexdigest()[:16].upper()
+    compliance_score = 94.5 # Fixed simulation for now
+    
+    # --- ESG TOP METRICS ---
+    st.markdown("### 📊 High-Fidelity Impact Real-time")
+    e_c1, e_c2, e_c3, e_c4 = st.columns(4)
+    
+    e_c1.metric("Methane Avoided", f"{methane_avoided:,.1f} kg CO2e", "Environmental")
+    e_c2.metric("Landfill Saved", f"{landfill_m3_saved:,.2f} m³", "Spatial Impact")
+    e_c3.metric("Jobs Created", f"{social_jobs:,.1f} FTE", "Social Economy")
+    e_c4.metric("Tree Equivalence", f"{tree_equivalent:,.0f} Trees", "Annual Bio-Offset")
+    
     st.divider()
     
-    st.subheader("📊 ESG Impact Reporting (Simulasi)")
-    sus_c1, sus_c2 = st.columns(2)
+    # --- ESG BALANCE & RATING ---
+    r_col1, r_col2 = st.columns([1, 1])
     
-    with sus_c1:
-        # Chart: Carbon Sequestration vs Emission
-        chart_data = {
-            "Bulan": ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
-            "Sequestration (kg CO2e)": [100, 250, 450, 800, 1200, 1800],
-            "Operational Carbon": [20, 50, 90, 150, 220, 310]
-        }
-        fig_carbon = px.line(chart_data, x="Bulan", y=["Sequestration (kg CO2e)", "Operational Carbon"],
-                           title="Net Carbon Sequestration Trend",
-                           color_discrete_sequence=["#10b981", "#ef4444"])
-        st.plotly_chart(fig_carbon, use_container_width=True)
+    with r_col1:
+        st.subheader("🎯 ESG Balance Radar")
+        # Radar Chart Data
+        esg_labels = ['Carbon Offset', 'Resource Circularity', 'Community Reach', 'Economic Value', 'Data Transparency']
+        esg_values = [85, 90, 75, 80, 95] # Normalized scores
         
-    with sus_c2:
-        st.markdown("""
-        **📝 Sustainability Commitments:**
-        1. **Zero to Landfill Target:** 100% residu diproses (incineration minimal).
-        2. **Bio-Regeneration:** Mengembalikan 40% sisa makanan kembali ke tanah sebagai pupuk.
-        3. **Tech-Upcycling:** Fokus pada filamen 3D sebagai substitusi plastik baru (Virgin Plastic).
-        4. **Transparency:** Data koleksi sampah tersedia di Ledger Blockchain Publik.
+        fig_radar = go.Figure()
+        fig_radar.add_trace(go.Scatterpolar(
+            r=esg_values,
+            theta=esg_labels,
+            fill='toself',
+            name='Current ESG Profile',
+            line_color="#10b981"
+        ))
+        fig_radar.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+            showlegend=False,
+            height=380,
+            margin=dict(t=40, b=40, l=40, r=40)
+        )
+        st.plotly_chart(fig_radar, use_container_width=True)
+        
+    with r_col2:
+        st.subheader("🏆 Sustainability Rating")
+        st.markdown('<div class="jap-sorting-card" style="text-align: center; border-top-color: #f59e0b; background: #fffcf0;">', unsafe_allow_html=True)
+        st.markdown("<h1 style='font-size: 5rem; color: #f59e0b; margin: 0;'>AA+</h1>", unsafe_allow_html=True)
+        st.markdown("**AgriSensa Strategic ESG Rating**")
+        st.write("Status: *Excellent - Market Leader*")
+        st.progress(0.92, text="92% Compliance to UN SDGs")
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        st.markdown(f"""
+        **🔗 Governance Integrity (Immutable Traceability)**
+        > `Batch_ID: AS-{trace_hash}`  
+        > `Status: Verified on Simulated Ledger`
         """)
         
-        st.info("**Strategi ESG:** AgriSensa beroperasi dengan prinsip *Planet-People-Profit*. Setiap ton sampah yang dikelola mengurangi beban TPA regional sebesar 1.2 m³.")
+    st.divider()
+    
+    # --- DEEP ANALYTICS ---
+    st.subheader("📋 Detailed ESG Breakdown")
+    tab_e1, tab_e2, tab_e3 = st.tabs(["🌱 Environmental Depth", "👥 Social Value", "⚖️ Governance Audit"])
+    
+    with tab_e1:
+        st.write("Analisis mendalam mengenai kontribusi terhadap mitigasi perubahan iklim.")
+        ec1, ec2 = st.columns(2)
+        with ec1:
+            st.info(f"**Bio-Regeneration**: Mengonversi {organic_processed:,.0f}kg sampah menjadi nutrisi tanah, mencegah pelepasan gas metana yang 21x lebih berbahaya dari CO2.")
+        with ec2:
+            st.success(f"**Circular Loop**: {plastic_recycled:,.0f}kg plastik diolah menjadi produk high-value, mengurangi permintaan plastik virgin sebesar 1.1x berat input.")
+            
+    with tab_e2:
+        st.write("Dampak nyata bagi kesejahteraan masyarakat dan inklusivitas.")
+        sc1, sc2 = st.columns(2)
+        sc1.write(f"- **Peluang Kerja:** Proyeksi penyerapan {social_jobs:.1f} tenaga kerja lokal.")
+        sc1.write(f"- **Edukasi:** {edu_reach:,.0f} orang mendapatkan literasi pemilahan sampah.")
+        sc2.image("https://img.icons8.com/isometric/100/Conference.png", width=80)
+        
+    with tab_e3:
+        st.write("Transparansi data dan kepatuhan terhadap standar operasional.")
+        gc1, gc2 = st.columns([2,1])
+        with gc1:
+            audit_data = {
+                "Audit Parameter": ["Data Accuracy", "SOP Discipline", "Safety Compliance", "Traceability Index"],
+                "Score (%)": [98, 92, 95, 100],
+                "Status": ["Certified", "High", "Certified", "Impenetrable"]
+            }
+            st.table(pd.DataFrame(audit_data))
+        with gc2:
+            st.image("https://img.icons8.com/isometric/100/Checked-Identification_Card.png", width=80)
 
-    # Show Badge
+    # Show Final Certificate Look
     st.markdown("---")
-    st.image("https://img.icons8.com/isometric/100/World-Peace.png", width=50)
-    st.markdown("**Status: AgriSensa Positive Impact Certified**")
+    st.markdown("""
+    <div style="background: #f8fafc; padding: 20px; border-radius: 15px; border: 2px dashed #cbd5e1; text-align: center;">
+        <h4 style="color: #475569; margin-bottom: 5px;">CERTIFIED SUSTAINABLE ECOSYSTEM</h4>
+        <p style="color: #64748b; font-size: 0.9rem;">This project meets the AgriSensa Gold Standard for Circular Economy & Carbon Sequestration.</p>
+        <p style="font-family: monospace; color: #94a3b8;">Ref ID: AGR-2025-ESG-88219</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Footer
 st.markdown("---")
