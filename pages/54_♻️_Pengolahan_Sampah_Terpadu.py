@@ -136,13 +136,14 @@ with tabs[0]:
             st.rerun()
             
     with log_col2:
+        # Mini Chart for Progress
+        target_monthly = 5000 # kg
+        current_progress = total_waste_collected
+
         if not df_logs.empty:
             st.markdown("**📜 Log Terakhir**")
             st.dataframe(df_logs.tail(5), use_container_width=True)
-        else:
-            # Mini Chart for Progress
-            target_monthly = 5000 # kg
-            current_progress = total_waste_collected
+            st.markdown("---")
         
         fig_progress = go.Figure(go.Indicator(
             mode = "gauge+number+delta",
