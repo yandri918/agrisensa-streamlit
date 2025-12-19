@@ -1139,15 +1139,61 @@ with tabs[8]:
         with gc2:
             st.image("https://img.icons8.com/isometric/100/Checked-Identification_Card.png", width=80)
 
+    # --- COMPLIANCE ROADMAP TO GOLD STANDARD ---
+    st.divider()
+    st.subheader("📜 Compliance Roadmap to Certification")
+    st.write("Untuk mendapatkan sertifikat **AgriSensa Gold Standard**, proyek Anda harus memenuhi kriteria berikut:")
+    
+    # Define thresholds
+    t_diversion = 80.0
+    t_carbon = 100.0
+    t_partners = 5
+    t_circularity = 2500.0
+    
+    # Checks
+    c_div = sustainability_rate >= t_diversion
+    c_carb = carbon_offset >= t_carbon
+    c_part = partners_needed >= t_partners
+    c_circ = value_per_kg >= t_circularity
+    c_gov = True # Hash exists
+    
+    comp_col1, comp_col2 = st.columns(2)
+    
+    with comp_col1:
+        st.markdown(f"{'✅' if c_div else '❌'} **Waste Diversion Rate** ({sustainability_rate:.1f}% / {t_diversion}%)")
+        st.markdown(f"{'✅' if c_carb else '❌'} **Carbon Impact Offset** ({carbon_offset:.1f} / {t_carbon} kg CO2e)")
+        st.markdown(f"{'✅' if c_part else '❌'} **Institutional Partners** ({partners_needed:.0f} / {t_partners} Mitra)")
+        
+    with comp_col2:
+        st.markdown(f"{'✅' if c_circ else '❌'} **Circularity Index** (Rp {value_per_kg:,.0f} / Rp {t_circularity:,.0f})")
+        st.markdown(f"✅ **Governance Traceability** (Batch ID: {trace_hash})")
+        st.markdown(f"✅ **Regulatory Alignment** (Standard ISO/ESG Ready)")
+
+    # Final Certification Status
+    gold_certified = all([c_div, c_carb, c_part, c_circ, c_gov])
+    
     # Show Final Certificate Look
     st.markdown("---")
-    st.markdown("""
-    <div style="background: #f8fafc; padding: 20px; border-radius: 15px; border: 2px dashed #cbd5e1; text-align: center;">
-        <h4 style="color: #475569; margin-bottom: 5px;">CERTIFIED SUSTAINABLE ECOSYSTEM</h4>
-        <p style="color: #64748b; font-size: 0.9rem;">This project meets the AgriSensa Gold Standard for Circular Economy & Carbon Sequestration.</p>
-        <p style="font-family: monospace; color: #94a3b8;">Ref ID: AGR-2025-ESG-88219</p>
-    </div>
-    """, unsafe_allow_html=True)
+    if gold_certified:
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #fffcf0 0%, #fff 100%); padding: 30px; border-radius: 20px; border: 3px solid #f59e0b; text-align: center; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.15);">
+            <img src="https://img.icons8.com/isometric/100/World-Peace.png" width="80" style="margin-bottom: 10px;">
+            <h2 style="color: #b45309; margin: 0; letter-spacing: 2px;">CERTIFIED SUSTAINABLE ECOSYSTEM</h2>
+            <p style="color: #d97706; font-weight: 600;">AgriSensa Gold Standard for Circular Economy</p>
+            <hr style="border-color: rgba(245, 158, 11, 0.2);">
+            <p style="color: #92400e; font-size: 0.9rem;">Proyek ini secara resmi diakui telah mencapai efisiensi daur ulang optimal dan dampak karbon terukur.</p>
+            <p style="font-family: monospace; color: #b45309; font-weight: bold; font-size: 1.1rem;">Ref ID: AGR-2025-ESG-{trace_hash[:8]}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.balloons()
+    else:
+        st.markdown(f"""
+        <div style="background: #f8fafc; padding: 30px; border-radius: 20px; border: 2px dashed #cbd5e1; text-align: center;">
+            <h4 style="color: #475569; margin-bottom: 5px;">STATUS: AUDIT PENDING</h4>
+            <p style="color: #64748b; font-size: 0.9rem;">Selesaikan kriteria di atas untuk mengaktifkan Sertifikat Gold Standard.</p>
+            <p style="font-family: monospace; color: #94a3b8;">Current Ref ID: PENDING-LOGS-{datetime.now().strftime('%Y%m')}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Footer
 st.markdown("---")
