@@ -283,11 +283,11 @@ with tabs[2]:
     
     with col_t3:
         st.subheader("🧫 Manajemen Biologi & Agen Hayati")
-        st.write("Untuk mempercepat proses dan meningkatkan imunitas bibit.")
+        st.write("Integrasi Bioaktivator dari **Laboratorium Pupuk Organik** untuk akselerasi dekomposisi.")
         st.table(pd.DataFrame({
-            "Agen Hayati": ["EM4 / Molase", "Trichoderma sp.", "Asam Humat", "Azotobacter"],
-            "Fungsi Utama": ["Akselerator Dekomposisi", "Antifungi (Layu Fusarium)", "Pembenah Struktur Tanah", "Penambat Nitrogen Alami"],
-            "Dosis": ["10ml / liter air", "50gr / m3 sampah", "2gr / liter kocor", "Aplikasi saat matang"]
+            "Agen Hayati": ["🌱 ROTAN (Ramuan Organik)", "🍄 Trichoderma sp.", "🧪 Molase / Gula Baru", "🧪 Asam Humat"],
+            "Fungsi Utama": ["Probiotik Sempurna (Selulolitik & Penambat N)", "Antifungi (Perlindungan Akar)", "Sumber Energi Mikroba (Karbon)", "Pembenah Tanah & Khelasi Nutrisi"],
+            "Dosis": ["10-20ml / Liter air", "50gr / m3 sampah", "100ml / 10L air", "2gr / Liter kocor"]
         }))
 
     with col_t4:
