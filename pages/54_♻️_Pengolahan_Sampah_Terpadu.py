@@ -482,79 +482,97 @@ with tabs[4]:
     else:
         st.error("⚠️ Skema saat ini belum menguntungkan (Negatif). Tambahkan volume sampah atau kurangi biaya operasional.")
 
-# --- TAB 5: BLUEPRINT TARGET AI ---
+# --- TAB 5: BLUEPRINT TARGET AI (SIMULATOR) ---
 with tabs[5]:
-    st.header("🎯 Blueprint Target & Operasional (AI-Driven)")
-    st.write("Analisis kebutuhan sumber daya untuk mencapai target omzet **Rp 243.750.000 / Bulan**.")
+    st.header("🎯 AI Strategic Simulator (Dynamic Blueprint)")
+    st.write("Tentukan target omzet Anda dan biarkan AI menghitung beban operasional yang diperlukan.")
     
-    # Static Target and AI Calculation Logic
-    target_ferti_income = 18750000
-    target_filam_income = 225000000
+    # --- SIMULATOR CONTROLS ---
+    st.markdown('<div class="jap-sorting-card" style="border-top-color: #3b82f6; background: #f8fafc;">', unsafe_allow_html=True)
+    sim_col1, sim_col2 = st.columns(2)
     
-    # Backward calculation for Effort
-    req_ferti_kg_month = target_ferti_income / price_organic
-    req_filam_kg_month = target_filam_income / price_filament
-    
-    req_ferti_kg_day = req_ferti_kg_month / 30
-    req_filam_kg_day = req_filam_kg_month / 30
-    
-    # Raw waste needed assuming yield 40% for fertilizer and 90% for filament
-    raw_organic_needed_day = req_ferti_kg_day / 0.4
-    raw_plastic_needed_day = req_filam_kg_day / 0.9
-    
-    st.markdown('<div class="jap-sorting-card" style="border-top-color: #f59e0b;">', unsafe_allow_html=True)
-    st.subheader("🚀 Target Kerja Harian (Key Results)")
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Raw Organic Waste", f"{raw_organic_needed_day:,.0f} kg/hari")
-    c2.metric("Clean Plastic Waste", f"{raw_plastic_needed_day:,.0f} kg/hari")
-    c3.metric("Total Waste Manage", f"{(raw_organic_needed_day + raw_plastic_needed_day):,.0f} kg/hari")
+    with sim_col1:
+        st.markdown("**💰 Target Omzet Bulanan**")
+        s_target_ferti = st.slider("Target Omzet Pupuk (Juta Rp)", 1, 100, 18, help="Target pendapatan dari penjualan pupuk organik.") * 1e6
+        s_target_filam = st.slider("Target Omzet Filamen (Juta Rp)", 10, 500, 225, help="Target pendapatan dari upcycling plastik.") * 1e6
+        
+    with sim_col2:
+        st.markdown("**⚙️ Efisiensi & Kapasitas**")
+        s_yield_organic = st.slider("Efisiensi Rendemen Kompos (%)", 20, 60, 40) / 100
+        s_machine_cap = st.slider("Kapasitas Mesin (kg/jam)", 1, 20, 5)
+        s_waste_per_partner = st.slider("Sampah/Instansi (kg/hari)", 5, 100, 20)
     st.markdown('</div>', unsafe_allow_html=True)
     
+    # --- DYNAMIC CALCULATIONS ---
+    # Monthly required output
+    req_ferti_month = s_target_ferti / price_organic
+    req_filam_month = s_target_filam / price_filament
+    
+    # Daily required weight (30 days)
+    daily_ferti = req_ferti_month / 30
+    daily_filam = req_filam_month / 30
+    
+    # Raw waste required
+    raw_org_needed = daily_ferti / s_yield_organic
+    raw_pla_needed = daily_filam / 0.9 # Constant high yield for plastic
+    total_raw_daily = raw_org_needed + raw_pla_needed
+    
+    # Infrastructure needs
+    partners_needed = total_raw_daily / s_waste_per_partner
+    machine_hours = daily_filam / s_machine_cap
+    
     st.divider()
     
-    st.subheader("🏢 Kebutuhan Infrastruktur & Kemitraan")
-    b_col1, b_col2 = st.columns(2)
+    # --- RESULTS DASHBOARD ---
+    st.subheader("🚀 Analisis Beban Operasional")
+    res_c1, res_c2, res_c3, res_c4 = st.columns(4)
     
-    with b_col1:
-        st.markdown("**🛡️ Strategi Akuisisi Bahan Baku**")
-        # Assuming 1 institution produces ~20kg waste/day
-        instansi_needed = (raw_organic_needed_day + raw_plastic_needed_day) / 20
-        st.success(f"Dibutuhkan minimal **{instansi_needed:,.0f} Instansi Mitra** (Sekolah/Kantor) yang aktif memilah.")
-        
-        st.markdown("""
-        - **Model Logistik:** 3 Armada Motor Roda Tiga (Truk Sampah Organik).
-        - **Zonasi:** Radius 5-10km dari pusat pengolahan AgriSensa Eco.
-        """)
-        
-    with b_col2:
-        st.markdown("**⚡ Kapasitas Mesin (Machine Hours)**")
-        # Plastic process approx 5kg/hour
-        hours_extrude = raw_plastic_needed_day / 5
-        st.info(f"Mesin Extruder harus beroperasi **{hours_extrude:,.1f} Jam / Hari** (Double Shift).")
-        
-        st.markdown("""
-        - **Tenaga Kerja:** 6 Operator (3 Shift) + 2 Supervisor Lapangan.
-        - **Daya Listrik:** Minimal 15kVA untuk operasional kontinu.
-        """)
+    res_c1.metric("Bahan Baku/Hari", f"{total_raw_daily:,.0f} kg")
+    res_c2.metric("Jumlah Mitra", f"{partners_needed:,.0f} Instansi")
+    res_c3.metric("Durasi Mesin", f"{machine_hours:,.1f} Jam")
+    
+    # Complexity/Effort Score (Simulation AI)
+    effort_score = (partners_needed * 0.5) + (machine_hours * 1.5)
+    status_color = "normal" if effort_score < 30 else "inverse" if effort_score < 60 else "off"
+    res_c4.metric("Skor Beban Kerja", f"{effort_score:.0f}", "AI Analysis")
+    
+    if effort_score > 60:
+        st.error("⚠️ **Peringatan AI:** Beban kerja sangat tinggi (Overload). Pertimbangkan untuk menambah mesin extruder atau fokus pada satu lini produk saja untuk tahap awal.")
+    elif effort_score > 30:
+        st.warning("⚡ **Saran AI:** Beban kerja moderat. Membutuhkan minimal 2 shift operasional dan manajemen logistik yang ketat.")
+    else:
+        st.success("✅ **Saran AI:** Target sangat realistis untuk dieksekusi dengan tim kecil dan 1 shift kerja.")
 
     st.divider()
     
-    st.subheader("📈 Proyeksi Pertumbuhan Lini Bisnis")
-    # Simulation Data
-    growth_index = [1, 2, 4, 8, 12] # Multiplier by month
-    months = ["Bulan 1", "Bulan 3", "Bulan 6", "Bulan 9", "Bulan 12"]
+    # --- VISUALIZATION ---
+    col_v1, col_v2 = st.columns([2, 1])
     
-    fig_growth = go.Figure()
-    fig_growth.add_trace(go.Scatter(x=months, y=[target_ferti_income*i/12 for i in growth_index], name="Revenue Pupuk", line_color="#10b981", mode="lines+markers"))
-    fig_growth.add_trace(go.Scatter(x=months, y=[target_filam_income*i/12 for i in growth_index], name="Revenue Filamen", line_color="#3b82f6", mode="lines+markers"))
-    fig_growth.add_trace(go.Bar(x=months, y=[(target_ferti_income+target_filam_income)*i/12 for i in growth_index], name="Total Income", marker_color="#d1fae5", opacity=0.5))
-    
-    fig_growth.update_layout(title="Scaling Revenue 1 Tahun (Target AI)", height=350)
-    st.plotly_chart(fig_growth, use_container_width=True)
+    with col_v1:
+        st.subheader("📈 Proyeksi Pertumbuhan & Target")
+        growth_index = [1, 2, 4, 8, 12] 
+        months = ["Bulan 1", "Bulan 3", "Bulan 6", "Bulan 9", "Bulan 12"]
+        
+        fig_sim = go.Figure()
+        fig_sim.add_trace(go.Bar(x=months, y=[(s_target_ferti + s_target_filam)*i/12 for i in growth_index], name="Total Omzet Proyeksi", marker_color="#10b981", opacity=0.7))
+        fig_sim.add_trace(go.Scatter(x=months, y=[(s_target_ferti + s_target_filam)]*5, name="Target Puncak", line=dict(color="#ef4444", dash="dash")))
+        fig_sim.update_layout(height=350, margin=dict(t=20))
+        st.plotly_chart(fig_sim, use_container_width=True)
+        
+    with col_v2:
+        st.subheader("🧩 Komposisi Pendapatan")
+        fig_pie_sim = px.pie(
+            names=["Pupuk Organic", "Filamen 3D"],
+            values=[s_target_ferti, s_target_filam],
+            color_discrete_sequence=["#10b981", "#3b82f6"],
+            hole=0.4
+        )
+        fig_pie_sim.update_layout(height=350, margin=dict(t=20))
+        st.plotly_chart(fig_pie_sim, use_container_width=True)
 
-    st.markdown("""
-    > [!IMPORTANT]
-    > **AI Insight:** Target Rp 225jt dari Filamen adalah **70% dari profit pool**. Prioritaskan kemitraan dengan instansi yang memiliki konsumsi minuman kemasan tinggi (Kampus/Pusat Perbelanjaan) untuk mengamankan bahan baku PET.
+    st.markdown(f"""
+    > [!TIP]
+    > **Strategi Paling Tepat:** Untuk mencapai total omzet Rp {(s_target_ferti + s_target_filam)/1e6:,.1f} Juta, fokuskan energi pada akuisisi **{partners_needed:,.0f} mitra** strategis. Jika jumlah mitra sulit dicapai, naikkan efisiensi mesin atau cari mitra dengan volume sampah > {s_waste_per_partner} kg/hari.
     """)
 
 # --- TAB 6: ROADMAP ---
