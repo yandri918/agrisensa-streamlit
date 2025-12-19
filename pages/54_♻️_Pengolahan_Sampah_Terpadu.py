@@ -146,8 +146,8 @@ tabs = st.tabs([
 
 # --- TAB 0: DASHBOARD & KPI ---
 with tabs[0]:
-    st.header("📊 Sustainability Command Center")
-    st.write("Metrik konkret untuk mengukur dampak implementasi pengelolaan sampah terpadu.")
+    st.header("📊 Dashboard Operasional & Real-time KPI")
+    st.write("Ringkasan aktivitas harian dan performa ekosistem waste-to-value.")
     
     # KPI Metrics
     kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
