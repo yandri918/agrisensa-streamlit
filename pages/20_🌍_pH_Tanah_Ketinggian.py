@@ -464,6 +464,43 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 with tab1:
     st.header("🔍 Cari & Rekomendasi Pintar")
     
+    # Climate Education Expander
+    with st.expander("🎓 Edukasi: Memahami Iklim & Kesesuaian Lahan", expanded=False):
+        st.markdown("""
+        ### 🇮🇩 1. Klasifikasi Iklim Oldeman (Spesifik Indonesia)
+        Klasifikasi ini didasarkan pada jumlah **Bulan Basah (BB)** dan **Bulan Kering (BK)** berturut-turut.
+        - **Bulan Basah (BB)**: Curah hujan > 200 mm/bulan (Cukup untuk padi sawah).
+        - **Bulan Lembab (BL)**: Curah hujan 100 - 200 mm/bulan.
+        - **Bulan Kering (BK)**: Curah hujan < 100 mm/bulan (Hanya cocok untuk palawija).
+
+        | Tipe | Penjelasan Strategis | Pola Tanam Rekomendasi |
+        | :--- | :--- | :--- |
+        | **A** | Sangat basah, air tersedia sepanjang tahun. | Padi - Padi - Padi |
+        | **B** | Basah, air cukup untuk padi hampir setahun. | Padi - Padi - Palawija |
+        | **C** | Cukup basah, air terbatas di musim kemarau. | Padi - Palawija - Palawija |
+        | **D** | Sedang, air sangat terbatas. | Padi Gogo - Palawija |
+        | **E** | Kering, hanya mengandalkan tadah hujan pendek. | Palawija - Pemberaan |
+
+        ---
+        ### 🌍 2. Zona Iklim Global (Latitudinal)
+        Pembagian iklim berdasarkan posisi geografis dan suhu rata-rata tahunan.
+        
+        1. **Tropis (0° - 23.5° LU/LS)**:
+           - Matahari tegak lurus, suhu stabil (20-30°C).
+           - Tanaman: Sawit, Karet, Pisang, Padi, Kakao.
+        
+        2. **Subtropis (23.5° - 40° LU/LS)**:
+           - Memiliki 4 musim, perbedaan suhu musim nyata.
+           - Tanaman: Gandum, Jeruk, Teh, Kapas, Kedelai.
+        
+        3. **Sedang (40° - 66.5° LU/LS)**:
+           - Curah hujan sepanjang tahun, musim dingin bersalju.
+           - Tanaman: Apel, Persik, Gandum Musim Dingin.
+        
+        4. **Kutub (> 66.5° LU/LS)**:
+           - Suhu sangat rendah, tidak cocok untuk agrikultur skala besar.
+        """)
+
     col_input, col_result = st.columns([1, 2])
     
     with col_input:
