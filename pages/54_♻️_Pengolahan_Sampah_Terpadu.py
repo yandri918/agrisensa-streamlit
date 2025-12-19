@@ -127,7 +127,8 @@ tabs = st.tabs([
     "🧵 Upcycling Plastik", 
     "🤝 Kolaborasi & Matriks",
     "🎯 Blueprint Target AI",
-    "🗓️ Roadmap 12 Minggu"
+    "🗓️ Roadmap 12 Minggu",
+    "📁 Laporan Strategis"
 ])
 
 # --- TAB 0: DASHBOARD & KPI ---
@@ -488,7 +489,7 @@ with tabs[3]:
         
         if st.button("Generate Production Report (3D)"):
             st.toast("Menyiapkan dokumen teknis manufaktur...")
-            st.success("Report siap diunduh di tab Laporan Strategis.")
+            st.success("Report siap diunduh di tab **Laporan Strategis** (Tab 7).")
 
     st.divider()
     st.subheader("📐 Penggunaan di Ekosistem AgriSensa")
@@ -737,10 +738,8 @@ with tabs[5]:
         fig_pie_sim.update_layout(height=350, margin=dict(t=20))
         st.plotly_chart(fig_pie_sim, use_container_width=True)
 
-    st.markdown(f"""
-    > [!TIP]
-    > **Strategi Paling Tepat:** Untuk mencapai total omzet Rp {(s_target_ferti + s_target_filam)/1e6:,.1f} Juta, fokuskan energi pada akuisisi **{partners_needed:,.0f} mitra** strategis. Jika jumlah mitra sulit dicapai, naikkan efisiensi mesin atau cari mitra dengan volume sampah > {s_waste_per_partner} kg/hari.
-    """)
+            
+        st.success("🎯 **Goal Akhir:** Sistem mandiri (Self-Sustaining Eco-System) yang menghasilkan profit dari sampah.")
 
 # --- TAB 6: ROADMAP ---
 with tabs[6]:
@@ -774,14 +773,74 @@ with tabs[6]:
             - **W11:** Penjualan perdana surplus filamen 3D ke komunitas maker.
             - **W12:** Audit dampak lingkungan (Carbon Offset Report).
             """)
-            
-        st.success("🎯 **Goal Akhir:** Sistem mandiri (Self-Sustaining Eco-System) yang menghasilkan profit dari sampah.")
+
+# --- TAB 7: LAPORAN STRATEGIS ---
+with tabs[7]:
+    st.header("📁 Laporan Strategis Proyek (Waste-to-Value)")
+    st.write("Dokumen komprehensif yang merangkum kelayakan teknis, finansial, dan dampak lingkungan.")
+    
+    st.markdown('<div class="jap-sorting-card" style="border-top-color: #10b981;">', unsafe_allow_html=True)
+    st.subheader("📑 Executive Summary: AgriSensa Eco System")
+    
+    r_c1, r_c2 = st.columns(2)
+    with r_c1:
+        st.markdown(f"""
+        **Sektor Ekonomi & ROI:**
+        - **Proyeksi Omzet:** Rp {(s_target_ferti + s_target_filam):,.0f} / Bulan
+        - **Target Capex:** Rp {total_capex:,.0f}
+        - **Net Profit Target:** Rp {(s_target_ferti + s_target_filam - (operators_needed * 3e6 + energy_cost_daily * 30)):,.0f} / Bulan
+        - **Profit Margin:** Proyeksi di atas 25% (Sesuai simulator)
+        """)
+    
+    with r_c2:
+        st.markdown(f"""
+        **Sektor Lingkungan & Sosial:**
+        - **Net Carbon Offset:** {net_carbon_daily * 30:,.1f} kg CO2e / Bulan
+        - **Mitra Strategis:** {partners_needed:,.0f} Instansi (Sekolah/Kantor)
+        - **Status Keberlanjutan:** Platinum Label (Target 12 Bulan)
+        """)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.divider()
+    
+    st.subheader("🛠️ Technical Dossier & Data Export")
+    tab_exp1, tab_exp2 = st.tabs(["📊 Data Log Eksport", "🧪 Spesifikasi Produk"])
+    
+    with tab_exp1:
+        st.write("Unduh row data aktivitas harian untuk audit internal.")
+        csv_data = df_logs.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download Waste Log (CSV)",
+            data=csv_data,
+            file_name=f"waste_log_agrisensa_{datetime.now().strftime('%Y%m%d')}.csv",
+            mime='text/csv',
+        )
+        st.table(df_logs.tail(10))
+        
+    with tab_exp2:
+        st.markdown(f"""
+        - **Status Bioaktivator:** Menggunakan formula **ROTAN** (Modul 43).
+        - **Standar Filamen:** 1.75mm (Variasi < 0.05mm).
+        - **Standar Pupuk:** SNI 19-7030-2004 (Target C/N < 20).
+        """)
+        
+    st.divider()
+    
+    # Final Action Button
+    if st.button("⎙ Print Strategic Dossier (Full Data)", type="primary"):
+        st.components.v1.html("<script>window.print();</script>", height=0)
+        st.info("Gunakan fitur browser 'Save as PDF' untuk menyimpan dokumen ini.")
+
+    st.markdown("""
+    > [!IMPORTANT]
+    > **Catatan Analis:** Untuk menjaga stabilitas omzet Rp 243M, fokus 3 bulan pertama adalah **Stabilitas Supply Chain** (Bahan Baku). Jangan melakukan ekspansi mesin sebelum pasokan sampah harian mencapai 80% dari target simulator.
+    """)
 
 # Footer
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #6b7280; font-size: 0.9rem;">
-    <p><b>AgriSensa Eco System v1.0</b> | Zero Waste Farming Model</p>
+    <p><b>AgriSensa Eco System v1.1</b> | Integrated Waste Management Model</p>
     <p>Kolaborasi Menghasilkan Keberlanjutan</p>
 </div>
 """, unsafe_allow_html=True)
