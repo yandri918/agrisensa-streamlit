@@ -119,19 +119,42 @@ st.markdown("""
         margin: 0 auto;
     }
     
-    /* PRINT OPTIMIZATION */
+    /* PRINT OPTIMIZATION (STRICT) */
     @media print {
-        [data-testid="stSidebar"], header, footer, .stButton, .stDownloadButton, [data-testid="stHeader"] {
+        /* Hide UI clutter */
+        [data-testid="stSidebar"], 
+        header, 
+        footer, 
+        .stButton, 
+        .stDownloadButton, 
+        [data-testid="stHeader"], 
+        [data-testid="stToolbar"],
+        [data-testid="stNotification"] {
             display: none !important;
         }
-        .main .block-container {
+        
+        /* Layout Fixes for Blank Page and Scrolling */
+        .stApp, .main, .block-container, .stAppViewContainer {
+            overflow: visible !important;
+            height: auto !important;
+            min-height: auto !important;
             padding-top: 0 !important;
-            padding-bottom: 0 !important;
+            margin: 0 !important;
         }
-        .jap-sorting-card, .transformation-card, .gomi-card-premium {
+        
+        /* Card Printing Fixes */
+        .jap-sorting-card, .transformation-card, .gomi-card-premium, .metric-card {
             break-inside: avoid;
-            border: 1px solid #eee !important;
+            border: 1px solid #ddd !important;
             box-shadow: none !important;
+            background: #fff !important;
+            color: #000 !important;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        /* Typography */
+        h1, h2, h3, h4, p, span, div {
+            color: #000 !important;
         }
     }
     
@@ -969,6 +992,11 @@ with tabs[7]:
     st.header("📁 Laporan Strategis Proyek (Waste-to-Value)")
     st.write("Dokumen komprehensif yang merangkum kelayakan teknis, finansial, dan dampak lingkungan.")
     
+    # --- CROSS-MODULE DATA SYNC ---
+    rab_remote = st.session_state.get('rab_state_df', None)
+    ops_3k_remote = st.session_state.get('global_3k_sim', None)
+    security_remote = st.session_state.get('ledger_db', None)
+    
     st.markdown('<div class="jap-sorting-card" style="border-top-color: #10b981;">', unsafe_allow_html=True)
     st.subheader("📑 Executive Summary: AgriSensa Eco System")
     
@@ -980,18 +1008,58 @@ with tabs[7]:
         - **Total Investasi (CAPEX):** Rp {total_capex:,.0f}
         - **Beban Kerja (Operator):** {operators_needed} Orang
         - **Net Profit Target:** Rp {(s_target_ferti + s_target_filam - (operators_needed * o_labor_base + energy_cost_daily * 30 + o_maint)):,.0f} / Bulan
-        - **Profit Margin:** Proyeksi di atas 25% (Sesuai simulator)
         """)
     
     with r_c2:
         st.markdown(f"""
         **Sektor Lingkungan & Sosial:**
         - **Net Carbon Offset:** {net_carbon_daily * 30:,.1f} kg CO2e / Bulan
-        - **Mitra Strategis:** {partners_needed:,.0f} Instansi (Sekolah/Kantor)
-        - **Status Keberlanjutan:** Platinum Label (Target 12 Bulan)
+        - **Mitra Strategis:** {partners_needed:,.0f} Instansi
+        - **Status Keberlanjutan:** {trace_hash[:8].upper() if trace_hash else "GOLD"} Label
         """)
     st.markdown('</div>', unsafe_allow_html=True)
     
+    st.divider()
+    
+    # SECTOR SYNC DISPLAY
+    s_col1, s_col2, s_col3 = st.columns(3)
+    
+    with s_col1:
+        st.subheader("💰 Sektor Finansial")
+        if rab_remote is not None:
+            st.success("✅ Terintegrasi (Modul 28)")
+            st.caption(f"Total Item: {len(rab_remote)} Baris")
+            # Minimalist summary of external RAB
+            st.markdown(f"**Total Modal:** Rp {rab_remote['Total (Rp)'].sum():,.0f}")
+        else:
+            st.warning("🔄 Template Standar (Modul 28)")
+            st.markdown(f"**Est. Project CAPEX:** Rp {total_capex:,.0f}")
+            st.caption("Kunjungi Modul 💰 28 untuk sinkronisasi RAB detail.")
+            
+    with s_col2:
+        st.subheader("🚀 Sektor Operasional")
+        if ops_3k_remote:
+            st.success("✅ Terintegrasi (Modul 33)")
+            st.markdown(f"**Komoditas:** {ops_3k_remote['komoditas']}")
+            st.markdown(f"**Kapasitas:** {ops_3k_remote['kapasitas_mingguan']} kg/minggu")
+        else:
+            st.warning("🔄 Template Standar (Modul 33)")
+            st.markdown(f"**Model:** Waste-to-Production Loop")
+            st.markdown(f"**Ops Duration:** 24/7 Monitoring")
+            st.caption("Kunjungi Modul 🏠 33 untuk sinkronisasi strategi 3K.")
+            
+    with s_col3:
+        st.subheader("🛡️ Sektor Keamanan")
+        if security_remote:
+            st.success("✅ Terintegrasi (Modul 48)")
+            st.markdown(f"**Blockchain Audit:** {len(security_remote)} Transaksi")
+            st.markdown(f"**Last Sync:** {security_remote[-1]['timestamp']}")
+        else:
+            st.warning("🔄 Template Standar (Modul 48)")
+            st.markdown("**Traceability ID:** Verified")
+            st.markdown("**Security:** ISO/ESG Aligned")
+            st.caption("Kunjungi Modul 🚚 48 untuk sinkronisasi Supply Chain.")
+
     st.divider()
     
     st.subheader("🛠️ Technical Dossier & Data Export")
@@ -1018,18 +1086,26 @@ with tabs[7]:
     st.divider()
     
     # Final Action Button
-    if st.button("⎙ Print Strategic Dossier (Full Data)", type="primary"):
+    if st.button("⎙ Print Strategic Dossier (Full Data Sync)", type="primary"):
         st.components.v1.html("""
             <script>
-                // Mencapai window utama dari dalam iframe Streamlit
+                // Mempersiapkan layout cetak dengan memaksa window utama fokus
                 window.parent.focus();
+                
+                // Menghilangkan overflow pada container utama untuk mencegah pemotongan halaman
+                const root = window.parent.document.querySelector('.stApp');
+                if(root) {
+                    root.style.overflow = 'visible';
+                    root.style.height = 'auto';
+                }
+                
                 setTimeout(function() {
                     window.parent.print();
-                }, 500);
+                }, 750);
             </script>
         """, height=0)
-        st.toast("Menyiapkan layout cetak... Mohon tunggu window print muncul.")
-        st.info("💡 **Tips Cetak:** Jika window tidak muncul, silakan tekan **Ctrl + P** secara manual. Pastikan opsi 'Background Graphics' diaktifkan agar warna kartu tetap muncul di PDF.")
+        st.toast("⚙️ Mengoptimalkan layout laporan (Sync Data)...")
+        st.info("💡 **Solusi PDF:** Agar tidak kosong, pastikan Anda menggunakan **Google Chrome** atau **Edge**. Saat dialog print muncul, tunggu 2-3 detik hingga pratinjau muncul sempurna. Aktifkan **'Background Graphics'** agar warna kartu tercetak.")
 
     st.markdown("""
     > [!IMPORTANT]
