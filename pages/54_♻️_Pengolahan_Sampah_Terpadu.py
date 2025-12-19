@@ -247,39 +247,68 @@ with tabs[1]:
 
 # --- TAB 2: TRANSFORMASI ORGANIK ---
 with tabs[2]:
-    st.header("🍃 Transformasi Limbah ke Pupuk Organik")
-    st.write("Mengubah sisa dapur instansi menjadi nutrisi premium untuk AgriSensa Nursery.")
+    st.header("🍃 Transformasi Limbah ke Pupuk Organik Premium")
+    st.write("Sistem pengolahan terkontrol untuk menghasilkan nutrisi berkualitas tinggi yang setara dengan pupuk industri.")
     
-    col_t1, col_t2 = st.columns([1, 2])
+    col_t1, col_t2 = st.columns([1, 1])
     
     with col_t1:
-        st.subheader("⚙️ Parameter Kompos")
-        waste_input = st.number_input("Input Sampah Organik (kg/hari)", 10, 1000, 100)
-        method = st.selectbox("Metode Pengolahan", ["Takakura (Cepat)", "Bokashi (Anaerob)", "Vermikompos (Cacing)"])
+        st.markdown('<div class="transformation-card">', unsafe_allow_html=True)
+        st.subheader("🔬 4 Fase Dekomposisi Saintifik")
+        st.markdown("""
+        1. **Fase Mesofilik (Hari 1-3):** Pertumbuhan mikroba awal, suhu naik ke 40°C. pH mulai turun.
+        2. **Fase Termofilik (Hari 4-15):** Suhu 55-70°C. Mematikan patogen & biji gulma. Degradasi selulosa.
+        3. **Fase Pendinginan (Hari 16-25):** Aktivitas mikroba menurun, suhu kembali ke 40°C, muncul fungi dekomposer.
+        4. **Fase Pematangan (Hari >30):** Stabilisasi C/N ratio (Target <20). Pembentukan asam humat & fulvat.
+        """)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    with col_t2:
+        st.subheader("🧪 Quality Control (QC) Parameter")
+        st.write("Pantau indikator fisik untuk menjamin kualitas output.")
+        q1, q2 = st.columns(2)
+        q1.metric("Target Kelembaban", "50-60%", "Kunci Aerob")
+        q2.metric("Target pH Akhir", "6.5 - 7.5", "Netral")
+        
+        st.markdown("""
+        - **Aroma:** Harus berbau tanah segar (bukan amonia/busuk).
+        - **Warna:** Cokelat kegelapan hingga hitam (seperti tanah).
+        - **Tekstur:** Remah, tidak menggumpal saat digenggam.
+        """)
+
+    st.divider()
+    
+    col_t3, col_t4 = st.columns([1, 1])
+    
+    with col_t3:
+        st.subheader("🧫 Manajemen Biologi & Agen Hayati")
+        st.write("Untuk mempercepat proses dan meningkatkan imunitas bibit.")
+        st.table(pd.DataFrame({
+            "Agen Hayati": ["EM4 / Molase", "Trichoderma sp.", "Asam Humat", "Azotobacter"],
+            "Fungsi Utama": ["Akselerator Dekomposisi", "Antifungi (Layu Fusarium)", "Pembenah Struktur Tanah", "Penambat Nitrogen Alami"],
+            "Dosis": ["10ml / liter air", "50gr / m3 sampah", "2gr / liter kocor", "Aplikasi saat matang"]
+        }))
+
+    with col_t4:
+        st.subheader("📊 Simulasi Output & Aplikasi Nursery")
+        waste_input_t = st.number_input("Input Sampah Organik (kg/hari)", 10, 1000, 100, key="t_waste")
         
         # Calculation Logic
         reduction_rate = 0.4 # 40% yield
-        fertilizer_output = waste_input * reduction_rate
+        fert_output = waste_input_t * reduction_rate
         
-        st.metric("Estimasi Pupuk/Hari", f"{fertilizer_output:.1f} kg")
-        st.success(f"Dapat menyuplai nutrisi untuk **{(fertilizer_output/0.5):.0f} bibit** di Nursery.")
+        st.metric("Estimasi Pupuk Matang", f"{fert_output:.1f} kg/hari")
+        
+        with st.expander("📝 Rekomendasi Dosis Aplikasi Nursery", expanded=True):
+            st.markdown(f"""
+            - **Media Semai:** Campur 1 bagian pupuk : 3 bagian tanah (Top Soil).
+            - **Polybag (Bibit):** 50-100gr per pohon, frekuensi 2 minggu sekali.
+            - **Pupuk Cair (POC):** Fermentasi 1kg hasil olahan + 10L air (Dosis 1:10 kocor).
+            """)
+            st.success(f"Output cukup untuk menyuplai nutrisi **{(fert_output/0.1):.0f} polybag bibit** rutin.")
 
-    with col_t2:
-        st.subheader("📊 Potensi Kandungan Hara (NPK Lab Simulation)")
-        st.caption("Hasil olahan sampah organik terpilah dibandingkan standar industri.")
-        
-        hara_data = {
-            "Unsur": ["Nitrogen (N)", "Phosphate (P)", "Kalium (K)", "C/N Ratio"],
-            "Hasil Olahan (%)": [2.5, 1.8, 2.1, 15],
-            "Standar Minimum (%)": [2.0, 1.5, 1.5, 20]
-        }
-        df_hara = pd.DataFrame(hara_data)
-        
-        fig_hara = go.Figure()
-        fig_hara.add_trace(go.Bar(x=df_hara["Unsur"], y=df_hara["Hasil Olahan (%)"], name="Hasil AgriSensa Eco", marker_color="#10b981"))
-        fig_hara.add_trace(go.Bar(x=df_hara["Unsur"], y=df_hara["Standar Minimum (%)"], name="Standar SNI", marker_color="#94a3b8"))
-        fig_hara.update_layout(barmode='group', height=300, margin=dict(t=20))
-        st.plotly_chart(fig_hara, use_container_width=True)
+    st.divider()
+    st.subheader("📊 Analisis Kandungan Hara (NPK Lab Simulation)")
 
 # --- TAB 3: UPCYCLING PLASTIK ---
 with tabs[3]:
