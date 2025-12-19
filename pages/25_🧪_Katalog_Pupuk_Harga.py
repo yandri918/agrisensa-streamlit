@@ -581,6 +581,30 @@ PESTICIDE_DATABASE_DEFAULT = {
         "usage": "Kelapa Sawit, Jagung, Kakao",
         "dosage": "2-3 ml/liter air"
     },
+    
+    # RAINBOW PRODUCTS (NEW)
+    "Onrole 20 SG": {
+        "category": "Insektisida",
+        "brand": "Rainbow Agrosciences",
+        "active_ingredient": "Dinotefuran 20%",
+        "target_pests": ["Wereng Coklat", "Penggerek Batang Padi"],
+        "price": 45000,
+        "unit": "100 gr",
+        "description": "Insektisida racun kontak dan lambung sistemik untuk wereng.",
+        "usage": "Padi",
+        "dosage": "150-300 g/ha"
+    },
+    "Abinsec 18 EC": {
+        "category": "Insektisida",
+        "brand": "Rainbow Agrosciences",
+        "active_ingredient": "Abamectin 18 g/l",
+        "target_pests": ["Thrips", "Kutu Daun", "Tungau"],
+        "price": 65000,
+        "unit": "250 ml",
+        "description": "Insektisida racun kontak dan lambung spektrum luas.",
+        "usage": "Cabai, Tomat, Jeruk",
+        "dosage": "0.5-1 ml/liter air"
+    },
 
     # FUNGISIDA
     "Amistartop 325SC": {
@@ -638,6 +662,28 @@ PESTICIDE_DATABASE_DEFAULT = {
         "usage": "Padi, Cabai, Bawang Merah",
         "dosage": "150-200 g/hektar"
     },
+    "Raineb 70 WP": {
+        "category": "Fungisida",
+        "brand": "Rainbow Agrosciences",
+        "active_ingredient": "Propineb 70%",
+        "target_pests": ["Hawar Pelepah", "Busuk Daun", "Bercak Daun"],
+        "price": 85000,
+        "unit": "1 kg",
+        "description": "Fungisida kontak protektif untuk penyakit jamur.",
+        "usage": "Padi, Sayuran",
+        "dosage": "2-3 g/liter air"
+    },
+    "Raincozeb 80 WP": {
+        "category": "Fungisida",
+        "brand": "Rainbow Agrosciences",
+        "active_ingredient": "Mancozeb 80%",
+        "target_pests": ["Hawar Daun", "Busuk Buah", "Karat Daun"],
+        "price": 95000,
+        "unit": "1 kg",
+        "description": "Fungisida kontak protektif berwarna kuning/biru.",
+        "usage": "Hortikultura, Perkebunan",
+        "dosage": "2-4 g/liter air"
+    },
     "Bakterisida Agrimycin": {
         "category": "Bakterisida",
         "brand": "Pfizer/Agro",
@@ -684,10 +730,32 @@ PESTICIDE_DATABASE_DEFAULT = {
         "usage": "Perkebunan Kelapa Sawit, Lahan Non-Crop",
         "dosage": "1-2 liter/hektar"
     },
+    "Maizcare 550 SC": {
+        "category": "Herbisida",
+        "brand": "Rainbow Agrosciences",
+        "active_ingredient": "Atrazine 500 g/l + Mesotrione 50 g/l",
+        "target_pests": ["Gulma Berdaun Lebar", "Gulma Rumput"],
+        "price": 135000,
+        "unit": "1 Liter",
+        "description": "Herbisida selektif untuk mengendalikan gulma pada tanaman jagung.",
+        "usage": "Jagung",
+        "dosage": "1.5-2 liter/ha"
+    },
+    "Lava 276 SL": {
+        "category": "Herbisida",
+        "brand": "Rainbow Agrosciences",
+        "active_ingredient": "Paraquat Diklorida 276 g/l",
+        "target_pests": ["Gulma Umum", "Rumput Liar"],
+        "price": 85000,
+        "unit": "1 Liter",
+        "description": "Herbisida kontak purna tumbuh yang sangat cepat membakar gulma.",
+        "usage": "Lahan tanpa tanaman, persiapan lahan",
+        "dosage": "10-20 ml/liter air"
+    },
 }
 
 # Session State Init
-DB_VERSION = "1.4" # Increment to force refresh
+DB_VERSION = "1.5" # Increment to force refresh
 
 if 'db_version' not in st.session_state or st.session_state.db_version != DB_VERSION:
     st.session_state.fertilizer_db = FERTILIZER_DATABASE_DEFAULT.copy()
