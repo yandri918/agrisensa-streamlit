@@ -118,6 +118,23 @@ st.markdown("""
         justify-content: center;
         margin: 0 auto;
     }
+    
+    /* PRINT OPTIMIZATION */
+    @media print {
+        [data-testid="stSidebar"], header, footer, .stButton, .stDownloadButton, [data-testid="stHeader"] {
+            display: none !important;
+        }
+        .main .block-container {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        .jap-sorting-card, .transformation-card, .gomi-card-premium {
+            break-inside: avoid;
+            border: 1px solid #eee !important;
+            box-shadow: none !important;
+        }
+    }
+    
     .transformation-card {
         background: #ffffff;
         padding: 20px;
@@ -1002,8 +1019,17 @@ with tabs[7]:
     
     # Final Action Button
     if st.button("⎙ Print Strategic Dossier (Full Data)", type="primary"):
-        st.components.v1.html("<script>window.print();</script>", height=0)
-        st.info("Gunakan fitur browser 'Save as PDF' untuk menyimpan dokumen ini.")
+        st.components.v1.html("""
+            <script>
+                // Mencapai window utama dari dalam iframe Streamlit
+                window.parent.focus();
+                setTimeout(function() {
+                    window.parent.print();
+                }, 500);
+            </script>
+        """, height=0)
+        st.toast("Menyiapkan layout cetak... Mohon tunggu window print muncul.")
+        st.info("💡 **Tips Cetak:** Jika window tidak muncul, silakan tekan **Ctrl + P** secara manual. Pastikan opsi 'Background Graphics' diaktifkan agar warna kartu tetap muncul di PDF.")
 
     st.markdown("""
     > [!IMPORTANT]
