@@ -356,7 +356,7 @@ FERTILIZER_DATABASE_DEFAULT = {
         "dosage": "3-5 tutup botol per tangki",
         "application": "Semprot daun"
     },
-    "DI GROW Hijau (Growth)": {
+    "DI GROW Hijau/Putih (Growth)": {
         "category": "Organik Cair",
         "brand": "Dynapharm",
         "formula": "Biostimulan Vegetatif",
@@ -755,7 +755,7 @@ PESTICIDE_DATABASE_DEFAULT = {
 }
 
 # Session State Init
-DB_VERSION = "1.5" # Increment to force refresh
+DB_VERSION = "1.6" # Increment to force refresh
 
 if 'db_version' not in st.session_state or st.session_state.db_version != DB_VERSION:
     st.session_state.fertilizer_db = FERTILIZER_DATABASE_DEFAULT.copy()
@@ -896,12 +896,12 @@ with st.sidebar:
     selected_brand = st.selectbox("Produsen", brands)
     
     # Price range
-    st.markdown("**Range Harga (Rp/kg):**")
+    st.markdown("**Range Harga (Rp/kg atau unit):**")
     price_range = st.slider(
         "Pilih range harga",
         min_value=0,
-        max_value=50000,
-        value=(0, 50000),
+        max_value=250000,
+        value=(0, 250000),
         step=500,
         format="Rp %d"
     )
