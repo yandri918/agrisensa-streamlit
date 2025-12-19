@@ -309,6 +309,76 @@ with tabs[2]:
 
     st.divider()
     st.subheader("📊 Analisis Kandungan Hara (NPK Lab Simulation)")
+    st.write("Hasil simulasi uji laboratorium berdasarkan standarisasi **SNI 19-7030-2004** untuk kompos berkualitas.")
+    
+    # Advanced Nutrient Data
+    nutrient_db = {
+        "Grup": ["Primer", "Primer", "Primer", "Sekunder", "Sekunder", "Sekunder", "Mikro", "Mikro", "Mikro", "Lainnya"],
+        "Parameter": ["Nitrogen (N)", "Phosphate (P)", "Kalium (K)", "Kalsium (Ca)", "Magnesium (Mg)", "Sulfur (S)", "Besi (Fe)", "Mangan (Mn)", "Seng (Zn)", "C/N Ratio"],
+        "Hasil (%)": [2.65, 1.95, 2.30, 1.10, 0.45, 0.35, 0.05, 0.02, 0.015, 12.5],
+        "SNI Min (%)": [2.00, 1.50, 1.50, 0.80, 0.30, 0.25, 0.03, 0.01, 0.010, 20.0],
+        "Fungsi Saintifik": [
+            "Pembentukan Klorofil & Vegetatif", 
+            "Perkembangan Akar & Pembungaan", 
+            "Transportasi Nutrisi & Imun",
+            "Dinding Sel & Aktivasi Enzim",
+            "Inti Klorofil (Fotosintesis)",
+            "Sintesis Protein & Aroma",
+            "Transfer Elektron dalam Sel",
+            "Aktivator Metabolisme Nitrogen",
+            "Sintesis Hormon Auksin (Tumbuh)",
+            "Indikator Kematangan Kompos"
+        ]
+    }
+    df_lab = pd.DataFrame(nutrient_db)
+    
+    l_col1, l_col2 = st.columns([2, 1])
+    
+    with l_col1:
+        fig_lab = go.Figure()
+        
+        # Filter for charting percent assets only (not C/N Ratio)
+        df_chart = df_lab[df_lab["Parameter"] != "C/N Ratio"]
+        
+        fig_lab.add_trace(go.Bar(
+            x=df_chart["Parameter"], 
+            y=df_chart["Hasil (%)"], 
+            name="AgriSensa Eco Lab", 
+            marker_color="#10b981",
+            text=df_chart["Hasil (%)"],
+            textposition='auto'
+        ))
+        
+        fig_lab.add_trace(go.Bar(
+            x=df_chart["Parameter"], 
+            y=df_chart["SNI Min (%)"], 
+            name="SNI Standard", 
+            marker_color="#d1d5db"
+        ))
+        
+        fig_lab.update_layout(
+            barmode='group', 
+            height=400, 
+            margin=dict(t=20, b=20),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        )
+        st.plotly_chart(fig_lab, use_container_width=True)
+        
+    with l_col2:
+        st.markdown("**🔬 Kesimpulan Lab**")
+        cn_val = df_lab[df_lab["Parameter"] == "C/N Ratio"]["Hasil (%)"].values[0]
+        if cn_val < 20:
+            st.success(f"**C/N Ratio: {cn_val}**\n\nKompos sudah **MATANG SEMPURNA** dan aman untuk media tanam nursery.")
+        else:
+            st.warning(f"**C/N Ratio: {cn_val}**\n\nKompos masih perlu maturasi tambahan.")
+            
+        st.markdown("""
+        > [!NOTE]
+        > Kandungan **Nitrogen (2.65%)** di atas standar SNI menandakan bahan baku sisa dapur Anda kaya akan protein, sangat baik untuk fase vegetatif sayuran.
+        """)
+
+    st.markdown("**📄 Tabel Rincian Unsur Hara Lengkap**")
+    st.table(df_lab)
 
 # --- TAB 3: UPCYCLING PLASTIK ---
 with tabs[3]:
