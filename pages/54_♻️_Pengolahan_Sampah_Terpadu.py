@@ -32,6 +32,11 @@ def save_waste_entry(date, waste_type, weight):
     }
     df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
     df.to_csv(WASTE_LOG_FILE, index=False)
+
+def reset_waste_logs():
+    if os.path.exists(WASTE_LOG_FILE):
+        df = pd.DataFrame(columns=['tanggal', 'tipe', 'berat_kg', 'created_at'])
+        df.to_csv(WASTE_LOG_FILE, index=False)
     return df
 
 # Page Config
@@ -285,6 +290,16 @@ with tabs[0]:
         ))
         fig_progress.update_layout(height=280, margin=dict(t=50, b=10))
         st.plotly_chart(fig_progress, use_container_width=True)
+
+    # --- DATA MANAGEMENT (BOTTOM OF TAB 0) ---
+    st.divider()
+    with st.expander("🛠️ Pengaturan Data (Simulation Mode)", expanded=False):
+        st.warning("⚠️ **Perhatian:** Menghapus data akan menghilangkan seluruh log aktivitas yang tersimpan secara permanen.")
+        confirm_delete = st.checkbox("Saya yakin ingin menghapus seluruh data simulasi.")
+        if st.button("🗑️ Hapus Seluruh Database Log", type="secondary", disabled=not confirm_delete):
+            reset_waste_logs()
+            st.success("Database berhasil dibersihkan! Me-refresh aplikasi...")
+            st.rerun()
 
 # --- TAB 1: SISTEM PEMILAHAN ---
 with tabs[1]:
