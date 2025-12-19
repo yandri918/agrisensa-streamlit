@@ -1026,6 +1026,9 @@ with tabs[8]:
     # 1 Mature Tree = approx 22kg CO2/year. 
     tree_equivalent = (total_managed * coef_carbon) / 22
     
+    # Circular Economy Value (Value per KG)
+    value_per_kg = ((organic_processed * price_organic) + (plastic_recycled * price_filament)) / (total_managed or 1)
+    
     # 2. Social (S)
     # Formula: 1 operator per 500kg daily waste + 1 admin/logistics per 10 partners
     social_jobs = (total_managed / 500) + (partners_needed / 10)
