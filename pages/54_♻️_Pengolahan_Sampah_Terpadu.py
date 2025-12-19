@@ -53,12 +53,64 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
     .jap-sorting-card {
-        background: white;
+        background: #ffffff;
         padding: 20px;
         border-radius: 15px;
-        border-top: 8px solid #059669;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-top: 5px solid #3b82f6;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    .jap-sorting-card:hover {
+        transform: translateY(-5px);
+    }
+    /* Premium Gomi Cards */
+    .gomi-card-premium {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        min-height: 380px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .gomi-card-premium:hover {
+        transform: scale(1.02);
+        box-shadow: 0 15px 45px rgba(0,0,0,0.1);
+        border-color: rgba(255,255,255,0.3);
+    }
+    .gomi-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+        letter-spacing: 1px;
+    }
+    .gomi-subtitle {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        margin-bottom: 20px;
+        font-style: italic;
+    }
+    .gomi-list {
+        text-align: left;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    .gomi-icon-container {
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
     }
     .transformation-card {
         background: #ffffff;
@@ -243,44 +295,72 @@ with tabs[1]:
     g_col1, g_col2, g_col3, g_col4 = st.columns(4)
     
     with g_col1:
-        st.markdown('<div class="jap-sorting-card" style="border-top-color: #ef4444; min-height: 280px;">', unsafe_allow_html=True)
-        st.markdown("**🔴 MOERU GOMI**")
-        st.caption("Combustible / Bakar")
-        st.write("- Sisa Makanan")
-        st.write("- Kertas Kotor/Tisu")
-        st.write("- Daun/Ranting Kecil")
-        st.image("https://img.icons8.com/isometric/100/Organic-Food.png", width=60)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="gomi-card-premium" style="background: linear-gradient(135deg, #fff5f5 0%, #fff 100%); border-top: 8px solid #ef4444;">
+            <div class="gomi-title" style="color: #ef4444;">🔴 MOERU</div>
+            <div class="gomi-subtitle">Combustible / Bakar</div>
+            <div class="gomi-list">
+                • Sisa Makanan<br>
+                • Kertas Kotor/Tisu<br>
+                • Daun/Ranting Kecil<br>
+                • Popok Bayi
+            </div>
+            <div class="gomi-icon-container" style="background: #fee2e2;">
+                <img src="https://img.icons8.com/isometric/100/Organic-Food.png" width="60">
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
     with g_col2:
-        st.markdown('<div class="jap-sorting-card" style="border-top-color: #3b82f6; min-height: 280px;">', unsafe_allow_html=True)
-        st.markdown("**🔵 SHIGEN GOMI**")
-        st.caption("Recyclable / Daur Ulang")
-        st.write("- Botol PET")
-        st.write("- Kaleng Logam")
-        st.write("- Koran & Kardus")
-        st.image("https://img.icons8.com/isometric/100/Plastic-Bottle.png", width=60)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="gomi-card-premium" style="background: linear-gradient(135deg, #eef2ff 0%, #fff 100%); border-top: 8px solid #3b82f6;">
+            <div class="gomi-title" style="color: #3b82f6;">🔵 SHIGEN</div>
+            <div class="gomi-subtitle">Recyclable / Daur Ulang</div>
+            <div class="gomi-list">
+                • Koran & Kardus<br>
+                • Kaleng Logam<br>
+                • Botol Kaca Bersih<br>
+                • Plastik Campuran
+            </div>
+            <div class="gomi-icon-container" style="background: #e0e7ff;">
+                <img src="https://img.icons8.com/isometric/100/Plastic-Bottle.png" width="60">
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
     with g_col3:
-        st.markdown('<div class="jap-sorting-card" style="border-top-color: #10b981; min-height: 280px;">', unsafe_allow_html=True)
-        st.markdown("**🟢 FILAMEN SPECIFIC**")
-        st.caption("Premium Plastics Only")
-        st.write("- Botol PET Bening")
-        st.write("- Tutup HDPE")
-        st.write("- Label PP")
-        st.image("https://img.icons8.com/isometric/100/3D-Printer.png", width=60)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="gomi-card-premium" style="background: linear-gradient(135deg, #ecfdf5 0%, #fff 100%); border-top: 8px solid #10b981;">
+            <div class="gomi-title" style="color: #10b981;">🟢 FILAMEN</div>
+            <div class="gomi-subtitle">AgriSensa Gold Standard</div>
+            <div class="gomi-list">
+                • Botol PET Bening<br>
+                • Tutup Botol HDPE<br>
+                • Label Kemasan PP<br>
+                • Gelas Plastik PET
+            </div>
+            <div class="gomi-icon-container" style="background: #d1fae5;">
+                <img src="https://img.icons8.com/isometric/100/3D-Printer.png" width="60">
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
     with g_col4:
-        st.markdown('<div class="jap-sorting-card" style="border-top-color: #6b7280; min-height: 280px;">', unsafe_allow_html=True)
-        st.markdown("**⚫ MOENAI GOMI**")
-        st.caption("Non-Combustible")
-        st.write("- Kaca/Keramik")
-        st.write("- Baterai (B3)")
-        st.write("- Logam Berbahaya")
-        st.image("https://img.icons8.com/isometric/100/Battery-Level.png", width=60)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="gomi-card-premium" style="background: linear-gradient(135deg, #f8fafc 0%, #fff 100%); border-top: 8px solid #64748b;">
+            <div class="gomi-title" style="color: #64748b;">⚫ MOENAI</div>
+            <div class="gomi-subtitle">Non-Combustible / B3</div>
+            <div class="gomi-list">
+                • Pecahan Kaca<br>
+                • Baterai & Lampu<br>
+                • Logam Tajam<br>
+                • Limbah Kimia
+            </div>
+            <div class="gomi-icon-container" style="background: #f1f5f9;">
+                <img src="https://img.icons8.com/isometric/100/Battery-Level.png" width="60">
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.divider()
 
