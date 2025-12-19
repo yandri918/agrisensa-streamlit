@@ -414,17 +414,29 @@ with tabs[3]:
         
         with calc_col2:
             filament_dia = st.selectbox("Diameter Filamen (mm)", [1.75, 2.85])
-            density_pet = 1.38 # g/cm3
+            density_pet = 1.38 # g/cm3 standard PET
             
             # Volume = Mass / Density
             volume_cm3 = total_input_gr / density_pet
-            # length = Volume / (pi * r^2)
-            radius = (filament_dia / 2) / 10 # to cm
-            length_cm = volume_cm3 / (3.14159 * (radius**2))
+            # area = pi * r^2
+            radius_cm = (filament_dia / 2) / 10 
+            area_cm2 = 3.14159 * (radius_cm**2)
+            
+            length_cm = volume_cm3 / area_cm2
             length_meters = length_cm / 100
+            
+            # Spool estimation (1kg per spool)
+            total_kg = total_input_gr / 1000
+            num_spools = total_kg / 1.0 # 1kg spool
         
-        st.metric("Estimasi Panjang Filamen", f"{length_meters:,.1f} Meter", f"{total_input_gr/1000:,.1f} kg Material")
-        st.caption(f"Cukup untuk mencetak **{int(length_meters/15)} unit** label nursery standar.")
+        # Displaying Results with Clearer Units
+        res_y1, res_y2, res_y3 = st.columns(3)
+        res_y1.metric("Total Berat", f"{total_kg:,.2f} Kg", "Material PET")
+        res_y2.metric("Estimasi Panjang", f"{length_meters:,.1f} Meter", f"dia {filament_dia}mm")
+        res_y3.metric("Output Produksi", f"{num_spools:,.1f} Roll", "Spool 1kg")
+        
+        st.caption(f"💡 **Catatan Teknis:** 1 Roll filamen PET 1.75mm standar memiliki panjang ±330 meter. Hasil {(total_kg*1000)/3.32:,.0f}m didasarkan pada densitas murni PET 1.38 g/cm³.")
+        st.info(f"Produksi ini cukup untuk mencetak **{int(length_meters/15)} unit** label nursery standar.")
 
     st.divider()
     
