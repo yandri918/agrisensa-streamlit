@@ -9,9 +9,10 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="Katalog Pupuk & Harga", page_icon="🧪", layout="wide")
 
-# ========== FERTILIZER DATABASE ==========
+# ========== DATABASE INITIALIZATION ==========
 
-FERTILIZER_DATABASE = {
+# Default Data
+FERTILIZER_DATABASE_DEFAULT = {
     # UREA
     "Urea Pusri": {
         "category": "Urea",
@@ -41,50 +42,216 @@ FERTILIZER_DATABASE = {
         "dosage": "200-300 kg/ha",
         "application": "Tabur/kocor, split application"
     },
+    "Urea Kaltim": {
+        "category": "Urea",
+        "brand": "PT Pupuk Kalimantan Timur",
+        "formula": "CO(NH₂)₂",
+        "n_content": 46,
+        "p_content": 0,
+        "k_content": 0,
+        "price_per_kg": 2400,
+        "package_sizes": ["50 kg"],
+        "description": "Pupuk nitrogen butiran (granul) berkualitas tinggi",
+        "usage": "Padi, jagung, hortalikultura",
+        "dosage": "200-300 kg/ha",
+        "application": "Tabur/kocor"
+    },
     
     # NPK PHONSKA
-    "NPK Phonska": {
+    "NPK Phonska (Subsidi)": {
         "category": "NPK",
         "brand": "PT Petrokimia Gresik",
-        "formula": "15-15-15",
+        "formula": "15-10-12",
+        "n_content": 15,
+        "p_content": 10,
+        "k_content": 12,
+        "price_per_kg": 2300,
+        "package_sizes": ["50 kg"],
+        "description": "Pupuk majemuk subsidi untuk tanaman pangan",
+        "usage": "Padi, jagung, kedelai",
+        "dosage": "250-400 kg/ha",
+        "application": "Tabur saat tanam"
+    },
+    "NPK Phonska Plus": {
+        "category": "NPK",
+        "brand": "PT Petrokimia Gresik",
+        "formula": "15-15-15+9S+0.1Zn",
         "n_content": 15,
         "p_content": 15,
         "k_content": 15,
-        "price_per_kg": 2650,
-        "package_sizes": ["50 kg"],
-        "description": "Pupuk majemuk lengkap untuk semua fase",
-        "usage": "Padi, jagung, sayuran, buah",
-        "dosage": "250-400 kg/ha",
-        "application": "Tabur/kocor, 2-3 kali aplikasi"
+        "price_per_kg": 3200,
+        "package_sizes": ["25 kg", "50 kg"],
+        "description": "Pupuk majemuk non-subsidi dengan tambahan Sulfur dan Zinc",
+        "usage": "Padi, jagung, hortikultura",
+        "dosage": "200-350 kg/ha",
+        "application": "Tabur/kocor"
     },
-    "NPK Pelangi 16-16-16": {
+    "NPK Mutiara 16-16-16": {
         "category": "NPK",
-        "brand": "PT Petrokimia Gresik",
+        "brand": "Yara / PT Meroke Tetap Jaya",
         "formula": "16-16-16",
         "n_content": 16,
         "p_content": 16,
         "k_content": 16,
-        "price_per_kg": 2750,
-        "package_sizes": ["50 kg"],
-        "description": "Pupuk majemuk berimbang untuk hasil optimal",
-        "usage": "Padi, jagung, kedelai",
-        "dosage": "250-350 kg/ha",
-        "application": "Tabur saat tanam dan susulan"
+        "price_per_kg": 18000,
+        "package_sizes": ["1 kg", "5 kg", "50 kg"],
+        "description": "Pupuk majemuk impor berkualitas tinggi untuk hortikultura",
+        "usage": "Sayuran, buah-buahan, tanaman hias",
+        "dosage": "200-500 kg/ha",
+        "application": "Tabur/kocor"
     },
-    "NPK Mutiara 16-16-16": {
+    "NPK Pelangi 16-16-16": {
         "category": "NPK",
         "brand": "PT Pupuk Kalimantan Timur",
         "formula": "16-16-16",
         "n_content": 16,
         "p_content": 16,
         "k_content": 16,
-        "price_per_kg": 2800,
+        "price_per_kg": 12000,
         "package_sizes": ["50 kg"],
-        "description": "Pupuk majemuk premium untuk hasil maksimal",
-        "usage": "Padi, jagung, hortikultura",
-        "dosage": "250-350 kg/ha",
+        "description": "Pupuk majemuk dengan teknologi blend merata",
+        "usage": "Padi, jagung, perkebunan",
+        "dosage": "250-400 kg/ha",
+        "application": "Tabur"
+    },
+    
+    # NPK GROWER
+    "NPK Meroke Grower 15-09-20": {
+        "category": "NPK",
+        "brand": "PT Meroke Tetap Jaya",
+        "formula": "15-09-20+TE",
+        "n_content": 15,
+        "p_content": 9,
+        "k_content": 20,
+        "price_per_kg": 19500,
+        "package_sizes": ["50 kg"],
+        "description": "Pupuk untuk fase generatif/pembesaran buah",
+        "usage": "Cabai, tomat, melon, jeruk",
+        "dosage": "300-500 kg/ha",
+        "application": "Kocor/tabur"
+    },
+    
+    # SP-36 & TSP
+    "SP-36 Petro": {
+        "category": "Fosfat",
+        "brand": "PT Petrokimia Gresik",
+        "formula": "P₂O₅ 36%",
+        "n_content": 0,
+        "p_content": 36,
+        "k_content": 0,
+        "price_per_kg": 2400,
+        "package_sizes": ["50 kg"],
+        "description": "Pupuk sumber fosfat utama untuk perakaran",
+        "usage": "Padi, jagung, kedelai",
+        "dosage": "100-150 kg/ha",
+        "application": "Tabur saat tanam"
+    },
+    "TSP 46": {
+        "category": "Fosfat",
+        "brand": "Import",
+        "formula": "P₂O₅ 46%",
+        "n_content": 0,
+        "p_content": 46,
+        "k_content": 0,
+        "price_per_kg": 15000,
+        "package_sizes": ["50 kg"],
+        "description": "Triple Super Phosphate kandungan P sangat tinggi",
+        "usage": "Perkebunan, holtikultura",
+        "dosage": "100-200 kg/ha",
+        "application": "Tabur"
+    },
+    
+    # KCl / MOP
+    "KCl Mahkota": {
+        "category": "Kalium",
+        "brand": "PT Wilmar Nabati Indonesia",
+        "formula": "K₂O 60%",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 60,
+        "price_per_kg": 9500,
+        "package_sizes": ["50 kg"],
+        "description": "Pupuk sumber kalium untuk ketahanan penyakit",
+        "usage": "Padi, sawit, jagung",
+        "dosage": "100-200 kg/ha",
+        "application": "Tabur"
+    },
+    "ZK (Kalium Sulfat)": {
+        "category": "Kalium",
+        "brand": "PT Petrokimia Gresik",
+        "formula": "K₂O 50% + S 17%",
+        "n_content": 0,
+        "p_content": 0,
+        "k_content": 50,
+        "price_per_kg": 16000,
+        "package_sizes": ["25 kg", "50 kg"],
+        "description": "Pupuk kalium bebas klor, sangat baik untuk tembakau & jeruk",
+        "usage": "Tembakau, kentang, wortel, jeruk",
+        "dosage": "150-250 kg/ha",
         "application": "Tabur/kocor"
     },
+
+    # KHUSUS HIDROPONIK
+    "AB Mix Sayuran Daun": {
+        "category": "Hidroponik",
+        "brand": "Lokal Premium",
+        "formula": "Pekatan A + Pekatan B",
+        "n_content": 10,
+        "p_content": 5,
+        "k_content": 15,
+        "price_per_kg": 45000,
+        "package_sizes": ["1 set (5 liter)"],
+        "description": "Nutrisi lengkap untuk sayuran daun hidroponik",
+        "usage": "Selada, sawi, pakcoy, kangkung",
+        "dosage": "5 ml A + 5 ml B per 1 liter air",
+        "application": "Sirkulasi/NFT/Wick"
+    },
+    "AB Mix Buah": {
+        "category": "Hidroponik",
+        "brand": "Lokal Premium",
+        "formula": "Pekatan A + Pekatan B",
+        "n_content": 8,
+        "p_content": 8,
+        "k_content": 22,
+        "price_per_kg": 55000,
+        "package_sizes": ["1 set (5 liter)"],
+        "description": "Nutrisi lengkap untuk sayuran buah hidroponik",
+        "usage": "Melon, tomat, cabai, stroberi",
+        "dosage": "5 ml A + 5 ml B per 1 liter air",
+        "application": "Sirkulasi/Drip Irigasi"
+    },
+    
+    # HAYATI & ORGANIK
+    "EM4 Pertanian": {
+        "category": "Hayati",
+        "brand": "PT Songgolangit Persada",
+        "formula": "Lactobacillus, ragi, fotosintetik",
+        "n_content": 0.1,
+        "p_content": 0.1,
+        "k_content": 0.1,
+        "price_per_kg": 25000, # per liter
+        "package_sizes": ["1 liter"],
+        "description": "Mikroorganisme efektif untuk dekomposisi dan kesehatan tanah",
+        "usage": "Semua tanaman, pembuatan kompos",
+        "dosage": "1-2 ml per liter air",
+        "application": "Semprot tanah/siraman"
+    },
+    "Biotara": {
+        "category": "Hayati",
+        "brand": "PT Pupuk Indonesia",
+        "formula": "Trichoderma + N-Fixer",
+        "n_content": 1,
+        "p_content": 1,
+        "k_content": 1,
+        "price_per_kg": 22000,
+        "package_sizes": ["1 kg"],
+        "description": "Pupuk hayati khusus untuk lahan rawa/asam",
+        "usage": "Padi rawa, jagung",
+        "dosage": "25-50 kg/ha",
+        "application": "Tabur bersama pupuk kimia"
+    },
+    
+    # KEBOMAS & PREMIUM
     "NPK Kebomas 15-15-15": {
         "category": "NPK",
         "brand": "PT Petrokimia Gresik",
@@ -92,59 +259,29 @@ FERTILIZER_DATABASE = {
         "n_content": 15,
         "p_content": 15,
         "k_content": 15,
-        "price_per_kg": 2700,
+        "price_per_kg": 9500,
         "package_sizes": ["50 kg"],
-        "description": "Pupuk majemuk untuk tanaman pangan",
+        "description": "Pupuk majemuk untuk tanaman pangan dan hortikultura",
         "usage": "Padi, jagung, kedelai",
         "dosage": "250-400 kg/ha",
-        "application": "Tabur saat tanam"
+        "application": "Tabur"
     },
-    
-    # NPK KHUSUS
-    "NPK Grower 15-9-20": {
-        "category": "NPK",
-        "brand": "PT Pupuk Kalimantan Timur",
-        "formula": "15-9-20",
+    "NPK YaraMila Winner": {
+        "category": "NPK Premium",
+        "brand": "Yara International",
+        "formula": "15-09-20+TE",
         "n_content": 15,
         "p_content": 9,
         "k_content": 20,
-        "price_per_kg": 3200,
-        "package_sizes": ["25 kg", "50 kg"],
-        "description": "Pupuk khusus untuk fase generatif dan pembuahan",
-        "usage": "Cabai, tomat, melon, semangka",
-        "dosage": "300-500 kg/ha",
-        "application": "Kocor/tabur, fokus K tinggi"
-    },
-    "NPK Pelangi 12-12-17+2MgO": {
-        "category": "NPK",
-        "brand": "PT Petrokimia Gresik",
-        "formula": "12-12-17+2MgO",
-        "n_content": 12,
-        "p_content": 12,
-        "k_content": 17,
-        "price_per_kg": 2900,
+        "price_per_kg": 22000,
         "package_sizes": ["50 kg"],
-        "description": "Pupuk dengan tambahan Magnesium untuk klorofil",
-        "usage": "Sawit, karet, kakao",
-        "dosage": "300-400 kg/ha",
-        "application": "Tabur di piringan"
-    },
-    "NPK Yara 15-15-15+TE": {
-        "category": "NPK",
-        "brand": "Yara International",
-        "formula": "15-15-15+TE",
-        "n_content": 15,
-        "p_content": 15,
-        "k_content": 15,
-        "price_per_kg": 4500,
-        "package_sizes": ["25 kg"],
-        "description": "Pupuk premium dengan trace elements lengkap",
-        "usage": "Hortikultura, buah premium",
-        "dosage": "200-300 kg/ha",
-        "application": "Kocor/fertigasi"
+        "description": "Pupuk premium dengan teknologi prill, larut air sempurna",
+        "usage": "Buah-buahan, sayuran bernilai tinggi",
+        "dosage": "300-500 kg/ha",
+        "application": "Kocor/tabur"
     },
     
-    # ZA (Zwavelzure Ammoniak)
+    # ZA
     "ZA Petrokimia": {
         "category": "ZA",
         "brand": "PT Petrokimia Gresik",
@@ -152,12 +289,12 @@ FERTILIZER_DATABASE = {
         "n_content": 21,
         "p_content": 0,
         "k_content": 0,
-        "price_per_kg": 1800,
+        "price_per_kg": 4500,
         "package_sizes": ["50 kg"],
-        "description": "Pupuk nitrogen dengan sulfur untuk tanah alkalis",
-        "usage": "Padi, tebu, tembakau",
-        "dosage": "200-300 kg/ha",
-        "application": "Tabur, cocok untuk tanah pH tinggi"
+        "description": "Pupuk nitrogen plus sulfur 24%",
+        "usage": "Padi, tebu, hortikultura",
+        "dosage": "150-250 kg/ha",
+        "application": "Tabur"
     },
     "ZA Pusri": {
         "category": "ZA",
@@ -166,455 +303,255 @@ FERTILIZER_DATABASE = {
         "n_content": 21,
         "p_content": 0,
         "k_content": 0,
-        "price_per_kg": 1800,
+        "price_per_kg": 4500,
         "package_sizes": ["50 kg"],
-        "description": "Pupuk nitrogen dengan kandungan sulfur 24%",
-        "usage": "Padi, jagung, tebu",
-        "dosage": "200-300 kg/ha",
-        "application": "Tabur/kocor"
-    },
-    
-    # SP-36
-    "SP-36 Petrokimia": {
-        "category": "SP-36",
-        "brand": "PT Petrokimia Gresik",
-        "formula": "Ca(H₂PO₄)₂",
-        "n_content": 0,
-        "p_content": 36,
-        "k_content": 0,
-        "price_per_kg": 2200,
-        "package_sizes": ["50 kg"],
-        "description": "Pupuk fosfor untuk perakaran dan pembungaan",
-        "usage": "Padi, jagung, kedelai",
-        "dosage": "100-150 kg/ha",
-        "application": "Tabur saat tanam"
-    },
-    "SP-36 Pusri": {
-        "category": "SP-36",
-        "brand": "PT Pupuk Sriwidjaja",
-        "formula": "Ca(H₂PO₄)₂",
-        "n_content": 0,
-        "p_content": 36,
-        "k_content": 0,
-        "price_per_kg": 2200,
-        "package_sizes": ["50 kg"],
-        "description": "Super phosphate untuk sistem perakaran kuat",
+        "description": "Pupuk nitrogen amonium tinggi sulfur",
         "usage": "Padi, jagung, sayuran",
-        "dosage": "100-150 kg/ha",
-        "application": "Tabur saat tanam"
+        "dosage": "150-250 kg/ha",
+        "application": "Tabur"
     },
     
-    # KCl (Kalium Klorida)
-    "KCl Merah": {
-        "category": "KCl",
-        "brand": "Import (Kanada/Rusia)",
-        "formula": "KCl",
+    # KCl / MOP Variants
+    "KCl Putih (MOP)": {
+        "category": "Kalium",
+        "brand": "Import",
+        "formula": "K₂O 60%",
         "n_content": 0,
         "p_content": 0,
         "k_content": 60,
-        "price_per_kg": 3500,
+        "price_per_kg": 11000,
         "package_sizes": ["50 kg"],
-        "description": "Pupuk kalium untuk kualitas hasil dan ketahanan",
-        "usage": "Padi, jagung, buah, sayuran",
+        "description": "Kalium Klorida berkualitas tunggi untuk hasil optimal",
+        "usage": "Padi, jagung, buah",
         "dosage": "100-200 kg/ha",
-        "application": "Tabur/kocor saat generatif"
-    },
-    "KCl Putih": {
-        "category": "KCl",
-        "brand": "Import (Kanada)",
-        "formula": "KCl",
-        "n_content": 0,
-        "p_content": 0,
-        "k_content": 60,
-        "price_per_kg": 3800,
-        "package_sizes": ["50 kg"],
-        "description": "Pupuk kalium premium untuk hasil berkualitas",
-        "usage": "Hortikultura, buah premium",
-        "dosage": "100-200 kg/ha",
-        "application": "Kocor/fertigasi"
+        "application": "Tabur"
     },
     
-    # PUPUK ORGANIK
+    # ORGANIK
     "Petroganik": {
         "category": "Organik",
         "brand": "PT Petrokimia Gresik",
-        "formula": "Organik",
+        "formula": "Organik Granul",
         "n_content": 2,
-        "p_content": 2,
+        "p_content": 1,
         "k_content": 2,
-        "price_per_kg": 800,
+        "price_per_kg": 1200,
         "package_sizes": ["40 kg"],
-        "description": "Pupuk organik granul untuk memperbaiki tanah",
+        "description": "Pupuk organik granul untuk memperbaiki struktur tanah",
         "usage": "Semua tanaman",
         "dosage": "500-1000 kg/ha",
-        "application": "Tabur saat pengolahan tanah"
-    },
-    "Pupuk Kandang Sapi": {
-        "category": "Organik",
-        "brand": "Lokal",
-        "formula": "Organik",
-        "n_content": 1.5,
-        "p_content": 1,
-        "k_content": 1.5,
-        "price_per_kg": 500,
-        "package_sizes": ["Curah", "Karung 50 kg"],
-        "description": "Pupuk organik alami dari kotoran sapi",
-        "usage": "Semua tanaman",
-        "dosage": "5-10 ton/ha",
-        "application": "Tabur saat pengolahan tanah"
-    },
-    "Pupuk Kompos": {
-        "category": "Organik",
-        "brand": "Lokal",
-        "formula": "Organik",
-        "n_content": 1,
-        "p_content": 0.5,
-        "k_content": 1,
-        "price_per_kg": 400,
-        "package_sizes": ["Curah", "Karung 50 kg"],
-        "description": "Pupuk organik dari dekomposisi bahan organik",
-        "usage": "Semua tanaman",
-        "dosage": "5-10 ton/ha",
-        "application": "Tabur saat pengolahan tanah"
+        "application": "Tabur saat olah tanah"
     },
     "NASA POC": {
         "category": "Organik Cair",
         "brand": "PT Natural Nusantara",
         "formula": "Organik Cair",
         "n_content": 3,
-        "p_content": 1,
+        "p_content": 2,
         "k_content": 2,
-        "price_per_kg": 35000,  # per liter
-        "package_sizes": ["500 ml", "1 liter", "5 liter"],
-        "description": "Pupuk organik cair dengan mikroorganisme",
+        "price_per_kg": 45000,
+        "package_sizes": ["500 ml", "3 liter"],
+        "description": "Pupuk organik cair multiguna",
         "usage": "Semua tanaman",
-        "dosage": "2-5 liter/ha (diencerkan)",
-        "application": "Semprot/kocor"
+        "dosage": "3-5 tutup botol per tangki",
+        "application": "Semprot daun"
     },
     
-    # PUPUK MAJEMUK KHUSUS
-    "Mahkota Merah 12-12-17+TE": {
-        "category": "NPK Khusus",
-        "brand": "Meroke",
-        "formula": "12-12-17+TE",
-        "n_content": 12,
-        "p_content": 12,
-        "k_content": 17,
-        "price_per_kg": 3500,
-        "package_sizes": ["25 kg", "50 kg"],
-        "description": "Pupuk majemuk dengan trace elements untuk sawit",
-        "usage": "Sawit, karet, kakao",
-        "dosage": "300-500 kg/ha",
-        "application": "Tabur di piringan"
-    },
-    "Mahkota Hijau 15-15-6+TE": {
-        "category": "NPK Khusus",
-        "brand": "Meroke",
-        "formula": "15-15-6+TE",
-        "n_content": 15,
-        "p_content": 15,
-        "k_content": 6,
-        "price_per_kg": 3200,
-        "package_sizes": ["25 kg", "50 kg"],
-        "description": "Pupuk untuk fase vegetatif tanaman perkebunan",
-        "usage": "Sawit, karet, kakao",
-        "dosage": "300-500 kg/ha",
-        "application": "Tabur di piringan"
-    },
-    
-    # PUPUK MIKRO
+    # MIKRO & SEKUNDER
     "Gandasil D": {
         "category": "Mikro",
-        "brand": "PT Petrokimia Gresik",
-        "formula": "20-15-15+TE",
+        "brand": "Kalbe",
+        "formula": "N-P-K + Mikro",
         "n_content": 20,
         "p_content": 15,
         "k_content": 15,
-        "price_per_kg": 25000,
-        "package_sizes": ["1 kg", "5 kg"],
-        "description": "Pupuk daun lengkap untuk pertumbuhan vegetatif",
-        "usage": "Sayuran, buah, tanaman hias",
-        "dosage": "2-3 kg/ha (diencerkan)",
-        "application": "Semprot daun"
+        "price_per_kg": 35000, # per 500g biasanya
+        "package_sizes": ["100g", "500g"],
+        "description": "Pupuk daun untuk fase vegetatif",
+        "usage": "Sayuran, tanaman hias",
+        "dosage": "2-3 g/liter",
+        "application": "Semprot"
     },
     "Gandasil B": {
         "category": "Mikro",
-        "brand": "PT Petrokimia Gresik",
-        "formula": "6-20-30+TE",
+        "brand": "Kalbe",
+        "formula": "N-P-K + Mikro",
         "n_content": 6,
         "p_content": 20,
         "k_content": 30,
-        "price_per_kg": 25000,
-        "package_sizes": ["1 kg", "5 kg"],
-        "description": "Pupuk daun untuk pembungaan dan pembuahan",
-        "usage": "Cabai, tomat, melon, buah",
-        "dosage": "2-3 kg/ha (diencerkan)",
-        "application": "Semprot daun"
+        "price_per_kg": 35000,
+        "package_sizes": ["100g", "500g"],
+        "description": "Pupuk daun untuk fase generatif (buah)",
+        "usage": "Buah, bunga",
+        "dosage": "2-3 g/liter",
+        "application": "Semprot"
     },
-    "Growmore 20-20-20": {
-        "category": "Mikro",
-        "brand": "Growmore",
-        "formula": "20-20-20+TE",
-        "n_content": 20,
-        "p_content": 20,
-        "k_content": 20,
-        "price_per_kg": 45000,
-        "package_sizes": ["1 kg", "5 kg"],
-        "description": "Pupuk daun premium untuk semua fase",
-        "usage": "Hortikultura, tanaman hias",
-        "dosage": "2-3 kg/ha (diencerkan)",
-        "application": "Semprot daun/fertigasi"
-    },
-    
-    # PUPUK MAKRO SEKUNDER - MAGNESIUM (Mg)
-    "Kieserite (MgSO₄)": {
-        "category": "Makro Sekunder (Mg)",
-        "brand": "Import (Jerman)",
-        "formula": "MgSO₄·H₂O",
-        "n_content": 0,
-        "p_content": 0,
-        "k_content": 0,
-        "price_per_kg": 4500,
-        "package_sizes": ["25 kg", "50 kg"],
-        "description": "Pupuk magnesium sulfat untuk sintesis klorofil dan fotosintesis",
-        "usage": "Sawit, kakao, karet, sayuran, buah",
-        "dosage": "50-100 kg/ha",
-        "application": "Tabur/kocor, aplikasi saat defisiensi Mg"
-    },
-    "Magnesium Sulfat (Epsom Salt)": {
-        "category": "Makro Sekunder (Mg)",
-        "brand": "Lokal/Import",
-        "formula": "MgSO₄·7H₂O",
-        "n_content": 0,
-        "p_content": 0,
-        "k_content": 0,
-        "price_per_kg": 8000,
-        "package_sizes": ["1 kg", "5 kg", "25 kg"],
-        "description": "Magnesium sulfat heptahidrat untuk koreksi defisiensi Mg cepat",
-        "usage": "Sayuran, buah, tanaman hias",
-        "dosage": "20-50 kg/ha atau 2-5 g/L (semprot)",
-        "application": "Kocor/semprot daun"
-    },
-    
-    # PUPUK MAKRO SEKUNDER - KALSIUM (Ca)
-    "Dolomit": {
-        "category": "Makro Sekunder (Ca+Mg)",
+    "Dolomit Super": {
+        "category": "Sekunder",
         "brand": "Lokal",
         "formula": "CaMg(CO₃)₂",
         "n_content": 0,
         "p_content": 0,
         "k_content": 0,
-        "price_per_kg": 600,
+        "price_per_kg": 800,
         "package_sizes": ["50 kg", "Curah"],
-        "description": "Kapur dolomit untuk menaikkan pH tanah dan sumber Ca+Mg",
-        "usage": "Semua tanaman di tanah masam",
-        "dosage": "500-2000 kg/ha (tergantung pH tanah)",
-        "application": "Tabur saat pengolahan tanah, 2-4 minggu sebelum tanam"
+        "description": "Kapur pertanian untuk menaikkan pH tanah",
+        "usage": "Tanah masam",
+        "dosage": "1-2 ton/ha",
+        "application": "Tabur"
     },
-    "Kapur Pertanian (CaCO₃)": {
-        "category": "Makro Sekunder (Ca)",
-        "brand": "Lokal",
-        "formula": "CaCO₃",
+    "Kieserite (Magnesium)": {
+        "category": "Sekunder",
+        "brand": "Import",
+        "formula": "MgSO₄",
         "n_content": 0,
         "p_content": 0,
         "k_content": 0,
-        "price_per_kg": 500,
-        "package_sizes": ["50 kg", "Curah"],
-        "description": "Kalsium karbonat untuk menaikkan pH dan sumber kalsium",
-        "usage": "Semua tanaman di tanah masam (pH <5.5)",
-        "dosage": "500-2000 kg/ha",
-        "application": "Tabur saat pengolahan tanah"
-    },
-    "Gypsum (CaSO₄)": {
-        "category": "Makro Sekunder (Ca+S)",
-        "brand": "Lokal/Import",
-        "formula": "CaSO₄·2H₂O",
-        "n_content": 0,
-        "p_content": 0,
-        "k_content": 0,
-        "price_per_kg": 1200,
+        "price_per_kg": 6500,
         "package_sizes": ["50 kg"],
-        "description": "Kalsium sulfat untuk tanah alkalis dan sumber Ca+S",
-        "usage": "Kacang tanah, sayuran, buah",
-        "dosage": "200-500 kg/ha",
-        "application": "Tabur, cocok untuk tanah pH tinggi atau tanah sodic"
-    },
-    "Kalsium Nitrat Ca(NO₃)₂": {
-        "category": "Makro Sekunder (Ca)",
-        "brand": "Yara/Import",
-        "formula": "Ca(NO₃)₂·4H₂O",
-        "n_content": 15.5,
-        "p_content": 0,
-        "k_content": 0,
-        "price_per_kg": 12000,
-        "package_sizes": ["25 kg"],
-        "description": "Kalsium nitrat larut air untuk fertigasi dan hidroponik",
-        "usage": "Sayuran, buah, hidroponik",
-        "dosage": "100-200 kg/ha atau 1-2 g/L (fertigasi)",
-        "application": "Kocor/fertigasi, sumber Ca dan N cepat tersedia"
-    },
-    "Kalsium Klorida CaCl₂": {
-        "category": "Makro Sekunder (Ca)",
-        "brand": "Import",
-        "formula": "CaCl₂",
-        "n_content": 0,
-        "p_content": 0,
-        "k_content": 0,
-        "price_per_kg": 8000,
-        "package_sizes": ["25 kg"],
-        "description": "Kalsium klorida untuk koreksi defisiensi Ca cepat",
-        "usage": "Tomat, cabai, apel (bitter pit)",
-        "dosage": "2-5 g/L (semprot daun)",
-        "application": "Semprot daun, terutama untuk mencegah blossom end rot"
+        "description": "Sumber Magnesium dan Sulfur cepat serap",
+        "usage": "Tanaman tahunan, buah",
+        "dosage": "100-200 kg/ha",
+        "application": "Tabur"
     },
     
-    # PUPUK MAKRO SEKUNDER - SULFUR (S)
-    "Sulfur Bentonit": {
-        "category": "Makro Sekunder (S)",
-        "brand": "Lokal/Import",
-        "formula": "S⁰ + Bentonit",
-        "n_content": 0,
+    # KHUSUS GENERATIF & PEMBUNGAAN
+    "KNO3 Merah (DGW)": {
+        "category": "Kalium Nitrat",
+        "brand": "DGW",
+        "formula": "15-0-14",
+        "n_content": 15,
         "p_content": 0,
-        "k_content": 0,
-        "price_per_kg": 3500,
-        "package_sizes": ["25 kg", "50 kg"],
-        "description": "Sulfur elemental slow-release untuk menurunkan pH tanah alkalis",
-        "usage": "Sawit, karet, teh, tanaman asam-loving",
-        "dosage": "100-300 kg/ha",
-        "application": "Tabur, efek bertahap 3-6 bulan"
+        "k_content": 14,
+        "price_per_kg": 35000,
+        "package_sizes": ["2 kg", "25 kg"],
+        "description": "Pupuk kalium nitrat untuk fase vegetatif",
+        "usage": "Cabai, tomat, bawang merah",
+        "dosage": "2-5 g/liter air",
+        "application": "Kocor/semprot"
     },
-    "Sulfur Powder (Belerang)": {
-        "category": "Makro Sekunder (S)",
-        "brand": "Lokal",
-        "formula": "S⁰",
-        "n_content": 0,
+    "KNO3 Putih (Pak Tani)": {
+        "category": "Kalium Nitrat",
+        "brand": "Saprotan Utama (Pak Tani)",
+        "formula": "13-0-45",
+        "n_content": 13,
         "p_content": 0,
-        "k_content": 0,
-        "price_per_kg": 5000,
-        "package_sizes": ["1 kg", "5 kg", "25 kg"],
-        "description": "Sulfur murni untuk menurunkan pH dan fungisida",
-        "usage": "Tanah alkalis, fungisida untuk embun tepung",
-        "dosage": "50-200 kg/ha (tanah) atau 3-5 g/L (semprot)",
-        "application": "Tabur/semprot"
+        "k_content": 45,
+        "price_per_kg": 45000,
+        "package_sizes": ["2 kg", "25 kg"],
+        "description": "Pupuk kalium nitrat kristal untuk fase generatif/pembuahan",
+        "usage": "Melon, semangka, jeruk, kentang",
+        "dosage": "3-10 g/liter air",
+        "application": "Kocor/semprot"
     },
-    "Amonium Tiosulfat (ATS)": {
-        "category": "Makro Sekunder (N+S)",
-        "brand": "Import",
-        "formula": "(NH₄)₂S₂O₃",
+    "MKP (Pak Tani)": {
+        "category": "Fosfat Kalium",
+        "brand": "Saprotan Utama (Pak Tani)",
+        "formula": "0-52-34",
+        "n_content": 0,
+        "p_content": 52,
+        "k_content": 34,
+        "price_per_kg": 55000,
+        "package_sizes": ["1 kg"],
+        "description": "Mono Kalium Fosfat, larut air 100% untuk merangsang pembungaan",
+        "usage": "Tanaman buah, hortikultura",
+        "dosage": "2-4 g/liter air",
+        "application": "Semprot/kocor"
+    },
+    "Meroke MAP": {
+        "category": "Fosfat Amonium",
+        "brand": "PT Meroke Tetap Jaya",
+        "formula": "12-61-0",
         "n_content": 12,
-        "p_content": 0,
+        "p_content": 61,
         "k_content": 0,
-        "price_per_kg": 15000,
-        "package_sizes": ["20 L", "200 L"],
-        "description": "Pupuk cair N dan S untuk fertigasi",
-        "usage": "Jagung, gandum, sayuran (fertigasi)",
-        "dosage": "50-100 L/ha (diencerkan)",
-        "application": "Fertigasi, sumber N dan S cepat tersedia"
+        "price_per_kg": 48000,
+        "package_sizes": ["1 kg", "25 kg"],
+        "description": "Mono Amonium Fosfat untuk sistem perakaran dan energi tanaman",
+        "usage": "Semua jenis tanaman",
+        "dosage": "2-5 g/liter air",
+        "application": "Sistem fertigasi/hidroponik"
     },
-    
-    # PUPUK MIKRO SEKUNDER KOMBINASI
-    "CalMag (Ca+Mg)": {
-        "category": "Makro Sekunder (Ca+Mg)",
-        "brand": "Berbagai merek",
-        "formula": "Ca+Mg kompleks",
-        "n_content": 0,
-        "p_content": 0,
-        "k_content": 0,
-        "price_per_kg": 18000,
-        "package_sizes": ["1 kg", "5 kg"],
-        "description": "Pupuk kombinasi kalsium dan magnesium untuk hidroponik",
-        "usage": "Hidroponik, sayuran, buah",
-        "dosage": "1-3 g/L (fertigasi/hidroponik)",
-        "application": "Kocor/fertigasi"
-    }
 }
 
-# ========== COMMERCIAL PESTICIDE DATABASE ==========
-PESTICIDE_DATABASE_COMMERCIAL = {
+PESTICIDE_DATABASE_DEFAULT = {
     # INSEKTISIDA
     "Curacron 500EC": {
         "category": "Insektisida",
         "brand": "Syngenta",
         "active_ingredient": "Profenofos 500 g/l",
         "target_pests": ["Ulat Grayak", "Kutu Daun", "Thrips", "Penggerek Batang", "Lalat Buah"],
-        "price": 95000,
+        "price": 125000,
         "unit": "500 ml",
-        "description": "Insektisida racun kontak dan lambung berbentuk pekatan yang dapat diemulsikan.",
+        "description": "Insektisida racun kontak dan lambung spektrum luas.",
         "usage": "Cabai, Bawang Merah, Tomat, Kubis",
-        "dosage": "1-2 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/curacron.jpg"
+        "dosage": "1-2 ml/liter air"
     },
     "Regent 50SC": {
         "category": "Insektisida",
         "brand": "BASF",
         "active_ingredient": "Fipronil 50 g/l",
-        "target_pests": ["Wereng Coklat", "Penggerek Batang", "Thrips", "Rayap", "Semut"],
-        "price": 65000,
+        "target_pests": ["Wereng Coklat", "Penggerek Batang", "Thrips", "Rayap"],
+        "price": 85000,
         "unit": "100 ml",
-        "description": "Insektisida sistemik racun kontak dan lambung + ZPT penumbuh akar.",
+        "description": "Insektisida sistemik racun kontak dan lambung dengan efek ZPT.",
         "usage": "Padi, Cabai, Jagung, Kelapa Sawit",
-        "dosage": "1-2 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/regent.jpg"
+        "dosage": "1-2 ml/liter air"
     },
     "Prevathon 50SC": {
         "category": "Insektisida",
         "brand": "FMC",
         "active_ingredient": "Kloramtraniliprol 50 g/l",
         "target_pests": ["Ulat Grayak", "Penggerek Batang", "Ulat Krop"],
-        "price": 185000,
+        "price": 195000,
         "unit": "250 ml",
-        "description": "Insektisida sistemik translaminar, sangat efektif untuk ulat.",
+        "description": "Insektisida sistemik translaminar, sangat efektif memutus siklus ulat.",
         "usage": "Padi, Bawang Merah, Kubis, Cabai",
-        "dosage": "3 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/prevathon.jpg"
+        "dosage": "3 ml/liter air"
     },
     "Alika 247ZC": {
         "category": "Insektisida",
         "brand": "Syngenta",
         "active_ingredient": "Lambda cyhalothrin + Thiamethoxam",
         "target_pests": ["Kutu Daun", "Kutu Kebul", "Ulat Grayak", "Wereng"],
-        "price": 75000,
+        "price": 95000,
         "unit": "100 ml",
-        "description": "Insektisida spektrum luas teknologi ZC (Zeon Capsule) cepat dan tahan lama.",
+        "description": "Insektisida campur, knockdown cepat dan proteksi lama.",
         "usage": "Cabai, Tomat, Kentang, Mangga",
-        "dosage": "0.5-1 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/alika.jpg"
+        "dosage": "0.5-1 ml/liter air"
     },
     "Decis 25EC": {
         "category": "Insektisida",
         "brand": "Bayer",
         "active_ingredient": "Deltametrin 25 g/l",
         "target_pests": ["Ulat", "Belalang", "Lalat Buah", "Kutu Daun"],
-        "price": 45000,
+        "price": 55000,
         "unit": "100 ml",
-        "description": "Insektisida racun kontak dan lambung golongan piretroid.",
-        "usage": "Anggrek, Jagung, Kakao, Kedelai",
-        "dosage": "1 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/decis.jpg"
+        "description": "Insektisida racun kontak dan lambung golongan piretroid yang legendaris.",
+        "usage": "Sayuran, Jagung, Kedelai",
+        "dosage": "1 ml/liter air"
     },
-    "Movento Energy": {
+    "Confidor 200SL": {
         "category": "Insektisida",
         "brand": "Bayer",
-        "active_ingredient": "Spirotetramat + Imidakloprid",
-        "target_pests": ["Kutu Kebul", "Kutu Daun", "Thrips", "Tungau"],
-        "price": 150000,
+        "active_ingredient": "Imidakloprid 200 g/l",
+        "target_pests": ["Thrips", "Kutu Daun", "Wereng", "Lalat Bibit"],
+        "price": 115000,
         "unit": "100 ml",
-        "description": "Insektisida sistemik dua arah (xilem dan floem) untuk hama penghisap.",
-        "usage": "Cabai, Tomat, Terong, Bawang",
-        "dosage": "1-2 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/movento.jpg"
+        "description": "Insektisida sistemik spesialis hama penghisap.",
+        "usage": "Cabai, Tomat, Padi, Semangka",
+        "dosage": "0.5-1 ml/liter air"
     },
-    "Marshall 200EC": {
-        "category": "Insektisida/Akarisida",
-        "brand": "FMC",
-        "active_ingredient": "Karbosulfan 200 g/l",
-        "target_pests": ["Kutu Daun", "Tungau", "Lalat Bibit", "Wereng"],
-        "price": 85000,
+    "Dursban 200EC": {
+        "category": "Insektisida",
+        "brand": "Corteva",
+        "active_ingredient": "Klorpirifos 200 g/l",
+        "target_pests": ["Ulat Tanpa Daun", "Kumbang Badak", "Rayap"],
+        "price": 110000,
         "unit": "500 ml",
-        "description": "Insektisida dan akarisida sistemik racun kontak dan lambung.",
-        "usage": "Jeruk, Kapas, Kedelai, Padi",
-        "dosage": "1-2 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/marshall.jpg"
+        "description": "Insektisida racun kontak, lambung dan pernapasan (fumigan).",
+        "usage": "Kelapa Sawit, Jagung, Kakao",
+        "dosage": "2-3 ml/liter air"
     },
 
     # FUNGISIDA
@@ -623,103 +560,118 @@ PESTICIDE_DATABASE_COMMERCIAL = {
         "brand": "Syngenta",
         "active_ingredient": "Azoksistrobin + Difenokonazol",
         "target_pests": ["Busuk Daun", "Antraknosa", "Blas Padi", "Bercak Daun"],
-        "price": 165000,
-        "unit": "100 ml",
-        "description": "Fungisida sistemik dengan ZPT, bikin daun hijau dan hasil meningkat.",
-        "usage": "Padi, Bawang Merah, Cabai, Jagung",
-        "dosage": "0.5-1 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/amistartop.jpg"
+        "price": 285000,
+        "unit": "250 ml",
+        "description": "Fungisida sistemik premium dengan ZPT pemacu pertumbuhan.",
+        "usage": "Padi, Bawang Merah, Cabai, Tomat",
+        "dosage": "0.5-1 ml/liter air"
     },
     "Antracol 70WP": {
         "category": "Fungisida",
         "brand": "Bayer",
         "active_ingredient": "Propineb 70%",
         "target_pests": ["Busuk Daun", "Bercak Daun", "Embun Tepung"],
-        "price": 85000,
+        "price": 115000,
         "unit": "1 kg",
-        "description": "Fungisida kontak berbentuk tepung untuk mengendalikan jamur.",
-        "usage": "Anggrek, Anggur, Cabai, Tomat",
-        "dosage": "1.5-2 g/liter air",
-        "image_url": "https://agrisensa.com/static/products/antracol.jpg"
+        "description": "Fungisida kontak protektif dengan kandungan Zinc (Zn).",
+        "usage": "Sayuran, Buah, Tanaman Hias",
+        "dosage": "2-3 g/liter air"
     },
     "Score 250EC": {
         "category": "Fungisida",
         "brand": "Syngenta",
         "active_ingredient": "Difenokonazol 250 g/l",
         "target_pests": ["Busuk Buah", "Bercak Ungu", "Bercak Daun Alternaria"],
-        "price": 145000,
+        "price": 175000,
         "unit": "250 ml",
-        "description": "Fungisida sistemik ZPT, spesialis bikin buah mulus dan bersih.",
+        "description": "Fungisida sistemik ZPT, sangat baik untuk pematangan buah.",
         "usage": "Padi, Semangka, Tomat, Cabai",
-        "dosage": "0.5-1 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/score.jpg"
+        "dosage": "0.5 ml/liter air"
     },
     "Dithane M-45": {
         "category": "Fungisida",
         "brand": "Corteva",
         "active_ingredient": "Mankozeb 80%",
         "target_pests": ["Busuk Daun", "Cacar Daun", "Karat Daun"],
-        "price": 95000,
+        "price": 125000,
         "unit": "1 kg",
-        "description": "Fungisida protektif berbentuk tepung kuning.",
+        "description": "Fungisida kontak multiguna spektrum luas.",
         "usage": "Kentang, Bawang, Cabai, Tomat",
-        "dosage": "2-3 g/liter air",
-        "image_url": "https://agrisensa.com/static/products/dithane.jpg"
+        "dosage": "2-4 g/liter air"
     },
-     "Nativo 75WG": {
+    "Nativo 75WG": {
         "category": "Fungisida",
         "brand": "Bayer",
         "active_ingredient": "Tebuconazole + Trifloxystrobin",
         "target_pests": ["Blas Padi", "Gosong Palsu", "Antraknosa"],
-        "price": 45000,
+        "price": 65000,
         "unit": "50 gr",
-        "description": "Fungisida sistemik untuk padi bening dan bobot maksimal.",
+        "description": "Fungisida sistemik kombinasi dua bahan aktif untuk padi bening.",
         "usage": "Padi, Cabai, Bawang Merah",
-        "dosage": "150-200 g/hektar",
-        "image_url": "https://agrisensa.com/static/products/nativo.jpg"
+        "dosage": "150-200 g/hektar"
+    },
+    "Bakterisida Agrimycin": {
+        "category": "Bakterisida",
+        "brand": "Pfizer/Agro",
+        "active_ingredient": "Streptomisin sulfat",
+        "target_pests": ["Layu Bakteri", "Hawar Daun Bakteri"],
+        "price": 45000,
+        "unit": "20 gr",
+        "description": "Antibiotik pertanian untuk mengendalikan serangan bakteri.",
+        "usage": "Tomat, Cabai, Padi (Kresek)",
+        "dosage": "1-2 g/liter air"
     },
 
-    # HERBISIDA (Limited)
-    "Gramoxone 276SL": {
-        "category": "Herbisida",
-        "brand": "Syngenta",
-        "active_ingredient": "Paraquat Diklorida",
-        "target_pests": ["Gulma Berdaun Lebar", "Rumput Liar"],
-        "price": 85000,
-        "unit": "1 Liter",
-        "description": "Herbisida kontak purna tumbuh untuk pengendalian gulma cepat (gosong).",
-        "usage": "Lahan tanpa tanaman, persiapan lahan",
-        "dosage": "5-10 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/gramoxone.jpg"
-    },
+    # HERBISIDA
     "Roundup 486SL": {
         "category": "Herbisida",
         "brand": "Bayer",
-        "active_ingredient": "Isopropil amina glifosat",
-        "target_pests": ["Alang-alang", "Gulma Umum"],
-        "price": 110000,
+        "active_ingredient": "Glifosat Isopropilamina 486 g/l",
+        "target_pests": ["Alang-alang", "Rumput Liar", "Gulma Berdaun Lebar"],
+        "price": 145000,
         "unit": "1 Liter",
-        "description": "Herbisida sistemik purna tumbuh, mati sampai akar.",
-        "usage": "Perkebunan, persiapan lahan",
-        "dosage": "5-10 ml/liter air",
-        "image_url": "https://agrisensa.com/static/products/roundup.jpg"
+        "description": "Herbisida sistemik purna tumbuh nomor 1, mati sampai akar.",
+        "usage": "Perkebunan (Sawit/Karet), Persiapan Lahan",
+        "dosage": "5-10 ml/liter air"
     },
-    
-    # MOLUSKISIDA
-    "Molluscicide 6GR": {
-        "category": "Moluskisida",
-        "brand": "Lokal/Import",
-        "active_ingredient": "Metaldehida 6%",
-        "target_pests": ["Keong Mas", "Siput"],
-        "price": 35000,
-        "unit": "500 gr",
-        "description": "Racun keong bentuk butiran.",
-        "usage": "Padi sawah",
-        "dosage": "5-10 kg/hektar",
-        "image_url": "https://agrisensa.com/static/products/moluskisida.jpg"
-    }
-
+    "Gramoxone 276SL": {
+        "category": "Herbisida",
+        "brand": "Syngenta",
+        "active_ingredient": "Paraquat Diklorida 276 g/l",
+        "target_pests": ["Gulma Hijau", "Rumput Teki", "Gulma Berdaun Lebar"],
+        "price": 95000,
+        "unit": "1 Liter",
+        "description": "Herbisida kontak purna tumbuh, rumput gosong dalam hitungan jam.",
+        "usage": "Lahan tanpa tanaman, Pematang Sawah",
+        "dosage": "10-20 ml/liter air"
+    },
+    "Garlon 670EC": {
+        "category": "Herbisida",
+        "brand": "Corteva",
+        "active_ingredient": "Triklofir Butoksi Etil Ester",
+        "target_pests": ["Gulma Berkayu", "Tunggul Pohon", "Semak Belukar"],
+        "price": 285000,
+        "unit": "500 ml",
+        "description": "Herbisida khusus untuk mematikan tanaman berkayu dan semak besar.",
+        "usage": "Perkebunan Kelapa Sawit, Lahan Non-Crop",
+        "dosage": "1-2 liter/hektar"
+    },
 }
+
+# Session State Init
+DB_VERSION = "1.3" # Increment to force refresh
+
+if 'db_version' not in st.session_state or st.session_state.db_version != DB_VERSION:
+    st.session_state.fertilizer_db = FERTILIZER_DATABASE_DEFAULT.copy()
+    st.session_state.pesticide_db = PESTICIDE_DATABASE_DEFAULT.copy()
+    st.session_state.db_version = DB_VERSION
+
+# Global variables for convenience (points to session state)
+FERTILIZER_DATABASE = st.session_state.fertilizer_db
+PESTICIDE_DATABASE_COMMERCIAL = st.session_state.pesticide_db
+
+
+
 
 # ========== HELPER FUNCTIONS ==========
 
@@ -828,6 +780,11 @@ st.markdown('<h1 class="main-header">🧪 Katalog Pupuk & Harga</h1>', unsafe_al
 st.markdown('<p style="text-align: center; color: #6b7280; margin-bottom: 2rem;">Referensi harga pupuk terkini dari berbagai produsen terpercaya di Indonesia</p>', unsafe_allow_html=True)
 
 # ========== SIDEBAR FILTERS ==========
+
+# Calculate totals for sidebar stats
+total_products = len(FERTILIZER_DATABASE)
+total_pests = len(PESTICIDE_DATABASE_COMMERCIAL)
+
 with st.sidebar:
     st.markdown("### 🔍 Filter & Pencarian")
     
@@ -859,10 +816,41 @@ with st.sidebar:
         ["Nama (A-Z)", "Nama (Z-A)", "Harga (Termurah)", "Harga (Termahal)", "Kandungan N", "Kandungan P", "Kandungan K"]
     )
     
-    st.markdown("---")
-    st.markdown("### 📊 Statistik")
-    total_products = len(FERTILIZER_DATABASE)
     st.metric("Total Produk", total_products)
+    
+    st.markdown("---")
+    st.markdown("### 💰 Update Harga Reference")
+    st.caption("Ubah harga untuk acuan perhitungan terkini")
+    
+    # Fertilizer Price Update
+    with st.expander("📦 Edit Harga Pupuk"):
+        prod_to_edit = st.selectbox("Pilih Pupuk:", sorted(list(st.session_state.fertilizer_db.keys())), key="edit_fert_select")
+        current_price = st.session_state.fertilizer_db[prod_to_edit]['price_per_kg']
+        new_price = st.number_input("Harga Baru (Rp/kg):", value=float(current_price), step=100.0, key="new_fert_price")
+        if st.button("Update Harga Pupuk"):
+            st.session_state.fertilizer_db[prod_to_edit]['price_per_kg'] = int(new_price)
+            st.success(f"Harga {prod_to_edit} diperbarui!")
+            st.rerun()
+
+    # Pesticide Price Update
+    with st.expander("💊 Edit Harga Pestisida"):
+        pest_to_edit = st.selectbox("Pilih Pestisida:", sorted(list(st.session_state.pesticide_db.keys())), key="edit_pest_select")
+        curr_pest_price = st.session_state.pesticide_db[pest_to_edit]['price']
+        new_pest_price = st.number_input("Harga Baru (Rp):", value=float(curr_pest_price), step=500.0, key="new_pest_price")
+        if st.button("Update Harga Pestisida"):
+            st.session_state.pesticide_db[pest_to_edit]['price'] = int(new_pest_price)
+            st.success(f"Harga {pest_to_edit} diperbarui!")
+            st.rerun()
+
+    if st.button("🔄 Reset ke Harga Default", type="secondary"):
+        st.session_state.fertilizer_db = FERTILIZER_DATABASE_DEFAULT.copy()
+        st.session_state.pesticide_db = PESTICIDE_DATABASE_DEFAULT.copy()
+        st.success("Harga telah dikembalikan ke default.")
+        st.rerun()
+    
+    st.markdown("---")
+    st.caption(f"🛡️ AgriSensa Fertilizer DB v{DB_VERSION}")
+    st.caption("Data diperbarui otomatis jika ada versi baru.")
 
 # ========== MAIN CONTENT ==========
 
