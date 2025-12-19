@@ -126,6 +126,7 @@ tabs = st.tabs([
     "🍃 Transformasi Organik", 
     "🧵 Upcycling Plastik", 
     "🤝 Kolaborasi & Matriks",
+    "🎯 Blueprint Target AI",
     "🗓️ Roadmap 12 Minggu"
 ])
 
@@ -481,8 +482,83 @@ with tabs[4]:
     else:
         st.error("⚠️ Skema saat ini belum menguntungkan (Negatif). Tambahkan volume sampah atau kurangi biaya operasional.")
 
-# --- TAB 5: ROADMAP ---
+# --- TAB 5: BLUEPRINT TARGET AI ---
 with tabs[5]:
+    st.header("🎯 Blueprint Target & Operasional (AI-Driven)")
+    st.write("Analisis kebutuhan sumber daya untuk mencapai target omzet **Rp 243.750.000 / Bulan**.")
+    
+    # Static Target and AI Calculation Logic
+    target_ferti_income = 18750000
+    target_filam_income = 225000000
+    
+    # Backward calculation for Effort
+    req_ferti_kg_month = target_ferti_income / price_organic
+    req_filam_kg_month = target_filam_income / price_filament
+    
+    req_ferti_kg_day = req_ferti_kg_month / 30
+    req_filam_kg_day = req_filam_kg_month / 30
+    
+    # Raw waste needed assuming yield 40% for fertilizer and 90% for filament
+    raw_organic_needed_day = req_ferti_kg_day / 0.4
+    raw_plastic_needed_day = req_filam_kg_day / 0.9
+    
+    st.markdown('<div class="jap-sorting-card" style="border-top-color: #f59e0b;">', unsafe_allow_html=True)
+    st.subheader("🚀 Target Kerja Harian (Key Results)")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Raw Organic Waste", f"{raw_organic_needed_day:,.0f} kg/hari")
+    c2.metric("Clean Plastic Waste", f"{raw_plastic_needed_day:,.0f} kg/hari")
+    c3.metric("Total Waste Manage", f"{(raw_organic_needed_day + raw_plastic_needed_day):,.0f} kg/hari")
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.divider()
+    
+    st.subheader("🏢 Kebutuhan Infrastruktur & Kemitraan")
+    b_col1, b_col2 = st.columns(2)
+    
+    with b_col1:
+        st.markdown("**🛡️ Strategi Akuisisi Bahan Baku**")
+        # Assuming 1 institution produces ~20kg waste/day
+        instansi_needed = (raw_organic_needed_day + raw_plastic_needed_day) / 20
+        st.success(f"Dibutuhkan minimal **{instansi_needed:,.0f} Instansi Mitra** (Sekolah/Kantor) yang aktif memilah.")
+        
+        st.markdown("""
+        - **Model Logistik:** 3 Armada Motor Roda Tiga (Truk Sampah Organik).
+        - **Zonasi:** Radius 5-10km dari pusat pengolahan AgriSensa Eco.
+        """)
+        
+    with b_col2:
+        st.markdown("**⚡ Kapasitas Mesin (Machine Hours)**")
+        # Plastic process approx 5kg/hour
+        hours_extrude = raw_plastic_needed_day / 5
+        st.info(f"Mesin Extruder harus beroperasi **{hours_extrude:,.1f} Jam / Hari** (Double Shift).")
+        
+        st.markdown("""
+        - **Tenaga Kerja:** 6 Operator (3 Shift) + 2 Supervisor Lapangan.
+        - **Daya Listrik:** Minimal 15kVA untuk operasional kontinu.
+        """)
+
+    st.divider()
+    
+    st.subheader("📈 Proyeksi Pertumbuhan Lini Bisnis")
+    # Simulation Data
+    growth_index = [1, 2, 4, 8, 12] # Multiplier by month
+    months = ["Bulan 1", "Bulan 3", "Bulan 6", "Bulan 9", "Bulan 12"]
+    
+    fig_growth = go.Figure()
+    fig_growth.add_trace(go.Scatter(x=months, y=[target_ferti_income*i/12 for i in growth_index], name="Revenue Pupuk", line_color="#10b981", mode="lines+markers"))
+    fig_growth.add_trace(go.Scatter(x=months, y=[target_filam_income*i/12 for i in growth_index], name="Revenue Filamen", line_color="#3b82f6", mode="lines+markers"))
+    fig_growth.add_trace(go.Bar(x=months, y=[(target_ferti_income+target_filam_income)*i/12 for i in growth_index], name="Total Income", marker_color="#d1fae5", opacity=0.5))
+    
+    fig_growth.update_layout(title="Scaling Revenue 1 Tahun (Target AI)", height=350)
+    st.plotly_chart(fig_growth, use_container_width=True)
+
+    st.markdown("""
+    > [!IMPORTANT]
+    > **AI Insight:** Target Rp 225jt dari Filamen adalah **70% dari profit pool**. Prioritaskan kemitraan dengan instansi yang memiliki konsumsi minuman kemasan tinggi (Kampus/Pusat Perbelanjaan) untuk mengamankan bahan baku PET.
+    """)
+
+# --- TAB 6: ROADMAP ---
+with tabs[6]:
     st.header("🗓️ Roadmap Implementasi (12 Minggu)")
     st.write("Langkah konkret transisi dari perencanaan ke operasional penuh.")
     
