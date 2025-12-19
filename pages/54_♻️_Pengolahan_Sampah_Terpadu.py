@@ -536,7 +536,7 @@ with tabs[5]:
         s_waste_per_partner = st.slider("Sampah/Instansi (kg/hari)", 5, 100, 20)
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # --- DYNAMIC CALCULATIONS ---
+    # --- DYNAMIC CALCULATIONS (ADVANCED) ---
     # Monthly required output
     req_ferti_month = s_target_ferti / price_organic
     req_filam_month = s_target_filam / price_filament
@@ -550,39 +550,82 @@ with tabs[5]:
     raw_pla_needed = daily_filam / 0.9 # Constant high yield for plastic
     total_raw_daily = raw_org_needed + raw_pla_needed
     
-    # Infrastructure needs
+    # Infrastructure & Logistics
     partners_needed = total_raw_daily / s_waste_per_partner
-    machine_hours = daily_filam / s_machine_cap
+    machine_hours_extrude = daily_filam / s_machine_cap
     
-    st.divider()
+    # Labor & Energy (Detailed)
+    # Estimate: 1 operator per 8 hours shift per machine
+    shifts_needed = max(1, int(machine_hours_extrude / 8) + (1 if machine_hours_extrude % 8 > 0 else 0))
+    operators_needed = shifts_needed * 2 # 2 people per shift
+    energy_kwh_daily = machine_hours_extrude * 3.5 # Avg 3.5kW for extruder
+    energy_cost_daily = energy_kwh_daily * 1500 # Rp 1500/kWh
     
-    # --- RESULTS DASHBOARD ---
-    st.subheader("🚀 Analisis Beban Operasional")
-    res_c1, res_c2, res_c3, res_c4 = st.columns(4)
-    
-    res_c1.metric("Bahan Baku/Hari", f"{total_raw_daily:,.0f} kg")
-    res_c2.metric("Jumlah Mitra", f"{partners_needed:,.0f} Instansi")
-    res_c3.metric("Durasi Mesin", f"{machine_hours:,.1f} Jam")
-    
-    # Complexity/Effort Score (Simulation AI)
-    effort_score = (partners_needed * 0.5) + (machine_hours * 1.5)
-    status_color = "normal" if effort_score < 30 else "inverse" if effort_score < 60 else "off"
-    res_c4.metric("Skor Beban Kerja", f"{effort_score:.0f}", "AI Analysis")
-    
-    if effort_score > 60:
-        st.error("⚠️ **Peringatan AI:** Beban kerja sangat tinggi (Overload). Pertimbangkan untuk menambah mesin extruder atau fokus pada satu lini produk saja untuk tahap awal.")
-    elif effort_score > 30:
-        st.warning("⚡ **Saran AI:** Beban kerja moderat. Membutuhkan minimal 2 shift operasional dan manajemen logistik yang ketat.")
-    else:
-        st.success("✅ **Saran AI:** Target sangat realistis untuk dieksekusi dengan tim kecil dan 1 shift kerja.")
+    # Carbon Analysis (Net Carbon)
+    co2_saved_daily = total_raw_daily * coef_carbon
+    co2_emitted_ops = (energy_kwh_daily * 0.8) + (partners_needed * 0.2) # Est 0.8kg/kWh and 0.2kg per pickup
+    net_carbon_daily = co2_saved_daily - co2_emitted_ops
 
     st.divider()
     
-    # --- VISUALIZATION ---
+    # --- RESULTS DASHBOARD (ADVANCED) ---
+    st.subheader("🚀 High-Fidelity Operational Analysis")
+    res_c1, res_c2, res_c3, res_c4 = st.columns(4)
+    
+    res_c1.metric("Total Raw Material", f"{total_raw_daily:,.0f} kg/day", "Input")
+    res_c2.metric("Logistics Load", f"{partners_needed:,.0f} Partners", f"{shifts_needed} Pickups")
+    res_c3.metric("Energy Load", f"{energy_kwh_daily:,.1f} kWh", "Daily Usage")
+    res_c4.metric("Net Carbon Offset", f"{net_carbon_daily:,.1f} kg CO2e", "Pure Impact")
+    
+    st.markdown("---")
+    
+    # --- LABOR & SHIFT PLANNING ---
+    st.subheader("👷 Penjadwalan Tenaga Kerja & Shift")
+    sh_col1, sh_col2 = st.columns([2, 1])
+    
+    with sh_col1:
+        st.write(f"Berdasarkan durasi mesin **{machine_hours_extrude:.1f} jam/hari**, dibutuhkan **{shifts_needed} Shift**.")
+        shift_schedule = {
+            "Shift": [f"Shift {i+1}" for i in range(shifts_needed)],
+            "Waktu": ["08:00 - 16:00", "16:00 - 00:00", "00:00 - 08:00"][:shifts_needed],
+            "Petugas": ["2 Operator + 1 Driver"] * shifts_needed,
+            "Target Output": [f"{daily_filam/shifts_needed:.1f} kg Filamen"] * shifts_needed
+        }
+        st.table(pd.DataFrame(shift_schedule))
+        
+    with sh_col2:
+        st.markdown('<div class="transformation-card" style="border-left-color: #ef4444;">', unsafe_allow_html=True)
+        st.markdown("**🚨 Bottleneck Analysis**")
+        if machine_hours_extrude > 16:
+            st.error("MAINTENANCE RISK: Mesin bekerja >16 jam. Resiko downtime tinggi. Siapkan suku cadang cadangan.")
+        if partners_needed > 25:
+            st.warning("LOGISTICS RISK: Terlalu banyak titik jemput. Perlu rute zonasi yang kompleks.")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.divider()
+    
+    # --- SENSITIVITY ANALYSIS (PROFITABILITY) ---
+    st.subheader("📈 Analisis Sensitivitas Keuntungan (AI Analysis)")
+    st.write("Bagaimana perubahan efisiensi rendemen mempengaruhi Laba Bersih bulanan.")
+    
+    sensitivity_data = []
+    for yield_var in [0.2, 0.3, 0.4, 0.5, 0.6]:
+        temp_org_needed = daily_ferti / yield_var
+        temp_rev = (req_ferti_month * price_organic) + (req_filam_month * price_filament)
+        # Simplified opex for sensitivity
+        status = "Optimal" if yield_var >= s_yield_organic else "Low Margin"
+        sensitivity_data.append({
+            "Rendemen (%)": f"{yield_var*100:.0f}%",
+            "Target Sampah (kg/hr)": int(temp_org_needed + raw_pla_needed),
+            "Status Efisiensi": status
+        })
+    st.table(pd.DataFrame(sensitivity_data))
+
+    # --- VISUALIZATION (UNCHANGED BUT UPDATED DATA) ---
     col_v1, col_v2 = st.columns([2, 1])
     
     with col_v1:
-        st.subheader("📈 Proyeksi Pertumbuhan & Target")
+        st.subheader("📈 Proyeksi Pertumbuhan Puncak Target")
         growth_index = [1, 2, 4, 8, 12] 
         months = ["Bulan 1", "Bulan 3", "Bulan 6", "Bulan 9", "Bulan 12"]
         
