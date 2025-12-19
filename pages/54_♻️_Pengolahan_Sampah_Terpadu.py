@@ -1145,7 +1145,7 @@ with tabs[8]:
         st.subheader("🎯 ESG Balance Radar")
         # Dynamic Radar Chart Data based on actual progress
         # If 0 data, all scores are 0
-        if total_managed > 0:
+        if total_waste_collected > 0:
             esg_values = [
                 min(100, (carbon_offset/1000)*100), # Norm 1 ton carbon
                 sustainability_rate, 
@@ -1178,10 +1178,10 @@ with tabs[8]:
         st.subheader("🏆 Sustainability Rating")
         st.markdown('<div class="jap-sorting-card" style="text-align: center; border-top-color: #f59e0b; background: #fffcf0;">', unsafe_allow_html=True)
         # Dynamic Rating based on progress
-        if total_managed > 5000: rating = "AAA"
-        elif total_managed > 1000: rating = "AA+"
-        elif total_managed > 500: rating = "A"
-        elif total_managed > 0: rating = "B"
+        if total_waste_collected > 5000: rating = "AAA"
+        elif total_waste_collected > 1000: rating = "AA+"
+        elif total_waste_collected > 500: rating = "A"
+        elif total_waste_collected > 0: rating = "B"
         else: rating = "Pending"
         
         st.markdown(f"<h1 style='font-size: 5rem; color: #f59e0b; margin: 0;'>{rating}</h1>", unsafe_allow_html=True)
