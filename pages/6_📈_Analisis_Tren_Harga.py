@@ -13,11 +13,19 @@ from sklearn.ensemble import RandomForestRegressor
 # Import Services
 import sys
 import os
+from utils.auth import require_auth, show_user_info_sidebar
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from services.bapanas_service import BapanasService
 from utils.bapanas_constants import PROVINCE_MAPPING, COMMODITY_MAPPING
 
 st.set_page_config(page_title="Analisis Tren Harga", page_icon="📈", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # Initialize Service
 bapanas_service = BapanasService()

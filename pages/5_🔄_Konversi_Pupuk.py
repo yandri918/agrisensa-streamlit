@@ -6,7 +6,15 @@ import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Konversi & Logistik Pupuk", page_icon="🔄", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ========== DATA & CONFIGURATION ==========
 DEFAULT_DATABASE = {

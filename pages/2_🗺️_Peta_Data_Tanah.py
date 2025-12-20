@@ -12,12 +12,25 @@ from datetime import datetime
 import requests
 
 # ========== CONFIGURATION ==========
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Peta Data Tanah - AgriSensa",
     page_icon="🗺️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
+
 
 # ========== DATA STORAGE ==========
 POLYGONS_FILE = "soil_map_polygons.json"

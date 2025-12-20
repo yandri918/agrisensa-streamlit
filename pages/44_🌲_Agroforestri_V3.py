@@ -5,11 +5,23 @@ import folium
 from streamlit_folium import st_folium
 
 # Page Config
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Sistem Agroforestri",
     page_icon="🌲",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # Custom CSS for aesthetics
 st.markdown("""

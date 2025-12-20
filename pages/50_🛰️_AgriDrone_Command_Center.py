@@ -6,7 +6,15 @@ import numpy as np
 import time
 import random
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(layout="wide", page_title="AgriDrone Command Center", page_icon="🛰️")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # --- CUSTOM CSS ---
 st.markdown("""

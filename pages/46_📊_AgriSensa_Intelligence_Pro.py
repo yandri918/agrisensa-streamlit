@@ -9,11 +9,23 @@ from scipy import stats
 import datetime
 
 # Page Config
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="AgriSensa Intelligence Pro",
     page_icon="🤖",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # HELPER FUNCTIONS
 @st.cache_data

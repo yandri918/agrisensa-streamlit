@@ -16,10 +16,18 @@ import os
 import requests 
 
 # Add updated path logic
+from utils.auth import require_auth, show_user_info_sidebar
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.weather_service import WeatherService
 
 st.set_page_config(page_title="Cuaca Pertanian", page_icon="🌤️", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 weather_service = WeatherService()
 
 # ========== HELPER FUNCTIONS (Preserved for UI Logic) ==========

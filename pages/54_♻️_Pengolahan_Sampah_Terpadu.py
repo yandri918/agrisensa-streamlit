@@ -7,6 +7,8 @@ import hashlib
 from datetime import datetime
 
 # --- CONFIG & DATA PATHS ---
+from utils.auth import require_auth, show_user_info_sidebar
+
 DATA_DIR = "data"
 WASTE_LOG_FILE = os.path.join(DATA_DIR, "waste_log.csv")
 
@@ -47,6 +49,16 @@ st.set_page_config(
     page_icon="♻️",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # Import and inject Design System
 try:

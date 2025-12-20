@@ -15,6 +15,8 @@ import sys
 import os
 
 # Add updated path logic
+from utils.auth import require_auth, show_user_info_sidebar
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from services.ai_farm_service import get_ai_model, optimize_solution
@@ -24,6 +26,12 @@ from services.weather_service import WeatherService
 from utils.bapanas_constants import PROVINCE_MAPPING # for location mapping
 
 st.set_page_config(page_title="AI Harvest Planner Pro", page_icon="🎯", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # Initialize Services
 bapanas_service = BapanasService()

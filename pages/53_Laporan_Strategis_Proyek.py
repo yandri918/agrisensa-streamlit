@@ -3,11 +3,23 @@ import datetime
 import pandas as pd
 
 # Page Config
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="AgriSensa Strategic Dossier",
     page_icon="📄",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # --- SESSION STATE INITIALIZATION ---
 if 'swot_data' not in st.session_state:

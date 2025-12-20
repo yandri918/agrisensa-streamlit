@@ -9,7 +9,15 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 import json
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Prediksi Hasil Panen", page_icon="🎯", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ========== ML MODEL ==========
 # Pre-trained model coefficients (simplified for demo)

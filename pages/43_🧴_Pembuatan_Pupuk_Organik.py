@@ -1,10 +1,22 @@
 import streamlit as st
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Pembuatan Pupuk Organik - AgriSensa",
     page_icon="🧴",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 st.title("🧴 Laboratorium Pupuk Organik")
 st.markdown("**pusat Panduan Pembuatan Pupuk, Bioaktivator, dan Ramuan Organik Tanaman**")

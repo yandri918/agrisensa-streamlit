@@ -5,7 +5,15 @@ import json
 import os
 from datetime import datetime
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Dokter Tanaman AI (Gemini)", page_icon="🌿", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ========== CONFIGURATION ==========
 st.sidebar.header("⚙️ Konfigurasi AI")

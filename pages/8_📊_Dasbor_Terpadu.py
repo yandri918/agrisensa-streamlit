@@ -10,7 +10,15 @@ from datetime import datetime, timedelta
 import json
 import os
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Dasbor Terpadu", page_icon="📊", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ========== DATA LOADING ==========
 def load_harvest_data():

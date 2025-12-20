@@ -4,11 +4,23 @@ import numpy as np
 import plotly.express as px
 
 # Page config
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Peternakan & Perikanan - AgriSensa",
     page_icon="🐄",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # Header
 st.title("🐄 Manajemen Peternakan & Perikanan")

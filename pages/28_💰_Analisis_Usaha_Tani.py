@@ -9,6 +9,14 @@ import io
 import datetime
 
 # Add updated path logic if needed, but for same-repo deployment:
+from utils.auth import require_auth, show_user_info_sidebar
+
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from services.ai_farm_service import get_ai_model, optimize_solution

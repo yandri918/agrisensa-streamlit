@@ -4,7 +4,15 @@
 import streamlit as st
 import pandas as pd
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Pestisida Nabati M-48", page_icon="🌿", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ==========================================
 # 🌿 DATABASE PESTISIDA NABATI (59 SPESIES - M-48)

@@ -9,7 +9,15 @@ from PIL import Image
 import cv2
 from datetime import datetime
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Rekomendasi Pupuk Terpadu", page_icon="🎯", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ========== HELPER FUNCTIONS ==========
 

@@ -8,7 +8,15 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Direktori Bahan Aktif Pestisida", page_icon="🔬", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ==========================================
 # ACTIVE INGREDIENT DATABASE

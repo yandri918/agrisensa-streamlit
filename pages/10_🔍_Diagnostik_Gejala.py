@@ -10,7 +10,15 @@ import uuid
 from datetime import datetime
 import google.generativeai as genai
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Diagnostik Gejala Cerdas", page_icon="🔍", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ========== DISEASE DATABASE V2.0 (Weighted) ==========
 # Importance weights: 0.1 (low/generic) to 1.0 (pathognomonic/specific)

@@ -6,11 +6,23 @@ import numpy as np
 from datetime import datetime
 
 # Page Config
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Agrowisata Petik Langsung Pro",
     page_icon="🍓",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # Custom CSS for better aesthetics
 st.markdown("""

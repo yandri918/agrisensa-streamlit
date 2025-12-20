@@ -4,6 +4,9 @@
 import streamlit as st
 from datetime import datetime
 
+# Auth import
+from utils.auth import is_authenticated, login, logout, get_current_user, show_user_info_sidebar
+
 # ========== PAGE CONFIG ==========
 st.set_page_config(
     page_title="AgriSensa Command Center",
@@ -15,6 +18,7 @@ st.set_page_config(
         'About': "© 2025 AgriSensa Intelligence Systems"
     }
 )
+
 
 # ========== MODERN UI STYLING ==========
 st.markdown("""
@@ -160,12 +164,104 @@ TRANSLATIONS = {
     }
 }
 
+def show_login_page():
+    """Show beautiful login page."""
+    st.markdown("""
+    <style>
+        .login-hero {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 24px;
+            margin-bottom: 2rem;
+        }
+        .login-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .login-box {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+    </style>
+    <div class="login-hero">
+        <div class="login-title">🌾 AgriSensa</div>
+        <p style="color: #065f46; margin-top: 0.5rem;">Smart Agriculture Platform</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("### 🔐 Login untuk Akses Penuh")
+        
+        with st.form("login_form"):
+            username = st.text_input("👤 Username", placeholder="admin / demo / petani")
+            password = st.text_input("🔑 Password", type="password", placeholder="••••••••")
+            
+            col_btn1, col_btn2 = st.columns(2)
+            with col_btn1:
+                login_btn = st.form_submit_button("🚀 Login", use_container_width=True, type="primary")
+            with col_btn2:
+                st.form_submit_button("📝 Daftar Baru", use_container_width=True, disabled=True)
+            
+            if login_btn:
+                if username and password:
+                    success, message = login(username, password)
+                    if success:
+                        st.success(message)
+                        st.balloons()
+                        st.rerun()
+                    else:
+                        st.error(f"❌ {message}")
+                else:
+                    st.warning("Masukkan username dan password")
+        
+        st.markdown("---")
+        st.markdown("""
+        <div style="text-align: center; color: #6b7280; font-size: 0.85rem;">
+            <strong>Demo Accounts:</strong><br>
+            👨‍💼 admin / admin123<br>
+            👤 demo / demo123<br>
+            👨‍🌾 petani / petani123
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Features preview
+        st.markdown("---")
+        st.markdown("#### ✨ Fitur Premium AgriSensa")
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            st.markdown("✅ 55+ Modul Pertanian")
+            st.markdown("✅ AI Plant Doctor")
+            st.markdown("✅ GIS & Pemetaan")
+        with col_f2:
+            st.markdown("✅ Analisis Cuaca")
+            st.markdown("✅ Kalkulator Pupuk")
+            st.markdown("✅ Database Lengkap")
+
+
 def main():
+    # === CHECK AUTHENTICATION ===
+    if not is_authenticated():
+        show_login_page()
+        return
+    
+    # === SHOW USER INFO IN SIDEBAR ===
+    show_user_info_sidebar()
+    
     # === LANGUAGE SELECTOR ===
     lang_code = st.sidebar.selectbox("🌐 Language / Bahasa", ["Bahasa Indonesia", "English"], index=0)
     lang = "ID" if lang_code == "Bahasa Indonesia" else "EN"
     
     T = TRANSLATIONS[lang]
+
 
     # === HERO SECTION ===
     st.markdown(f"""

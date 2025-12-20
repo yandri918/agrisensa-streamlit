@@ -7,7 +7,15 @@ import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="AgriSensa Advanced pH & Altitude", page_icon="🌍", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # Custom CSS for Eco-Light Theme and Advanced UI
 st.markdown("""

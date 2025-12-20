@@ -5,11 +5,23 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 # Page config
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Fisiologi Tumbuhan - AgriSensa",
     page_icon="🌱",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # Header
 st.title("🌱 Fisiologi Tumbuhan & Hormon Pertumbuhan")

@@ -6,11 +6,23 @@ import plotly.express as px
 import datetime
 
 # Page config
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Greenhouse & Hidroponik - AgriSensa",
     page_icon="🏠",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # Header
 st.title("🏠 Greenhouse & Sistem Hidroponik")

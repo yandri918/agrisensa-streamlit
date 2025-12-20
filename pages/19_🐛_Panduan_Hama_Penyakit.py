@@ -7,7 +7,15 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Panduan Hama & Penyakit", page_icon="🐛", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # Custom CSS for Glassmorphism and Premium Feel
 st.markdown("""

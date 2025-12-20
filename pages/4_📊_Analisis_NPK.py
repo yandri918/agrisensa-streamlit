@@ -9,7 +9,15 @@ import os
 from datetime import datetime
 import uuid
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Analisis NPK", page_icon="📊", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ========== DATA STORAGE ==========
 NPK_ANALYSIS_FILE = "data/npk_analysis_records.json"

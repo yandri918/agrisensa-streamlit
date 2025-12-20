@@ -9,11 +9,23 @@ import os
 from scipy.optimize import curve_fit
 
 # Page config
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Pantau Pertumbuhan Tanaman - AgriSensa",
     page_icon="📏",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # Constants & Setup
 DATA_FILE = "data/growth_journal.csv"

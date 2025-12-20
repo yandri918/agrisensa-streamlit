@@ -8,11 +8,23 @@ import io
 import base64
 
 # Page Config
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Traceability & QR Passport",
     page_icon="🏷️",
     layout="wide"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
 
 # Custom CSS with Print Styles
 st.markdown("""

@@ -11,12 +11,25 @@ import os
 import uuid
 
 # ========== CONFIGURATION ==========
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(
     page_title="Database Panen - AgriSensa",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
+
+
+
+
+
 
 # ========== DATA STORAGE ==========
 DATA_FILE = "harvest_data_streamlit.json"

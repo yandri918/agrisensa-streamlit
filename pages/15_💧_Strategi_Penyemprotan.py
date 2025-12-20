@@ -11,7 +11,15 @@ import requests
 import folium
 from streamlit_folium import st_folium
 
+from utils.auth import require_auth, show_user_info_sidebar
+
 st.set_page_config(page_title="Strategi Penyemprotan", page_icon="💧", layout="wide")
+
+# ===== AUTHENTICATION CHECK =====
+user = require_auth()
+show_user_info_sidebar()
+# ================================
+
 
 # ========== PEST & DISEASE DATABASE ==========
 PEST_DISEASE_DB = {
