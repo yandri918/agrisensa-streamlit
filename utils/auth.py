@@ -5,9 +5,16 @@ Provides session-based authentication for all pages
 
 import streamlit as st
 import hashlib
+from datetime import datetime
 
 # ========== DEFAULT USERS ==========
 DEFAULT_USERS = {
+    'yandri': {
+        'password': 'yandri2025',
+        'role': 'superadmin',
+        'name': 'Yandri - Owner',
+        'email': 'yandri@agrisensa.com'
+    },
     'admin': {
         'password': 'admin123',
         'role': 'admin',
@@ -36,6 +43,24 @@ def get_users():
     return st.session_state.registered_users
 
 
+def get_activity_log():
+    """Get user activity log."""
+    if 'user_activity_log' not in st.session_state:
+        st.session_state.user_activity_log = []
+    return st.session_state.user_activity_log
+
+
+def log_user_activity(username: str, action: str, details: str = ""):
+    """Log user activity."""
+    log = get_activity_log()
+    log.append({
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'username': username,
+        'action': action,
+        'details': details
+    })
+
+
 def init_auth_state():
     """Initialize authentication state."""
     if 'authenticated' not in st.session_state:
@@ -44,6 +69,9 @@ def init_auth_state():
         st.session_state.user = None
     # Initialize users database
     get_users()
+    # Initialize activity log
+    get_activity_log()
+
 
 
 def login(username: str, password: str) -> tuple[bool, str]:
@@ -65,6 +93,7 @@ def login(username: str, password: str) -> tuple[bool, str]:
     
     # Verify password
     if user_data['password'] != password:
+        log_user_activity(username.lower(), 'LOGIN_FAILED', 'Password salah')
         return False, "Password salah"
     
     # Set session state
@@ -76,7 +105,11 @@ def login(username: str, password: str) -> tuple[bool, str]:
         'email': user_data['email']
     }
     
+    # Log successful login
+    log_user_activity(username.lower(), 'LOGIN', f"Login sebagai {user_data['role']}")
+    
     return True, f"Selamat datang, {user_data['name']}!"
+
 
 
 def logout():

@@ -7,7 +7,7 @@ from datetime import datetime, date
 import json
 
 # Auth imports 
-from utils.auth import require_auth, show_user_info_sidebar, get_current_user, is_authenticated
+from utils.auth import require_auth, show_user_info_sidebar, get_current_user, is_authenticated, get_activity_log, get_users
 
 # ========== PAGE CONFIG ==========
 st.set_page_config(
@@ -20,13 +20,14 @@ st.set_page_config(
 # ========== AUTH CHECK ==========
 user = require_auth()
 
-# Check if admin
-if user.get('role') != 'admin':
+# Check if admin or superadmin
+if user.get('role') not in ['admin', 'superadmin']:
     st.error("🚫 Akses ditolak! Halaman ini hanya untuk Admin.")
     st.info("Login dengan akun admin untuk mengakses dashboard ini.")
     st.stop()
 
 show_user_info_sidebar()
+
 
 # ========== STYLING ==========
 st.markdown("""
@@ -98,19 +99,27 @@ def get_next_id(db_list):
 
 
 # ========== HEADER ==========
-st.markdown("""
+role_badge = "👑 SUPER ADMIN" if user.get('role') == 'superadmin' else "🛡️ ADMIN"
+st.markdown(f"""
 <div class="admin-header">
     <h1 class="admin-title">🛡️ Admin Dashboard</h1>
-    <p class="admin-subtitle">Enterprise Management Console - Streamlit Edition</p>
+    <p class="admin-subtitle">Enterprise Management Console - {role_badge}</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ========== SIDEBAR NAVIGATION ==========
+menu_items = ["📊 Dashboard", "🌾 Komoditas", "💰 Harga Manual", "📝 Audit Log"]
+
+# Super Admin gets extra menus
+if user.get('role') == 'superadmin':
+    menu_items.extend(["👥 User Activity", "👤 Manage Users"])
+
 menu = st.sidebar.radio(
     "📱 Menu Admin",
-    ["📊 Dashboard", "🌾 Komoditas", "💰 Harga Manual", "📝 Audit Log"],
+    menu_items,
     label_visibility="collapsed"
 )
+
 
 # ========== DASHBOARD ==========
 if menu == "📊 Dashboard":
@@ -352,3 +361,149 @@ elif menu == "📝 Audit Log":
             st.info("Tidak ada log yang cocok dengan filter")
     else:
         st.info("Belum ada aktivitas tercatat")
+
+# ========== USER ACTIVITY (SUPERADMIN ONLY) ==========
+elif menu == "👥 User Activity":
+    st.subheader("👥 User Activity Log")
+    st.info("🔍 Monitor semua aktivitas login user di platform")
+    
+    activity_log = get_activity_log()
+    
+    if activity_log:
+        # Filters
+        col1, col2 = st.columns(2)
+        with col1:
+            action_filter = st.selectbox("Filter Aksi", ["Semua", "LOGIN", "LOGIN_FAILED", "REGISTER", "LOGOUT"])
+        with col2:
+            users_list = list(set([a['username'] for a in activity_log]))
+            user_filter = st.selectbox("Filter User", ["Semua"] + users_list)
+        
+        logs = activity_log[::-1]  # Newest first
+        
+        if action_filter != "Semua":
+            logs = [l for l in logs if l['action'] == action_filter]
+        if user_filter != "Semua":
+            logs = [l for l in logs if l['username'] == user_filter]
+        
+        if logs:
+            df = pd.DataFrame(logs)
+            
+            # Add status icons
+            def format_action(action):
+                icons = {
+                    'LOGIN': '✅',
+                    'LOGIN_FAILED': '❌',
+                    'REGISTER': '🆕',
+                    'LOGOUT': '🚪'
+                }
+                return f"{icons.get(action, '📋')} {action}"
+            
+            df['action'] = df['action'].apply(format_action)
+            df.columns = ['Waktu', 'Username', 'Aksi', 'Detail']
+            
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
+            # Stats
+            st.markdown("---")
+            st.subheader("📊 Statistik Login")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                total_logins = len([l for l in activity_log if l['action'] == 'LOGIN'])
+                st.metric("Total Login Sukses", total_logins)
+            with col2:
+                failed = len([l for l in activity_log if l['action'] == 'LOGIN_FAILED'])
+                st.metric("Login Gagal", failed)
+            with col3:
+                unique_users = len(set([l['username'] for l in activity_log if l['action'] == 'LOGIN']))
+                st.metric("User Unik", unique_users)
+        else:
+            st.info("Tidak ada log yang cocok dengan filter")
+    else:
+        st.info("Belum ada aktivitas user tercatat. User akan terlog saat login.")
+
+# ========== MANAGE USERS (SUPERADMIN ONLY) ==========
+elif menu == "👤 Manage Users":
+    st.subheader("👤 Manage Users")
+    st.info("👑 Kelola semua user yang terdaftar di platform")
+    
+    users = get_users()
+    
+    tab1, tab2 = st.tabs(["📋 Daftar User", "➕ Tambah User"])
+    
+    with tab1:
+        if users:
+            users_data = []
+            for username, data in users.items():
+                users_data.append({
+                    'username': username,
+                    'name': data['name'],
+                    'email': data['email'],
+                    'role': data['role']
+                })
+            
+            df = pd.DataFrame(users_data)
+            
+            # Add role badges
+            def format_role(role):
+                badges = {
+                    'superadmin': '👑 Super Admin',
+                    'admin': '🛡️ Admin',
+                    'user': '👤 User'
+                }
+                return badges.get(role, role)
+            
+            df['role'] = df['role'].apply(format_role)
+            df.columns = ['Username', 'Nama', 'Email', 'Role']
+            
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
+            # Role change
+            st.markdown("---")
+            st.subheader("🔄 Ubah Role User")
+            
+            non_super_users = [u for u in users.keys() if users[u]['role'] != 'superadmin']
+            if non_super_users:
+                selected_user = st.selectbox("Pilih User", non_super_users)
+                new_role = st.selectbox("Role Baru", ["user", "admin"])
+                
+                if st.button("💾 Update Role", type="primary"):
+                    users[selected_user]['role'] = new_role
+                    log_action('UPDATE_ROLE', 'users', None, f"Changed {selected_user} to {new_role}")
+                    st.success(f"✅ Role {selected_user} berhasil diubah menjadi {new_role}")
+                    st.rerun()
+            else:
+                st.info("Tidak ada user yang bisa diubah rolenya")
+        else:
+            st.info("Belum ada user")
+    
+    with tab2:
+        st.subheader("➕ Tambah User Baru")
+        
+        with st.form("add_user"):
+            col1, col2 = st.columns(2)
+            with col1:
+                new_name = st.text_input("Nama *")
+                new_username = st.text_input("Username *")
+            with col2:
+                new_email = st.text_input("Email")
+                new_password = st.text_input("Password *", type="password")
+            
+            new_role = st.selectbox("Role", ["user", "admin"])
+            
+            if st.form_submit_button("💾 Tambah User", type="primary", use_container_width=True):
+                if new_name and new_username and new_password:
+                    if new_username.lower() in users:
+                        st.error("❌ Username sudah digunakan!")
+                    else:
+                        users[new_username.lower()] = {
+                            'password': new_password,
+                            'role': new_role,
+                            'name': new_name,
+                            'email': new_email or f"{new_username}@agrisensa.com"
+                        }
+                        log_action('CREATE', 'users', None, f"Created user {new_username}")
+                        st.success(f"✅ User {new_username} berhasil ditambahkan!")
+                        st.rerun()
+                else:
+                    st.warning("⚠️ Lengkapi semua field wajib!")
+
