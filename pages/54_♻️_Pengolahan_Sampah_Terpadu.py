@@ -1176,14 +1176,37 @@ with tabs[2]:
         
         # Grade Calculator
         st.markdown("### 🧮 Kalkulator Grading Otomatis")
+        
+        # Add explanation about grading basis
+        with st.expander("📖 Dasar Penetapan Grade (SNI 19-7030-2004)", expanded=False):
+            st.markdown("""
+            **Sistem grading ini berdasarkan standar nasional Indonesia untuk pupuk organik:**
+            
+            | Parameter | Grade A (Premium) | Grade B (Standard) | Grade C (Bulk) |
+            |-----------|-------------------|-------------------|----------------|
+            | **C/N Ratio** | < 15 | 15 - 20 | 20 - 25 |
+            | **Nitrogen (N)** | > 2.5% | ≥ 2.0% | SNI Min |
+            | **Phosphate (P)** | > 1.8% | ≥ 1.5% | SNI Min |
+            | **Kalium (K)** | > 2.0% | ≥ 1.5% | SNI Min |
+            | **pH Level** | 6.8 - 7.2 | 6.5 - 7.5 | 6.0 - 8.0 |
+            
+            **Referensi:**
+            - SNI 19-7030-2004: Spesifikasi Kompos dari Sampah Organik Domestik
+            - Permentan No. 70/2011: Pupuk Organik, Pupuk Hayati, & Pembenah Tanah
+            - Standar AgriSensa Eco Premium (Internal)
+            
+            > **Catatan:** C/N Ratio < 20 menandakan kompos sudah matang sempurna dan aman untuk tanaman.
+            """)
+        
         calc_col1, calc_col2 = st.columns([1, 1])
         
         with calc_col1:
-            input_cn = st.number_input("Masukkan C/N Ratio Hasil Lab", 5.0, 40.0, 14.5, 0.5)
-            input_n = st.number_input("Nitrogen (N) %", 0.5, 5.0, 2.65, 0.05)
-            input_p = st.number_input("Phosphate (P) %", 0.5, 5.0, 1.95, 0.05)
-            input_k = st.number_input("Kalium (K) %", 0.5, 5.0, 2.30, 0.05)
-            input_ph = st.number_input("pH Level", 5.0, 9.0, 7.0, 0.1)
+            st.markdown("**📊 Masukkan Hasil Uji Laboratorium:**")
+            input_cn = st.number_input("C/N Ratio", 5.0, 40.0, 14.5, 0.5, key="grade_cn_input")
+            input_n = st.number_input("Nitrogen (N) %", 0.5, 5.0, 2.65, 0.05, key="grade_n_input")
+            input_p = st.number_input("Phosphate (P) %", 0.5, 5.0, 1.95, 0.05, key="grade_p_input")
+            input_k = st.number_input("Kalium (K) %", 0.5, 5.0, 2.30, 0.05, key="grade_k_input")
+            input_ph = st.number_input("pH Level", 5.0, 9.0, 7.0, 0.1, key="grade_ph_input")
         
         with calc_col2:
             # Determine grade
