@@ -112,7 +112,8 @@ menu_items = ["📊 Dashboard", "🌾 Komoditas", "💰 Harga Manual", "📝 Aud
 
 # Super Admin gets extra menus
 if user.get('role') == 'superadmin':
-    menu_items.extend(["👥 User Activity", "👤 Manage Users", "🗄️ Database Explorer"])
+    menu_items.extend(["👥 User Activity", "👤 Manage Users", "🗄️ Database Explorer", "📈 Analytics"])
+
 
 menu = st.sidebar.radio(
     "📱 Menu Admin",
@@ -774,3 +775,242 @@ elif menu == "🗄️ Database Explorer":
         - **Version:** 4.0.0
         - **Last Updated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}
         """)
+
+# ========== ANALYTICS DASHBOARD (SUPERADMIN ONLY) ==========
+elif menu == "📈 Analytics":
+    st.subheader("📈 Analytics Dashboard")
+    st.info("👑 Visualisasi dan analisis data platform secara keseluruhan")
+    
+    import plotly.express as px
+    import plotly.graph_objects as go
+    
+    # Load all data sources
+    import os
+    NPK_DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "soil_map_npk_data.json")
+    npk_soil_data = []
+    if os.path.exists(NPK_DATA_FILE):
+        try:
+            with open(NPK_DATA_FILE, 'r') as f:
+                npk_soil_data = json.load(f)
+        except:
+            npk_soil_data = []
+    
+    JOURNAL_FILE = os.path.join(os.path.dirname(__file__), "..", "journal_data.json")
+    journal_data = []
+    if os.path.exists(JOURNAL_FILE):
+        try:
+            with open(JOURNAL_FILE, 'r') as f:
+                journal_data = json.load(f)
+        except:
+            journal_data = []
+    
+    # ========== OVERVIEW CARDS ==========
+    st.markdown("### 📊 Data Overview")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        commodities_count = len(st.session_state.get('commodities_db', []))
+        st.metric("🌾 Komoditas", commodities_count)
+    with col2:
+        npk_count = len(npk_soil_data)
+        st.metric("🗺️ Data NPK", npk_count)
+    with col3:
+        users_count = len(get_users())
+        st.metric("👤 Users", users_count)
+    with col4:
+        activity_count = len(get_activity_log())
+        st.metric("📝 Activities", activity_count)
+    
+    st.markdown("---")
+    
+    # ========== PIE CHARTS ==========
+    st.markdown("### 🥧 Komposisi Data")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Commodity Categories Pie
+        commodities = st.session_state.get('commodities_db', [])
+        if commodities:
+            categories = {}
+            for c in commodities:
+                cat = c.get('category', 'Lainnya')
+                categories[cat] = categories.get(cat, 0) + 1
+            
+            fig = px.pie(
+                values=list(categories.values()),
+                names=list(categories.keys()),
+                title="📦 Distribusi Komoditas per Kategori",
+                color_discrete_sequence=px.colors.qualitative.Set3
+            )
+            fig.update_traces(textposition='inside', textinfo='percent+label')
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Belum ada data komoditas")
+    
+    with col2:
+        # User Roles Pie
+        users = get_users()
+        if users:
+            roles = {}
+            for u, data in users.items():
+                role = data.get('role', 'user')
+                roles[role] = roles.get(role, 0) + 1
+            
+            fig = px.pie(
+                values=list(roles.values()),
+                names=list(roles.keys()),
+                title="👥 Distribusi User per Role",
+                color_discrete_sequence=['#10b981', '#3b82f6', '#f59e0b']
+            )
+            fig.update_traces(textposition='inside', textinfo='percent+label')
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Belum ada data user")
+    
+    st.markdown("---")
+    
+    # ========== BAR CHARTS ==========
+    st.markdown("### 📊 Perbandingan Data")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # NPK Values Bar Chart
+        if npk_soil_data:
+            n_values = [d.get('n_value', 0) for d in npk_soil_data]
+            p_values = [d.get('p_value', 0) for d in npk_soil_data]
+            k_values = [d.get('k_value', 0) for d in npk_soil_data]
+            
+            fig = go.Figure(data=[
+                go.Bar(name='N (ppm)', x=['Rata-rata', 'Max', 'Min'], 
+                       y=[sum(n_values)/len(n_values), max(n_values), min(n_values)],
+                       marker_color='#3b82f6'),
+                go.Bar(name='P (ppm)', x=['Rata-rata', 'Max', 'Min'], 
+                       y=[sum(p_values)/len(p_values), max(p_values), min(p_values)],
+                       marker_color='#10b981'),
+                go.Bar(name='K (ppm)', x=['Rata-rata', 'Max', 'Min'], 
+                       y=[sum(k_values)/len(k_values), max(k_values), min(k_values)],
+                       marker_color='#f59e0b')
+            ])
+            fig.update_layout(
+                title="🧪 Statistik Nilai NPK",
+                barmode='group',
+                legend=dict(orientation="h", yanchor="bottom", y=1.02)
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Belum ada data NPK")
+    
+    with col2:
+        # Activity Types Bar Chart
+        activity_log = get_activity_log()
+        if activity_log:
+            actions = {}
+            for a in activity_log:
+                action = a.get('action', 'OTHER')
+                actions[action] = actions.get(action, 0) + 1
+            
+            fig = px.bar(
+                x=list(actions.keys()),
+                y=list(actions.values()),
+                title="📝 Aktivitas per Tipe",
+                labels={'x': 'Tipe Aksi', 'y': 'Jumlah'},
+                color=list(actions.keys()),
+                color_discrete_sequence=px.colors.qualitative.Pastel
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Belum ada data aktivitas")
+    
+    st.markdown("---")
+    
+    # ========== TREND CHARTS ==========
+    st.markdown("### 📈 Trend Over Time")
+    
+    # Activity Trend
+    activity_log = get_activity_log()
+    if activity_log:
+        # Group by date
+        from collections import defaultdict
+        daily_counts = defaultdict(int)
+        for a in activity_log:
+            timestamp = a.get('timestamp', '')
+            if timestamp:
+                date_part = timestamp[:10]  # YYYY-MM-DD
+                daily_counts[date_part] += 1
+        
+        if daily_counts:
+            dates = sorted(daily_counts.keys())
+            counts = [daily_counts[d] for d in dates]
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=dates, 
+                y=counts,
+                mode='lines+markers',
+                name='Aktivitas',
+                line=dict(color='#10b981', width=3),
+                marker=dict(size=10)
+            ))
+            fig.update_layout(
+                title="📊 Trend Aktivitas Harian",
+                xaxis_title="Tanggal",
+                yaxis_title="Jumlah Aktivitas",
+                hovermode='x unified'
+            )
+            st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Belum ada data trend. Data akan muncul setelah ada aktivitas login/logout.")
+    
+    # NPK Trend (if data has dates)
+    if npk_soil_data:
+        # Check if data has created_at
+        has_dates = any('created_at' in d for d in npk_soil_data)
+        if has_dates:
+            from collections import defaultdict
+            npk_by_date = defaultdict(lambda: {'n': [], 'p': [], 'k': []})
+            
+            for d in npk_soil_data:
+                created = d.get('created_at', '')
+                if created:
+                    date_part = created[:10]
+                    npk_by_date[date_part]['n'].append(d.get('n_value', 0))
+                    npk_by_date[date_part]['p'].append(d.get('p_value', 0))
+                    npk_by_date[date_part]['k'].append(d.get('k_value', 0))
+            
+            if npk_by_date:
+                dates = sorted(npk_by_date.keys())
+                n_avg = [sum(npk_by_date[d]['n'])/len(npk_by_date[d]['n']) for d in dates]
+                p_avg = [sum(npk_by_date[d]['p'])/len(npk_by_date[d]['p']) for d in dates]
+                k_avg = [sum(npk_by_date[d]['k'])/len(npk_by_date[d]['k']) for d in dates]
+                
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=dates, y=n_avg, mode='lines+markers', name='N (ppm)', line=dict(color='#3b82f6')))
+                fig.add_trace(go.Scatter(x=dates, y=p_avg, mode='lines+markers', name='P (ppm)', line=dict(color='#10b981')))
+                fig.add_trace(go.Scatter(x=dates, y=k_avg, mode='lines+markers', name='K (ppm)', line=dict(color='#f59e0b')))
+                
+                fig.update_layout(
+                    title="🗺️ Trend Rata-rata NPK per Hari",
+                    xaxis_title="Tanggal",
+                    yaxis_title="Nilai (ppm)",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02)
+                )
+                st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # ========== DATA SUMMARY TABLE ==========
+    st.markdown("### 📋 Ringkasan Data")
+    
+    summary_data = [
+        {"Database": "🌾 Komoditas", "Total Records": len(st.session_state.get('commodities_db', [])), "Status": "✅ Active"},
+        {"Database": "💰 Harga Manual", "Total Records": len(st.session_state.get('manual_prices_db', [])), "Status": "✅ Active"},
+        {"Database": "🗺️ NPK Soil Map", "Total Records": len(npk_soil_data), "Status": "✅ Active"},
+        {"Database": "📓 Journal", "Total Records": len(journal_data), "Status": "✅ Active"},
+        {"Database": "📝 Audit Log", "Total Records": len(st.session_state.get('audit_log_db', [])), "Status": "✅ Active"},
+        {"Database": "👥 User Activity", "Total Records": len(get_activity_log()), "Status": "✅ Active"},
+        {"Database": "👤 Users", "Total Records": len(get_users()), "Status": "✅ Active"},
+    ]
+    
+    df_summary = pd.DataFrame(summary_data)
+    st.dataframe(df_summary, use_container_width=True, hide_index=True)
