@@ -4,6 +4,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 import os
 import hashlib
+import io
+import qrcode
 from datetime import datetime
 
 # --- CONFIG & DATA PATHS ---
