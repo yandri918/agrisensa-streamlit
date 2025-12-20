@@ -1000,38 +1000,69 @@ with tabs[2]:
         
         # Sankey Diagram
         st.markdown("### 🔄 Material Flow Diagram (Sankey)")
+        st.caption("Visualisasi alur transformasi sampah organik menjadi pupuk premium berkualitas.")
         
         fig_sankey = go.Figure(data=[go.Sankey(
+            arrangement='snap',
             node=dict(
-                pad=20,
-                thickness=20,
-                line=dict(color="black", width=0.5),
+                pad=30,
+                thickness=25,
+                line=dict(color="white", width=2),
                 label=[
-                    "Sampah Organik Input", 
-                    "Pre-Processing", 
-                    "Fermentasi Aktif",
-                    "Pematangan",
-                    "Pupuk Grade A",
-                    "Pupuk Grade B", 
-                    "Pupuk Grade C",
-                    "Reject/Recycle"
+                    "🗑️ Sampah Organik Input (100kg)", 
+                    "⚙️ Pre-Processing (95kg)", 
+                    "🔥 Fermentasi Aktif (90kg)",
+                    "✅ Pematangan (85kg)",
+                    "🥇 Grade A - Premium (45kg)",
+                    "🥈 Grade B - Standard (25kg)", 
+                    "🥉 Grade C - Bulk (10kg)",
+                    "♻️ Reject/Recycle (5kg)"
                 ],
-                color=["#94a3b8", "#64748b", "#f59e0b", "#22c55e", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444"]
+                color=[
+                    "#475569",  # Input - slate
+                    "#64748b",  # Pre-processing - gray
+                    "#f97316",  # Fermentasi - orange
+                    "#22c55e",  # Pematangan - green
+                    "#eab308",  # Grade A - gold
+                    "#3b82f6",  # Grade B - blue
+                    "#a855f7",  # Grade C - purple
+                    "#ef4444"   # Reject - red
+                ],
+                customdata=[100, 95, 90, 85, 45, 25, 10, 5],
+                hovertemplate='<b>%{label}</b><br>Berat: %{customdata}kg<extra></extra>'
             ),
             link=dict(
                 source=[0, 1, 2, 3, 3, 3, 3],
                 target=[1, 2, 3, 4, 5, 6, 7],
-                value=[100, 95, 90, 45, 30, 10, 5],
-                color=["#e2e8f0", "#e2e8f0", "#fef3c7", "#d1fae5", "#dbeafe", "#e9d5ff", "#fee2e2"]
+                value=[100, 95, 90, 45, 25, 10, 5],
+                color=[
+                    "rgba(71, 85, 105, 0.4)",   # Input → Pre
+                    "rgba(100, 116, 139, 0.4)", # Pre → Ferm
+                    "rgba(249, 115, 22, 0.4)",  # Ferm → Mat
+                    "rgba(234, 179, 8, 0.5)",   # Mat → A
+                    "rgba(59, 130, 246, 0.4)",  # Mat → B
+                    "rgba(168, 85, 247, 0.4)",  # Mat → C
+                    "rgba(239, 68, 68, 0.4)"    # Mat → Reject
+                ],
+                hovertemplate='%{source.label} → %{target.label}<br>Transfer: %{value}kg<extra></extra>'
             )
         )])
         
         fig_sankey.update_layout(
-            title_text="Alur Transformasi Sampah Organik → Pupuk Premium",
-            font_size=12,
-            height=400
+            font=dict(size=14, family="Arial, sans-serif"),
+            height=500,
+            margin=dict(t=30, b=30, l=30, r=30),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)'
         )
         st.plotly_chart(fig_sankey, use_container_width=True)
+        
+        # Summary metrics below sankey
+        san_col1, san_col2, san_col3, san_col4 = st.columns(4)
+        san_col1.metric("⬇️ Input", "100 kg", "Sampah Organik")
+        san_col2.metric("🥇 Grade A", "45 kg", "45% (Premium)")
+        san_col3.metric("🥈 Grade B", "25 kg", "25% (Standard)")
+        san_col4.metric("♻️ Rendemen Total", "80%", "Efisiensi Tinggi")
         
         # Waterfall Chart - Cost Breakdown
         st.markdown("### 💵 Waterfall: Struktur Biaya Produksi")
