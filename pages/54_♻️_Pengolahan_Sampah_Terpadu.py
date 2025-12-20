@@ -1206,11 +1206,18 @@ with tabs[2]:
                         base_url = "https://vercel-scan2.vercel.app/product"
                         params = {
                             'name': cert_product,
-                            'variety': f'Grade A Premium (N:{input_n}% P:{input_p}% K:{input_k}%)',
+                            'variety': f'Grade A Premium',
                             'farmer': cert_producer,
                             'location': 'AgriSensa Lab Certified',
                             'harvest_date': datetime.now().strftime('%Y-%m-%d'),
-                            'emoji': '🥇'
+                            'emoji': '🥇',
+                            # LAB RESULTS
+                            'cn_ratio': str(input_cn),
+                            'ph_level': str(input_ph),
+                            'nitrogen': str(input_n),
+                            'phosphate': str(input_p),
+                            'kalium': str(input_k),
+                            'grade': 'A'
                         }
                         query_string = urllib.parse.urlencode(params)
                         cert_url = f"{base_url}/{cert_batch}?{query_string}"
