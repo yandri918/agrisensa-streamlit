@@ -908,19 +908,31 @@ with tabs[2]:
         
         # Financial KPIs
         st.markdown("### 💰 Financial Perspective")
-        fin_col1, fin_col2, fin_col3, fin_col4 = st.columns(4)
         
         # Calculate financial metrics
-        revenue_monthly = organic_processed * price_organic
+        revenue_actual = organic_processed * price_organic
+        revenue_target = s_target_ferti  # From sidebar
         cost_per_kg = (total_opex_base / 30) / max(1, daily_ferti)
         margin_per_kg = price_organic - cost_per_kg
-        roi_monthly = ((revenue_monthly - total_opex_base) / max(1, total_capex)) * 100
-        payback_months = total_capex / max(1, (revenue_monthly - total_opex_base))
+        roi_actual = ((revenue_actual - total_opex_base) / max(1, total_capex)) * 100
+        roi_target = ((revenue_target - total_opex_base) / max(1, total_capex)) * 100
+        achievement = (revenue_actual / max(1, revenue_target)) * 100
         
-        fin_col1.metric("Revenue/Bulan", f"Rp {revenue_monthly/1e6:.1f}M", "Target")
-        fin_col2.metric("Biaya/kg", f"Rp {cost_per_kg:,.0f}", "-15%" if cost_per_kg < 2000 else None)
-        fin_col3.metric("Margin/kg", f"Rp {margin_per_kg:,.0f}", "Profit")
-        fin_col4.metric("ROI Bulanan", f"{roi_monthly:.1f}%", "Investasi")
+        # Row 1: Target vs Actual Revenue
+        st.markdown("**📊 Revenue Comparison**")
+        rev_col1, rev_col2, rev_col3 = st.columns(3)
+        rev_col1.metric("📈 Revenue TARGET", f"Rp {revenue_target/1e6:.1f}M", "Dari Sidebar")
+        rev_col2.metric("📉 Revenue AKTUAL", f"Rp {revenue_actual/1e6:.1f}M", f"{achievement:.0f}% tercapai")
+        rev_col3.metric("🎯 Achievement", f"{achievement:.1f}%", "Target vs Aktual")
+        
+        st.markdown("---")
+        
+        # Row 2: Other financial metrics  
+        fin_col1, fin_col2, fin_col3, fin_col4 = st.columns(4)
+        fin_col1.metric("Biaya/kg", f"Rp {cost_per_kg:,.0f}", "-15%" if cost_per_kg < 2000 else None)
+        fin_col2.metric("Margin/kg", f"Rp {margin_per_kg:,.0f}", "Profit")
+        fin_col3.metric("ROI Target", f"{roi_target:.1f}%", "Proyeksi")
+        fin_col4.metric("ROI Aktual", f"{roi_actual:.1f}%", "Investasi")
         
         # Process KPIs
         st.markdown("### ⚙️ Process Perspective")
