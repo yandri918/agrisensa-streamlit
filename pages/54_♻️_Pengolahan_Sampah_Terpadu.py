@@ -6,7 +6,7 @@ import os
 import hashlib
 import io
 import qrcode
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # --- CONFIG & DATA PATHS ---
 from utils.auth import require_auth, show_user_info_sidebar
@@ -407,12 +407,90 @@ with tabs[0]:
     # --- DATA MANAGEMENT (BOTTOM OF TAB 0) ---
     st.divider()
     with st.expander("🛠️ Pengaturan Data (Simulation Mode)", expanded=False):
-        st.warning("⚠️ **Perhatian:** Menghapus data akan menghilangkan seluruh log aktivitas yang tersimpan secara permanen.")
-        confirm_delete = st.checkbox("Saya yakin ingin menghapus seluruh data simulasi.")
-        if st.button("🗑️ Hapus Seluruh Database Log", type="secondary", disabled=not confirm_delete):
-            reset_waste_logs()
-            st.success("Database berhasil dibersihkan! Me-refresh aplikasi...")
-            st.rerun()
+        st.markdown("#### 🗑️ Hapus Data Log")
+        
+        # Selective Delete Options
+        delete_mode = st.radio(
+            "Pilih Mode Penghapusan:",
+            ["🎯 Hapus Data Tertentu", "📅 Hapus Berdasarkan Tanggal", "🏷️ Hapus Berdasarkan Tipe", "⚠️ Hapus Seluruh Data"],
+            horizontal=True
+        )
+        
+        if delete_mode == "🎯 Hapus Data Tertentu":
+            if not df_logs.empty:
+                st.markdown("**Pilih entri yang ingin dihapus:**")
+                
+                # Create selection dataframe with row index
+                df_display = df_logs.copy()
+                df_display['No'] = range(1, len(df_display) + 1)
+                df_display = df_display[['No', 'tanggal', 'tipe', 'berat_kg']]
+                
+                # Multi-select for deletion
+                options = [f"#{row['No']} - {row['tanggal']} | {row['tipe']} | {row['berat_kg']}kg" 
+                          for _, row in df_display.iterrows()]
+                selected_to_delete = st.multiselect("Pilih entri:", options)
+                
+                if selected_to_delete and st.button("🗑️ Hapus Entri Terpilih", type="secondary"):
+                    # Get indices to delete
+                    indices_to_delete = [int(s.split('#')[1].split(' ')[0]) - 1 for s in selected_to_delete]
+                    df_logs = df_logs.drop(df_logs.index[indices_to_delete])
+                    df_logs.to_csv(WASTE_LOG_FILE, index=False)
+                    st.success(f"✅ {len(selected_to_delete)} entri berhasil dihapus!")
+                    st.cache_data.clear()
+                    st.rerun()
+            else:
+                st.info("Tidak ada data untuk dihapus.")
+        
+        elif delete_mode == "📅 Hapus Berdasarkan Tanggal":
+            if not df_logs.empty:
+                col_d1, col_d2 = st.columns(2)
+                with col_d1:
+                    date_from = st.date_input("Dari Tanggal", value=datetime.now() - timedelta(days=30), key="del_from")
+                with col_d2:
+                    date_to = st.date_input("Sampai Tanggal", value=datetime.now(), key="del_to")
+                
+                # Count affected entries
+                mask = (pd.to_datetime(df_logs['tanggal']) >= pd.to_datetime(date_from)) & \
+                       (pd.to_datetime(df_logs['tanggal']) <= pd.to_datetime(date_to))
+                affected_count = mask.sum()
+                
+                st.warning(f"⚠️ {affected_count} entri akan dihapus (periode {date_from} - {date_to})")
+                
+                if affected_count > 0 and st.button(f"🗑️ Hapus {affected_count} Entri", type="secondary"):
+                    df_logs = df_logs[~mask]
+                    df_logs.to_csv(WASTE_LOG_FILE, index=False)
+                    st.success(f"✅ {affected_count} entri berhasil dihapus!")
+                    st.cache_data.clear()
+                    st.rerun()
+            else:
+                st.info("Tidak ada data untuk dihapus.")
+        
+        elif delete_mode == "🏷️ Hapus Berdasarkan Tipe":
+            if not df_logs.empty:
+                unique_types = df_logs['tipe'].unique().tolist()
+                selected_types = st.multiselect("Pilih tipe sampah yang ingin dihapus:", unique_types)
+                
+                if selected_types:
+                    affected_count = df_logs[df_logs['tipe'].isin(selected_types)].shape[0]
+                    st.warning(f"⚠️ {affected_count} entri dengan tipe terpilih akan dihapus")
+                    
+                    if st.button(f"🗑️ Hapus {affected_count} Entri", type="secondary"):
+                        df_logs = df_logs[~df_logs['tipe'].isin(selected_types)]
+                        df_logs.to_csv(WASTE_LOG_FILE, index=False)
+                        st.success(f"✅ {affected_count} entri berhasil dihapus!")
+                        st.cache_data.clear()
+                        st.rerun()
+            else:
+                st.info("Tidak ada data untuk dihapus.")
+        
+        else:  # Hapus Seluruh Data
+            st.warning("⚠️ **Perhatian:** Menghapus SELURUH data akan menghilangkan semua log aktivitas secara permanen.")
+            confirm_delete = st.checkbox("Saya yakin ingin menghapus seluruh data simulasi.")
+            if st.button("🗑️ Hapus Seluruh Database Log", type="secondary", disabled=not confirm_delete):
+                reset_waste_logs()
+                st.success("Database berhasil dibersihkan! Me-refresh aplikasi...")
+                st.cache_data.clear()
+                st.rerun()
 
 # --- TAB 1: SISTEM PEMILAHAN ---
 with tabs[1]:
