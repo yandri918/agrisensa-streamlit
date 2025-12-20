@@ -688,10 +688,15 @@ with tabs[2]:
     with ferm_tabs[0]:
         st.subheader("🌡️ Real-Time Process Parameters")
         
+        # Initialize simulation day in session state if not exists
+        if 'ferm_sim_day' not in st.session_state:
+            st.session_state.ferm_sim_day = 10
+        
         # Simulation controls
         sim_col1, sim_col2 = st.columns([3, 1])
         with sim_col2:
-            sim_day = st.slider("📅 Simulasi Hari ke-", 1, 45, 10, key="ferm_day")
+            sim_day = st.slider("📅 Simulasi Hari ke-", 1, 45, st.session_state.ferm_sim_day, key="ferm_day_slider")
+            st.session_state.ferm_sim_day = sim_day
         
         # Dynamic values based on day (realistic fermentation curve)
         if sim_day <= 3:
