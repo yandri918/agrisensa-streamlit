@@ -1,13 +1,18 @@
 """
 Authentication utility for AgriSensa Streamlit
-Provides session-based authentication for all pages
+Provides database-backed authentication with session fallback
 """
 
 import streamlit as st
-import hashlib
+import requests
 from datetime import datetime
+import os
 
-# ========== DEFAULT USERS ==========
+# ========== API CONFIGURATION ==========
+# Try to get API URL from environment or use default
+API_BASE_URL = os.getenv('API_URL', 'https://agriisensa.vercel.app/api')
+
+# ========== DEFAULT USERS (Fallback) ==========
 DEFAULT_USERS = {
     'yandri': {
         'password': 'yandri2025',
@@ -36,25 +41,68 @@ DEFAULT_USERS = {
 }
 
 
+def api_request(endpoint: str, method: str = 'GET', data: dict = None) -> dict:
+    """Make API request with error handling."""
+    try:
+        url = f"{API_BASE_URL}/auth/{endpoint}"
+        if method == 'GET':
+            response = requests.get(url, params=data, timeout=10)
+        else:
+            response = requests.post(url, json=data, timeout=10)
+        return response.json()
+    except Exception as e:
+        return {'success': False, 'message': f'API Error: {str(e)}', 'api_error': True}
+
+
 def get_users():
-    """Get users from session state (persistent during session)."""
+    """Get users from API or session state fallback."""
     if 'registered_users' not in st.session_state:
         st.session_state.registered_users = DEFAULT_USERS.copy()
+    
+    # Try to get from API
+    result = api_request('users-list')
+    if result.get('success') and result.get('users'):
+        # Merge API users with session users
+        for user in result['users']:
+            username = user.get('username', '').lower()
+            if username and username not in st.session_state.registered_users:
+                st.session_state.registered_users[username] = {
+                    'password': '***',  # Hidden
+                    'role': user.get('role', 'user'),
+                    'name': user.get('full_name') or user.get('username'),
+                    'email': user.get('email', '')
+                }
+    
     return st.session_state.registered_users
 
 
 def get_activity_log():
-    """Get user activity log."""
+    """Get user activity log from API or session state."""
     if 'user_activity_log' not in st.session_state:
         st.session_state.user_activity_log = []
+    
+    # Try to get from API
+    result = api_request('activities')
+    if result.get('success') and result.get('activities'):
+        return result['activities']
+    
     return st.session_state.user_activity_log
 
 
 def log_user_activity(username: str, action: str, details: str = ""):
-    """Log user activity."""
-    log = get_activity_log()
+    """Log user activity to API and session."""
+    # Log to session
+    log = st.session_state.get('user_activity_log', [])
     log.append({
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'username': username,
+        'action': action,
+        'details': details
+    })
+    st.session_state.user_activity_log = log
+    
+    # Try to log to API
+    api_request('log-activity', 'POST', {
         'username': username,
         'action': action,
         'details': details
@@ -67,66 +115,73 @@ def init_auth_state():
         st.session_state.authenticated = False
     if 'user' not in st.session_state:
         st.session_state.user = None
-    # Initialize users database
+    if 'user_activity_log' not in st.session_state:
+        st.session_state.user_activity_log = []
     get_users()
-    # Initialize activity log
-    get_activity_log()
-
 
 
 def login(username: str, password: str) -> tuple[bool, str]:
     """
-    Authenticate user with username and password.
-    Returns (success, message)
+    Authenticate user with database API.
+    Falls back to session if API unavailable.
     """
     init_auth_state()
-    users = get_users()
     
     if not username or not password:
         return False, "Username dan password harus diisi"
     
-    # Check if user exists
-    if username.lower() not in users:
+    username = username.strip().lower()
+    
+    # Try API login first
+    result = api_request('simple-login', 'POST', {
+        'username': username,
+        'password': password
+    })
+    
+    if result.get('success'):
+        user_data = result.get('user', {})
+        st.session_state.authenticated = True
+        st.session_state.user = {
+            'username': user_data.get('username', username),
+            'name': user_data.get('name', username),
+            'role': user_data.get('role', 'user'),
+            'email': user_data.get('email', '')
+        }
+        return True, result.get('message', 'Login berhasil!')
+    
+    # If API error (not auth failure), try fallback
+    if result.get('api_error'):
+        users = st.session_state.get('registered_users', DEFAULT_USERS)
+        if username in users:
+            if users[username]['password'] == password:
+                st.session_state.authenticated = True
+                st.session_state.user = {
+                    'username': username,
+                    'name': users[username]['name'],
+                    'role': users[username]['role'],
+                    'email': users[username]['email']
+                }
+                log_user_activity(username, 'LOGIN', 'Login via fallback')
+                return True, f"Selamat datang, {users[username]['name']}!"
+            else:
+                return False, "Password salah"
         return False, "Username tidak ditemukan"
     
-    user_data = users[username.lower()]
-    
-    # Verify password
-    if user_data['password'] != password:
-        log_user_activity(username.lower(), 'LOGIN_FAILED', 'Password salah')
-        return False, "Password salah"
-    
-    # Set session state
-    st.session_state.authenticated = True
-    st.session_state.user = {
-        'username': username.lower(),
-        'name': user_data['name'],
-        'role': user_data['role'],
-        'email': user_data['email']
-    }
-    
-    # Log successful login
-    log_user_activity(username.lower(), 'LOGIN', f"Login sebagai {user_data['role']}")
-    
-    return True, f"Selamat datang, {user_data['name']}!"
-
+    return False, result.get('message', 'Login gagal')
 
 
 def logout():
     """Logout current user."""
+    if st.session_state.get('user'):
+        log_user_activity(st.session_state.user['username'], 'LOGOUT', 'User logout')
     st.session_state.authenticated = False
     st.session_state.user = None
 
 
 def register(username: str, password: str, name: str, email: str) -> tuple[bool, str]:
-    """
-    Register a new user.
-    Returns (success, message)
-    """
+    """Register a new user via API with session fallback."""
     init_auth_state()
-    users = get_users()
     
-    # Validation
     if not username or not password or not name:
         return False, "Username, password, dan nama harus diisi"
     
@@ -136,29 +191,51 @@ def register(username: str, password: str, name: str, email: str) -> tuple[bool,
     if len(password) < 6:
         return False, "Password minimal 6 karakter"
     
-    # Check if username already exists
-    if username.lower() in users:
-        return False, "Username sudah digunakan"
+    username = username.strip().lower()
     
-    # Add new user
-    users[username.lower()] = {
+    # Try API register first
+    result = api_request('simple-register', 'POST', {
+        'username': username,
         'password': password,
-        'role': 'user',
         'name': name,
-        'email': email or f"{username}@agrisensa.com"
-    }
+        'email': email
+    })
     
-    # Auto-login after registration
-    st.session_state.authenticated = True
-    st.session_state.user = {
-        'username': username.lower(),
-        'name': name,
-        'role': 'user',
-        'email': email or f"{username}@agrisensa.com"
-    }
+    if result.get('success'):
+        user_data = result.get('user', {})
+        st.session_state.authenticated = True
+        st.session_state.user = {
+            'username': user_data.get('username', username),
+            'name': user_data.get('name', name),
+            'role': user_data.get('role', 'user'),
+            'email': user_data.get('email', email)
+        }
+        return True, result.get('message', 'Registrasi berhasil!')
     
-    return True, f"Selamat datang, {name}! Akun berhasil dibuat."
-
+    # If API error, try session fallback
+    if result.get('api_error'):
+        users = st.session_state.get('registered_users', {})
+        if username in users:
+            return False, "Username sudah digunakan"
+        
+        users[username] = {
+            'password': password,
+            'role': 'user',
+            'name': name,
+            'email': email or f"{username}@agrisensa.com"
+        }
+        st.session_state.registered_users = users
+        st.session_state.authenticated = True
+        st.session_state.user = {
+            'username': username,
+            'name': name,
+            'role': 'user',
+            'email': email or f"{username}@agrisensa.com"
+        }
+        log_user_activity(username, 'REGISTER', 'Register via fallback')
+        return True, f"Selamat datang, {name}! Akun berhasil dibuat."
+    
+    return False, result.get('message', 'Registrasi gagal')
 
 
 def is_authenticated() -> bool:
@@ -176,7 +253,6 @@ def get_current_user() -> dict:
 def require_auth():
     """
     Require authentication to access page.
-    Call this at the start of every protected page.
     If not authenticated, shows login prompt and stops execution.
     """
     init_auth_state()
@@ -200,20 +276,9 @@ def show_login_required():
             margin: 2rem auto;
             max-width: 500px;
         }
-        .login-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        .login-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #92400e;
-            margin-bottom: 0.5rem;
-        }
-        .login-message {
-            color: #a16207;
-            margin-bottom: 1.5rem;
-        }
+        .login-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .login-title { font-size: 1.5rem; font-weight: 700; color: #92400e; margin-bottom: 0.5rem; }
+        .login-message { color: #a16207; margin-bottom: 1.5rem; }
     </style>
     <div class="login-required">
         <div class="login-icon">🔐</div>
@@ -222,7 +287,6 @@ def show_login_required():
     </div>
     """, unsafe_allow_html=True)
     
-    # Quick login form
     st.markdown("---")
     with st.form("quick_login"):
         st.markdown("### 🔑 Quick Login")
@@ -247,10 +311,11 @@ def show_user_info_sidebar():
     """Show current user info in sidebar."""
     if is_authenticated():
         user = get_current_user()
+        role_icon = '👑' if user['role'] == 'superadmin' else ('🛡️' if user['role'] == 'admin' else '👤')
         st.sidebar.markdown(f"""
         <div style="padding: 1rem; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); 
                     border-radius: 12px; margin-bottom: 1rem; border: 1px solid #10b981;">
-            <div style="font-weight: 700; color: #065f46;">👤 {user['name']}</div>
+            <div style="font-weight: 700; color: #065f46;">{role_icon} {user['name']}</div>
             <div style="font-size: 0.8rem; color: #047857;">{user['role'].upper()}</div>
         </div>
         """, unsafe_allow_html=True)
