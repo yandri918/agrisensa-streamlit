@@ -364,18 +364,32 @@ def main():
         </div>
     """, unsafe_allow_html=True)
     
-    # === EDUCATION CERTIFICATION BADGE ===
-    cert_col1, cert_col2, cert_col3 = st.columns([1, 2, 1])
+    # === EDUCATION CERTIFICATION BADGE (QR Code) ===
+    import qrcode
+    from io import BytesIO
+    import base64
+    
+    # Create QR code with certification info
+    cert_url = "https://github.com/yandri918/agrisensa-streamlit"
+    qr = qrcode.QRCode(version=1, box_size=6, border=2)
+    qr.add_data(f"{cert_url}\n\n🎓 S1-S2 Agriculture Level\n📚 56+ Modul\n📝 300K+ Karakter\n🔬 Referensi Ilmiah")
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="#064e3b", back_color="white")
+    
+    # Convert to base64
+    buffer = BytesIO()
+    qr_img.save(buffer, format='PNG')
+    qr_base64 = base64.b64encode(buffer.getvalue()).decode()
+    
+    cert_col1, cert_col2, cert_col3 = st.columns([1, 1, 1])
     with cert_col2:
-        with st.container(border=True):
-            col_icon, col_text = st.columns([1, 4])
-            with col_icon:
-                st.markdown("<div style='font-size: 3rem; text-align: center;'>🎓</div>", unsafe_allow_html=True)
-            with col_text:
-                st.markdown("**EDUCATIONAL DEPTH CERTIFICATION**")
-                st.markdown("### S1-S2 Agriculture Level")
-                st.caption("Konten setara kurikulum Sarjana-Magister Pertanian")
-            st.markdown("📚 **56+ Modul** · 📝 **300K+ Karakter** · 🔬 **Referensi Ilmiah**")
+        st.markdown(f"""
+        <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-radius: 16px; border: 1px solid #10b981;">
+            <img src="data:image/png;base64,{qr_base64}" style="width: 120px; height: 120px; margin-bottom: 8px;">
+            <div style="font-size: 0.7rem; color: #065f46; font-weight: 600;">🎓 S1-S2 Agriculture Level</div>
+            <div style="font-size: 0.6rem; color: #047857;">Scan untuk verifikasi</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
     # === QUICK ACTIONS GRID ===
