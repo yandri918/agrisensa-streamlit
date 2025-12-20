@@ -513,19 +513,42 @@ elif menu == "🗄️ Database Explorer":
     st.subheader("🗄️ Database Explorer")
     st.info("👑 Akses lengkap ke semua data yang tersimpan di platform")
     
+    # Load NPK data from file
+    import os
+    NPK_DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "soil_map_npk_data.json")
+    npk_soil_data = []
+    if os.path.exists(NPK_DATA_FILE):
+        try:
+            with open(NPK_DATA_FILE, 'r') as f:
+                npk_soil_data = json.load(f)
+        except:
+            npk_soil_data = []
+    
+    # Load Journal data
+    JOURNAL_FILE = os.path.join(os.path.dirname(__file__), "..", "journal_data.json")
+    journal_data = []
+    if os.path.exists(JOURNAL_FILE):
+        try:
+            with open(JOURNAL_FILE, 'r') as f:
+                journal_data = json.load(f)
+        except:
+            journal_data = []
+    
     # Overview Stats
     st.markdown("### 📊 Database Overview")
     
-    col1, col2, col3, col4, col5 = st.columns(5)
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
         st.metric("🌾 Komoditas", len(st.session_state.get('commodities_db', [])))
     with col2:
         st.metric("💰 Harga Manual", len(st.session_state.get('manual_prices_db', [])))
     with col3:
-        st.metric("📝 Audit Log", len(st.session_state.get('audit_log_db', [])))
+        st.metric("🗺️ NPK Tanah", len(npk_soil_data))
     with col4:
-        st.metric("👥 Activity Log", len(get_activity_log()))
+        st.metric("📓 Jurnal", len(journal_data))
     with col5:
+        st.metric("👥 Activity", len(get_activity_log()))
+    with col6:
         st.metric("👤 Users", len(get_users()))
     
     st.markdown("---")
@@ -533,8 +556,9 @@ elif menu == "🗄️ Database Explorer":
     # Database Selector
     db_choice = st.selectbox(
         "🔍 Pilih Database untuk Dilihat",
-        ["📋 Semua Database", "🌾 Commodities", "💰 Manual Prices", "📝 Audit Log", "👥 User Activity", "👤 Users"]
+        ["📋 Semua Database", "🌾 Commodities", "💰 Manual Prices", "🗺️ NPK Soil Map", "📓 Journal", "📝 Audit Log", "👥 User Activity", "👤 Users"]
     )
+
     
     if db_choice == "📋 Semua Database":
         # Show all databases
@@ -548,6 +572,20 @@ elif menu == "🗄️ Database Explorer":
         st.markdown("### 💰 Manual Prices Database")
         if st.session_state.get('manual_prices_db'):
             df = pd.DataFrame(st.session_state.manual_prices_db)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.info("Kosong")
+        
+        st.markdown("### 🗺️ NPK Soil Map Database")
+        if npk_soil_data:
+            df = pd.DataFrame(npk_soil_data)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.info("Kosong")
+        
+        st.markdown("### 📓 Journal Database")
+        if journal_data:
+            df = pd.DataFrame(journal_data)
             st.dataframe(df, use_container_width=True, hide_index=True)
         else:
             st.info("Kosong")
@@ -583,6 +621,7 @@ elif menu == "🗄️ Database Explorer":
             st.dataframe(df, use_container_width=True, hide_index=True)
         else:
             st.info("Kosong")
+
     
     elif db_choice == "🌾 Commodities":
         st.markdown("### 🌾 Commodities Database")
@@ -613,6 +652,62 @@ elif menu == "🗄️ Database Explorer":
             st.download_button("📥 Download JSON", json_str, "manual_prices.json", "application/json")
         else:
             st.info("Database kosong")
+    
+    elif db_choice == "🗺️ NPK Soil Map":
+        st.markdown("### 🗺️ NPK Soil Map Database")
+        st.info("📍 Data pengukuran NPK tanah dari peta interaktif")
+        
+        if npk_soil_data:
+            df = pd.DataFrame(npk_soil_data)
+            
+            # Show columns
+            display_cols = ['id', 'latitude', 'longitude', 'n_value', 'p_value', 'k_value', 'ph', 'soil_type', 'created_at']
+            available_cols = [c for c in display_cols if c in df.columns]
+            df_display = df[available_cols] if available_cols else df
+            
+            st.dataframe(df_display, use_container_width=True, hide_index=True)
+            
+            # Stats
+            st.markdown("---")
+            st.subheader("📊 Statistik NPK")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                if 'n_value' in df.columns:
+                    st.metric("🔵 Rata-rata N", f"{df['n_value'].mean():.1f} ppm")
+            with col2:
+                if 'p_value' in df.columns:
+                    st.metric("🟢 Rata-rata P", f"{df['p_value'].mean():.1f} ppm")
+            with col3:
+                if 'k_value' in df.columns:
+                    st.metric("🟠 Rata-rata K", f"{df['k_value'].mean():.1f} ppm")
+            
+            # Export
+            st.markdown("---")
+            col1, col2 = st.columns(2)
+            with col1:
+                json_str = json.dumps(npk_soil_data, indent=2, default=str)
+                st.download_button("📥 Download JSON", json_str, "npk_soil_data.json", "application/json")
+            with col2:
+                csv = df.to_csv(index=False)
+                st.download_button("📥 Download CSV", csv, "npk_soil_data.csv", "text/csv")
+        else:
+            st.info("Belum ada data NPK. Tambahkan melalui halaman Peta Data Tanah.")
+    
+    elif db_choice == "📓 Journal":
+        st.markdown("### 📓 Journal Database")
+        st.info("📝 Data jurnal harian pertanian")
+        
+        if journal_data:
+            df = pd.DataFrame(journal_data)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
+            # Export
+            st.markdown("---")
+            json_str = json.dumps(journal_data, indent=2, default=str)
+            st.download_button("📥 Download JSON", json_str, "journal_data.json", "application/json")
+        else:
+            st.info("Belum ada data jurnal. Tambahkan melalui halaman Jurnal Harian.")
+
     
     elif db_choice == "📝 Audit Log":
         st.markdown("### 📝 Audit Log Database")
