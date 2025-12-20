@@ -6,9 +6,8 @@ Provides session-based authentication for all pages
 import streamlit as st
 import hashlib
 
-# ========== USER DATABASE (Simple - can be extended to use real DB) ==========
-# Format: username: (password_hash, role, display_name)
-USERS = {
+# ========== DEFAULT USERS ==========
+DEFAULT_USERS = {
     'admin': {
         'password': 'admin123',
         'role': 'admin',
@@ -30,12 +29,21 @@ USERS = {
 }
 
 
+def get_users():
+    """Get users from session state (persistent during session)."""
+    if 'registered_users' not in st.session_state:
+        st.session_state.registered_users = DEFAULT_USERS.copy()
+    return st.session_state.registered_users
+
+
 def init_auth_state():
     """Initialize authentication state."""
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
     if 'user' not in st.session_state:
         st.session_state.user = None
+    # Initialize users database
+    get_users()
 
 
 def login(username: str, password: str) -> tuple[bool, str]:
@@ -44,15 +52,16 @@ def login(username: str, password: str) -> tuple[bool, str]:
     Returns (success, message)
     """
     init_auth_state()
+    users = get_users()
     
     if not username or not password:
         return False, "Username dan password harus diisi"
     
     # Check if user exists
-    if username.lower() not in USERS:
+    if username.lower() not in users:
         return False, "Username tidak ditemukan"
     
-    user_data = USERS[username.lower()]
+    user_data = users[username.lower()]
     
     # Verify password
     if user_data['password'] != password:
@@ -74,6 +83,49 @@ def logout():
     """Logout current user."""
     st.session_state.authenticated = False
     st.session_state.user = None
+
+
+def register(username: str, password: str, name: str, email: str) -> tuple[bool, str]:
+    """
+    Register a new user.
+    Returns (success, message)
+    """
+    init_auth_state()
+    users = get_users()
+    
+    # Validation
+    if not username or not password or not name:
+        return False, "Username, password, dan nama harus diisi"
+    
+    if len(username) < 3:
+        return False, "Username minimal 3 karakter"
+    
+    if len(password) < 6:
+        return False, "Password minimal 6 karakter"
+    
+    # Check if username already exists
+    if username.lower() in users:
+        return False, "Username sudah digunakan"
+    
+    # Add new user
+    users[username.lower()] = {
+        'password': password,
+        'role': 'user',
+        'name': name,
+        'email': email or f"{username}@agrisensa.com"
+    }
+    
+    # Auto-login after registration
+    st.session_state.authenticated = True
+    st.session_state.user = {
+        'username': username.lower(),
+        'name': name,
+        'role': 'user',
+        'email': email or f"{username}@agrisensa.com"
+    }
+    
+    return True, f"Selamat datang, {name}! Akun berhasil dibuat."
+
 
 
 def is_authenticated() -> bool:

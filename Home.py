@@ -165,7 +165,9 @@ TRANSLATIONS = {
 }
 
 def show_login_page():
-    """Show beautiful login page."""
+    """Show beautiful login page with registration."""
+    from utils.auth import register
+    
     st.markdown("""
     <style>
         .login-hero {
@@ -199,39 +201,66 @@ def show_login_page():
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("### 🔐 Login untuk Akses Penuh")
+        # Tabs for Login and Register
+        tab_login, tab_register = st.tabs(["🔐 Login", "📝 Daftar Baru"])
         
-        with st.form("login_form"):
-            username = st.text_input("👤 Username", placeholder="admin / demo / petani")
-            password = st.text_input("🔑 Password", type="password", placeholder="••••••••")
+        with tab_login:
+            st.markdown("### Masuk ke Akun Anda")
             
-            col_btn1, col_btn2 = st.columns(2)
-            with col_btn1:
+            with st.form("login_form"):
+                username = st.text_input("👤 Username", placeholder="admin / demo / petani")
+                password = st.text_input("🔑 Password", type="password", placeholder="••••••••")
+                
                 login_btn = st.form_submit_button("🚀 Login", use_container_width=True, type="primary")
-            with col_btn2:
-                st.form_submit_button("📝 Daftar Baru", use_container_width=True, disabled=True)
-            
-            if login_btn:
-                if username and password:
-                    success, message = login(username, password)
-                    if success:
-                        st.success(message)
-                        st.balloons()
-                        st.rerun()
+                
+                if login_btn:
+                    if username and password:
+                        success, message = login(username, password)
+                        if success:
+                            st.success(message)
+                            st.balloons()
+                            st.rerun()
+                        else:
+                            st.error(f"❌ {message}")
                     else:
-                        st.error(f"❌ {message}")
-                else:
-                    st.warning("Masukkan username dan password")
+                        st.warning("Masukkan username dan password")
+            
+            st.markdown("---")
+            st.markdown("""
+            <div style="text-align: center; color: #6b7280; font-size: 0.85rem;">
+                <strong>Demo Accounts:</strong><br>
+                👨‍💼 admin / admin123<br>
+                👤 demo / demo123<br>
+                👨‍🌾 petani / petani123
+            </div>
+            """, unsafe_allow_html=True)
         
-        st.markdown("---")
-        st.markdown("""
-        <div style="text-align: center; color: #6b7280; font-size: 0.85rem;">
-            <strong>Demo Accounts:</strong><br>
-            👨‍💼 admin / admin123<br>
-            👤 demo / demo123<br>
-            👨‍🌾 petani / petani123
-        </div>
-        """, unsafe_allow_html=True)
+        with tab_register:
+            st.markdown("### Buat Akun Baru")
+            st.info("📝 Daftar gratis untuk mengakses semua fitur AgriSensa!")
+            
+            with st.form("register_form"):
+                reg_name = st.text_input("👤 Nama Lengkap *", placeholder="contoh: Budi Tani")
+                reg_username = st.text_input("📛 Username *", placeholder="minimal 3 karakter")
+                reg_email = st.text_input("📧 Email", placeholder="email@example.com (opsional)")
+                reg_password = st.text_input("🔑 Password *", type="password", placeholder="minimal 6 karakter")
+                reg_password2 = st.text_input("🔑 Konfirmasi Password *", type="password", placeholder="ulangi password")
+                
+                register_btn = st.form_submit_button("✨ Daftar Sekarang", use_container_width=True, type="primary")
+                
+                if register_btn:
+                    if reg_password != reg_password2:
+                        st.error("❌ Password tidak cocok!")
+                    elif not reg_name or not reg_username or not reg_password:
+                        st.warning("⚠️ Lengkapi semua field yang wajib (*)")
+                    else:
+                        success, message = register(reg_username, reg_password, reg_name, reg_email)
+                        if success:
+                            st.success(f"🎉 {message}")
+                            st.balloons()
+                            st.rerun()
+                        else:
+                            st.error(f"❌ {message}")
         
         # Features preview
         st.markdown("---")
@@ -245,6 +274,7 @@ def show_login_page():
             st.markdown("✅ Analisis Cuaca")
             st.markdown("✅ Kalkulator Pupuk")
             st.markdown("✅ Database Lengkap")
+
 
 
 def main():
