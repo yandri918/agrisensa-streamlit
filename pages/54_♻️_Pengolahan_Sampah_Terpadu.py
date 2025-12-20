@@ -974,7 +974,7 @@ with tabs[2]:
         # Radar Chart Summary
         st.markdown("### 📊 Overall Performance Radar")
         perf_values = [
-            min(100, roi_monthly),
+            min(100, roi_actual),
             min(100, yield_rate),
             npk_score,
             min(100, capacity_util),
