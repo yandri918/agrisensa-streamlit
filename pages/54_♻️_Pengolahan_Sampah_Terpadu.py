@@ -665,6 +665,525 @@ with tabs[2]:
 
     st.markdown("**📄 Tabel Rincian Unsur Hara Lengkap**")
     st.table(df_lab)
+    
+    # ========================================================
+    # 🔥 ADVANCED FERMENTATION MONITOR (NEW FEATURE)
+    # ========================================================
+    st.divider()
+    st.markdown("---")
+    st.header("🔥 Real-Time Fermentation Command Center")
+    st.write("Monitor parameter kritis proses pengomposan secara real-time untuk menghasilkan pupuk grade premium.")
+    
+    # Sub-tabs for advanced features
+    ferm_tabs = st.tabs([
+        "🌡️ Live Monitor", 
+        "📊 KPI Scorecard", 
+        "📈 Production Analytics",
+        "🏆 Quality Grading"
+    ])
+    
+    # --- SUB-TAB 1: LIVE FERMENTATION MONITOR ---
+    with ferm_tabs[0]:
+        st.subheader("🌡️ Real-Time Process Parameters")
+        
+        # Simulation controls
+        sim_col1, sim_col2 = st.columns([3, 1])
+        with sim_col2:
+            sim_day = st.slider("📅 Simulasi Hari ke-", 1, 45, 10, key="ferm_day")
+        
+        # Dynamic values based on day (realistic fermentation curve)
+        if sim_day <= 3:
+            phase = "🟢 Mesofilik"
+            temp = 28 + (sim_day * 4)
+            ph = 6.5 - (sim_day * 0.15)
+            moisture = 65 - (sim_day * 2)
+            phase_color = "#22c55e"
+        elif sim_day <= 15:
+            phase = "🔴 Termofilik"
+            temp = 55 + min(15, (sim_day - 3) * 1.5)
+            ph = 6.0 + ((sim_day - 3) * 0.05)
+            moisture = 55 - ((sim_day - 3) * 0.5)
+            phase_color = "#ef4444"
+        elif sim_day <= 25:
+            phase = "🟡 Pendinginan"
+            temp = 70 - ((sim_day - 15) * 3)
+            ph = 6.6 + ((sim_day - 15) * 0.04)
+            moisture = 50 + ((sim_day - 15) * 0.3)
+            phase_color = "#f59e0b"
+        else:
+            phase = "✅ Pematangan"
+            temp = 35 - min(10, (sim_day - 25) * 0.5)
+            ph = 7.0 + min(0.3, (sim_day - 25) * 0.02)
+            moisture = 52 + min(8, (sim_day - 25) * 0.3)
+            phase_color = "#10b981"
+        
+        # C/N Ratio degradation simulation
+        cn_ratio = 35 - (sim_day * 0.5)
+        cn_ratio = max(12, cn_ratio)
+        
+        with sim_col1:
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, {phase_color}22 0%, white 100%); 
+                        padding: 15px; border-radius: 10px; border-left: 5px solid {phase_color};
+                        margin-bottom: 15px;">
+                <h3 style="margin:0; color: {phase_color};">Fase Saat Ini: {phase}</h3>
+                <p style="margin:5px 0 0 0; color: #6b7280;">Hari ke-{sim_day} dari proses pengomposan</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Gauge Charts Row
+        g1, g2, g3, g4 = st.columns(4)
+        
+        # Temperature Gauge
+        with g1:
+            fig_temp = go.Figure(go.Indicator(
+                mode="gauge+number+delta",
+                value=temp,
+                title={'text': "🌡️ Suhu (°C)"},
+                delta={'reference': 55, 'increasing': {'color': "red"}},
+                gauge={
+                    'axis': {'range': [20, 80]},
+                    'bar': {'color': "#ef4444"},
+                    'steps': [
+                        {'range': [20, 40], 'color': "#d1fae5"},
+                        {'range': [40, 55], 'color': "#fef3c7"},
+                        {'range': [55, 70], 'color': "#fee2e2"},
+                        {'range': [70, 80], 'color': "#fca5a5"}
+                    ],
+                    'threshold': {
+                        'line': {'color': "red", 'width': 4},
+                        'thickness': 0.75, 'value': 70
+                    }
+                }
+            ))
+            fig_temp.update_layout(height=200, margin=dict(t=50, b=10, l=20, r=20))
+            st.plotly_chart(fig_temp, use_container_width=True)
+        
+        # pH Gauge
+        with g2:
+            fig_ph = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=ph,
+                title={'text': "⚗️ pH Level"},
+                gauge={
+                    'axis': {'range': [4, 9]},
+                    'bar': {'color': "#3b82f6"},
+                    'steps': [
+                        {'range': [4, 5.5], 'color': "#fca5a5"},
+                        {'range': [5.5, 6.5], 'color': "#fef3c7"},
+                        {'range': [6.5, 7.5], 'color': "#d1fae5"},
+                        {'range': [7.5, 8.5], 'color': "#fef3c7"},
+                        {'range': [8.5, 9], 'color': "#fca5a5"}
+                    ],
+                    'threshold': {
+                        'line': {'color': "green", 'width': 4},
+                        'thickness': 0.75, 'value': 7.0
+                    }
+                }
+            ))
+            fig_ph.update_layout(height=200, margin=dict(t=50, b=10, l=20, r=20))
+            st.plotly_chart(fig_ph, use_container_width=True)
+        
+        # Moisture Gauge
+        with g3:
+            fig_moist = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=moisture,
+                title={'text': "💧 Kelembaban (%)"},
+                gauge={
+                    'axis': {'range': [30, 80]},
+                    'bar': {'color': "#06b6d4"},
+                    'steps': [
+                        {'range': [30, 45], 'color': "#fef3c7"},
+                        {'range': [45, 60], 'color': "#d1fae5"},
+                        {'range': [60, 80], 'color': "#fef3c7"}
+                    ],
+                    'threshold': {
+                        'line': {'color': "blue", 'width': 4},
+                        'thickness': 0.75, 'value': 55
+                    }
+                }
+            ))
+            fig_moist.update_layout(height=200, margin=dict(t=50, b=10, l=20, r=20))
+            st.plotly_chart(fig_moist, use_container_width=True)
+        
+        # C/N Ratio Gauge
+        with g4:
+            fig_cn = go.Figure(go.Indicator(
+                mode="gauge+number+delta",
+                value=cn_ratio,
+                title={'text': "⚖️ C/N Ratio"},
+                delta={'reference': 20, 'decreasing': {'color': "green"}},
+                gauge={
+                    'axis': {'range': [5, 40]},
+                    'bar': {'color': "#8b5cf6"},
+                    'steps': [
+                        {'range': [5, 15], 'color': "#d1fae5"},
+                        {'range': [15, 20], 'color': "#d1fae5"},
+                        {'range': [20, 30], 'color': "#fef3c7"},
+                        {'range': [30, 40], 'color': "#fee2e2"}
+                    ],
+                    'threshold': {
+                        'line': {'color': "green", 'width': 4},
+                        'thickness': 0.75, 'value': 20
+                    }
+                }
+            ))
+            fig_cn.update_layout(height=200, margin=dict(t=50, b=10, l=20, r=20))
+            st.plotly_chart(fig_cn, use_container_width=True)
+        
+        # Trend Chart (30 Days)
+        st.subheader("📈 Trend Parameter 30 Hari")
+        days = list(range(1, 46))
+        temp_trend = []
+        ph_trend = []
+        cn_trend = []
+        
+        for d in days:
+            if d <= 3:
+                temp_trend.append(28 + (d * 4))
+                ph_trend.append(6.5 - (d * 0.15))
+                cn_trend.append(35 - (d * 0.5))
+            elif d <= 15:
+                temp_trend.append(55 + min(15, (d - 3) * 1.5))
+                ph_trend.append(6.0 + ((d - 3) * 0.05))
+                cn_trend.append(35 - 1.5 - ((d - 3) * 0.8))
+            elif d <= 25:
+                temp_trend.append(70 - ((d - 15) * 3))
+                ph_trend.append(6.6 + ((d - 15) * 0.04))
+                cn_trend.append(25 - ((d - 15) * 0.6))
+            else:
+                temp_trend.append(35 - min(10, (d - 25) * 0.5))
+                ph_trend.append(7.0 + min(0.3, (d - 25) * 0.02))
+                cn_trend.append(max(12, 19 - ((d - 25) * 0.3)))
+        
+        fig_trend = go.Figure()
+        fig_trend.add_trace(go.Scatter(x=days, y=temp_trend, name="Suhu (°C)", line=dict(color="#ef4444", width=2)))
+        fig_trend.add_trace(go.Scatter(x=days, y=[t*10 for t in ph_trend], name="pH (x10)", line=dict(color="#3b82f6", width=2)))
+        fig_trend.add_trace(go.Scatter(x=days, y=cn_trend, name="C/N Ratio", line=dict(color="#8b5cf6", width=2)))
+        
+        # Add phase regions
+        fig_trend.add_vrect(x0=1, x1=3, fillcolor="#22c55e", opacity=0.1, line_width=0)
+        fig_trend.add_vrect(x0=3, x1=15, fillcolor="#ef4444", opacity=0.1, line_width=0)
+        fig_trend.add_vrect(x0=15, x1=25, fillcolor="#f59e0b", opacity=0.1, line_width=0)
+        fig_trend.add_vrect(x0=25, x1=45, fillcolor="#10b981", opacity=0.1, line_width=0)
+        
+        # Mark current day
+        fig_trend.add_vline(x=sim_day, line=dict(color="black", dash="dash", width=2))
+        fig_trend.add_annotation(x=sim_day, y=80, text=f"Hari ke-{sim_day}", showarrow=True, arrowhead=2)
+        
+        fig_trend.update_layout(
+            height=350,
+            margin=dict(t=20, b=40),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02),
+            xaxis_title="Hari",
+            yaxis_title="Nilai Parameter"
+        )
+        st.plotly_chart(fig_trend, use_container_width=True)
+        
+        # Alert System
+        alert_col1, alert_col2 = st.columns(2)
+        with alert_col1:
+            if temp > 70:
+                st.error("🚨 **ALERT:** Suhu terlalu tinggi! Buka ventilasi atau siram dengan air.")
+            elif temp < 35 and sim_day < 25:
+                st.warning("⚠️ **WARNING:** Suhu rendah. Tambah bahan hijau (nitrogen) untuk meningkatkan aktivitas mikroba.")
+            else:
+                st.success("✅ Suhu dalam rentang optimal")
+        
+        with alert_col2:
+            if cn_ratio < 15:
+                st.success(f"✅ **C/N Ratio: {cn_ratio:.1f}** - Kompos MATANG SEMPURNA!")
+            elif cn_ratio < 20:
+                st.info(f"ℹ️ **C/N Ratio: {cn_ratio:.1f}** - Hampir matang, tunggu beberapa hari lagi.")
+            else:
+                st.warning(f"⚠️ **C/N Ratio: {cn_ratio:.1f}** - Belum matang, lanjutkan proses dekomposisi.")
+    
+    # --- SUB-TAB 2: KPI SCORECARD ---
+    with ferm_tabs[1]:
+        st.subheader("🎯 Balanced Scorecard - Pupuk Organik Premium")
+        st.write("Key Performance Indicators untuk menjamin kualitas setara industri.")
+        
+        # Financial KPIs
+        st.markdown("### 💰 Financial Perspective")
+        fin_col1, fin_col2, fin_col3, fin_col4 = st.columns(4)
+        
+        # Calculate financial metrics
+        revenue_monthly = organic_processed * price_organic
+        cost_per_kg = (total_opex_base / 30) / max(1, daily_ferti)
+        margin_per_kg = price_organic - cost_per_kg
+        roi_monthly = ((revenue_monthly - total_opex_base) / max(1, total_capex)) * 100
+        payback_months = total_capex / max(1, (revenue_monthly - total_opex_base))
+        
+        fin_col1.metric("Revenue/Bulan", f"Rp {revenue_monthly/1e6:.1f}M", "Target")
+        fin_col2.metric("Biaya/kg", f"Rp {cost_per_kg:,.0f}", "-15%" if cost_per_kg < 2000 else None)
+        fin_col3.metric("Margin/kg", f"Rp {margin_per_kg:,.0f}", "Profit")
+        fin_col4.metric("ROI Bulanan", f"{roi_monthly:.1f}%", "Investasi")
+        
+        # Process KPIs
+        st.markdown("### ⚙️ Process Perspective")
+        proc_col1, proc_col2, proc_col3, proc_col4 = st.columns(4)
+        
+        cycle_time = 30  # days
+        throughput = daily_ferti
+        yield_rate = s_yield_organic * 100
+        capacity_util = (throughput / max(1, 100)) * 100
+        
+        proc_col1.metric("Cycle Time", f"{cycle_time} hari", "Standar")
+        proc_col2.metric("Throughput", f"{throughput:.0f} kg/hari", "Output")
+        proc_col3.metric("Rendemen", f"{yield_rate:.0f}%", "Efisiensi")
+        proc_col4.metric("Utilitas Kapasitas", f"{min(100, capacity_util):.0f}%", "Mesin")
+        
+        # Quality KPIs
+        st.markdown("### 🔬 Quality Perspective")
+        qual_col1, qual_col2, qual_col3, qual_col4 = st.columns(4)
+        
+        npk_score = 95  # Simulated
+        cn_target_met = "✅ Ya" if cn_ratio < 20 else "❌ Belum"
+        sni_compliance = 100 if cn_ratio < 20 else 75
+        defect_rate = 2.5
+        
+        qual_col1.metric("NPK Score", f"{npk_score}%", "vs Target")
+        qual_col2.metric("C/N Target", cn_target_met, "<20")
+        qual_col3.metric("SNI Compliance", f"{sni_compliance}%", "19-7030")
+        qual_col4.metric("Defect Rate", f"{defect_rate}%", "-0.5%")
+        
+        # Environmental KPIs
+        st.markdown("### 🌍 Environmental Perspective")
+        env_col1, env_col2, env_col3, env_col4 = st.columns(4)
+        
+        env_col1.metric("Carbon Offset", f"{carbon_offset:,.0f} kg", "CO2e")
+        env_col2.metric("Methane Avoided", f"{methane_avoided:,.0f} kg", "CH4")
+        env_col3.metric("Landfill Saved", f"{landfill_m3_saved:.1f} m³", "Volume")
+        env_col4.metric("Tree Equivalent", f"{tree_equivalent:.0f} pohon", "Tahunan")
+        
+        # Radar Chart Summary
+        st.markdown("### 📊 Overall Performance Radar")
+        perf_values = [
+            min(100, roi_monthly),
+            min(100, yield_rate),
+            npk_score,
+            min(100, capacity_util),
+            sni_compliance
+        ]
+        perf_labels = ["ROI", "Rendemen", "NPK Score", "Kapasitas", "SNI"]
+        
+        fig_perf = go.Figure()
+        fig_perf.add_trace(go.Scatterpolar(
+            r=perf_values,
+            theta=perf_labels,
+            fill='toself',
+            name='Current Performance',
+            line_color="#10b981"
+        ))
+        fig_perf.add_trace(go.Scatterpolar(
+            r=[80, 80, 90, 85, 100],
+            theta=perf_labels,
+            fill='toself',
+            name='Target',
+            line_color="#3b82f6",
+            opacity=0.5
+        ))
+        fig_perf.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+            showlegend=True,
+            height=400,
+            margin=dict(t=40, b=40)
+        )
+        st.plotly_chart(fig_perf, use_container_width=True)
+    
+    # --- SUB-TAB 3: PRODUCTION ANALYTICS ---
+    with ferm_tabs[2]:
+        st.subheader("📈 Production Analytics & Flow")
+        
+        # Sankey Diagram
+        st.markdown("### 🔄 Material Flow Diagram (Sankey)")
+        
+        fig_sankey = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=20,
+                thickness=20,
+                line=dict(color="black", width=0.5),
+                label=[
+                    "Sampah Organik Input", 
+                    "Pre-Processing", 
+                    "Fermentasi Aktif",
+                    "Pematangan",
+                    "Pupuk Grade A",
+                    "Pupuk Grade B", 
+                    "Pupuk Grade C",
+                    "Reject/Recycle"
+                ],
+                color=["#94a3b8", "#64748b", "#f59e0b", "#22c55e", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444"]
+            ),
+            link=dict(
+                source=[0, 1, 2, 3, 3, 3, 3],
+                target=[1, 2, 3, 4, 5, 6, 7],
+                value=[100, 95, 90, 45, 30, 10, 5],
+                color=["#e2e8f0", "#e2e8f0", "#fef3c7", "#d1fae5", "#dbeafe", "#e9d5ff", "#fee2e2"]
+            )
+        )])
+        
+        fig_sankey.update_layout(
+            title_text="Alur Transformasi Sampah Organik → Pupuk Premium",
+            font_size=12,
+            height=400
+        )
+        st.plotly_chart(fig_sankey, use_container_width=True)
+        
+        # Waterfall Chart - Cost Breakdown
+        st.markdown("### 💵 Waterfall: Struktur Biaya Produksi")
+        
+        waterfall_data = {
+            "Kategori": ["Input Bahan", "Pre-Processing", "Bioaktivator", "Tenaga Kerja", "Energi", "Packaging", "Overhead", "Total Biaya"],
+            "Nilai": [200, 150, 100, 300, 120, 80, 50, None]
+        }
+        
+        fig_waterfall = go.Figure(go.Waterfall(
+            name="Biaya",
+            orientation="v",
+            measure=["relative", "relative", "relative", "relative", "relative", "relative", "relative", "total"],
+            x=waterfall_data["Kategori"],
+            y=[200, 150, 100, 300, 120, 80, 50, 0],
+            connector={"line": {"color": "#6b7280"}},
+            increasing={"marker": {"color": "#ef4444"}},
+            decreasing={"marker": {"color": "#22c55e"}},
+            totals={"marker": {"color": "#3b82f6"}},
+            text=["+Rp200", "+Rp150", "+Rp100", "+Rp300", "+Rp120", "+Rp80", "+Rp50", "Rp1.000/kg"]
+        ))
+        
+        fig_waterfall.update_layout(
+            title="Biaya per kg Pupuk Premium (Rp)",
+            height=350,
+            showlegend=False
+        )
+        st.plotly_chart(fig_waterfall, use_container_width=True)
+        
+        # Heatmap - Correlation
+        st.markdown("### 🔥 Heatmap: Korelasi Input-Output")
+        
+        import numpy as np
+        corr_matrix = np.array([
+            [1.0, 0.85, 0.72, 0.65],
+            [0.85, 1.0, 0.78, 0.71],
+            [0.72, 0.78, 1.0, 0.92],
+            [0.65, 0.71, 0.92, 1.0]
+        ])
+        
+        fig_heat = go.Figure(data=go.Heatmap(
+            z=corr_matrix,
+            x=["Input Organik", "Bioaktivator", "Suhu Optimal", "Output Grade A"],
+            y=["Input Organik", "Bioaktivator", "Suhu Optimal", "Output Grade A"],
+            colorscale="Greens",
+            text=[[f"{v:.2f}" for v in row] for row in corr_matrix],
+            texttemplate="%{text}",
+            textfont={"size": 12}
+        ))
+        
+        fig_heat.update_layout(
+            title="Korelasi Faktor Produksi",
+            height=350
+        )
+        st.plotly_chart(fig_heat, use_container_width=True)
+    
+    # --- SUB-TAB 4: QUALITY GRADING ---
+    with ferm_tabs[3]:
+        st.subheader("🏆 Sistem Grading Kualitas Pupuk")
+        st.write("Standarisasi output berdasarkan parameter laboratorium untuk penetapan harga diferensial.")
+        
+        # Grade Cards
+        grade_col1, grade_col2, grade_col3 = st.columns(3)
+        
+        with grade_col1:
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%); 
+                        padding: 20px; border-radius: 15px; border: 3px solid #f59e0b; text-align: center;">
+                <h1 style="margin:0; font-size: 4rem;">🥇</h1>
+                <h2 style="margin:10px 0; color: #b45309;">GRADE A - PREMIUM</h2>
+                <p style="margin:5px 0;"><b>C/N Ratio:</b> < 15</p>
+                <p style="margin:5px 0;"><b>NPK:</b> > 2.5% / 1.8% / 2.0%</p>
+                <p style="margin:5px 0;"><b>pH:</b> 6.8 - 7.2</p>
+                <hr style="border-color: #f59e0b;">
+                <h3 style="color: #b45309;">Rp 5.000/kg</h3>
+                <p style="font-size: 0.85rem; color: #78716c;">Untuk: Hidroponik, Nursery Premium, Ekspor</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with grade_col2:
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); 
+                        padding: 20px; border-radius: 15px; border: 3px solid #6366f1; text-align: center;">
+                <h1 style="margin:0; font-size: 4rem;">🥈</h1>
+                <h2 style="margin:10px 0; color: #4338ca;">GRADE B - STANDARD</h2>
+                <p style="margin:5px 0;"><b>C/N Ratio:</b> 15 - 20</p>
+                <p style="margin:5px 0;"><b>NPK:</b> > 2.0% / 1.5% / 1.5%</p>
+                <p style="margin:5px 0;"><b>pH:</b> 6.5 - 7.5</p>
+                <hr style="border-color: #6366f1;">
+                <h3 style="color: #4338ca;">Rp 2.500/kg</h3>
+                <p style="font-size: 0.85rem; color: #78716c;">Untuk: Kebun Sayur, Polybag, Campuran Media</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with grade_col3:
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); 
+                        padding: 20px; border-radius: 15px; border: 3px solid #64748b; text-align: center;">
+                <h1 style="margin:0; font-size: 4rem;">🥉</h1>
+                <h2 style="margin:10px 0; color: #475569;">GRADE C - BULK</h2>
+                <p style="margin:5px 0;"><b>C/N Ratio:</b> 20 - 25</p>
+                <p style="margin:5px 0;"><b>NPK:</b> SNI Minimum</p>
+                <p style="margin:5px 0;"><b>pH:</b> 6.0 - 8.0</p>
+                <hr style="border-color: #64748b;">
+                <h3 style="color: #475569;">Rp 1.200/kg</h3>
+                <p style="font-size: 0.85rem; color: #78716c;">Untuk: Rehabilitasi Lahan, Mulsa, Reklamasi</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.divider()
+        
+        # Grade Calculator
+        st.markdown("### 🧮 Kalkulator Grading Otomatis")
+        calc_col1, calc_col2 = st.columns([1, 1])
+        
+        with calc_col1:
+            input_cn = st.number_input("Masukkan C/N Ratio Hasil Lab", 5.0, 40.0, 14.5, 0.5)
+            input_n = st.number_input("Nitrogen (N) %", 0.5, 5.0, 2.65, 0.05)
+            input_p = st.number_input("Phosphate (P) %", 0.5, 5.0, 1.95, 0.05)
+            input_k = st.number_input("Kalium (K) %", 0.5, 5.0, 2.30, 0.05)
+            input_ph = st.number_input("pH Level", 5.0, 9.0, 7.0, 0.1)
+        
+        with calc_col2:
+            # Determine grade
+            if input_cn < 15 and input_n > 2.5 and input_p > 1.8 and input_k > 2.0 and 6.8 <= input_ph <= 7.2:
+                grade = "A"
+                grade_color = "#f59e0b"
+                price = 5000
+                cert = "🏆 PREMIUM CERTIFIED"
+            elif input_cn <= 20 and input_n >= 2.0 and input_p >= 1.5 and input_k >= 1.5 and 6.5 <= input_ph <= 7.5:
+                grade = "B"
+                grade_color = "#6366f1"
+                price = 2500
+                cert = "✅ SNI COMPLIANT"
+            else:
+                grade = "C"
+                grade_color = "#64748b"
+                price = 1200
+                cert = "📋 BULK GRADE"
+            
+            st.markdown(f"""
+            <div style="background: white; padding: 30px; border-radius: 15px; 
+                        border: 4px solid {grade_color}; text-align: center; margin-top: 20px;">
+                <h1 style="margin:0; font-size: 5rem; color: {grade_color};">GRADE {grade}</h1>
+                <h3 style="margin:10px 0;">{cert}</h3>
+                <hr>
+                <h2 style="color: {grade_color};">Harga Jual: Rp {price:,}/kg</h2>
+                <p style="color: #6b7280;">Berdasarkan parameter laboratorium yang Anda masukkan</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Digital Certificate Preview
+            if grade == "A":
+                st.success("🎖️ Produk ini berhak mendapat **Sertifikat Digital AgriSensa Premium** yang dapat di-scan konsumen!")
 
 # --- TAB 3: UPCYCLING PLASTIK ---
 with tabs[3]:
