@@ -129,25 +129,25 @@ def login(username: str, password: str) -> tuple:
         }
         return True, result.get('message', 'Login berhasil!')
     
-    # If API error (not auth failure), try fallback
-    if result.get('api_error'):
-        users = st.session_state.get('registered_users', DEFAULT_USERS)
-        if username in users:
-            if users[username]['password'] == password:
-                st.session_state.authenticated = True
-                st.session_state.user = {
-                    'username': username,
-                    'name': users[username]['name'],
-                    'role': users[username]['role'],
-                    'email': users[username]['email']
-                }
-                log_user_activity(username, 'LOGIN', 'Login via fallback')
-                return True, f"Selamat datang, {users[username]['name']}!"
-            else:
-                return False, "Password salah"
-        return False, "Username tidak ditemukan"
+    # If API fails (error or user not found), try local DEFAULT_USERS
+    users = st.session_state.get('registered_users', DEFAULT_USERS)
+    if username in users:
+        if users[username]['password'] == password:
+            st.session_state.authenticated = True
+            st.session_state.user = {
+                'username': username,
+                'name': users[username]['name'],
+                'role': users[username]['role'],
+                'email': users[username]['email']
+            }
+            log_user_activity(username, 'LOGIN', 'Login via local')
+            return True, f"Selamat datang, {users[username]['name']}!"
+        else:
+            return False, "Password salah"
     
-    return False, result.get('message', 'Login gagal')
+    # If not in local users either, return the API message
+    return False, result.get('message', 'Username tidak ditemukan')
+
 
 
 def logout():
