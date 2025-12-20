@@ -1010,9 +1010,21 @@ with tabs[2]:
     with ferm_tabs[2]:
         st.subheader("📈 Production Analytics & Flow")
         
+        # Get input from session state (set by Simulasi Output section)
+        sankey_input = st.session_state.get('t_waste', 100)
+        
+        # Calculate flow values based on input (realistic composting losses)
+        flow_pre = int(sankey_input * 0.95)      # 5% loss in pre-processing
+        flow_ferm = int(sankey_input * 0.90)     # 10% total loss after fermentation
+        flow_mat = int(sankey_input * 0.80)      # 20% total loss after maturation
+        flow_grade_a = int(flow_mat * 0.50)      # 50% of mature = Grade A
+        flow_grade_b = int(flow_mat * 0.30)      # 30% of mature = Grade B
+        flow_grade_c = int(flow_mat * 0.12)      # 12% of mature = Grade C
+        flow_reject = int(flow_mat * 0.08)       # 8% reject/recycle
+        
         # Sankey Diagram
         st.markdown("### 🔄 Material Flow Diagram (Sankey)")
-        st.caption("Visualisasi alur transformasi sampah organik menjadi pupuk premium berkualitas.")
+        st.caption(f"Visualisasi alur transformasi **{sankey_input} kg** sampah organik menjadi pupuk premium.")
         
         fig_sankey = go.Figure(data=[go.Sankey(
             arrangement='snap',
@@ -1021,14 +1033,14 @@ with tabs[2]:
                 thickness=25,
                 line=dict(color="white", width=2),
                 label=[
-                    "🗑️ Sampah Organik Input (100kg)", 
-                    "⚙️ Pre-Processing (95kg)", 
-                    "🔥 Fermentasi Aktif (90kg)",
-                    "✅ Pematangan (85kg)",
-                    "🥇 Grade A - Premium (45kg)",
-                    "🥈 Grade B - Standard (25kg)", 
-                    "🥉 Grade C - Bulk (10kg)",
-                    "♻️ Reject/Recycle (5kg)"
+                    f"🗑️ Sampah Input ({sankey_input}kg)", 
+                    f"⚙️ Pre-Processing ({flow_pre}kg)", 
+                    f"🔥 Fermentasi ({flow_ferm}kg)",
+                    f"✅ Pematangan ({flow_mat}kg)",
+                    f"🥇 Grade A ({flow_grade_a}kg)",
+                    f"🥈 Grade B ({flow_grade_b}kg)", 
+                    f"🥉 Grade C ({flow_grade_c}kg)",
+                    f"♻️ Reject ({flow_reject}kg)"
                 ],
                 color=[
                     "#475569",  # Input - slate
@@ -1040,13 +1052,13 @@ with tabs[2]:
                     "#a855f7",  # Grade C - purple
                     "#ef4444"   # Reject - red
                 ],
-                customdata=[100, 95, 90, 85, 45, 25, 10, 5],
+                customdata=[sankey_input, flow_pre, flow_ferm, flow_mat, flow_grade_a, flow_grade_b, flow_grade_c, flow_reject],
                 hovertemplate='<b>%{label}</b><br>Berat: %{customdata}kg<extra></extra>'
             ),
             link=dict(
                 source=[0, 1, 2, 3, 3, 3, 3],
                 target=[1, 2, 3, 4, 5, 6, 7],
-                value=[100, 95, 90, 45, 25, 10, 5],
+                value=[sankey_input, flow_pre, flow_ferm, flow_grade_a, flow_grade_b, flow_grade_c, flow_reject],
                 color=[
                     "rgba(71, 85, 105, 0.4)",   # Input → Pre
                     "rgba(100, 116, 139, 0.4)", # Pre → Ferm
@@ -1069,12 +1081,16 @@ with tabs[2]:
         )
         st.plotly_chart(fig_sankey, use_container_width=True)
         
-        # Summary metrics below sankey
+        # Summary metrics below sankey (dynamic)
+        rendemen_pct = int((flow_mat / sankey_input) * 100)
+        grade_a_pct = int((flow_grade_a / sankey_input) * 100)
+        grade_b_pct = int((flow_grade_b / sankey_input) * 100)
+        
         san_col1, san_col2, san_col3, san_col4 = st.columns(4)
-        san_col1.metric("⬇️ Input", "100 kg", "Sampah Organik")
-        san_col2.metric("🥇 Grade A", "45 kg", "45% (Premium)")
-        san_col3.metric("🥈 Grade B", "25 kg", "25% (Standard)")
-        san_col4.metric("♻️ Rendemen Total", "80%", "Efisiensi Tinggi")
+        san_col1.metric("⬇️ Input", f"{sankey_input} kg", "Sampah Organik")
+        san_col2.metric("🥇 Grade A", f"{flow_grade_a} kg", f"{grade_a_pct}% (Premium)")
+        san_col3.metric("🥈 Grade B", f"{flow_grade_b} kg", f"{grade_b_pct}% (Standard)")
+        san_col4.metric("♻️ Rendemen Total", f"{rendemen_pct}%", "Efisiensi")
         
         # Waterfall Chart - Cost Breakdown
         st.markdown("### 💵 Waterfall: Struktur Biaya Produksi")
