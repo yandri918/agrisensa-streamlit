@@ -1057,6 +1057,8 @@ with tabs[2]:
                     "#a855f7",  # Grade C - purple
                     "#ef4444"   # Reject - red
                 ],
+                # Black text for node labels
+                textfont=dict(color="#000000", size=12, family="Arial Black"),
                 customdata=[sankey_input, flow_pre, flow_ferm, flow_mat, flow_grade_a, flow_grade_b, flow_grade_c, flow_reject],
                 hovertemplate='<b>%{label}</b><br>Berat: %{customdata}kg<extra></extra>'
             ),
