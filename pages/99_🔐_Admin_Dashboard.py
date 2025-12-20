@@ -390,6 +390,20 @@ elif menu == "👥 User Activity":
         if logs:
             df = pd.DataFrame(logs)
             
+            # Select only needed columns (handle both API and local format)
+            display_cols = []
+            if 'timestamp' in df.columns:
+                display_cols.append('timestamp')
+            if 'username' in df.columns:
+                display_cols.append('username')
+            if 'action' in df.columns:
+                display_cols.append('action')
+            if 'details' in df.columns:
+                display_cols.append('details')
+            
+            if display_cols:
+                df = df[display_cols]
+            
             # Add status icons
             def format_action(action):
                 icons = {
@@ -400,10 +414,15 @@ elif menu == "👥 User Activity":
                 }
                 return f"{icons.get(action, '📋')} {action}"
             
-            df['action'] = df['action'].apply(format_action)
-            df.columns = ['Waktu', 'Username', 'Aksi', 'Detail']
+            if 'action' in df.columns:
+                df['action'] = df['action'].apply(format_action)
+            
+            # Rename columns for display
+            col_names = {'timestamp': 'Waktu', 'username': 'Username', 'action': 'Aksi', 'details': 'Detail'}
+            df = df.rename(columns=col_names)
             
             st.dataframe(df, use_container_width=True, hide_index=True)
+
             
             # Stats
             st.markdown("---")
