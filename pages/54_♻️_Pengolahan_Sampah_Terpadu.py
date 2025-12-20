@@ -409,11 +409,11 @@ with tabs[0]:
     with st.expander("🛠️ Pengaturan Data (Simulation Mode)", expanded=False):
         st.markdown("#### 🗑️ Hapus Data Log")
         
-        # Selective Delete Options
-        delete_mode = st.radio(
+        # Selective Delete Options - Using selectbox to minimize reruns
+        delete_mode = st.selectbox(
             "Pilih Mode Penghapusan:",
             ["🎯 Hapus Data Tertentu", "📅 Hapus Berdasarkan Tanggal", "🏷️ Hapus Berdasarkan Tipe", "⚠️ Hapus Seluruh Data"],
-            horizontal=True
+            key="waste_delete_mode"
         )
         
         if delete_mode == "🎯 Hapus Data Tertentu":
