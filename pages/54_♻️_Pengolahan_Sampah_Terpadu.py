@@ -1078,7 +1078,7 @@ with tabs[2]:
         )])
         
         fig_sankey.update_layout(
-            font=dict(size=14, family="Arial, sans-serif", color="#1f2937"),
+            font=dict(size=14, family="Arial, sans-serif", color="#000000"),
             height=500,
             margin=dict(t=30, b=30, l=30, r=30),
             paper_bgcolor='rgba(0,0,0,0)',
