@@ -116,6 +116,62 @@ st.markdown("""
         font-size: 0.9rem;
         margin-right: 0.5rem;
     }
+    
+    /* EDUCATION CERTIFICATION BADGE */
+    .edu-cert-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.25) 100%);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(251, 191, 36, 0.4);
+        border-radius: 16px;
+        margin: 1.5rem auto;
+        box-shadow: 0 8px 32px rgba(251, 191, 36, 0.2);
+        transition: all 0.3s ease;
+    }
+    .edu-cert-badge:hover {
+        transform: scale(1.02);
+        box-shadow: 0 12px 40px rgba(251, 191, 36, 0.3);
+    }
+    .edu-cert-icon {
+        font-size: 2.5rem;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+    .edu-cert-content {
+        text-align: left;
+    }
+    .edu-cert-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #92400e;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    .edu-cert-level {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #78350f;
+        margin-bottom: 2px;
+    }
+    .edu-cert-desc {
+        font-size: 0.8rem;
+        color: #a16207;
+    }
+    .edu-cert-stats {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+    .edu-stat {
+        font-size: 0.7rem;
+        color: #92400e;
+        background: rgba(251, 191, 36, 0.2);
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -305,6 +361,21 @@ def main():
             <p class="hero-subtitle" style="text-align: center; margin: 10px auto; width: 80%; display: block;">
                 {T['hero_subtitle']}
             </p>
+            
+            <!-- EDUCATION CERTIFICATION BADGE -->
+            <div class="edu-cert-badge">
+                <div class="edu-cert-icon">🎓</div>
+                <div class="edu-cert-content">
+                    <div class="edu-cert-title">Educational Depth Certification</div>
+                    <div class="edu-cert-level">S1-S2 Agriculture Level</div>
+                    <div class="edu-cert-desc">Konten setara kurikulum Sarjana-Magister Pertanian</div>
+                    <div class="edu-cert-stats">
+                        <span class="edu-stat">📚 56+ Modul</span>
+                        <span class="edu-stat">📝 300K+ Karakter</span>
+                        <span class="edu-stat">🔬 Referensi Ilmiah</span>
+                    </div>
+                </div>
+            </div>
         </div>
     """, unsafe_allow_html=True)
 
