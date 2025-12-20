@@ -639,20 +639,31 @@ with tab2:
             else:
                 st.info("💡 QR Code akan dicetak dengan branding minimal AgriSensa")
         
-        # Generate QR Code
+        # Generate QR Code - NOW USES VERCEL URL!
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
-        qr_content = f"""AgriSensa Verified Product
-ID: {data['id']}
-Produk: {data['produk']} ({data['varietas']})
-Petani: {data['petani']} @ {data['lokasi']}
-Panen: {data['tgl']}
-Harga: Rp {data.get('harga', 0):,}
-Kontak: {data.get('kontak', '-')}
-Kualitas: {', '.join(data['klaim'])}
-"""
-        qr.add_data(qr_content)
+        
+        # Build Vercel Product Passport URL
+        import urllib.parse
+        base_url = "https://vercel-scan2.vercel.app/product"
+        params = {
+            'name': data['produk'],
+            'variety': data['varietas'],
+            'farmer': data['petani'],
+            'location': data['lokasi'],
+            'harvest_date': str(data['tgl']),
+            'weight': f"{data.get('berat', 1)} kg",
+            'emoji': '🌾'
+        }
+        if data.get('harga'):
+            params['price'] = str(data['harga'])
+        
+        query_string = urllib.parse.urlencode(params)
+        qr_url = f"{base_url}/{data['id']}?{query_string}"
+        
+        qr.add_data(qr_url)
         qr.make(fit=True)
         img_qr = qr.make_image(fill_color="black", back_color="white")
+
         
         # Generate Image based on print type
         if print_type == "label_lengkap":
