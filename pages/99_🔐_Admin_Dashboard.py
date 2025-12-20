@@ -112,13 +112,14 @@ menu_items = ["📊 Dashboard", "🌾 Komoditas", "💰 Harga Manual", "📝 Aud
 
 # Super Admin gets extra menus
 if user.get('role') == 'superadmin':
-    menu_items.extend(["👥 User Activity", "👤 Manage Users"])
+    menu_items.extend(["👥 User Activity", "👤 Manage Users", "🗄️ Database Explorer"])
 
 menu = st.sidebar.radio(
     "📱 Menu Admin",
     menu_items,
     label_visibility="collapsed"
 )
+
 
 
 # ========== DASHBOARD ==========
@@ -507,3 +508,174 @@ elif menu == "👤 Manage Users":
                 else:
                     st.warning("⚠️ Lengkapi semua field wajib!")
 
+# ========== DATABASE EXPLORER (SUPERADMIN ONLY) ==========
+elif menu == "🗄️ Database Explorer":
+    st.subheader("🗄️ Database Explorer")
+    st.info("👑 Akses lengkap ke semua data yang tersimpan di platform")
+    
+    # Overview Stats
+    st.markdown("### 📊 Database Overview")
+    
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.metric("🌾 Komoditas", len(st.session_state.get('commodities_db', [])))
+    with col2:
+        st.metric("💰 Harga Manual", len(st.session_state.get('manual_prices_db', [])))
+    with col3:
+        st.metric("📝 Audit Log", len(st.session_state.get('audit_log_db', [])))
+    with col4:
+        st.metric("👥 Activity Log", len(get_activity_log()))
+    with col5:
+        st.metric("👤 Users", len(get_users()))
+    
+    st.markdown("---")
+    
+    # Database Selector
+    db_choice = st.selectbox(
+        "🔍 Pilih Database untuk Dilihat",
+        ["📋 Semua Database", "🌾 Commodities", "💰 Manual Prices", "📝 Audit Log", "👥 User Activity", "👤 Users"]
+    )
+    
+    if db_choice == "📋 Semua Database":
+        # Show all databases
+        st.markdown("### 🌾 Commodities Database")
+        if st.session_state.get('commodities_db'):
+            df = pd.DataFrame(st.session_state.commodities_db)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.info("Kosong")
+        
+        st.markdown("### 💰 Manual Prices Database")
+        if st.session_state.get('manual_prices_db'):
+            df = pd.DataFrame(st.session_state.manual_prices_db)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.info("Kosong")
+        
+        st.markdown("### 📝 Audit Log Database")
+        if st.session_state.get('audit_log_db'):
+            df = pd.DataFrame(st.session_state.audit_log_db)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.info("Kosong")
+        
+        st.markdown("### 👥 User Activity Log")
+        activity = get_activity_log()
+        if activity:
+            df = pd.DataFrame(activity)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.info("Kosong")
+        
+        st.markdown("### 👤 Users Database")
+        users_db = get_users()
+        if users_db:
+            users_data = []
+            for username, data in users_db.items():
+                users_data.append({
+                    'username': username,
+                    'name': data['name'],
+                    'email': data['email'],
+                    'role': data['role'],
+                    'password': '••••••••'  # Hide password
+                })
+            df = pd.DataFrame(users_data)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.info("Kosong")
+    
+    elif db_choice == "🌾 Commodities":
+        st.markdown("### 🌾 Commodities Database")
+        if st.session_state.get('commodities_db'):
+            df = pd.DataFrame(st.session_state.commodities_db)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
+            # Export
+            st.markdown("---")
+            col1, col2 = st.columns(2)
+            with col1:
+                json_str = json.dumps(st.session_state.commodities_db, indent=2, default=str)
+                st.download_button("📥 Download JSON", json_str, "commodities.json", "application/json")
+            with col2:
+                csv = df.to_csv(index=False)
+                st.download_button("📥 Download CSV", csv, "commodities.csv", "text/csv")
+        else:
+            st.info("Database kosong")
+    
+    elif db_choice == "💰 Manual Prices":
+        st.markdown("### 💰 Manual Prices Database")
+        if st.session_state.get('manual_prices_db'):
+            df = pd.DataFrame(st.session_state.manual_prices_db)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
+            st.markdown("---")
+            json_str = json.dumps(st.session_state.manual_prices_db, indent=2, default=str)
+            st.download_button("📥 Download JSON", json_str, "manual_prices.json", "application/json")
+        else:
+            st.info("Database kosong")
+    
+    elif db_choice == "📝 Audit Log":
+        st.markdown("### 📝 Audit Log Database")
+        if st.session_state.get('audit_log_db'):
+            df = pd.DataFrame(st.session_state.audit_log_db)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
+            st.markdown("---")
+            json_str = json.dumps(st.session_state.audit_log_db, indent=2, default=str)
+            st.download_button("📥 Download JSON", json_str, "audit_log.json", "application/json")
+        else:
+            st.info("Database kosong")
+    
+    elif db_choice == "👥 User Activity":
+        st.markdown("### 👥 User Activity Log")
+        activity = get_activity_log()
+        if activity:
+            df = pd.DataFrame(activity)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
+            st.markdown("---")
+            json_str = json.dumps(activity, indent=2, default=str)
+            st.download_button("📥 Download JSON", json_str, "user_activity.json", "application/json")
+        else:
+            st.info("Database kosong")
+    
+    elif db_choice == "👤 Users":
+        st.markdown("### 👤 Users Database")
+        users_db = get_users()
+        if users_db:
+            users_data = []
+            for username, data in users_db.items():
+                users_data.append({
+                    'username': username,
+                    'name': data['name'],
+                    'email': data['email'],
+                    'role': data['role']
+                })
+            df = pd.DataFrame(users_data)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
+            # Show password (superadmin only)
+            st.markdown("---")
+            st.warning("⚠️ Data sensitif - hanya untuk Super Admin")
+            if st.checkbox("Tampilkan password"):
+                for username, data in users_db.items():
+                    st.text(f"{username}: {data['password']}")
+        else:
+            st.info("Database kosong")
+    
+    # System Info
+    st.markdown("---")
+    st.markdown("### ⚙️ System Info")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"""
+        - **Session State Keys:** {len(st.session_state)}
+        - **Current User:** {user['username']}
+        - **Role:** {user['role']}
+        """)
+    with col2:
+        st.markdown(f"""
+        - **Platform:** AgriSensa Streamlit
+        - **Version:** 4.0.0
+        - **Last Updated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}
+        """)
