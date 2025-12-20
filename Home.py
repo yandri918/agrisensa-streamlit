@@ -361,23 +361,22 @@ def main():
             <p class="hero-subtitle" style="text-align: center; margin: 10px auto; width: 80%; display: block;">
                 {T['hero_subtitle']}
             </p>
-            
-            <!-- EDUCATION CERTIFICATION BADGE -->
-            <div style="display: inline-flex; align-items: center; gap: 15px; padding: 1.2rem 2rem; background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.3) 100%); backdrop-filter: blur(10px); border: 2px solid rgba(251, 191, 36, 0.5); border-radius: 20px; margin: 1.5rem auto; box-shadow: 0 8px 32px rgba(251, 191, 36, 0.25);">
-                <div style="font-size: 3rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">🎓</div>
-                <div style="text-align: left;">
-                    <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #92400e; font-weight: 700; margin-bottom: 4px;">Educational Depth Certification</div>
-                    <div style="font-size: 1.4rem; font-weight: 800; color: #78350f; margin-bottom: 4px;">S1-S2 Agriculture Level</div>
-                    <div style="font-size: 0.85rem; color: #a16207; margin-bottom: 8px;">Konten setara kurikulum Sarjana-Magister Pertanian</div>
-                    <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                        <span style="font-size: 0.75rem; color: #92400e; background: rgba(251, 191, 36, 0.3); padding: 5px 12px; border-radius: 20px; font-weight: 600;">📚 56+ Modul</span>
-                        <span style="font-size: 0.75rem; color: #92400e; background: rgba(251, 191, 36, 0.3); padding: 5px 12px; border-radius: 20px; font-weight: 600;">📝 300K+ Karakter</span>
-                        <span style="font-size: 0.75rem; color: #92400e; background: rgba(251, 191, 36, 0.3); padding: 5px 12px; border-radius: 20px; font-weight: 600;">🔬 Referensi Ilmiah</span>
-                    </div>
-                </div>
-            </div>
         </div>
     """, unsafe_allow_html=True)
+    
+    # === EDUCATION CERTIFICATION BADGE ===
+    cert_col1, cert_col2, cert_col3 = st.columns([1, 2, 1])
+    with cert_col2:
+        with st.container(border=True):
+            col_icon, col_text = st.columns([1, 4])
+            with col_icon:
+                st.markdown("<div style='font-size: 3rem; text-align: center;'>🎓</div>", unsafe_allow_html=True)
+            with col_text:
+                st.markdown("**EDUCATIONAL DEPTH CERTIFICATION**")
+                st.markdown("### S1-S2 Agriculture Level")
+                st.caption("Konten setara kurikulum Sarjana-Magister Pertanian")
+            st.markdown("📚 **56+ Modul** · 📝 **300K+ Karakter** · 🔬 **Referensi Ilmiah**")
+
 
     # === QUICK ACTIONS GRID ===
     st.subheader(T['section_main'])
