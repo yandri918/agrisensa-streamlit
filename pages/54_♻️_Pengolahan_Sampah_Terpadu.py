@@ -1279,21 +1279,20 @@ with tabs[2]:
                     cert_product = st.text_input("Nama Produk Pupuk", "Pupuk Organik Premium AgriSensa", key="cert_prod")
                     cert_batch = st.text_input("Batch ID", f"FERT-{datetime.now().strftime('%Y%m%d')}-001", key="cert_batch")
                     cert_producer = st.text_input("Nama Produsen", "AgriSensa Eco System", key="cert_producer")
-                
-                with cert_col2:
-                    if st.button("🔗 Generate QR Sertifikat", type="primary", use_container_width=True):
+                    
+                    # Store lab values in session for QR generation
+                    if st.button("🔗 Generate QR Sertifikat", type="primary", use_container_width=True, key="gen_qr_btn"):
                         import urllib.parse
                         
                         # Build Vercel URL for certificate
                         base_url = "https://vercel-scan2.vercel.app/product"
                         params = {
                             'name': cert_product,
-                            'variety': f'Grade A Premium',
+                            'variety': 'Grade A Premium',
                             'farmer': cert_producer,
                             'location': 'AgriSensa Lab Certified',
                             'harvest_date': datetime.now().strftime('%Y-%m-%d'),
                             'emoji': '🥇',
-                            # LAB RESULTS
                             'cn_ratio': str(input_cn),
                             'ph_level': str(input_ph),
                             'nitrogen': str(input_n),
@@ -1308,23 +1307,36 @@ with tabs[2]:
                         qr = qrcode.QRCode(version=1, box_size=10, border=4)
                         qr.add_data(cert_url)
                         qr.make(fit=True)
-                        qr_img = qr.make_image(fill_color="#10b981", back_color="white")
+                        qr_img = qr.make_image(fill_color="black", back_color="white")
                         
                         # Convert to bytes
                         buffer = io.BytesIO()
                         qr_img.save(buffer, format='PNG')
                         qr_bytes = buffer.getvalue()
                         
-                        st.image(qr_bytes, caption="Scan untuk verifikasi sertifikat", width=250)
+                        # Store in session state
+                        st.session_state['cert_qr_bytes'] = qr_bytes
+                        st.session_state['cert_qr_url'] = cert_url
+                        st.session_state['cert_qr_batch'] = cert_batch
+                
+                with cert_col2:
+                    # Display QR from session state (persistent)
+                    if 'cert_qr_bytes' in st.session_state and st.session_state['cert_qr_bytes']:
+                        st.image(st.session_state['cert_qr_bytes'], caption="Scan untuk verifikasi sertifikat", width=250)
+                        
                         st.download_button(
                             "⬇️ Download QR Certificate",
-                            qr_bytes,
-                            f"Certificate_{cert_batch}.png",
+                            st.session_state['cert_qr_bytes'],
+                            f"Certificate_{st.session_state.get('cert_qr_batch', 'FERT')}.png",
                             "image/png",
-                            use_container_width=True
+                            use_container_width=True,
+                            key="download_qr_btn"
                         )
-                        st.info(f"🔗 **URL Sertifikat:** `{cert_url[:50]}...`")
-                        st.success("✅ QR Code siap! Konsumen dapat scan untuk melihat detail produk premium Anda.")
+                        
+                        st.info(f"🔗 **URL:** `{st.session_state.get('cert_qr_url', '')[:60]}...`")
+                        st.success("✅ QR Code siap! Scan dengan HP untuk melihat detail produk.")
+                    else:
+                        st.info("👈 Isi data di kiri, lalu klik **Generate QR Sertifikat**")
 
 
 # --- TAB 3: UPCYCLING PLASTIK ---
