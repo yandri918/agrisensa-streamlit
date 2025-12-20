@@ -1184,6 +1184,57 @@ with tabs[2]:
             # Digital Certificate Preview
             if grade == "A":
                 st.success("🎖️ Produk ini berhak mendapat **Sertifikat Digital AgriSensa Premium** yang dapat di-scan konsumen!")
+                
+                # Generate QR Code for Premium Certificate
+                st.divider()
+                st.markdown("### 📱 Generate Sertifikat QR Code")
+                
+                cert_col1, cert_col2 = st.columns([1, 1])
+                
+                with cert_col1:
+                    cert_product = st.text_input("Nama Produk Pupuk", "Pupuk Organik Premium AgriSensa", key="cert_prod")
+                    cert_batch = st.text_input("Batch ID", f"FERT-{datetime.now().strftime('%Y%m%d')}-001", key="cert_batch")
+                    cert_producer = st.text_input("Nama Produsen", "AgriSensa Eco System", key="cert_producer")
+                
+                with cert_col2:
+                    if st.button("🔗 Generate QR Sertifikat", type="primary", use_container_width=True):
+                        import urllib.parse
+                        
+                        # Build Vercel URL for certificate
+                        base_url = "https://vercel-scan2.vercel.app/product"
+                        params = {
+                            'name': cert_product,
+                            'variety': f'Grade A Premium (N:{input_n}% P:{input_p}% K:{input_k}%)',
+                            'farmer': cert_producer,
+                            'location': 'AgriSensa Lab Certified',
+                            'harvest_date': datetime.now().strftime('%Y-%m-%d'),
+                            'emoji': '🥇'
+                        }
+                        query_string = urllib.parse.urlencode(params)
+                        cert_url = f"{base_url}/{cert_batch}?{query_string}"
+                        
+                        # Generate QR Code
+                        qr = qrcode.QRCode(version=1, box_size=10, border=4)
+                        qr.add_data(cert_url)
+                        qr.make(fit=True)
+                        qr_img = qr.make_image(fill_color="#10b981", back_color="white")
+                        
+                        # Convert to bytes
+                        buffer = io.BytesIO()
+                        qr_img.save(buffer, format='PNG')
+                        qr_bytes = buffer.getvalue()
+                        
+                        st.image(qr_bytes, caption="Scan untuk verifikasi sertifikat", width=250)
+                        st.download_button(
+                            "⬇️ Download QR Certificate",
+                            qr_bytes,
+                            f"Certificate_{cert_batch}.png",
+                            "image/png",
+                            use_container_width=True
+                        )
+                        st.info(f"🔗 **URL Sertifikat:** `{cert_url[:50]}...`")
+                        st.success("✅ QR Code siap! Konsumen dapat scan untuk melihat detail produk premium Anda.")
+
 
 # --- TAB 3: UPCYCLING PLASTIK ---
 with tabs[3]:
