@@ -2443,24 +2443,40 @@ with tab_krisan:
                 viz_col1, viz_col2 = st.columns([2, 1])
                 
                 with viz_col1:
-                    # Pie chart for grade distribution
-                    grade_data = pd.DataFrame({
-                        "Grade": [f"Grade {g}" for g in grades],
-                        "Jumlah Ikat": [grade_inputs[g] for g in grades],
-                        "Batang": [g * grade_inputs[g] for g in grades],
-                        "Pendapatan": [grade_prices[g] * grade_inputs[g] for g in grades]
-                    })
+                    # Pie chart for grade distribution (normal + rusak)
+                    # Normal grades data
+                    normal_data = [
+                        {"Grade": f"Grade {g} (90cm)", "Batang": g * grade_inputs[g], "Tipe": "Normal"}
+                        for g in grades if grade_inputs[g] > 0
+                    ]
+                    # Rusak grades data
+                    rusak_data = [
+                        {"Grade": f"{g} ({('80cm' if g in ['R-80', 'R-100'] else '70cm')})", 
+                         "Batang": rusak_batang[g] * rusak_inputs[g], "Tipe": "Rusak"}
+                        for g in grades_rusak if rusak_inputs[g] > 0
+                    ]
                     
-                    grade_data_filtered = grade_data[grade_data["Jumlah Ikat"] > 0]
+                    all_grade_data = pd.DataFrame(normal_data + rusak_data)
                     
-                    fig_grade = px.pie(
-                        grade_data_filtered, 
-                        values="Batang", 
-                        names="Grade",
-                        title="Distribusi Batang per Grade",
-                        color_discrete_sequence=px.colors.sequential.Greens_r
-                    )
-                    st.plotly_chart(fig_grade, use_container_width=True)
+                    if len(all_grade_data) > 0:
+                        fig_grade = px.pie(
+                            all_grade_data, 
+                            values="Batang", 
+                            names="Grade",
+                            title="Distribusi Batang per Grade (Normal + Rusak)",
+                            color="Tipe",
+                            color_discrete_map={"Normal": "#10b981", "Rusak": "#f59e0b"}
+                        )
+                        st.plotly_chart(fig_grade, use_container_width=True)
+                        
+                        # Show breakdown
+                        brk_col1, brk_col2 = st.columns(2)
+                        with brk_col1:
+                            st.metric("✅ Normal", f"{total_batang_normal:,} btg", 
+                                     delta=f"{total_ikat_normal} ikat")
+                        with brk_col2:
+                            st.metric("⚠️ Rusak", f"{total_batang_rusak:,} btg", 
+                                     delta=f"{total_ikat_rusak} ikat")
                 
                 with viz_col2:
                     st.markdown("**📈 Ringkasan Hasil:**")
