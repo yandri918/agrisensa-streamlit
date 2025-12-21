@@ -348,6 +348,211 @@ def main():
     
     T = TRANSLATIONS[lang]
 
+    # ========== ONBOARDING SYSTEM ==========
+    import random
+    
+    # Initialize user profile in session state
+    if 'user_profile' not in st.session_state:
+        st.session_state.user_profile = {
+            'role': None,
+            'experience': None,
+            'focus': [],
+            'onboarding_complete': False,
+            'visited_modules': [],
+            'tip_index': random.randint(0, 9)
+        }
+    
+    # Tips database
+    TIPS_DATABASE = [
+        "💡 Gunakan **AgriSensa Vision** di pagi hari untuk pencahayaan terbaik saat scan penyakit.",
+        "🌱 Nilai **Brix tinggi** (>12°) menandakan tanaman sehat dan tahan hama.",
+        "💧 Irigasi **defisit terkontrol** di fase pematangan buah meningkatkan kadar gula.",
+        "🌾 Rasio **C/N ideal** untuk kompos cepat matang adalah 25-30:1.",
+        "🐔 FCR broiler ideal < 1.6 menandakan efisiensi pakan yang baik.",
+        "📊 Cek **Dashboard KPI** secara rutin untuk monitoring performa usaha tani.",
+        "🔬 **Mikoriza** dapat meningkatkan penyerapan fosfor hingga 10x lipat.",
+        "🌡️ Suhu optimal fotosintesis C3 (padi) adalah 25-30°C.",
+        "♻️ Kotoran ternak bisa bernilai Rp 8.000-15.000/kg jika diolah jadi vermikompos.",
+        "🗺️ Gunakan **GIS Intelligence** untuk analisis kesesuaian lahan sebelum tanam."
+    ]
+    
+    # Role-based module recommendations
+    MODULE_RECOMMENDATIONS = {
+        'petani': {
+            'title': '🌾 Rekomendasi untuk Petani',
+            'modules': [
+                {'name': '🧮 Kalkulator Pupuk', 'page': '3_🧮_Kalkulator_Pupuk', 'desc': 'Hitung kebutuhan pupuk presisi'},
+                {'name': '🌤️ Cuaca Pertanian', 'page': '27_🌤️_Cuaca_Pertanian', 'desc': 'Prediksi cuaca untuk jadwal tanam'},
+                {'name': '🔍 Diagnostik Gejala', 'page': '10_🔍_Diagnostik_Gejala', 'desc': 'Identifikasi penyakit tanaman'},
+                {'name': '📈 Analisis Usaha Tani', 'page': '28_📒_Analisis_Usaha_Tani', 'desc': 'Hitung RAB dan profitabilitas'}
+            ]
+        },
+        'penyuluh': {
+            'title': '👨‍🏫 Rekomendasi untuk Penyuluh',
+            'modules': [
+                {'name': '📢 Ruang Kerja PPL', 'page': '45_📢_Ruang_Kerja_PPL_Final', 'desc': 'Dashboard tugas & laporan'},
+                {'name': '📋 Simulator e-RDKK', 'page': '45_📢_Ruang_Kerja_PPL_Final', 'desc': 'Simulasi kuota pupuk subsidi'},
+                {'name': '📚 Generator Materi', 'page': '45_📢_Ruang_Kerja_PPL_Final', 'desc': 'Buat materi penyuluhan'},
+                {'name': '🎓 Kurikulum Pelatihan', 'page': '53_🎓_Kurikulum_Pelatihan', 'desc': 'Modul pelatihan terstruktur'}
+            ]
+        },
+        'akademisi': {
+            'title': '🎓 Rekomendasi untuk Akademisi',
+            'modules': [
+                {'name': '🌱 Fisiologi Tumbuhan', 'page': '29_🌱_Fisiologi_Tumbuhan', 'desc': 'Hormon & proses fisiologis'},
+                {'name': '🧬 Genetika Pemuliaan', 'page': '31_🧬_Genetika_Pemuliaan', 'desc': 'Pemuliaan tanaman'},
+                {'name': '📖 Pusat Pengetahuan', 'page': '33_📖_Pusat_Pengetahuan', 'desc': 'Ensiklopedia pertanian'},
+                {'name': '📊 Statistik Penelitian', 'page': '26_📊_Statistik_Penelitian', 'desc': 'Analisis data riset'}
+            ]
+        },
+        'mahasiswa': {
+            'title': '📚 Rekomendasi untuk Mahasiswa',
+            'modules': [
+                {'name': '📖 Pusat Pengetahuan', 'page': '33_📖_Pusat_Pengetahuan', 'desc': 'Mulai belajar dari sini'},
+                {'name': '🌱 Fisiologi Tumbuhan', 'page': '29_🌱_Fisiologi_Tumbuhan', 'desc': 'Dasar fisiologi'},
+                {'name': '🧮 Kalkulator Pupuk', 'page': '3_🧮_Kalkulator_Pupuk', 'desc': 'Latihan perhitungan'},
+                {'name': '🔍 Diagnostik Gejala', 'page': '10_🔍_Diagnostik_Gejala', 'desc': 'Belajar identifikasi'}
+            ]
+        }
+    }
+    
+    # ===== ONBOARDING MODAL (First-time user) =====
+    if not st.session_state.user_profile['onboarding_complete']:
+        st.markdown("""
+        <style>
+            .onboarding-modal {
+                background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+                border-radius: 24px;
+                padding: 2rem;
+                border: 2px solid #10b981;
+                margin-bottom: 2rem;
+                box-shadow: 0 20px 60px rgba(16, 185, 129, 0.2);
+            }
+            .onboarding-title {
+                font-size: 2rem;
+                font-weight: 800;
+                color: #064e3b;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+            .onboarding-subtitle {
+                text-align: center;
+                color: #047857;
+                margin-bottom: 1.5rem;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="onboarding-modal">
+            <div class="onboarding-title">👋 Selamat Datang di AgriSensa!</div>
+            <div class="onboarding-subtitle">Bantu kami personalisasi pengalaman Anda dengan menjawab 3 pertanyaan singkat</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        with st.form("onboarding_form"):
+            st.markdown("### 1️⃣ Apa peran Anda?")
+            role = st.radio(
+                "Pilih satu:",
+                ["🌾 Petani / Pelaku Usaha Tani", "👨‍🏫 Penyuluh Pertanian (PPL)", 
+                 "🎓 Akademisi / Peneliti", "📚 Mahasiswa / Pelajar"],
+                horizontal=True,
+                label_visibility="collapsed"
+            )
+            
+            st.markdown("### 2️⃣ Tingkat pengalaman Anda?")
+            experience = st.radio(
+                "Pilih satu:",
+                ["🌱 Pemula (baru mulai)", "🌿 Menengah (1-5 tahun)", "🌳 Expert (>5 tahun)"],
+                horizontal=True,
+                label_visibility="collapsed"
+            )
+            
+            st.markdown("### 3️⃣ Fokus komoditas Anda? (bisa pilih lebih dari satu)")
+            col_f1, col_f2, col_f3, col_f4 = st.columns(4)
+            with col_f1:
+                focus_padi = st.checkbox("🌾 Padi")
+                focus_jagung = st.checkbox("🌽 Jagung")
+            with col_f2:
+                focus_sayur = st.checkbox("🥬 Sayuran")
+                focus_buah = st.checkbox("🍎 Buah-buahan")
+            with col_f3:
+                focus_perkebunan = st.checkbox("🌴 Perkebunan")
+                focus_hortikultura = st.checkbox("🌸 Hortikultura")
+            with col_f4:
+                focus_peternakan = st.checkbox("🐄 Peternakan")
+                focus_perikanan = st.checkbox("🐟 Perikanan")
+            
+            submitted = st.form_submit_button("🚀 Mulai Jelajahi AgriSensa", type="primary", use_container_width=True)
+            
+            if submitted:
+                # Parse role
+                role_map = {
+                    "🌾 Petani / Pelaku Usaha Tani": "petani",
+                    "👨‍🏫 Penyuluh Pertanian (PPL)": "penyuluh",
+                    "🎓 Akademisi / Peneliti": "akademisi",
+                    "📚 Mahasiswa / Pelajar": "mahasiswa"
+                }
+                exp_map = {
+                    "🌱 Pemula (baru mulai)": "pemula",
+                    "🌿 Menengah (1-5 tahun)": "menengah",
+                    "🌳 Expert (>5 tahun)": "expert"
+                }
+                
+                # Build focus list
+                focus_list = []
+                if focus_padi: focus_list.append("padi")
+                if focus_jagung: focus_list.append("jagung")
+                if focus_sayur: focus_list.append("sayuran")
+                if focus_buah: focus_list.append("buah")
+                if focus_perkebunan: focus_list.append("perkebunan")
+                if focus_hortikultura: focus_list.append("hortikultura")
+                if focus_peternakan: focus_list.append("peternakan")
+                if focus_perikanan: focus_list.append("perikanan")
+                
+                # Save to session
+                st.session_state.user_profile = {
+                    'role': role_map.get(role, 'petani'),
+                    'experience': exp_map.get(experience, 'pemula'),
+                    'focus': focus_list if focus_list else ['umum'],
+                    'onboarding_complete': True,
+                    'visited_modules': ['Home'],
+                    'tip_index': random.randint(0, len(TIPS_DATABASE)-1)
+                }
+                
+                st.balloons()
+                st.rerun()
+        
+        # Stop rendering rest of page until onboarding complete
+        st.stop()
+    
+    # ===== TIP OF THE DAY (for returning users) =====
+    tip_index = st.session_state.user_profile.get('tip_index', 0)
+    current_tip = TIPS_DATABASE[tip_index % len(TIPS_DATABASE)]
+    
+    st.info(current_tip)
+    
+    # ===== PERSONALIZED WELCOME =====
+    user_role = st.session_state.user_profile.get('role', 'petani')
+    user_exp = st.session_state.user_profile.get('experience', 'pemula')
+    user_focus = st.session_state.user_profile.get('focus', [])
+    
+    role_emoji = {'petani': '🌾', 'penyuluh': '👨‍🏫', 'akademisi': '🎓', 'mahasiswa': '📚'}
+    role_display = {'petani': 'Petani', 'penyuluh': 'Penyuluh', 'akademisi': 'Akademisi', 'mahasiswa': 'Mahasiswa'}
+    exp_display = {'pemula': 'Pemula', 'menengah': 'Menengah', 'expert': 'Expert'}
+    
+    # Show personalized welcome in sidebar
+    with st.sidebar:
+        st.markdown("---")
+        st.markdown(f"**{role_emoji.get(user_role, '👤')} Profil Anda**")
+        st.markdown(f"- Role: **{role_display.get(user_role, 'Pengguna')}**")
+        st.markdown(f"- Level: **{exp_display.get(user_exp, 'Pemula')}**")
+        if user_focus:
+            st.markdown(f"- Fokus: {', '.join(user_focus[:3])}")
+        
+        if st.button("🔄 Reset Profil", use_container_width=True):
+            st.session_state.user_profile['onboarding_complete'] = False
+            st.rerun()
 
     # === HERO SECTION ===
     st.markdown(f"""
@@ -364,6 +569,27 @@ def main():
         </div>
     """, unsafe_allow_html=True)
     
+    # ===== PERSONALIZED RECOMMENDATIONS =====
+    recommendations = MODULE_RECOMMENDATIONS.get(user_role, MODULE_RECOMMENDATIONS['petani'])
+    
+    st.markdown(f"### {recommendations['title']}")
+    st.markdown("*Modul yang direkomendasikan berdasarkan profil Anda:*")
+    
+    rec_cols = st.columns(4)
+    for i, module in enumerate(recommendations['modules']):
+        with rec_cols[i]:
+            st.markdown(f"""
+            <div class="glass-card" style="text-align: center; padding: 1rem;">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">{module['name'].split()[0]}</div>
+                <div style="font-weight: 600; color: #065f46; font-size: 0.9rem;">{module['name'].split(' ', 1)[1] if len(module['name'].split()) > 1 else module['name']}</div>
+                <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">{module['desc']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button(f"Buka", key=f"rec_{i}", use_container_width=True):
+                st.switch_page(f"pages/{module['page']}.py")
+    
+    st.markdown("---")
+
     # === EDUCATION CERTIFICATION BADGE (QR Code) ===
     import qrcode
     from io import BytesIO
