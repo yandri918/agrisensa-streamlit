@@ -2048,17 +2048,15 @@ with tab_krisan:
             
             with pop_col1:
                 st.markdown("**Dimensi Bedengan:**")
-                lebar_bedengan = st.number_input("Lebar Bedengan (cm)", 80, 150, 100, 10, key="lebar_bed")
                 panjang_bedengan = st.number_input("Panjang Bedengan (m)", 5, 100, 30, 5, key="panjang_bed")
                 jumlah_bedengan = st.number_input("Jumlah Bedengan", 1, 100, 10, 1)
+                lebar_bedengan = st.number_input("Lebar Bedengan (cm)", 80, 150, 100, 10, key="lebar_bed")
             
             with pop_col2:
-                st.markdown("**Jarak Tanam:**")
+                st.markdown("**Konfigurasi Tanam:**")
+                baris_per_bedengan = st.number_input("Jumlah Baris per Bedengan", 4, 12, 8, 1)
                 jarak_dalam_baris = st.number_input("Jarak Dalam Baris (cm)", 8, 20, 12, 1)
-                jarak_antar_baris = st.number_input("Jarak Antar Baris (cm)", 8, 20, 12, 1)
-                # Calculate rows per bed
-                baris_per_bedengan = int(lebar_bedengan / jarak_antar_baris)
-                st.metric("Baris per Bedengan", f"{baris_per_bedengan} baris")
+                st.caption(f"💡 Jarak antar baris ≈ {lebar_bedengan / baris_per_bedengan:.1f} cm")
             
             with pop_col3:
                 st.markdown("**Hasil Perhitungan:**")
@@ -2080,9 +2078,9 @@ with tab_krisan:
             st.success(f"""
             **Ringkasan Populasi:**
             - Bedengan: {lebar_bedengan}cm × {panjang_bedengan}m = {luas_bedengan:.1f} m² × {jumlah_bedengan} = **{total_luas:.0f} m²**
-            - Jarak tanam: {jarak_dalam_baris}cm × {jarak_antar_baris}cm → {baris_per_bedengan} baris/bedengan
-            - Per bedengan: {tanaman_per_baris} tanaman × {baris_per_bedengan} baris = **{tanaman_per_bedengan:,} tanaman**
-            - Total: **{total_populasi:,} tanaman** ({populasi_per_m2:.0f} tanaman/m²)
+            - Konfigurasi: {baris_per_bedengan} baris × {tanaman_per_baris} tanaman (jarak {jarak_dalam_baris}cm)
+            - Per bedengan: **{tanaman_per_bedengan:,} tanaman**
+            - Total: **{total_populasi:,} tanaman** ({populasi_per_m2:.0f}/m²)
             """)
         
         # ===== TAB 2: NOZZLE & IRIGASI =====
