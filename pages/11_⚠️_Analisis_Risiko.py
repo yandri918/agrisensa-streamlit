@@ -436,13 +436,14 @@ with tab_input:
     
     # Price section with default and manual input
     st.divider()
-    st.markdown("### 💰 Asumsi Harga Jual")
+    st.markdown("### 💰 Asumsi Harga & Modal")
     
+    # Row 1: Price
     price_col1, price_col2, price_col3 = st.columns(3)
     
     with price_col1:
         default_price = crop_info["market_price"]
-        use_custom_price = st.checkbox("Gunakan harga kustom", value=False)
+        use_custom_price = st.checkbox("Harga kustom", value=False, key="price_check")
     
     with price_col2:
         if use_custom_price:
@@ -471,7 +472,43 @@ with tab_input:
             price_risk_score = 0.5
         
         st.metric("Asumsi Harga", price_risk)
-        st.caption(f"Range normal: Rp {int(default_price*0.8):,} - {int(default_price*1.2):,}")
+        st.caption(f"Range: Rp {int(default_price*0.8):,} - {int(default_price*1.2):,}")
+    
+    # Row 2: Capital/Modal
+    cap_col1, cap_col2, cap_col3 = st.columns(3)
+    
+    with cap_col1:
+        default_capital = crop_info["capital_per_ha"]
+        use_custom_capital = st.checkbox("Modal kustom", value=False, key="capital_check")
+    
+    with cap_col2:
+        if use_custom_capital:
+            capital_per_ha = st.number_input(
+                "Modal/ha (Rp)", 
+                min_value=1000000, 
+                max_value=500000000, 
+                value=default_capital,
+                step=1000000,
+                help="Masukkan estimasi modal per hektar"
+            )
+        else:
+            capital_per_ha = default_capital
+            st.metric("Modal Default/ha", f"Rp {default_capital:,.0f}")
+    
+    with cap_col3:
+        # Capital risk assessment
+        if capital_per_ha <= default_capital * 0.8:
+            capital_risk = "⚠️ Efisien"
+            capital_note = "Modal rendah, perlu keahlian"
+        elif capital_per_ha <= default_capital * 1.2:
+            capital_risk = "✅ Standar"
+            capital_note = "Modal sesuai standar"
+        else:
+            capital_risk = "💸 Tinggi"
+            capital_note = "Modal tinggi, pastikan kualitas"
+        
+        st.metric("Asumsi Modal", capital_risk)
+        st.caption(capital_note)
     
     st.divider()
     
@@ -491,7 +528,8 @@ with tab_input:
             "capital": capital,
             "market_access": market_access,
             "selling_price": selling_price,
-            "price_risk_score": price_risk_score
+            "price_risk_score": price_risk_score,
+            "capital_per_ha": capital_per_ha
         }
         
         # Calculate scores
@@ -858,13 +896,14 @@ with tab_rekomendasi:
         
         params = data['params']
         selling_price = params.get('selling_price', crop_info["market_price"])
+        capital_per_ha = params.get('capital_per_ha', crop_info["capital_per_ha"])
         
-        st.info(f"💵 **Harga Jual yang Digunakan:** Rp {selling_price:,}/kg")
+        st.info(f"💵 **Harga Jual:** Rp {selling_price:,}/kg | **Modal/ha:** Rp {capital_per_ha:,}")
         
         potential_yield = crop_info["yield_potential"] * params["area_ha"] * data["probability"]
         gross_revenue = potential_yield * selling_price
-        net_revenue = gross_revenue - crop_info["capital_per_ha"] * params["area_ha"]
-        roi = (net_revenue / (crop_info["capital_per_ha"] * params["area_ha"])) * 100 if crop_info["capital_per_ha"] > 0 else 0
+        net_revenue = gross_revenue - capital_per_ha * params["area_ha"]
+        roi = (net_revenue / (capital_per_ha * params["area_ha"])) * 100 if capital_per_ha > 0 else 0
         
         econ_col1, econ_col2, econ_col3, econ_col4 = st.columns(4)
         
