@@ -93,6 +93,49 @@ BALITBANG_THRESHOLDS = {
         'labels': ['Sangat Rendah', 'Rendah', 'Sedang', 'Tinggi', 'Sangat Tinggi'],
         'colors': ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6'],
         'optimal': 3.0
+    },
+    # ========== MICRONUTRIENTS ==========
+    'fe': {  # ppm (DTPA extractable)
+        'unit': 'ppm',
+        'thresholds': [2.5, 4.5, 10.0, 20.0],
+        'labels': ['Sangat Rendah', 'Rendah', 'Sedang', 'Tinggi', 'Sangat Tinggi'],
+        'colors': ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6'],
+        'optimal': 6.0
+    },
+    'mn': {  # ppm (DTPA extractable)
+        'unit': 'ppm',
+        'thresholds': [1.0, 2.0, 5.0, 15.0],
+        'labels': ['Sangat Rendah', 'Rendah', 'Sedang', 'Tinggi', 'Sangat Tinggi'],
+        'colors': ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6'],
+        'optimal': 5.0
+    },
+    'cu': {  # ppm (DTPA extractable)
+        'unit': 'ppm',
+        'thresholds': [0.1, 0.2, 0.5, 1.0],
+        'labels': ['Sangat Rendah', 'Rendah', 'Sedang', 'Tinggi', 'Sangat Tinggi'],
+        'colors': ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6'],
+        'optimal': 0.3
+    },
+    'zn': {  # ppm (DTPA extractable)
+        'unit': 'ppm',
+        'thresholds': [0.5, 1.0, 2.0, 5.0],
+        'labels': ['Sangat Rendah', 'Rendah', 'Sedang', 'Tinggi', 'Sangat Tinggi'],
+        'colors': ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6'],
+        'optimal': 1.5
+    },
+    'b': {  # ppm (Hot water extractable)
+        'unit': 'ppm',
+        'thresholds': [0.2, 0.5, 1.0, 2.0],
+        'labels': ['Sangat Rendah', 'Rendah', 'Sedang', 'Tinggi', 'Sangat Tinggi'],
+        'colors': ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6'],
+        'optimal': 0.8
+    },
+    'mo': {  # ppm
+        'unit': 'ppm',
+        'thresholds': [0.05, 0.1, 0.2, 0.5],
+        'labels': ['Sangat Rendah', 'Rendah', 'Sedang', 'Tinggi', 'Sangat Tinggi'],
+        'colors': ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6'],
+        'optimal': 0.15
     }
 }
 
@@ -151,11 +194,13 @@ st.title("📊 Analisis NPK Advanced")
 st.markdown("**Analisis Kesuburan Tanah Berbasis Standar Balitbang Indonesia**")
 
 # Main Tabs
-tab_input, tab_hasil, tab_ph, tab_sekunder, tab_ai = st.tabs([
+tab_input, tab_hasil, tab_ph, tab_sekunder, tab_mikro, tab_texture, tab_ai = st.tabs([
     "📝 Input Data Lab",
     "📊 Hasil Analisis",
     "🔬 pH & Ketersediaan",
     "🌿 Unsur Sekunder",
+    "🔬 Mikronutrien",
+    "🌍 Tekstur Tanah",
     "🤖 AI Rekomendasi"
 ])
 
@@ -173,7 +218,18 @@ if 'npk_data' not in st.session_state:
         'c_organic': 2.5,
         'soil_type': 'Lempung',
         'area_ha': 1.0,
-        'location': ''
+        'location': '',
+        # Micronutrients
+        'fe': 5.0,
+        'mn': 3.0,
+        'cu': 0.3,
+        'zn': 1.0,
+        'b': 0.5,
+        'mo': 0.1,
+        # Soil texture
+        'sand': 40.0,
+        'silt': 40.0,
+        'clay': 20.0
     }
 
 # ========== TAB 1: INPUT DATA ==========
@@ -742,5 +798,245 @@ with tab_ai:
             Rekomendasi: **Dolomit 2-3 ton/ha** untuk menaikkan pH ke 6.0-6.5
             """)
 
+# ========== TAB 5: MIKRONUTRIEN ==========
+with tab_mikro:
+    st.subheader("🔬 Analisis Mikronutrien")
+    st.info("💡 Mikronutrien dibutuhkan dalam jumlah kecil namun esensial untuk pertumbuhan tanaman")
+    
+    # Input mikronutrien
+    st.markdown("### 📝 Input Data Mikronutrien")
+    
+    mikro_col1, mikro_col2, mikro_col3 = st.columns(3)
+    
+    with mikro_col1:
+        fe_value = st.number_input("Fe/Besi (ppm)", 0.0, 100.0, 5.0, 0.5, help="DTPA Extractable. Kritis: <2.5 ppm")
+        mn_value = st.number_input("Mn/Mangan (ppm)", 0.0, 50.0, 3.0, 0.5, help="DTPA Extractable. Kritis: <1.0 ppm")
+    
+    with mikro_col2:
+        cu_value = st.number_input("Cu/Tembaga (ppm)", 0.0, 5.0, 0.3, 0.05, help="DTPA Extractable. Kritis: <0.2 ppm")
+        zn_value = st.number_input("Zn/Seng (ppm)", 0.0, 20.0, 1.0, 0.1, help="DTPA Extractable. Kritis: <0.5 ppm")
+    
+    with mikro_col3:
+        b_value = st.number_input("B/Boron (ppm)", 0.0, 5.0, 0.5, 0.1, help="Hot Water Extractable. Kritis: <0.2 ppm")
+        mo_value = st.number_input("Mo/Molibdenum (ppm)", 0.0, 1.0, 0.1, 0.01, help="Kritis: <0.05 ppm")
+    
+    st.divider()
+    
+    # Classification results
+    st.markdown("### 📊 Hasil Klasifikasi Mikronutrien")
+    
+    mikro_data = {
+        'fe': fe_value, 'mn': mn_value, 'cu': cu_value,
+        'zn': zn_value, 'b': b_value, 'mo': mo_value
+    }
+    mikro_names = {
+        'fe': 'Besi (Fe)', 'mn': 'Mangan (Mn)', 'cu': 'Tembaga (Cu)',
+        'zn': 'Seng (Zn)', 'b': 'Boron (B)', 'mo': 'Molibdenum (Mo)'
+    }
+    
+    result_cols = st.columns(3)
+    for i, (key, value) in enumerate(mikro_data.items()):
+        with result_cols[i % 3]:
+            status, color, score = classify_nutrient(value, key)
+            optimal = BALITBANG_THRESHOLDS[key]['optimal']
+            deficit = max(0, optimal - value)
+            
+            st.markdown(f"""
+            <div style="background: {color}22; padding: 1rem; border-radius: 8px; 
+                        border-left: 4px solid {color}; margin: 0.5rem 0;">
+                <h4 style="margin: 0; color: {color};">{mikro_names[key]}</h4>
+                <p style="font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;">{value} ppm</p>
+                <p style="margin: 0;">Status: <strong>{status}</strong></p>
+                <p style="margin: 0; font-size: 0.8rem;">Optimal: {optimal} ppm</p>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    st.divider()
+    
+    # pH Effect on Micronutrients
+    st.markdown("### 📈 Pengaruh pH terhadap Ketersediaan Mikronutrien")
+    
+    ph_current = st.session_state.npk_data.get('ph', 6.5)
+    
+    # Create availability chart for micronutrients at current pH
+    mikro_nutrients = ['Fe', 'Mn', 'Cu', 'Zn', 'B', 'Mo']
+    availabilities = []
+    for nutrient in mikro_nutrients:
+        avail = get_ph_availability(ph_current, nutrient)
+        availabilities.append(avail)
+    
+    fig_mikro = go.Figure()
+    fig_mikro.add_trace(go.Bar(
+        x=mikro_nutrients,
+        y=availabilities,
+        marker_color=['#ef4444' if a < 50 else '#eab308' if a < 80 else '#22c55e' for a in availabilities],
+        text=[f"{a:.0f}%" for a in availabilities],
+        textposition='outside'
+    ))
+    fig_mikro.update_layout(
+        title=f"Ketersediaan Mikronutrien pada pH {ph_current:.1f}",
+        xaxis_title="Mikronutrien",
+        yaxis_title="Ketersediaan (%)",
+        yaxis_range=[0, 110]
+    )
+    st.plotly_chart(fig_mikro, use_container_width=True)
+    
+    # Recommendations
+    st.markdown("### 💡 Rekomendasi Pupuk Mikro")
+    
+    rec_mikro = []
+    if fe_value < 2.5 or (ph_current > 7.0 and fe_value < 5.0):
+        rec_mikro.append("🔴 **Fe (Besi)**: Aplikasikan Fe-EDTA 5-10 kg/ha atau FeSO4 10-25 kg/ha")
+    if mn_value < 1.0 or (ph_current > 7.0 and mn_value < 3.0):
+        rec_mikro.append("🔴 **Mn (Mangan)**: Aplikasikan MnSO4 5-15 kg/ha")
+    if zn_value < 0.5:
+        rec_mikro.append("🔴 **Zn (Seng)**: Aplikasikan ZnSO4 15-25 kg/ha")
+    if cu_value < 0.1:
+        rec_mikro.append("🔴 **Cu (Tembaga)**: Aplikasikan CuSO4 5-10 kg/ha")
+    if b_value < 0.2:
+        rec_mikro.append("🔴 **B (Boron)**: Aplikasikan Borax 5-10 kg/ha")
+    if mo_value < 0.05:
+        rec_mikro.append("🔴 **Mo (Molibdenum)**: Aplikasikan Na2MoO4 0.5-1 kg/ha")
+    
+    if rec_mikro:
+        for r in rec_mikro:
+            st.markdown(r)
+    else:
+        st.success("✅ Semua mikronutrien dalam kisaran cukup!")
+
+# ========== TAB 6: TEKSTUR TANAH ==========
+with tab_texture:
+    st.subheader("🌍 Analisis Tekstur Tanah")
+    st.info("💡 Tekstur tanah mempengaruhi retensi air, drainase, dan ketersediaan hara")
+    
+    # Input soil texture
+    st.markdown("### 📝 Input Fraksi Tekstur")
+    
+    tex_col1, tex_col2 = st.columns(2)
+    
+    with tex_col1:
+        sand = st.number_input("Pasir/Sand (%)", 0.0, 100.0, 40.0, 1.0)
+        silt = st.number_input("Debu/Silt (%)", 0.0, 100.0, 40.0, 1.0)
+        clay = st.number_input("Liat/Clay (%)", 0.0, 100.0, 20.0, 1.0)
+        
+        total = sand + silt + clay
+        if abs(total - 100) > 0.1:
+            st.error(f"⚠️ Total harus 100%. Saat ini: {total:.1f}%")
+        else:
+            st.success("✅ Total = 100%")
+    
+    # Soil texture classification (USDA)
+    def get_soil_texture(sand, silt, clay):
+        """USDA Soil Texture Classification"""
+        if sand >= 85 and clay < 10:
+            return "Pasir (Sand)", "#f4a460"
+        elif sand >= 70 and clay < 15:
+            return "Pasir Berlempung (Loamy Sand)", "#deb887"
+        elif clay < 7 and silt < 50 and sand >= 43:
+            return "Lempung Berpasir (Sandy Loam)", "#d2b48c"
+        elif clay >= 40:
+            return "Liat (Clay)", "#8b4513"
+        elif clay >= 35 and sand >= 45:
+            return "Liat Berpasir (Sandy Clay)", "#a0522d"
+        elif clay >= 27 and sand < 20:
+            return "Liat Berlempung (Silty Clay)", "#6b4423"
+        elif silt >= 80:
+            return "Debu (Silt)", "#c4aead"
+        elif silt >= 50 and clay < 27:
+            return "Lempung Berdebu (Silt Loam)", "#bdb76b"
+        elif clay >= 27 and clay < 40 and sand >= 20 and sand < 45:
+            return "Lempung Berliat (Clay Loam)", "#8b6914"
+        else:
+            return "Lempung (Loam)", "#32cd32"
+    
+    with tex_col2:
+        if abs(total - 100) <= 0.1:
+            texture_class, texture_color = get_soil_texture(sand, silt, clay)
+            
+            st.markdown(f"""
+            <div style="background: {texture_color}33; padding: 1.5rem; border-radius: 12px; 
+                        border: 3px solid {texture_color}; text-align: center;">
+                <h2 style="color: {texture_color}; margin: 0;">🌍 {texture_class}</h2>
+                <p style="margin-top: 0.5rem;">Pasir: {sand:.0f}% | Debu: {silt:.0f}% | Liat: {clay:.0f}%</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Properties
+            st.markdown("### 📋 Karakteristik Tekstur")
+            
+            if "Pasir" in texture_class and "Lempung" not in texture_class:
+                st.markdown("""
+                - 💧 **Drainase**: Sangat cepat (risiko kekeringan)
+                - 🌊 **Retensi Air**: Rendah
+                - 🌱 **Retensi Hara**: Rendah (perlu pupuk lebih sering)
+                - 🚜 **Pengolahan**: Mudah
+                """)
+            elif "Liat" in texture_class and "Lempung" not in texture_class:
+                st.markdown("""
+                - 💧 **Drainase**: Lambat (risiko genangan)
+                - 🌊 **Retensi Air**: Tinggi
+                - 🌱 **Retensi Hara**: Tinggi
+                - 🚜 **Pengolahan**: Sulit (lengket saat basah)
+                """)
+            else:
+                st.markdown("""
+                - 💧 **Drainase**: Baik (seimbang)
+                - 🌊 **Retensi Air**: Sedang (ideal)
+                - 🌱 **Retensi Hara**: Baik
+                - 🚜 **Pengolahan**: Mudah-Sedang
+                """)
+    
+    st.divider()
+    
+    # Soil Texture Triangle Visualization
+    st.markdown("### 📐 Segitiga Tekstur Tanah (USDA)")
+    
+    # Create ternary plot
+    fig_texture = go.Figure(go.Scatterternary(
+        a=[clay],  # Clay on top
+        b=[silt],  # Silt on right
+        c=[sand],  # Sand on left
+        mode='markers',
+        marker=dict(size=20, color='red', symbol='star'),
+        name=f"Sampel: {texture_class}"
+    ))
+    
+    fig_texture.update_layout(
+        ternary=dict(
+            sum=100,
+            aaxis=dict(title='Liat (%)', min=0, linewidth=2, ticks='outside'),
+            baxis=dict(title='Debu (%)', min=0, linewidth=2, ticks='outside'),
+            caxis=dict(title='Pasir (%)', min=0, linewidth=2, ticks='outside'),
+        ),
+        title="Posisi Sampel pada Segitiga Tekstur",
+        showlegend=True
+    )
+    
+    st.plotly_chart(fig_texture, use_container_width=True)
+    
+    # Recommendations based on texture
+    st.markdown("### 💡 Rekomendasi Berdasarkan Tekstur")
+    
+    if "Pasir" in texture_class and "Lempung" not in texture_class:
+        st.warning("""
+        ⚠️ **Tanah Berpasir** - Rekomendasi:
+        - Tambahkan bahan organik 10-20 ton/ha untuk meningkatkan retensi air
+        - Pemupukan lebih sering dengan dosis lebih kecil
+        - Pertimbangkan irigasi tetes untuk efisiensi air
+        """)
+    elif "Liat" in texture_class and "Lempung" not in texture_class:
+        st.warning("""
+        ⚠️ **Tanah Berliat** - Rekomendasi:
+        - Perbaiki drainase dengan saluran atau bedengan tinggi
+        - Tambahkan bahan organik untuk memperbaiki struktur
+        - Olah tanah saat kelembaban optimal
+        """)
+    else:
+        st.success("""
+        ✅ **Tekstur Ideal** - Lempung adalah tekstur terbaik untuk pertanian karena:
+        - Keseimbangan drainase dan retensi air
+        - Aerasi yang baik untuk akar
+        - Retensi hara yang optimal
+        """)
 
 # Save message - hidden
