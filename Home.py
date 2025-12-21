@@ -384,16 +384,16 @@ def main():
                 {'name': '🧮 Kalkulator Pupuk', 'page': '3_🧮_Kalkulator_Pupuk', 'desc': 'Hitung kebutuhan pupuk presisi'},
                 {'name': '🌤️ Cuaca Pertanian', 'page': '27_🌤️_Cuaca_Pertanian', 'desc': 'Prediksi cuaca untuk jadwal tanam'},
                 {'name': '🔍 Diagnostik Gejala', 'page': '10_🔍_Diagnostik_Gejala', 'desc': 'Identifikasi penyakit tanaman'},
-                {'name': '📈 Analisis Usaha Tani', 'page': '28_📒_Analisis_Usaha_Tani', 'desc': 'Hitung RAB dan profitabilitas'}
+                {'name': '💰 Analisis Usaha Tani', 'page': '28_💰_Analisis_Usaha_Tani', 'desc': 'Hitung RAB dan profitabilitas'}
             ]
         },
         'penyuluh': {
             'title': '👨‍🏫 Rekomendasi untuk Penyuluh',
             'modules': [
                 {'name': '📢 Ruang Kerja PPL', 'page': '45_📢_Ruang_Kerja_PPL_Final', 'desc': 'Dashboard tugas & laporan'},
-                {'name': '📋 Simulator e-RDKK', 'page': '45_📢_Ruang_Kerja_PPL_Final', 'desc': 'Simulasi kuota pupuk subsidi'},
-                {'name': '📚 Generator Materi', 'page': '45_📢_Ruang_Kerja_PPL_Final', 'desc': 'Buat materi penyuluhan'},
-                {'name': '🎓 Kurikulum Pelatihan', 'page': '53_🎓_Kurikulum_Pelatihan', 'desc': 'Modul pelatihan terstruktur'}
+                {'name': '🎓 Kurikulum Pelatihan', 'page': '53_🎓_Kurikulum_Pelatihan', 'desc': 'Modul pelatihan terstruktur'},
+                {'name': '🌿 Dokter Tanaman AI', 'page': '13_🌿_Dokter_Tanaman_AI', 'desc': 'Diagnosa penyakit dengan AI'},
+                {'name': '📚 Pusat Pengetahuan', 'page': '17_📚_Pusat_Pengetahuan', 'desc': 'Referensi pengetahuan pertanian'}
             ]
         },
         'akademisi': {
@@ -401,20 +401,21 @@ def main():
             'modules': [
                 {'name': '🌱 Fisiologi Tumbuhan', 'page': '29_🌱_Fisiologi_Tumbuhan', 'desc': 'Hormon & proses fisiologis'},
                 {'name': '🧬 Genetika Pemuliaan', 'page': '31_🧬_Genetika_Pemuliaan', 'desc': 'Pemuliaan tanaman'},
-                {'name': '📖 Pusat Pengetahuan', 'page': '33_📖_Pusat_Pengetahuan', 'desc': 'Ensiklopedia pertanian'},
-                {'name': '📊 Statistik Penelitian', 'page': '26_📊_Statistik_Penelitian', 'desc': 'Analisis data riset'}
+                {'name': '🔬 Asisten Penelitian', 'page': '12_🔬_Asisten_Penelitian', 'desc': 'Bantuan riset ilmiah'},
+                {'name': '📚 Pusat Pengetahuan', 'page': '17_📚_Pusat_Pengetahuan', 'desc': 'Ensiklopedia pertanian'}
             ]
         },
         'mahasiswa': {
             'title': '📚 Rekomendasi untuk Mahasiswa',
             'modules': [
-                {'name': '📖 Pusat Pengetahuan', 'page': '33_📖_Pusat_Pengetahuan', 'desc': 'Mulai belajar dari sini'},
+                {'name': '📚 Pusat Pengetahuan', 'page': '17_📚_Pusat_Pengetahuan', 'desc': 'Mulai belajar dari sini'},
                 {'name': '🌱 Fisiologi Tumbuhan', 'page': '29_🌱_Fisiologi_Tumbuhan', 'desc': 'Dasar fisiologi'},
                 {'name': '🧮 Kalkulator Pupuk', 'page': '3_🧮_Kalkulator_Pupuk', 'desc': 'Latihan perhitungan'},
                 {'name': '🔍 Diagnostik Gejala', 'page': '10_🔍_Diagnostik_Gejala', 'desc': 'Belajar identifikasi'}
             ]
         }
     }
+
     
     # ===== ONBOARDING MODAL (First-time user) =====
     if not st.session_state.user_profile['onboarding_complete']:
