@@ -2594,7 +2594,7 @@ with tab_krisan:
                     st.download_button(
                         label="📥 Download RAB (Excel)",
                         data=excel_data,
-                        file_name=f"RAB_Krisan_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+                        file_name=f"RAB_Krisan_{datetime.datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
                 
@@ -2606,12 +2606,12 @@ with tab_krisan:
                         st.session_state.krisan_history = []
                     
                     nama_siklus = st.text_input("Nama Siklus (contoh: Siklus Jan 2024)", 
-                                               value=f"Siklus {datetime.now().strftime('%b %Y')}")
+                                               value=f"Siklus {datetime.datetime.now().strftime('%b %Y')}")
                     
                     if st.button("💾 Simpan ke Histori", type="primary"):
                         record = {
                             "nama": nama_siklus,
-                            "tanggal": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                            "tanggal": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
                             "populasi": int(pop_for_rab),
                             "batang_panen": int(total_batang_grading),
                             "survival": round(survival_aktual, 1),
