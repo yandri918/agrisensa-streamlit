@@ -2408,7 +2408,35 @@ with tab_krisan:
             total_batang_grading = total_batang_normal + total_batang_rusak
             total_pendapatan_grading = total_pendapatan_normal + total_pendapatan_rusak
             
-            st.divider()
+            # ===== VALIDATION: Check against potential harvest =====
+            potensi_panen = int(tanaman_panen_rab)
+            persen_terisi = (total_batang_grading / potensi_panen * 100) if potensi_panen > 0 else 0
+            sisa_batang = potensi_panen - total_batang_grading
+            
+            st.markdown("---")
+            st.markdown(f"**📊 Progress Grading:** {total_batang_grading:,} / {potensi_panen:,} batang")
+            
+            # Progress bar with color coding
+            if persen_terisi <= 100:
+                st.progress(min(persen_terisi / 100, 1.0))
+                if persen_terisi == 0:
+                    st.info(f"💡 Masukkan data grading. Tersedia: **{potensi_panen:,}** batang")
+                elif persen_terisi < 85:
+                    st.info(f"📝 Sudah diinput: **{persen_terisi:.1f}%** | Sisa: **{sisa_batang:,}** batang")
+                elif persen_terisi < 100:
+                    st.success(f"✅ Hampir lengkap: **{persen_terisi:.1f}%** | Sisa: **{sisa_batang:,}** batang")
+                else:
+                    st.success(f"✅ Grading selesai: **100%** ({total_batang_grading:,} batang)")
+            else:
+                st.progress(1.0)
+                selisih = total_batang_grading - potensi_panen
+                st.error(f"""
+                ⚠️ **MELEBIHI BATAS!** Input grading ({total_batang_grading:,} btg) melebihi potensi panen ({potensi_panen:,} btg)
+                
+                Kelebihan: **{selisih:,} batang** ({persen_terisi - 100:.1f}% lebih)
+                
+                Silakan kurangi jumlah ikat pada salah satu grade.
+                """)
             st.markdown("### 📊 Visualisasi & Hasil Grading")
             
             if total_ikat_grading > 0:
