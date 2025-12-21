@@ -4574,7 +4574,3 @@ with tab_brix:
             
             st.success(f"✅ Dengan menerapkan rekomendasi di atas, Brix dapat meningkat dari **{predicted_brix}°Bx** ke **{round(projected_brix, 1)}°Bx** dalam 2-3 bulan!")
 
-
-# Save message
-st.success("✅ Module Fisiologi Tumbuhan berhasil dimuat!")
-st.info("💡 Module ini mencakup hormon tumbuhan lengkap dengan sumber alami + Analisis Brix dengan AI Predictor!")
