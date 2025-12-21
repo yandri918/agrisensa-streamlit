@@ -2031,39 +2031,337 @@ with tab_krisan:
         | **Karton Box** | 10-20 ikat | Untuk ekspor/jarak jauh |
         | **Bucket** | 5-10 ikat | Untuk pasar lokal |
         | **Plastik Wrap** | Per ikat | Perlindungan tambahan |
-        
-        ---
-        
-        ### 💰 Kalkulator Estimasi Pendapatan
         """)
         
-        calc_col1, calc_col2 = st.columns(2)
+        st.divider()
         
-        with calc_col1:
-            luas_greenhouse = st.number_input("Luas Greenhouse (m²)", 100, 10000, 1000, 100)
-            populasi_per_m2 = st.number_input("Populasi per m²", 40, 100, 64, 4)
-            survival_rate = st.slider("Survival Rate (%)", 70, 100, 85, 5)
-            grade_mayoritas = st.selectbox("Grade Mayoritas", [60, 80, 100, 120, 160])
-            harga_per_ikat = st.number_input("Harga per Ikat (Rp)", 50000, 200000, 80000, 5000)
+        # ========== ENHANCED CALCULATORS ==========
+        st.subheader("🧮 Kalkulator Budidaya Krisan Spray")
         
-        with calc_col2:
-            total_tanaman = luas_greenhouse * populasi_per_m2
-            tanaman_panen = total_tanaman * (survival_rate / 100)
-            jumlah_ikat = tanaman_panen / grade_mayoritas
-            total_pendapatan = jumlah_ikat * harga_per_ikat
+        calc_tabs = st.tabs(["🌱 Populasi Tanaman", "💧 Nozzle & Irigasi", "💰 RAB Lengkap", "🤖 AI Optimasi"])
+        
+        # ===== TAB 1: POPULASI TANAMAN =====
+        with calc_tabs[0]:
+            st.markdown("### 🌱 Kalkulator Populasi Berdasarkan Bedengan")
             
-            st.metric("Total Tanaman", f"{total_tanaman:,.0f}")
-            st.metric("Tanaman Panen", f"{tanaman_panen:,.0f}")
-            st.metric("Jumlah Ikat", f"{jumlah_ikat:,.0f} ikat")
-            st.metric("💰 Total Pendapatan", f"Rp {total_pendapatan:,.0f}")
+            pop_col1, pop_col2, pop_col3 = st.columns(3)
+            
+            with pop_col1:
+                st.markdown("**Dimensi Bedengan:**")
+                lebar_bedengan = st.number_input("Lebar Bedengan (cm)", 80, 150, 100, 10, key="lebar_bed")
+                panjang_bedengan = st.number_input("Panjang Bedengan (m)", 5, 100, 30, 5, key="panjang_bed")
+                jumlah_bedengan = st.number_input("Jumlah Bedengan", 1, 100, 10, 1)
+            
+            with pop_col2:
+                st.markdown("**Jarak Tanam:**")
+                jarak_dalam_baris = st.number_input("Jarak Dalam Baris (cm)", 8, 20, 12, 1)
+                jarak_antar_baris = st.number_input("Jarak Antar Baris (cm)", 8, 20, 12, 1)
+                # Calculate rows per bed
+                baris_per_bedengan = int(lebar_bedengan / jarak_antar_baris)
+                st.metric("Baris per Bedengan", f"{baris_per_bedengan} baris")
+            
+            with pop_col3:
+                st.markdown("**Hasil Perhitungan:**")
+                # Plants per row per bed
+                tanaman_per_baris = int((panjang_bedengan * 100) / jarak_dalam_baris)
+                # Plants per bed
+                tanaman_per_bedengan = tanaman_per_baris * baris_per_bedengan
+                # Total plants
+                total_populasi = tanaman_per_bedengan * jumlah_bedengan
+                # Area
+                luas_bedengan = (lebar_bedengan/100) * panjang_bedengan
+                total_luas = luas_bedengan * jumlah_bedengan
+                populasi_per_m2 = total_populasi / total_luas if total_luas > 0 else 0
+                
+                st.metric("Tanaman per Bedengan", f"{tanaman_per_bedengan:,}")
+                st.metric("🌿 Total Populasi", f"{total_populasi:,}")
+                st.metric("Kepadatan", f"{populasi_per_m2:.0f}/m²")
+            
+            st.success(f"""
+            **Ringkasan Populasi:**
+            - Bedengan: {lebar_bedengan}cm × {panjang_bedengan}m = {luas_bedengan:.1f} m² × {jumlah_bedengan} = **{total_luas:.0f} m²**
+            - Jarak tanam: {jarak_dalam_baris}cm × {jarak_antar_baris}cm → {baris_per_bedengan} baris/bedengan
+            - Per bedengan: {tanaman_per_baris} tanaman × {baris_per_bedengan} baris = **{tanaman_per_bedengan:,} tanaman**
+            - Total: **{total_populasi:,} tanaman** ({populasi_per_m2:.0f} tanaman/m²)
+            """)
         
-        st.success(f"""
-        **Ringkasan:**
-        - Luas: {luas_greenhouse} m² × {populasi_per_m2} tanaman = {total_tanaman:,.0f} tanaman
-        - Survival {survival_rate}% = {tanaman_panen:,.0f} tanaman panen
-        - {tanaman_panen:,.0f} ÷ {grade_mayoritas} = **{jumlah_ikat:,.0f} ikat**
-        - {jumlah_ikat:,.0f} × Rp {harga_per_ikat:,} = **Rp {total_pendapatan:,.0f}**
-        """)
+        # ===== TAB 2: NOZZLE & IRIGASI =====
+        with calc_tabs[1]:
+            st.markdown("### 💧 Kalkulator Nozzle & Sistem Irigasi")
+            
+            noz_col1, noz_col2 = st.columns(2)
+            
+            with noz_col1:
+                st.markdown("**Pipa Irigasi:**")
+                panjang_pipa = st.number_input("Panjang Pipa per Bedengan (m)", 5, 100, 30, 5, key="pipa")
+                jarak_nozzle = st.number_input("Jarak Antar Nozzle (cm)", 20, 50, 30, 5)
+                jumlah_pipa = st.number_input("Jumlah Pipa (= Jumlah Bedengan)", 1, 100, 10, 1, key="jml_pipa")
+                
+                st.markdown("**Harga Komponen:**")
+                harga_nozzle = st.number_input("Harga per Nozzle (Rp)", 1000, 10000, 3000, 500)
+                harga_pipa_per_m = st.number_input("Harga Pipa per Meter (Rp)", 5000, 50000, 15000, 1000)
+            
+            with noz_col2:
+                st.markdown("**Hasil Perhitungan:**")
+                # Nozzle per pipe
+                nozzle_per_pipa = int((panjang_pipa * 100) / jarak_nozzle)
+                # Total nozzle
+                total_nozzle = nozzle_per_pipa * jumlah_pipa
+                # Total pipe length
+                total_panjang_pipa = panjang_pipa * jumlah_pipa
+                # Costs
+                biaya_nozzle = total_nozzle * harga_nozzle
+                biaya_pipa = total_panjang_pipa * harga_pipa_per_m
+                total_irigasi = biaya_nozzle + biaya_pipa
+                
+                st.metric("Nozzle per Pipa", f"{nozzle_per_pipa} unit")
+                st.metric("💧 Total Nozzle", f"{total_nozzle:,} unit")
+                st.metric("Total Pipa", f"{total_panjang_pipa:,} m")
+            
+            st.divider()
+            
+            irg_cost1, irg_cost2, irg_cost3 = st.columns(3)
+            with irg_cost1:
+                st.metric("Biaya Nozzle", f"Rp {biaya_nozzle:,}")
+            with irg_cost2:
+                st.metric("Biaya Pipa", f"Rp {biaya_pipa:,}")
+            with irg_cost3:
+                st.metric("💰 Total Irigasi", f"Rp {total_irigasi:,}")
+        
+        # ===== TAB 3: RAB LENGKAP =====
+        with calc_tabs[2]:
+            st.markdown("### 💰 Rencana Anggaran Biaya (RAB) Lengkap")
+            
+            st.info("💡 Masukkan data untuk menghitung RAB komprehensif")
+            
+            rab_col1, rab_col2 = st.columns(2)
+            
+            with rab_col1:
+                st.markdown("**🌱 Bibit & Tanam:**")
+                harga_bibit = st.number_input("Harga Bibit (Rp/batang)", 100, 1000, 300, 50)
+                biaya_tanam = st.number_input("Upah Tanam (Rp/1000 batang)", 50000, 200000, 100000, 10000)
+                
+                st.markdown("**🧪 Pupuk & Pestisida:**")
+                biaya_pupuk_per_m2 = st.number_input("Biaya Pupuk (Rp/m²/siklus)", 500, 5000, 1500, 100)
+                biaya_pestisida_per_m2 = st.number_input("Biaya Pestisida (Rp/m²/siklus)", 500, 3000, 1000, 100)
+                
+                st.markdown("**💡 Listrik & Lampu:**")
+                biaya_listrik_per_bulan = st.number_input("Biaya Listrik (Rp/bulan)", 500000, 5000000, 1500000, 100000)
+                durasi_tanam_bulan = st.number_input("Durasi Tanam (bulan)", 3, 5, 4, 1)
+            
+            with rab_col2:
+                st.markdown("**👷 Tenaga Kerja:**")
+                jumlah_pekerja = st.number_input("Jumlah Pekerja", 1, 20, 3, 1)
+                upah_per_bulan = st.number_input("Upah per Pekerja (Rp/bulan)", 1000000, 5000000, 2500000, 100000)
+                
+                st.markdown("**🔥 Dambo & Lainnya:**")
+                biaya_dambo = st.number_input("Biaya BBM Dambo (Rp/siklus)", 100000, 1000000, 300000, 50000)
+                biaya_packing = st.number_input("Biaya Packing (Rp/ikat)", 500, 3000, 1500, 100)
+                biaya_lainnya = st.number_input("Biaya Lain-lain (Rp)", 0, 5000000, 500000, 100000)
+            
+            st.divider()
+            
+            # Calculations using previous values
+            pop_for_rab = total_populasi if 'total_populasi' in dir() else 10000
+            luas_for_rab = total_luas if 'total_luas' in dir() else 100
+            survival = 0.85
+            grade_avg = 80
+            harga_jual = 80000
+            
+            st.markdown("**📊 Parameter Pendapatan:**")
+            rab_rev_col1, rab_rev_col2, rab_rev_col3 = st.columns(3)
+            with rab_rev_col1:
+                survival_rab = st.slider("Survival Rate (%)", 70, 95, 85, 5, key="surv_rab")
+            with rab_rev_col2:
+                grade_rab = st.selectbox("Grade Rata-rata", [60, 80, 100, 120, 160], index=1, key="grade_rab")
+            with rab_rev_col3:
+                harga_jual_rab = st.number_input("Harga Jual (Rp/ikat)", 50000, 200000, 80000, 5000, key="harga_rab")
+            
+            st.divider()
+            st.markdown("### 📊 Hasil Perhitungan RAB")
+            
+            # Calculate costs
+            biaya_bibit_total = pop_for_rab * harga_bibit
+            biaya_tanam_total = (pop_for_rab / 1000) * biaya_tanam
+            biaya_pupuk_total = luas_for_rab * biaya_pupuk_per_m2
+            biaya_pestisida_total = luas_for_rab * biaya_pestisida_per_m2
+            biaya_listrik_total = biaya_listrik_per_bulan * durasi_tanam_bulan
+            biaya_tenaga_kerja = jumlah_pekerja * upah_per_bulan * durasi_tanam_bulan
+            biaya_irigasi_total = total_irigasi if 'total_irigasi' in dir() else 5000000
+            
+            # Revenue
+            tanaman_panen_rab = pop_for_rab * (survival_rab / 100)
+            jumlah_ikat_rab = tanaman_panen_rab / grade_rab
+            pendapatan_kotor = jumlah_ikat_rab * harga_jual_rab
+            biaya_packing_total = jumlah_ikat_rab * biaya_packing
+            
+            # Total
+            total_biaya = (biaya_bibit_total + biaya_tanam_total + biaya_pupuk_total + 
+                          biaya_pestisida_total + biaya_listrik_total + biaya_tenaga_kerja + 
+                          biaya_dambo + biaya_packing_total + biaya_lainnya)
+            
+            laba_bersih = pendapatan_kotor - total_biaya
+            roi = (laba_bersih / total_biaya) * 100 if total_biaya > 0 else 0
+            
+            # Display RAB Table
+            rab_data = pd.DataFrame({
+                "Komponen": [
+                    "🌱 Bibit", "👷 Upah Tanam", "🧪 Pupuk", "🧴 Pestisida",
+                    "💡 Listrik", "👷 Tenaga Kerja", "🔥 Dambo", "📦 Packing", "📋 Lain-lain"
+                ],
+                "Biaya (Rp)": [
+                    biaya_bibit_total, biaya_tanam_total, biaya_pupuk_total, biaya_pestisida_total,
+                    biaya_listrik_total, biaya_tenaga_kerja, biaya_dambo, biaya_packing_total, biaya_lainnya
+                ]
+            })
+            
+            st.dataframe(rab_data, use_container_width=True, hide_index=True)
+            
+            rab_result1, rab_result2, rab_result3, rab_result4 = st.columns(4)
+            with rab_result1:
+                st.metric("Total Biaya", f"Rp {total_biaya:,.0f}")
+            with rab_result2:
+                st.metric("Pendapatan", f"Rp {pendapatan_kotor:,.0f}")
+            with rab_result3:
+                st.metric("Laba Bersih", f"Rp {laba_bersih:,.0f}", 
+                         delta="Profit" if laba_bersih > 0 else "Loss")
+            with rab_result4:
+                st.metric("ROI", f"{roi:.1f}%")
+        
+        # ===== TAB 4: AI OPTIMASI =====
+        with calc_tabs[3]:
+            st.markdown("### 🤖 AI Optimasi Budidaya Krisan")
+            
+            st.info("💡 AI akan menganalisis parameter Anda dan memberikan rekomendasi optimasi")
+            
+            if st.button("🔍 Jalankan Analisis AI", type="primary", use_container_width=True):
+                
+                with st.spinner("AI sedang menganalisis data..."):
+                    import time
+                    time.sleep(1)
+                
+                st.success("✅ Analisis AI Selesai!")
+                
+                # AI Recommendations based on current parameters
+                recommendations = []
+                optimizations = []
+                potential_savings = 0
+                
+                # Analyze plant density
+                if populasi_per_m2 < 55:
+                    recommendations.append({
+                        "area": "Kepadatan Tanam",
+                        "issue": f"Kepadatan saat ini {populasi_per_m2:.0f}/m² terlalu rendah",
+                        "action": "Kurangi jarak tanam menjadi 10×10cm untuk 100 tanaman/m²",
+                        "impact": f"+{int((100-populasi_per_m2) * total_luas)} tanaman potensial"
+                    })
+                elif populasi_per_m2 > 80:
+                    recommendations.append({
+                        "area": "Kepadatan Tanam",
+                        "issue": f"Kepadatan {populasi_per_m2:.0f}/m² terlalu tinggi",
+                        "action": "Risiko penyakit tinggi, pertimbangkan 64/m²",
+                        "impact": "Kualitas bunga lebih baik, harga jual lebih tinggi"
+                    })
+                
+                # Analyze nozzle spacing
+                if jarak_nozzle > 35:
+                    recommendations.append({
+                        "area": "Sistem Irigasi",
+                        "issue": f"Jarak nozzle {jarak_nozzle}cm terlalu lebar",
+                        "action": "Kurangi ke 25-30cm untuk penyiraman merata",
+                        "impact": "Mengurangi dead spots, tanaman lebih seragam"
+                    })
+                
+                # Analyze labor cost
+                labor_pct = (biaya_tenaga_kerja / total_biaya) * 100 if total_biaya > 0 else 0
+                if labor_pct > 40:
+                    savings = biaya_tenaga_kerja * 0.2
+                    potential_savings += savings
+                    recommendations.append({
+                        "area": "Tenaga Kerja",
+                        "issue": f"Biaya TK {labor_pct:.0f}% dari total (terlalu tinggi)",
+                        "action": "Otomatisasi irigasi & timer lampu untuk efisiensi",
+                        "impact": f"Potensi hemat Rp {savings:,.0f}/siklus"
+                    })
+                
+                # Analyze grade - 80 and 100 are optimal targets
+                if grade_rab == 60:
+                    optimizations.append({
+                        "area": "Grade Target",
+                        "current": f"Grade {grade_rab}",
+                        "target": "Grade 80 atau 100",
+                        "action": "Perpanjang durasi tanam, tingkatkan nutrisi untuk grade lebih tinggi",
+                        "impact": "Grade 80/100 memberikan keseimbangan optimal yield & harga"
+                    })
+                elif grade_rab in [80, 100]:
+                    optimizations.append({
+                        "area": "Grade Target",
+                        "current": f"Grade {grade_rab}",
+                        "target": "✅ Sudah Optimal",
+                        "action": "Pertahankan! Grade 80 dan 100 adalah target terbaik",
+                        "impact": "Keseimbangan produktivitas, kualitas, dan harga pasar terbaik"
+                    })
+                elif grade_rab > 100:
+                    recommendations.append({
+                        "area": "Grade Target",
+                        "issue": f"Grade {grade_rab} mungkin terlalu tinggi",
+                        "action": "Grade 80-100 lebih efisien (durasi lebih pendek, rotasi lebih cepat)",
+                        "impact": "Lebih banyak siklus per tahun = total pendapatan lebih tinggi"
+                    })
+                
+                # Analyze survival rate
+                if survival_rab < 88:
+                    extra_plants = pop_for_rab * ((90 - survival_rab) / 100)
+                    extra_revenue = (extra_plants / grade_rab) * harga_jual_rab
+                    optimizations.append({
+                        "area": "Survival Rate",
+                        "current": f"{survival_rab}%",
+                        "target": "90%+",
+                        "action": "Tingkatkan sanitasi, IPM rutin, monitoring harian",
+                        "impact": f"+{extra_plants:.0f} tanaman = +Rp {extra_revenue:,.0f}"
+                    })
+                
+                # Display AI Results
+                st.markdown("### 📋 Rekomendasi Perbaikan")
+                
+                if recommendations:
+                    for rec in recommendations:
+                        st.markdown(f"""
+                        <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; 
+                                    border-left: 4px solid #f59e0b; margin: 0.5rem 0;">
+                            <h4 style="margin: 0; color: #92400e;">⚠️ {rec['area']}</h4>
+                            <p style="margin: 0.25rem 0;"><strong>Masalah:</strong> {rec['issue']}</p>
+                            <p style="margin: 0.25rem 0;"><strong>Aksi:</strong> {rec['action']}</p>
+                            <p style="color: #059669; margin: 0;"><strong>Dampak:</strong> {rec['impact']}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                st.markdown("### 🚀 Optimasi Potensial")
+                
+                if optimizations:
+                    for opt in optimizations:
+                        st.markdown(f"""
+                        <div style="background: #d1fae5; padding: 1rem; border-radius: 8px; 
+                                    border-left: 4px solid #10b981; margin: 0.5rem 0;">
+                            <h4 style="margin: 0; color: #065f46;">💡 {opt['area']}</h4>
+                            <p style="margin: 0.25rem 0;">Saat ini: <strong>{opt['current']}</strong> → Target: <strong>{opt['target']}</strong></p>
+                            <p style="margin: 0.25rem 0;"><strong>Aksi:</strong> {opt['action']}</p>
+                            <p style="color: #059669; margin: 0;"><strong>Dampak:</strong> {opt['impact']}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                # Summary
+                st.divider()
+                ai_col1, ai_col2 = st.columns(2)
+                
+                with ai_col1:
+                    st.metric("Total Potensi Penghematan", f"Rp {potential_savings:,.0f}")
+                
+                with ai_col2:
+                    new_laba = laba_bersih + potential_savings
+                    new_roi = (new_laba / (total_biaya - potential_savings)) * 100
+                    st.metric("Proyeksi ROI Setelah Optimasi", f"{new_roi:.1f}%", 
+                             delta=f"+{new_roi - roi:.1f}%")
 
 st.markdown("---")
 st.caption("AgriSensa Sustainable Greenhouse - Membangun Pertanian yang Terukur dan Berkelanjutan.")
