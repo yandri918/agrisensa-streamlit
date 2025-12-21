@@ -2326,8 +2326,26 @@ with tab_krisan:
                 160: 160000
             }
             
+            # Default prices for B-grade (rusak) - lower prices for shorter stems
+            default_prices_rusak = {
+                "R-80": 40000,    # 80 batang, panjang 80cm
+                "R-100": 50000,   # 100 batang, panjang 80cm
+                "R-160": 60000,   # 160 batang, panjang 70cm
+                "R-200": 70000    # 200 batang, panjang 70cm
+            }
+            
+            # Stem counts for rusak grades
+            rusak_batang = {
+                "R-80": 80,
+                "R-100": 100,
+                "R-160": 160,
+                "R-200": 200
+            }
+            
             use_custom_prices = st.checkbox("Sesuaikan harga per grade", value=False)
             
+            # ===== GRADE NORMAL (Panjang 90cm) =====
+            st.markdown("#### ✅ Grade Normal (Panjang 90 cm)")
             grading_cols = st.columns(5)
             grades = [60, 80, 100, 120, 160]
             grade_inputs = {}
@@ -2349,10 +2367,46 @@ with tab_krisan:
                         grade_prices[grade] = default_prices[grade]
                         st.caption(f"Rp {default_prices[grade]:,}")
             
-            # Calculate grading results
-            total_ikat_grading = sum(grade_inputs.values())
-            total_batang_grading = sum(grade * qty for grade, qty in grade_inputs.items())
-            total_pendapatan_grading = sum(grade_prices[g] * grade_inputs[g] for g in grades)
+            # ===== GRADE RUSAK / B-GRADE (Panjang < 90cm) =====
+            st.markdown("#### ⚠️ Grade Rusak/BS (Panjang 70-80 cm)")
+            st.caption("Untuk bunga dengan batang lebih pendek dari standar")
+            
+            rusak_cols = st.columns(4)
+            grades_rusak = ["R-80", "R-100", "R-160", "R-200"]
+            rusak_inputs = {}
+            rusak_prices = {}
+            
+            for i, grade in enumerate(grades_rusak):
+                with rusak_cols[i]:
+                    panjang = "80cm" if grade in ["R-80", "R-100"] else "70cm"
+                    st.markdown(f"**{grade}**")
+                    st.caption(f"({rusak_batang[grade]} btg, {panjang})")
+                    rusak_inputs[grade] = st.number_input(
+                        f"Jml Ikat", min_value=0, max_value=500, value=0, 
+                        key=f"grade_{grade}_qty"
+                    )
+                    if use_custom_prices:
+                        rusak_prices[grade] = st.number_input(
+                            f"Harga", min_value=20000, max_value=100000, 
+                            value=default_prices_rusak[grade], step=5000, key=f"grade_{grade}_price"
+                        )
+                    else:
+                        rusak_prices[grade] = default_prices_rusak[grade]
+                        st.caption(f"Rp {default_prices_rusak[grade]:,}")
+            
+            # Calculate grading results (normal + rusak)
+            total_ikat_normal = sum(grade_inputs.values())
+            total_batang_normal = sum(grade * qty for grade, qty in grade_inputs.items())
+            total_pendapatan_normal = sum(grade_prices[g] * grade_inputs[g] for g in grades)
+            
+            total_ikat_rusak = sum(rusak_inputs.values())
+            total_batang_rusak = sum(rusak_batang[g] * rusak_inputs[g] for g in grades_rusak)
+            total_pendapatan_rusak = sum(rusak_prices[g] * rusak_inputs[g] for g in grades_rusak)
+            
+            # Combined totals
+            total_ikat_grading = total_ikat_normal + total_ikat_rusak
+            total_batang_grading = total_batang_normal + total_batang_rusak
+            total_pendapatan_grading = total_pendapatan_normal + total_pendapatan_rusak
             
             st.divider()
             st.markdown("### 📊 Visualisasi & Hasil Grading")
