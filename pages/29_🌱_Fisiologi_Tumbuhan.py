@@ -28,12 +28,13 @@ st.title("🌱 Fisiologi Tumbuhan & Hormon Pertumbuhan")
 st.markdown("**Memahami Proses Fisiologis Tanaman untuk Optimasi Produksi**")
 
 # Main tabs
-tab_hormone, tab_growth, tab_photosynthesis, tab_stress, tab_practice = st.tabs([
+tab_hormone, tab_growth, tab_photosynthesis, tab_stress, tab_practice, tab_brix = st.tabs([
     "🧪 Hormon Tumbuhan",
     "📈 Pertumbuhan & Perkembangan", 
     "☀️ Fotosintesis & Respirasi",
     "⚠️ Stress & Adaptasi",
-    "🛠️ Aplikasi Praktis"
+    "🛠️ Aplikasi Praktis",
+    "🍇 Analisis Brix"
 ])
 
 # ===== TAB 1: HORMON TUMBUHAN =====
@@ -3837,6 +3838,743 @@ with tab_practice:
     """)
 
 
+# ===== TAB 6: ANALISIS BRIX =====
+with tab_brix:
+    st.header("🍇 Analisis Brix - Indikator Kualitas Tanaman")
+    st.info("💡 Brix mengukur kadar gula (Total Soluble Solids) dalam tanaman - indikator penting kualitas, rasa, dan kesehatan tanaman.")
+    
+    # Sub-tabs for Brix
+    brix_teori, brix_ukur, brix_organik, brix_kimia, brix_standar, brix_ai = st.tabs([
+        "📚 Teori & Ilmiah",
+        "🔬 Cara Pengukuran",
+        "🌿 Optimalisasi Organik",
+        "⚗️ Optimalisasi Kimia",
+        "📊 Standar Komoditas",
+        "🤖 AI Brix Predictor"
+    ])
+    
+    # ========== SUB-TAB 1: TEORI & ILMIAH ==========
+    with brix_teori:
+        st.subheader("📚 Teori & Dasar Ilmiah Brix")
+        
+        st.markdown("""
+        ## 🔬 APA ITU BRIX?
+        
+        **Brix (°Bx)** adalah skala untuk mengukur **Total Soluble Solids (TSS)** atau padatan terlarut total 
+        dalam cairan tanaman, terutama gula (sukrosa, glukosa, fruktosa).
+        
+        **Definisi:**
+        > **1° Brix = 1 gram sukrosa per 100 gram larutan**
+        
+        **Sejarah:**
+        - Dikembangkan oleh **Adolf Ferdinand Wenzeslaus Brix** (1798-1870)
+        - Awalnya untuk industri minuman dan gula
+        - Sekarang standar industri pertanian untuk kualitas
+        
+        ---
+        
+        ## 🔗 HUBUNGAN BRIX DENGAN KUALITAS
+        
+        ### 1. **Rasa & Sweetness**
+        ```
+        Brix Tinggi → Gula Tinggi → Rasa Lebih Manis
+        ```
+        
+        ### 2. **Nilai Nutrisi**
+        ```
+        Brix Tinggi → Mineral & Vitamin Tinggi
+        (Korelasi dengan uptake nutrisi yang baik)
+        ```
+        
+        ### 3. **Ketahanan Penyakit**
+        ```
+        Brix Tinggi → Membrana sel lebih kuat
+        → Lebih tahan patogen & serangga
+        ```
+        
+        ### 4. **Shelf Life**
+        ```
+        Brix Tinggi → Osmotic pressure tinggi
+        → Tahan lebih lama (tidak mudah busuk)
+        ```
+        
+        ### 5. **Indikator Kesehatan Tanah**
+        ```
+        Tanah sehat → Uptake nutrisi optimal
+        → Fotosintesis maksimal → Brix tinggi
+        ```
+        
+        ---
+        
+        ## 📖 TEORI CAREY REAMS
+        
+        **Dr. Carey Reams** adalah pionir High-Brix Farming:
+        
+        ### Prinsip Utama:
+        1. **"The higher the Brix, the higher the quality"**
+        2. **Soil Biology = Key** - Mikoriza & bakteri meningkatkan uptake
+        3. **Mineral Balance** - Kelebihan N menurunkan Brix
+        4. **Calcium:Phosphorus Ratio** - 7:1 ideal untuk high Brix
+        
+        ### Reams' Brix Chart:
+        | Category | Brix Range | Deskripsi |
+        |----------|------------|-----------|
+        | **Poor** | <4° | Nutrisi rendah, mudah sakit |
+        | **Average** | 4-8° | Standar pasar |
+        | **Good** | 8-12° | Premium quality |
+        | **Excellent** | 12-18° | Superior, organic grade |
+        
+        ---
+        
+        ## 📊 PRINSIP REFRAKTOMETRI
+        
+        **Cara Kerja Refraktometer:**
+        
+        ```
+        Cahaya → Melewati sampel → PEMBIASAN (refraction)
+        → Sudut pembiasan ∝ konsentrasi gula
+        → Skala Brix
+        ```
+        
+        **Indeks Refraksi (nD):**
+        - Air murni: nD = 1.333 (0° Brix)
+        - Sukrosa 20%: nD = 1.367 (20° Brix)
+        
+        ---
+        
+        ## 📚 REFERENSI ILMIAH
+        
+        1. **Reams, C. A.** (1976). *Choose Life or Death*. Holistic Agriculture Library.
+        2. **Chandler, W.** (2015). *High Brix Growing*. Permaculture Research Institute.
+        3. **Brix, A. F. W.** (1870). *Polarimetrische Zuckerbestimmung*. Braunschweig.
+        4. **Kays, S. J.** (1991). *Postharvest Physiology of Perishable Plant Products*. Springer.
+        
+        """)
+        
+        # Comparison Table
+        st.markdown("### 📊 Perbandingan Low vs High Brix")
+        
+        comparison_data = {
+            "Aspek": ["Rasa", "Warna", "Aroma", "Tekstur", "Shelf Life", "Harga Jual", "Serangga", "Penyakit"],
+            "Low Brix (<6°)": ["Hambar/Asam", "Pucat", "Lemah", "Lembek", "2-5 hari", "Standar", "Rentan", "Rentan"],
+            "High Brix (>12°)": ["Manis, Kompleks", "Cerah, Intense", "Kuat, Aromatik", "Renyah/Padat", "7-14 hari", "Premium 2-3x", "Tahan", "Tahan"]
+        }
+        st.table(pd.DataFrame(comparison_data))
+    
+    # ========== SUB-TAB 2: CARA PENGUKURAN ==========
+    with brix_ukur:
+        st.subheader("🔬 Cara Mengukur Brix")
+        
+        st.markdown("""
+        ## 🔧 JENIS REFRAKTOMETER
+        
+        ### 1. **Refraktometer Analog (Optik)**
+        - Prinsip: Melihat skala melalui eyepiece
+        - Harga: Rp 100.000 - 500.000
+        - Akurasi: ± 0.2° Brix
+        - **Keuntungan:** Murah, portable, tidak perlu baterai
+        
+        ### 2. **Refraktometer Digital**
+        - Prinsip: Sensor optik + display digital
+        - Harga: Rp 500.000 - 5.000.000
+        - Akurasi: ± 0.1° Brix
+        - **Keuntungan:** Lebih akurat, auto-temperature compensation (ATC)
+        
+        ---
+        
+        ## 📝 PROSEDUR PENGUKURAN
+        
+        ### Langkah-langkah:
+        
+        ```
+        1. KALIBRASI
+           - Bersihkan prisma dengan air suling
+           - Teteskan air suling → Harus 0° Brix
+           - Jika tidak, adjust dengan skrup kalibrasi
+        
+        2. SAMPLING
+           - Pilih bagian tanaman yang representatif
+           - Buah: Potong, peras/crush
+           - Daun: Gunakan garlic press atau blender
+           - Hindari kontaminasi
+        
+        3. PENGUKURAN
+           - Teteskan 2-3 tetes sampel ke prisma
+           - Tutup daylight plate
+           - Arahkan ke cahaya
+           - Baca skala pada garis batas terang-gelap
+        
+        4. PEMBERSIHAN
+           - Bersihkan dengan tissue lembab
+           - Jangan gores prisma
+           - Simpan dalam case
+        ```
+        
+        ---
+        
+        ## ⏰ WAKTU PENGUKURAN OPTIMAL
+        
+        | Waktu | Brix | Alasan |
+        |-------|------|--------|
+        | **Pagi (6-8 AM)** | Terendah | Respirasi malam menghabiskan gula |
+        | **Siang (12-2 PM)** | Tinggi | Fotosintesis aktif |
+        | **Sore (4-6 PM)** | **Tertinggi** | Akumulasi gula maksimal |
+        
+        **TIP:** Ukur konsisten di waktu yang sama (idealnya sore hari)
+        
+        ---
+        
+        ## ⚠️ FAKTOR YANG MEMPENGARUHI PEMBACAAN
+        
+        1. **Suhu:** Pembacaan berubah ±0.4° per 10°C
+           - Gunakan refraktometer dengan ATC (Auto Temperature Compensation)
+        
+        2. **Kontaminasi:**
+           - Kotoran/tanah → Pembacaan salah
+           - Selalu cuci sampel
+        
+        3. **Bagian Tanaman:**
+           - Buah matang > Buah muda
+           - Daun muda > Daun tua
+           - Batang < Daun < Buah
+        
+        4. **Waktu Harvest:**
+           - Konsisten ukur di waktu sama
+        
+        """)
+    
+    # ========== SUB-TAB 3: OPTIMALISASI ORGANIK ==========
+    with brix_organik:
+        st.subheader("🌿 Optimalisasi Brix - Jalur Organik")
+        
+        st.markdown("""
+        ## 🦠 BIOLOGI TANAH
+        
+        **Prinsip:** Tanah sehat = Tanaman sehat = High Brix
+        
+        ### 1. **Mikoriza (Mycorrhizal Fungi)**
+        
+        ```
+        Mikoriza → Memperluas jangkauan akar 10-1000x
+        → Uptake P, Zn, Cu meningkat
+        → Fotosintesis lebih efisien
+        → BRIX NAIK 2-4°
+        ```
+        
+        **Aplikasi:**
+        - Dosis: 5-10 gram/tanaman (inokulasi)
+        - Waktu: Saat tanam atau transplanting
+        - Produk: Glomus spp., Rhizophagus irregularis
+        
+        ### 2. **Bakteri Pelarut Fosfat**
+        
+        ```
+        Bacillus, Pseudomonas → Melarutkan P terikat
+        → P tersedia untuk tanaman
+        → Energi (ATP) untuk fotosintesis
+        → BRIX NAIK 1-2°
+        ```
+        
+        ### 3. **Rhizobium (untuk Legume)**
+        
+        ```
+        Rhizobium → Fiksasi N2 dari udara
+        → N tersedia (tanpa pupuk)
+        → Pertumbuhan optimal
+        ```
+        
+        ---
+        
+        ## 🌱 BAHAN ORGANIK
+        
+        ### 1. **Kompos Berkualitas Tinggi**
+        
+        **Kriteria:**
+        - C/N Ratio: 15-20 (sudah matang)
+        - Warna: Cokelat gelap - hitam
+        - Aroma: Tanah segar (tidak busuk)
+        
+        **Dosis:** 
+        - Sayuran: 10-20 ton/ha
+        - Buah: 5-10 kg/pohon/tahun
+        
+        ### 2. **Humic & Fulvic Acid**
+        
+        ```
+        Humic Acid → Meningkatkan CEC tanah
+        → Nutrisi tersedia lebih lama
+        → Uptake lebih efisien
+        → BRIX NAIK 2-3°
+        ```
+        
+        **Aplikasi:**
+        - Kocor: 2-5 ml/L, seminggu sekali
+        - Foliar: 1-2 ml/L, seminggu sekali
+        
+        ### 3. **Biochar**
+        
+        ```
+        Biochar → Habitat mikroba
+        → Retensi nutrisi & air
+        → Biologi tanah meningkat
+        ```
+        
+        **Dosis:** 1-5 ton/ha (sekali saja)
+        
+        ---
+        
+        ## 🧪 FERMENTASI HAYATI
+        
+        ### 1. **EM4 (Effective Microorganisms)**
+        - Dosis: 10-20 ml/L
+        - Frekuensi: Seminggu sekali
+        
+        ### 2. **PGPR (Plant Growth Promoting Rhizobacteria)**
+        - Dosis: 5-10 ml/L
+        - Waktu: Fase vegetatif
+        
+        ### 3. **MOL (Mikroorganisme Lokal)**
+        - Buat dari buah busuk + gula + air
+        - Fermentasi 14-21 hari
+        - Aplikasi: 10 ml/L
+        
+        """)
+        
+        # Organic Application Calculator
+        st.divider()
+        st.markdown("### 🧮 Kalkulator Aplikasi Organik")
+        
+        org_c1, org_c2 = st.columns(2)
+        
+        with org_c1:
+            org_luas = st.number_input("Luas Lahan (m²)", value=1000, step=100, key="org_luas")
+            org_type = st.selectbox("Jenis Bahan", ["Kompos", "Humic Acid", "EM4", "Mikoriza"], key="org_type")
+        
+        with org_c2:
+            if org_type == "Kompos":
+                dosis = 2  # kg/m²
+                st.metric("Dosis Rekomendasi", f"{dosis} kg/m²")
+                st.metric("Total Kebutuhan", f"{org_luas * dosis:,.0f} kg")
+            elif org_type == "Humic Acid":
+                dosis_ml = 3  # ml/L, 1L per m²
+                st.metric("Dosis Rekomendasi", f"{dosis_ml} ml/L")
+                st.metric("Total Kebutuhan", f"{org_luas * dosis_ml:,.0f} ml")
+            elif org_type == "EM4":
+                dosis_ml = 15  # ml/L
+                st.metric("Dosis Rekomendasi", f"{dosis_ml} ml/L")
+                st.metric("Total Kebutuhan", f"{org_luas * dosis_ml:,.0f} ml")
+            else:
+                dosis_g = 5  # gram per lubang tanam
+                populasi = org_luas // 4  # asumsi jarak 2x2m
+                st.metric("Dosis Rekomendasi", f"{dosis_g} g/tanaman")
+                st.metric("Total Kebutuhan", f"{populasi * dosis_g:,.0f} gram")
+    
+    # ========== SUB-TAB 4: OPTIMALISASI KIMIA ==========
+    with brix_kimia:
+        st.subheader("⚗️ Optimalisasi Brix - Jalur Kimia")
+        
+        st.markdown("""
+        ## 🔑 NUTRISI KUNCI UNTUK BRIX
+        
+        ### 1. **KALIUM (K)** - The Sugar Maker
+        
+        **Peran:**
+        ```
+        K → Aktivasi 60+ enzim
+        → Termasuk enzim fotosintesis
+        → Translokasi gula dari daun ke buah
+        → BRIX NAIK 2-5°
+        ```
+        
+        **Gejala Defisiensi:**
+        - Tepi daun menguning/coklat (necrosis)
+        - Buah kecil, rasa hambar
+        - Brix rendah
+        
+        **Aplikasi:**
+        | Sumber | K₂O (%) | Dosis | Waktu |
+        |--------|---------|-------|-------|
+        | KCl | 60% | 200-400 kg/ha | Tanam |
+        | K₂SO₄ | 50% | 200-400 kg/ha | Tanam + Buah |
+        | KNO₃ | 44% | Foliar 1-2% | Generatif |
+        
+        ---
+        
+        ### 2. **MAGNESIUM (Mg)** - The Chlorophyll Core
+        
+        **Peran:**
+        ```
+        Mg → INTI molekul klorofil
+        → Fotosintesis efisien
+        → Produksi gula maksimal
+        → BRIX NAIK 1-2°
+        ```
+        
+        **Gejala Defisiensi:**
+        - Interveinal chlorosis (kuning antar tulang daun)
+        - Daun tua lebih dulu
+        
+        **Aplikasi:**
+        | Sumber | Mg (%) | Dosis |
+        |--------|--------|-------|
+        | MgSO₄ (Epsom Salt) | 10% | 50-100 kg/ha |
+        | Dolomit | 5-15% | 1-2 ton/ha |
+        | Foliar MgSO₄ | - | 1-2% |
+        
+        ---
+        
+        ### 3. **BORON (B)** - Sugar Transporter
+        
+        **Peran:**
+        ```
+        B → Integritas membran sel
+        → Transportasi gula melalui phloem
+        → Kekuatan dinding sel
+        → BRIX NAIK 1-3°
+        ```
+        
+        **Gejala Defisiensi:**
+        - Growing point abnormal (dieback)
+        - Buah pecah/retak
+        - Fruit set rendah
+        
+        **Aplikasi:**
+        | Sumber | B (%) | Dosis |
+        |--------|-------|-------|
+        | Borax | 11% | 10-20 kg/ha |
+        | Boric Acid | 17% | Foliar 0.1-0.2% |
+        | Solubor | 20% | 5-10 kg/ha |
+        
+        **⚠️ HATI-HATI:** B bersifat toksik di dosis tinggi! Jangan lebih dari 2 kg/ha
+        
+        ---
+        
+        ### 4. **SULFUR (S)** - Protein Builder
+        
+        **Peran:**
+        ```
+        S → Komponen asam amino esensial
+        → Sintesis protein & enzim
+        → Aroma & rasa kompleks
+        ```
+        
+        **Aplikasi:**
+        | Sumber | S (%) | Dosis |
+        |--------|-------|-------|
+        | ZA (Ammonium Sulfate) | 24% | 150-200 kg/ha |
+        | Elemental S | 90% | 20-50 kg/ha |
+        | Gypsum | 18% | 500-1000 kg/ha |
+        
+        ---
+        
+        ## ⏰ TIMING PEMUPUKAN
+        
+        | Fase | Fokus Nutrisi | Tujuan |
+        |------|---------------|--------|
+        | **Vegetatif** | N, P | Pertumbuhan daun & akar |
+        | **Transisi** | K, Mg | Persiapan pembungaan |
+        | **Generatif** | K, B | Fruit set & pembesaran |
+        | **Pematangan** | K (tinggi), kurangi N | Akumulasi gula, BRIX maksimal |
+        
+        ### PRINSIP PENTING:
+        
+        > **KURANGI NITROGEN di fase pematangan!**
+        > N tinggi → Pertumbuhan vegetatif terus → Gula untuk daun, bukan buah
+        > → BRIX TURUN
+        
+        """)
+        
+        # Chemical Fertilizer Calculator
+        st.divider()
+        st.markdown("### 🧮 Kalkulator Pupuk untuk High Brix")
+        
+        chem_c1, chem_c2 = st.columns(2)
+        
+        with chem_c1:
+            chem_luas = st.number_input("Luas Lahan (ha)", value=1.0, step=0.1, key="chem_luas")
+            current_brix = st.number_input("Brix Saat Ini (°Bx)", value=6.0, step=0.5, key="curr_brix")
+            target_brix = st.number_input("Target Brix (°Bx)", value=12.0, step=0.5, key="tgt_brix")
+        
+        with chem_c2:
+            gap = target_brix - current_brix
+            st.metric("Gap Brix", f"{gap:.1f}°", "perlu ditingkatkan")
+            
+            # Recommendations based on gap
+            if gap > 0:
+                k_need = gap * 50  # rough estimate: 50 kg KCl per 1° Brix
+                mg_need = gap * 15
+                b_need = gap * 1.5
+                
+                st.markdown("**Rekomendasi Pemupukan:**")
+                st.markdown(f"- **K₂SO₄:** {k_need * chem_luas:.0f} kg ({k_need:.0f} kg/ha)")
+                st.markdown(f"- **MgSO₄:** {mg_need * chem_luas:.0f} kg ({mg_need:.0f} kg/ha)")
+                st.markdown(f"- **Borax:** {b_need * chem_luas:.1f} kg ({b_need:.1f} kg/ha)")
+    
+    # ========== SUB-TAB 5: STANDAR KOMODITAS ==========
+    with brix_standar:
+        st.subheader("📊 Standar Brix per Komoditas")
+        
+        # Brix Standards Database
+        brix_db = {
+            "Komoditas": [
+                # Buah
+                "🍇 Anggur", "🍓 Stroberi", "🍉 Semangka", "🍈 Melon", "🥭 Mangga",
+                "🍑 Persik", "🍎 Apel", "🍊 Jeruk", "🍌 Pisang", "🍍 Nanas",
+                # Sayuran
+                "🍅 Tomat", "🌶️ Cabai", "🥕 Wortel", "🥬 Bayam", "🥗 Selada",
+                "🥒 Timun", "🧅 Bawang Merah", "🥔 Kentang", "🌽 Jagung Manis", "🫑 Paprika"
+            ],
+            "Kategori": [
+                "Buah", "Buah", "Buah", "Buah", "Buah",
+                "Buah", "Buah", "Buah", "Buah", "Buah",
+                "Sayuran", "Sayuran", "Sayuran", "Sayuran", "Sayuran",
+                "Sayuran", "Sayuran", "Sayuran", "Sayuran", "Sayuran"
+            ],
+            "Poor": [12, 6, 8, 10, 10, 8, 8, 8, 16, 12, 4, 4, 4, 4, 2, 4, 6, 4, 10, 4],
+            "Average": [16, 10, 10, 12, 12, 10, 10, 10, 18, 14, 6, 6, 8, 6, 4, 5, 8, 6, 14, 6],
+            "Good": [20, 14, 12, 14, 14, 13, 12, 12, 20, 16, 8, 8, 12, 8, 6, 7, 10, 8, 18, 8],
+            "Excellent": [26, 16, 14, 16, 18, 16, 14, 14, 22, 18, 12, 10, 18, 12, 10, 10, 12, 10, 22, 10]
+        }
+        
+        df_brix = pd.DataFrame(brix_db)
+        
+        # Filter
+        filter_cat = st.radio("Filter Kategori:", ["Semua", "Buah", "Sayuran"], horizontal=True, key="brix_filter")
+        
+        if filter_cat != "Semua":
+            df_display = df_brix[df_brix["Kategori"] == filter_cat]
+        else:
+            df_display = df_brix
+        
+        st.dataframe(df_display, use_container_width=True, hide_index=True)
+        
+        st.markdown("""
+        ### 📖 Cara Membaca Tabel:
+        
+        | Kategori | Deskripsi |
+        |----------|-----------|
+        | **Poor** | Kualitas rendah, rasa hambar, nutrisi minimal |
+        | **Average** | Standar pasar konvensional |
+        | **Good** | Premium quality, layak organic premium |
+        | **Excellent** | Superior, harga jual 2-3x lipat |
+        
+        ---
+        
+        ### 🍇 VISUAL BRIX METER
+        """)
+        
+        # Visual Brix Meter
+        meter_commodity = st.selectbox("Pilih Komoditas:", df_brix["Komoditas"].tolist(), key="meter_comm")
+        meter_value = st.slider("Nilai Brix (°Bx)", 0.0, 30.0, 8.0, 0.5, key="meter_val")
+        
+        # Get commodity standards
+        comm_data = df_brix[df_brix["Komoditas"] == meter_commodity].iloc[0]
+        poor = comm_data["Poor"]
+        avg = comm_data["Average"]
+        good = comm_data["Good"]
+        exc = comm_data["Excellent"]
+        
+        # Determine classification
+        if meter_value < poor:
+            classification = "🔴 POOR"
+            color = "#ef4444"
+        elif meter_value < avg:
+            classification = "🟡 AVERAGE"
+            color = "#f59e0b"
+        elif meter_value < good:
+            classification = "🟢 GOOD"
+            color = "#22c55e"
+        else:
+            classification = "🌟 EXCELLENT"
+            color = "#10b981"
+        
+        # Display gauge
+        fig_brix = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=meter_value,
+            title={'text': f"Brix {meter_commodity}"},
+            gauge={
+                'axis': {'range': [0, exc + 5]},
+                'bar': {'color': color},
+                'steps': [
+                    {'range': [0, poor], 'color': "#fee2e2"},
+                    {'range': [poor, avg], 'color': "#fef3c7"},
+                    {'range': [avg, good], 'color': "#d1fae5"},
+                    {'range': [good, exc + 5], 'color': "#a7f3d0"}
+                ],
+                'threshold': {'line': {'color': "black", 'width': 4}, 'thickness': 0.75, 'value': good}
+            }
+        ))
+        fig_brix.update_layout(height=300)
+        st.plotly_chart(fig_brix, use_container_width=True)
+        
+        st.markdown(f"### Klasifikasi: **{classification}**")
+    
+    # ========== SUB-TAB 6: AI BRIX PREDICTOR ==========
+    with brix_ai:
+        st.subheader("🤖 AI Brix Predictor & Optimizer")
+        st.success("🧠 Model AI akan memprediksi Brix berdasarkan parameter input dan memberikan rekomendasi optimalisasi.")
+        
+        st.markdown("### 📝 Input Parameter")
+        
+        ai_c1, ai_c2, ai_c3 = st.columns(3)
+        
+        with ai_c1:
+            st.markdown("##### 🌱 Tanaman")
+            ai_commodity = st.selectbox("Komoditas", 
+                ["Tomat", "Stroberi", "Anggur", "Melon", "Cabai", "Wortel", "Bayam", "Selada"],
+                key="ai_comm")
+            ai_age = st.number_input("Umur Tanaman (hari)", value=60, step=5, key="ai_age")
+            ai_stage = st.selectbox("Fase Pertumbuhan", 
+                ["Vegetatif Awal", "Vegetatif Akhir", "Generatif (Bunga)", "Pembesaran Buah", "Pematangan"],
+                key="ai_stage")
+        
+        with ai_c2:
+            st.markdown("##### 🌍 Tanah & Nutrisi")
+            ai_ph = st.slider("pH Tanah", 4.0, 9.0, 6.5, 0.1, key="ai_ph")
+            ai_om = st.slider("Bahan Organik (%)", 0.0, 10.0, 2.5, 0.5, key="ai_om")
+            ai_k = st.slider("Konsentrasi K (ppm)", 50, 500, 200, 10, key="ai_k")
+            ai_mg = st.slider("Konsentrasi Mg (ppm)", 20, 300, 100, 10, key="ai_mg")
+        
+        with ai_c3:
+            st.markdown("##### ☀️ Lingkungan")
+            ai_light = st.slider("Intensitas Cahaya (%)", 20, 100, 80, 5, key="ai_light")
+            ai_temp = st.slider("Suhu Rata-rata (°C)", 15, 40, 28, 1, key="ai_temp")
+            ai_water = st.select_slider("Kondisi Irigasi", 
+                options=["Sangat Kering", "Kering", "Optimal", "Basah", "Sangat Basah"],
+                value="Optimal", key="ai_water")
+            ai_b = st.slider("Konsentrasi B (ppm)", 0.0, 5.0, 1.0, 0.1, key="ai_b")
+        
+        st.divider()
+        
+        if st.button("🚀 Prediksi Brix & Generate Rekomendasi", type="primary", key="ai_predict"):
+            
+            # AI Model (Simulation) - Weighted Factor Model
+            # Base Brix by commodity
+            base_brix = {
+                "Tomat": 6, "Stroberi": 8, "Anggur": 14, "Melon": 10,
+                "Cabai": 5, "Wortel": 6, "Bayam": 5, "Selada": 4
+            }
+            
+            # Calculate factors (0-1 scale)
+            ph_factor = 1 - abs(ai_ph - 6.5) / 3  # optimal at 6.5
+            om_factor = min(ai_om / 5, 1)  # higher is better up to 5%
+            k_factor = min(ai_k / 300, 1)  # optimal around 300 ppm
+            mg_factor = min(ai_mg / 150, 1)
+            b_factor = min(ai_b / 2, 1)  # optimal around 2 ppm
+            light_factor = ai_light / 100
+            temp_factor = 1 - abs(ai_temp - 25) / 15  # optimal at 25°C
+            
+            water_map = {"Sangat Kering": 0.4, "Kering": 0.7, "Optimal": 1.0, "Basah": 0.8, "Sangat Basah": 0.5}
+            water_factor = water_map.get(ai_water, 1.0)
+            
+            stage_multiplier = {
+                "Vegetatif Awal": 0.6, "Vegetatif Akhir": 0.75, 
+                "Generatif (Bunga)": 0.85, "Pembesaran Buah": 0.95, "Pematangan": 1.1
+            }
+            stage_mult = stage_multiplier.get(ai_stage, 1.0)
+            
+            # Weighted calculation
+            quality_score = (
+                k_factor * 0.25 +
+                om_factor * 0.20 +
+                mg_factor * 0.12 +
+                b_factor * 0.10 +
+                ph_factor * 0.10 +
+                light_factor * 0.10 +
+                water_factor * 0.08 +
+                temp_factor * 0.05
+            )
+            
+            predicted_brix = base_brix.get(ai_commodity, 6) * quality_score * 1.5 * stage_mult
+            predicted_brix = round(predicted_brix, 1)
+            
+            # Get commodity standards
+            comm_standards = df_brix[df_brix["Komoditas"].str.contains(ai_commodity, case=False)]
+            if not comm_standards.empty:
+                target_brix = comm_standards.iloc[0]["Good"]
+            else:
+                target_brix = 10
+            
+            # Classification
+            if predicted_brix < target_brix * 0.5:
+                classification = "🔴 POOR"
+            elif predicted_brix < target_brix * 0.75:
+                classification = "🟡 AVERAGE"
+            elif predicted_brix < target_brix:
+                classification = "🟢 GOOD"
+            else:
+                classification = "🌟 EXCELLENT"
+            
+            # Display Results
+            st.markdown("---")
+            st.markdown("### 📊 Hasil Prediksi AI")
+            
+            res_c1, res_c2, res_c3 = st.columns(3)
+            
+            with res_c1:
+                st.metric("Prediksi Brix", f"{predicted_brix}°Bx")
+            with res_c2:
+                st.metric("Klasifikasi", classification)
+            with res_c3:
+                gap = target_brix - predicted_brix
+                st.metric("Gap vs Target", f"{gap:+.1f}°", f"Target: {target_brix}°Bx")
+            
+            # Optimization Recommendations
+            st.markdown("### 🎯 Rekomendasi Optimalisasi AI")
+            
+            # Identify weak factors
+            factors = {
+                "Kalium (K)": (k_factor, "Tingkatkan pemupukan K₂SO₄ (200-400 kg/ha) terutama di fase generatif"),
+                "Bahan Organik": (om_factor, "Tambahkan kompos 10-20 ton/ha dan humic acid 2ml/L"),
+                "Magnesium (Mg)": (mg_factor, "Aplikasi MgSO₄ foliar 1-2% setiap minggu"),
+                "Boron (B)": (b_factor, "Semprot Boric acid 0.1-0.2% saat pembungaan"),
+                "pH Tanah": (ph_factor, f"Adjust pH ke 6.5 (saat ini {ai_ph})"),
+                "Cahaya": (light_factor, "Tingkatkan paparan cahaya (pruning, spacing)"),
+                "Irigasi": (water_factor, "Terapkan deficit irrigation di fase pematangan")
+            }
+            
+            # Sort by lowest score
+            sorted_factors = sorted(factors.items(), key=lambda x: x[1][0])
+            
+            st.markdown("**Top 3 Faktor yang Perlu Diperbaiki:**")
+            
+            for i, (factor_name, (score, recommendation)) in enumerate(sorted_factors[:3], 1):
+                score_pct = score * 100
+                if score_pct < 50:
+                    status = "🔴 Kritis"
+                elif score_pct < 75:
+                    status = "🟡 Perlu Perhatian"
+                else:
+                    status = "🟢 Cukup Baik"
+                
+                with st.expander(f"**{i}. {factor_name}** - Score: {score_pct:.0f}% {status}"):
+                    st.markdown(f"**Rekomendasi:** {recommendation}")
+                    st.progress(score)
+            
+            # Expected Improvement
+            st.markdown("### 📈 Proyeksi Perbaikan")
+            
+            potential_improvement = (1 - quality_score) * base_brix.get(ai_commodity, 6) * 0.5
+            projected_brix = predicted_brix + potential_improvement
+            
+            improve_data = pd.DataFrame({
+                "Status": ["Saat Ini", "Proyeksi (3 bulan)"],
+                "Brix": [predicted_brix, round(projected_brix, 1)]
+            })
+            
+            fig_improve = px.bar(improve_data, x="Status", y="Brix", 
+                                title="Proyeksi Peningkatan Brix",
+                                text="Brix", color="Status",
+                                color_discrete_map={"Saat Ini": "#f59e0b", "Proyeksi (3 bulan)": "#10b981"})
+            fig_improve.update_traces(textposition='outside')
+            fig_improve.add_hline(y=target_brix, line_dash="dash", line_color="red",
+                                 annotation_text=f"Target: {target_brix}°Bx")
+            st.plotly_chart(fig_improve, use_container_width=True)
+            
+            st.success(f"✅ Dengan menerapkan rekomendasi di atas, Brix dapat meningkat dari **{predicted_brix}°Bx** ke **{round(projected_brix, 1)}°Bx** dalam 2-3 bulan!")
+
+
 # Save message
-st.success("✅ Module Fisiologi Tumbuhan berhasil dibuat!")
-st.info("💡 Module ini mencakup hormon tumbuhan lengkap dengan sumber alami seperti anggur hijau untuk GA3/GA7!")
+st.success("✅ Module Fisiologi Tumbuhan berhasil dimuat!")
+st.info("💡 Module ini mencakup hormon tumbuhan lengkap dengan sumber alami + Analisis Brix dengan AI Predictor!")
