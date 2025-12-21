@@ -2540,6 +2540,121 @@ with tab_krisan:
                     diff = survival_aktual - survival_rab
                     st.metric("Selisih", f"{diff:+.1f}%", 
                              delta="Lebih Baik" if diff > 0 else "Kurang")
+                
+                # ===== EXPORT & HISTORY SECTION =====
+                st.divider()
+                st.markdown("### 📥 Export & Histori Panen")
+                
+                exp_col1, exp_col2 = st.columns(2)
+                
+                with exp_col1:
+                    st.markdown("#### 📊 Export RAB ke Excel")
+                    
+                    # Prepare export data
+                    export_rab = pd.DataFrame({
+                        "Kategori": ["CAPEX", "CAPEX", "CAPEX", "CAPEX", "CAPEX", 
+                                    "OPEX", "OPEX", "OPEX", "OPEX", "OPEX", "OPEX", "OPEX", "OPEX", "OPEX",
+                                    "HASIL", "HASIL", "HASIL", "HASIL"],
+                        "Komponen": [
+                            "Greenhouse", "Irigasi", "Lampu", "Peralatan", "Total Modal",
+                            "Bibit", "Pupuk", "Pestisida", "Listrik", "Tenaga Kerja", 
+                            "Penyusutan", "Dambo", "Packing", "Lain-lain",
+                            "Pendapatan Kotor", "Total OPEX", "Laba Operasional", "ROI"
+                        ],
+                        "Nilai (Rp)": [
+                            modal_greenhouse, modal_irigasi, modal_lampu, modal_peralatan, total_modal,
+                            biaya_bibit_total, biaya_pupuk_total, biaya_pestisida_total, 
+                            biaya_listrik_total, biaya_tenaga_kerja, penyusutan_per_siklus,
+                            biaya_dambo, biaya_packing_total, biaya_lainnya,
+                            pendapatan_kotor, total_opex, laba_operasional, f"{roi_operasional:.1f}%"
+                        ]
+                    })
+                    
+                    # Create grading export
+                    export_grading = pd.DataFrame({
+                        "Tipe": ["Normal"]*5 + ["Rusak"]*4,
+                        "Grade": [60, 80, 100, 120, 160, "R-80", "R-100", "R-160", "R-200"],
+                        "Jumlah Ikat": [grade_inputs.get(g, 0) for g in grades] + 
+                                      [rusak_inputs.get(g, 0) for g in grades_rusak],
+                        "Total Batang": [g * grade_inputs.get(g, 0) for g in grades] +
+                                       [rusak_batang[g] * rusak_inputs.get(g, 0) for g in grades_rusak]
+                    })
+                    
+                    # Download buttons
+                    from io import BytesIO
+                    
+                    def to_excel():
+                        output = BytesIO()
+                        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                            export_rab.to_excel(writer, sheet_name='RAB', index=False)
+                            export_grading.to_excel(writer, sheet_name='Grading', index=False)
+                        return output.getvalue()
+                    
+                    excel_data = to_excel()
+                    st.download_button(
+                        label="📥 Download RAB (Excel)",
+                        data=excel_data,
+                        file_name=f"RAB_Krisan_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                
+                with exp_col2:
+                    st.markdown("#### 📅 Simpan ke Histori Panen")
+                    
+                    # Initialize history in session state
+                    if 'krisan_history' not in st.session_state:
+                        st.session_state.krisan_history = []
+                    
+                    nama_siklus = st.text_input("Nama Siklus (contoh: Siklus Jan 2024)", 
+                                               value=f"Siklus {datetime.now().strftime('%b %Y')}")
+                    
+                    if st.button("💾 Simpan ke Histori", type="primary"):
+                        record = {
+                            "nama": nama_siklus,
+                            "tanggal": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                            "populasi": int(pop_for_rab),
+                            "batang_panen": int(total_batang_grading),
+                            "survival": round(survival_aktual, 1),
+                            "pendapatan": int(total_pendapatan_grading),
+                            "laba": int(laba_aktual),
+                            "roi": round(roi_aktual, 1),
+                            "normal_ikat": int(total_ikat_normal),
+                            "rusak_ikat": int(total_ikat_rusak)
+                        }
+                        st.session_state.krisan_history.append(record)
+                        st.success(f"✅ Disimpan: {nama_siklus}")
+                
+                # Show history
+                if st.session_state.get('krisan_history'):
+                    st.divider()
+                    st.markdown("#### 📈 Histori Panen")
+                    
+                    history_df = pd.DataFrame(st.session_state.krisan_history)
+                    history_df["Survival"] = history_df["survival"].astype(str) + "%"
+                    history_df["ROI"] = history_df["roi"].astype(str) + "%"
+                    history_df["Pendapatan"] = history_df["pendapatan"].apply(lambda x: f"Rp {x:,}")
+                    history_df["Laba"] = history_df["laba"].apply(lambda x: f"Rp {x:,}")
+                    
+                    display_df = history_df[["nama", "tanggal", "batang_panen", "Survival", "Pendapatan", "Laba", "ROI"]]
+                    display_df.columns = ["Siklus", "Tanggal", "Batang", "Survival", "Pendapatan", "Laba", "ROI"]
+                    st.dataframe(display_df, use_container_width=True, hide_index=True)
+                    
+                    # Stats summary
+                    if len(st.session_state.krisan_history) > 1:
+                        hist_stats1, hist_stats2, hist_stats3 = st.columns(3)
+                        with hist_stats1:
+                            avg_roi = sum(r['roi'] for r in st.session_state.krisan_history) / len(st.session_state.krisan_history)
+                            st.metric("Rata-rata ROI", f"{avg_roi:.1f}%")
+                        with hist_stats2:
+                            avg_surv = sum(r['survival'] for r in st.session_state.krisan_history) / len(st.session_state.krisan_history)
+                            st.metric("Rata-rata Survival", f"{avg_surv:.1f}%")
+                        with hist_stats3:
+                            total_laba = sum(r['laba'] for r in st.session_state.krisan_history)
+                            st.metric("Total Laba Kumulatif", f"Rp {total_laba:,}")
+                    
+                    if st.button("🗑️ Hapus Semua Histori"):
+                        st.session_state.krisan_history = []
+                        st.rerun()
             else:
                 st.warning("⚠️ Masukkan data grading untuk melihat visualisasi dan perbandingan")
         
