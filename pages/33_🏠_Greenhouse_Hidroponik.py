@@ -29,13 +29,14 @@ st.title("🏠 Greenhouse & Sistem Hidroponik")
 st.markdown("**Teknologi Budidaya Terkendali untuk Tanaman Bernilai Tinggi**")
 
 # Main tabs
-tab_greenhouse, tab_hydro, tab_nutrients, tab_climate, tab_economics, tab_3k = st.tabs([
+tab_greenhouse, tab_hydro, tab_nutrients, tab_climate, tab_economics, tab_3k, tab_krisan = st.tabs([
     "🏠 Greenhouse",
     "💧 Sistem Hidroponik",
     "🧪 Nutrisi & pH",
     "🌡️ Kontrol Iklim",
     "💰 Analisis Ekonomi",
-    "🚀 Manajemen 3K (Sustainable)"
+    "🚀 Manajemen 3K (Sustainable)",
+    "🌸 Krisan Spray Jepang"
 ])
 
 # ===== TAB 1: GREENHOUSE =====
@@ -1487,5 +1488,583 @@ with tab_3k:
         """)
 
     st.divider()
+
+# ===== TAB 7: KRISAN SPRAY JEPANG =====
+with tab_krisan:
+    st.header("🌸 Budidaya Krisan Spray Jepang")
+    st.markdown("**Panduan Lengkap SOP Budidaya dari Hulu hingga Hilir**")
+    
+    # Sub-tabs
+    kr_timeline, kr_lahan, kr_bibit, kr_net, kr_irigasi, kr_lampu, kr_dambo, kr_panen, kr_pasca, kr_grading = st.tabs([
+        "📋 Timeline",
+        "🌱 Persiapan Lahan",
+        "🌿 Bibit & Tanam",
+        "🕸️ Sistem Net",
+        "💧 Irigasi & Nutrisi",
+        "💡 Sistem Lampu",
+        "🔥 Mesin Dambo",
+        "🌾 Panen",
+        "✂️ Pasca Panen",
+        "📦 Grading & Packing"
+    ])
+    
+    # ========== SUB-TAB 1: TIMELINE ==========
+    with kr_timeline:
+        st.subheader("📋 Timeline Budidaya Krisan Spray (90-120 Hari)")
+        
+        st.markdown("""
+        ### 🎯 Overview Siklus Tanam
+        
+        | Fase | Durasi | Aktivitas Utama |
+        |:-----|:-------|:----------------|
+        | **Persiapan Lahan** | 14 hari | Olah tanah, solarisasi, bedengan |
+        | **Vegetatif** | 30-45 hari | Long Day (16 jam), pertumbuhan batang |
+        | **Transisi** | 7-10 hari | Mulai Short Day, inisiasi bunga |
+        | **Generatif** | 45-60 hari | Short Day, pembungaan |
+        | **Panen** | 1-3 hari | Potong, grading, packing |
+        
+        ---
+        
+        ### 📅 Timeline Detail per Hari
+        """)
+        
+        # Visual timeline
+        timeline_data = pd.DataFrame({
+            "HST": [0, 7, 14, 21, 28, 35, 42, 56, 70, 84, 100, 110],
+            "Aktivitas": [
+                "Tanam bibit",
+                "Pemasangan Net 1 (15cm)",
+                "Pupuk dasar NPK 16-16-16",
+                "Net 2 (30cm), Mulai Long Day",
+                "Net 3 (45cm), Penyemprotan rutin",
+                "Switch ke Short Day",
+                "Net 4 (60cm), Pupuk NPK 10-30-20",
+                "Kuncup mulai terlihat",
+                "Net 5 (75cm), Pupuk NPK 10-10-40",
+                "Warna bunga mulai muncul",
+                "Panen Grade 60-80",
+                "Panen Grade 100-160"
+            ],
+            "Fase": ["Start", "Vegetatif", "Vegetatif", "Vegetatif", "Vegetatif", 
+                    "Transisi", "Generatif", "Generatif", "Generatif", "Generatif",
+                    "Panen", "Panen"]
+        })
+        
+        fig_timeline = go.Figure()
+        
+        colors = {"Start": "#10b981", "Vegetatif": "#3b82f6", "Transisi": "#f59e0b", 
+                  "Generatif": "#8b5cf6", "Panen": "#ef4444"}
+        
+        for fase in timeline_data["Fase"].unique():
+            df = timeline_data[timeline_data["Fase"] == fase]
+            fig_timeline.add_trace(go.Scatter(
+                x=df["HST"],
+                y=[1] * len(df),
+                mode="markers+text",
+                marker=dict(size=20, color=colors[fase]),
+                text=df["Aktivitas"],
+                textposition="top center",
+                name=fase
+            ))
+        
+        fig_timeline.update_layout(
+            title="Timeline Budidaya Krisan Spray",
+            xaxis_title="Hari Setelah Tanam (HST)",
+            yaxis_visible=False,
+            height=300,
+            showlegend=True
+        )
+        
+        st.plotly_chart(fig_timeline, use_container_width=True)
+        
+    # ========== SUB-TAB 2: PERSIAPAN LAHAN ==========
+    with kr_lahan:
+        st.subheader("🌱 Persiapan Lahan")
+        
+        st.markdown("""
+        ### 1️⃣ Olah Tanah
+        
+        | Langkah | Detail | Durasi |
+        |:--------|:-------|:-------|
+        | **Pembersihan** | Bersihkan sisa tanaman, gulma, akar | 1 hari |
+        | **Pencangkulan** | Kedalaman 30-40 cm | 1-2 hari |
+        | **Penggemburan** | Gunakan traktor mini/cangkul | 1 hari |
+        | **Pemupukan Dasar** | Pupuk kandang 10-20 ton/ha | 1 hari |
+        | **Pencampuran** | Aduk rata pupuk dengan tanah | 1 hari |
+        
+        ---
+        
+        ### 2️⃣ Solarisasi (Penutupan Plastik)
+        
+        **Tujuan:**
+        - Sterilisasi tanah dari patogen
+        - Matikan gulma dan benih gulma
+        - Tingkatkan suhu tanah (50-60°C)
+        
+        **Cara:**
+        ```
+        1. Siram tanah hingga basah merata
+        2. Tutup dengan plastik transparan (UV 200 micron)
+        3. Tekan pinggir dengan tanah/batu
+        4. Biarkan 10-14 hari (cuaca cerah)
+        5. Buka plastik, anginkan 2-3 hari sebelum tanam
+        ```
+        
+        ---
+        
+        ### 3️⃣ Pembuatan Bedengan
+        
+        | Parameter | Ukuran |
+        |:----------|:-------|
+        | **Lebar bedengan** | 100-120 cm |
+        | **Tinggi bedengan** | 20-30 cm |
+        | **Jarak antar bedengan** | 40-50 cm |
+        | **Panjang** | Sesuai greenhouse |
+        
+        **Tips:**
+        - Permukaan rata dan padat
+        - Kemiringan drainase 1-2%
+        - Pasang selang irigasi sebelum tanam
+        """)
+        
+    # ========== SUB-TAB 3: BIBIT & TANAM ==========
+    with kr_bibit:
+        st.subheader("🌿 Penyiapan Bibit & Tanam")
+        
+        st.markdown("""
+        ### 1️⃣ Sumber Bibit
+        
+        **Dari Mother Plant (Indukan):**
+        ```
+        - Pilih tanaman induk sehat, produktif
+        - Umur indukan: 3-6 bulan
+        - Potong stek pucuk 8-10 cm (3-4 daun)
+        - Buang daun bawah, sisakan 2-3 daun atas
+        ```
+        
+        ---
+        
+        ### 2️⃣ Perlakuan Stek
+        
+        | Langkah | Detail |
+        |:--------|:-------|
+        | **Hormon** | Celup pangkal ke IBA 500-1000 ppm (5 detik) |
+        | **Media Rooting** | Cocopeat : Perlite = 1:1 |
+        | **Wadah** | Tray semai 72-128 lubang |
+        | **Kelembaban** | Tutup plastik/misting, RH 80-90% |
+        | **Durasi** | 10-14 hari sampai berakar |
+        
+        ---
+        
+        ### 3️⃣ Jarak Tanam
+        
+        | Konfigurasi | Jarak | Populasi |
+        |:------------|:------|:---------|
+        | **Standar** | 12.5 × 12.5 cm | 64 tanaman/m² |
+        | **Rapat** | 10 × 10 cm | 100 tanaman/m² |
+        | **Longgar** | 15 × 15 cm | 44 tanaman/m² |
+        
+        ---
+        
+        ### 4️⃣ Teknik Tanam
+        
+        ```
+        1. Buat lubang tanam kedalaman 3-5 cm
+        2. Masukkan bibit berakar
+        3. Padatkan tanah di sekitar pangkal
+        4. Siram langsung setelah tanam
+        5. Pasang mulsa plastik hitam perak (opsional)
+        ```
+        """)
+        
+    # ========== SUB-TAB 4: SISTEM NET ==========
+    with kr_net:
+        st.subheader("🕸️ Sistem Penopang Net")
+        
+        st.markdown("""
+        ### 🎯 Fungsi Net
+        
+        - **Menegakkan batang** agar tidak rebah
+        - **Menjaga kerapatan** jarak tanam
+        - **Memudahkan panen** dengan batang lurus
+        
+        ---
+        
+        ### 📐 Spesifikasi Net
+        
+        | Parameter | Ukuran |
+        |:----------|:-------|
+        | **Bahan** | Jaring nylon/plastik |
+        | **Mesh Size** | 12.5 × 12.5 cm |
+        | **Lebar** | Sesuai bedengan (100-120 cm) |
+        | **Layer** | 4-5 layer bertahap |
+        """)
+        
+        st.markdown("### 📅 Jadwal Angkat Net")
+        
+        net_schedule = pd.DataFrame({
+            "Layer": ["Net 1", "Net 2", "Net 3", "Net 4", "Net 5"],
+            "HST": [7, 21, 35, 49, 63],
+            "Tinggi (cm)": [15, 30, 45, 60, 75],
+            "Keterangan": [
+                "Pasang pertama, tanaman masih pendek",
+                "Tanaman mulai tinggi, angkat net",
+                "Fase vegetatif aktif",
+                "Mulai generatif, batang mengeras",
+                "Posisi final, siap panen"
+            ]
+        })
+        
+        st.dataframe(net_schedule, use_container_width=True, hide_index=True)
+        
+        st.info("""
+        💡 **Tips:**
+        - Angkat net perlahan (jangan sampai batang patah)
+        - Pastikan semua tanaman masuk lubang net
+        - Gunakan tiang bambu/besi sebagai penyangga net
+        """)
+        
+    # ========== SUB-TAB 5: IRIGASI & NUTRISI ==========
+    with kr_irigasi:
+        st.subheader("💧 Sistem Irigasi & Pemupukan")
+        
+        st.markdown("""
+        ### 1️⃣ Sistem Irigasi Nozzle/Sprinkler
+        
+        | Parameter | Setting |
+        |:----------|:--------|
+        | **Tipe** | Sprinkler overhead / Nozzle misting |
+        | **Tekanan** | 2-3 bar |
+        | **Frekuensi** | 2-3x/hari |
+        | **Durasi** | 5-10 menit/sesi |
+        | **Waktu** | Pagi (06:00), Siang (12:00), Sore (16:00) |
+        
+        ---
+        
+        ### 2️⃣ Pola Pupuk Dasar
+        """)
+        
+        pupuk_schedule = pd.DataFrame({
+            "Fase": ["Vegetatif", "Vegetatif", "Transisi", "Generatif", "Generatif"],
+            "HST": ["7-28", "28-35", "35-42", "42-70", "70+"],
+            "Pupuk": ["NPK 16-16-16", "NPK 16-16-16 + Urea", "NPK 10-30-20", "NPK 10-10-40", "KNO₃"],
+            "Dosis": ["2-3 g/L", "2 g/L + 1 g/L", "2 g/L", "2-3 g/L", "1-2 g/L"],
+            "Frekuensi": ["2x/minggu", "2x/minggu", "2x/minggu", "2x/minggu", "1x/minggu"],
+            "Tujuan": ["Pertumbuhan awal", "Dorong vegetatif", "Inisiasi bunga", "Pembungaan", "Warna bunga"]
+        })
+        
+        st.dataframe(pupuk_schedule, use_container_width=True, hide_index=True)
+        
+        st.markdown("""
+        ---
+        
+        ### 3️⃣ Penyemprotan Rutin
+        
+        | Aplikasi | Bahan | Frekuensi |
+        |:---------|:------|:----------|
+        | **Fungisida** | Mancozeb, Propineb | 1x/minggu |
+        | **Insektisida** | Abamectin, Imidacloprid | 1x/minggu |
+        | **Pupuk Daun** | Gandasil D/B | 1x/minggu |
+        | **ZPT** | Gibberellin (opsional) | 2x selama vegetatif |
+        """)
+        
+    # ========== SUB-TAB 6: SISTEM LAMPU ==========
+    with kr_lampu:
+        st.subheader("💡 Sistem Lampu Otomatis (Photoperiod)")
+        
+        st.markdown("""
+        ### 🎯 Prinsip Photoperiod Krisan
+        
+        Krisan adalah **Short Day Plant** (tanaman hari pendek):
+        - **Long Day (LD)**: 16+ jam terang → tetap VEGETATIF
+        - **Short Day (SD)**: 10-12 jam terang → BERBUNGA
+        
+        ---
+        
+        ### 💡 Pengaturan Lampu
+        
+        | Fase | Durasi Terang | Durasi | Tujuan |
+        |:-----|:--------------|:-------|:-------|
+        | **Long Day** | 16-18 jam | HST 1-35 | Pertumbuhan batang tinggi |
+        | **Transisi** | 14 jam | HST 35-42 | Penyesuaian |
+        | **Short Day** | 10-12 jam | HST 42+ | Induksi pembungaan |
+        
+        ---
+        
+        ### ⚙️ Setup Teknis
+        
+        | Parameter | Rekomendasi |
+        |:----------|:------------|
+        | **Tipe Lampu** | LED grow light / Incandescent 100W |
+        | **Intensitas** | Minimal 10 lux di permukaan tanaman |
+        | **Tinggi Lampu** | 2-3 m dari permukaan tanah |
+        | **Jarak Antar Lampu** | 3-4 m |
+        | **Timer** | Digital timer ON/OFF otomatis |
+        
+        ---
+        
+        ### ⏰ Contoh Setting Timer
+        
+        **Long Day (HST 1-35):**
+        ```
+        Lampu ON : 04:00 - 08:00 (4 jam pagi)
+        Lampu ON : 17:00 - 21:00 (4 jam sore)
+        Total    : 8 jam tambahan + 8 jam siang = 16 jam terang
+        ```
+        
+        **Short Day (HST 42+):**
+        ```
+        Lampu OFF, andalkan cahaya matahari alami
+        Durasi terang alami: ~11-12 jam
+        ```
+        """)
+        
+    # ========== SUB-TAB 7: MESIN DAMBO ==========
+    with kr_dambo:
+        st.subheader("🔥 Mesin Dambo (Pengasapan CO₂)")
+        
+        st.markdown("""
+        ### 🎯 Fungsi Mesin Dambo
+        
+        1. **Meningkatkan CO₂** di greenhouse (optimal 800-1200 ppm)
+        2. **Pengendalian hama** melalui asap
+        3. **Meningkatkan fotosintesis** → bunga lebih besar
+        
+        ---
+        
+        ### ⚙️ Spesifikasi Mesin Dambo
+        
+        | Parameter | Nilai |
+        |:----------|:------|
+        | **Bahan Bakar** | Solar / Minyak Tanah |
+        | **Konsumsi BBM** | 0.5 - 1 Liter/jam |
+        | **Kapasitas** | 1 unit per 500-1000 m² |
+        | **Output** | Asap CO₂ + uap air |
+        
+        ---
+        
+        ### ⏰ Jadwal Pengoperasian
+        """)
+        
+        dambo_schedule = pd.DataFrame({
+            "Parameter": ["Waktu Operasi", "Durasi", "Frekuensi", "Fase Aktif"],
+            "Setting": ["21:00 - 05:00 (malam)", "2-3 jam/malam", "2-3x per minggu", "HST 14 - Panen"]
+        })
+        
+        st.dataframe(dambo_schedule, use_container_width=True, hide_index=True)
+        
+        st.markdown("""
+        ---
+        
+        ### 📊 Kalkulasi Bahan Bakar
+        """)
+        
+        dambo_col1, dambo_col2 = st.columns(2)
+        
+        with dambo_col1:
+            durasi_per_malam = st.number_input("Durasi per Malam (jam)", 1.0, 5.0, 2.5, 0.5)
+            frekuensi_minggu = st.number_input("Frekuensi per Minggu", 1, 7, 3, 1)
+            durasi_tanam = st.number_input("Durasi Tanam (minggu)", 8, 16, 12, 1)
+            harga_bbm = st.number_input("Harga BBM (Rp/L)", 5000, 20000, 7000, 500)
+        
+        with dambo_col2:
+            konsumsi_per_jam = 0.75  # L/jam (rata-rata)
+            total_jam = durasi_per_malam * frekuensi_minggu * durasi_tanam
+            total_bbm = total_jam * konsumsi_per_jam
+            total_biaya = total_bbm * harga_bbm
+            
+            st.metric("Total Jam Operasi", f"{total_jam:.0f} jam")
+            st.metric("Total BBM", f"{total_bbm:.1f} Liter")
+            st.metric("Total Biaya BBM", f"Rp {total_biaya:,.0f}")
+        
+    # ========== SUB-TAB 8: PANEN ==========
+    with kr_panen:
+        st.subheader("🌾 Panen")
+        
+        st.markdown("""
+        ### 📅 Waktu Panen Berdasarkan Durasi Tanam
+        
+        | Durasi | Grade Target | Karakteristik |
+        |:-------|:-------------|:--------------|
+        | **90 hari** | Grade 60-80 | Batang pendek, bunga kecil |
+        | **100 hari** | Grade 80-100 | Batang sedang, bunga sedang |
+        | **110 hari** | Grade 100-120 | Batang tinggi, bunga besar |
+        | **120 hari** | Grade 120-160 | Batang premium, bunga premium |
+        
+        ---
+        
+        ### ✅ Kriteria Panen
+        
+        | Kriteria | Standar |
+        |:---------|:--------|
+        | **Tahap Bunga** | 2-3 kuntum bunga sudah mekar |
+        | **Warna** | Warna bunga sudah optimal/stabil |
+        | **Kekuatan Batang** | Batang keras, tidak mudah patah |
+        | **Waktu Panen** | Pagi hari (05:00-08:00) sebelum matahari terik |
+        
+        ---
+        
+        ### 🔪 Teknik Panen
+        
+        ```
+        1. Siram tanaman sehari sebelum panen (sore hari)
+        2. Panen pagi hari (tangkai lebih segar)
+        3. Potong di pangkal batang dekat tanah
+        4. Langsung masukkan ke ember berisi air bersih
+        5. Pindahkan ke tempat teduh untuk processing
+        ```
+        """)
+        
+    # ========== SUB-TAB 9: PASCA PANEN ==========
+    with kr_pasca:
+        st.subheader("✂️ Penanganan Pasca Panen")
+        
+        st.markdown("""
+        ### 📋 Alur Pasca Panen
+        
+        ```
+        Panen → Rendam → Ratakan → Potong → Ikat → Plastik → Packing
+        ```
+        
+        ---
+        
+        ### 1️⃣ Perendaman
+        
+        | Parameter | Detail |
+        |:----------|:-------|
+        | **Wadah** | Ember besar / bak plastik |
+        | **Larutan** | Air bersih + preservative (Chrysal/Floralife) |
+        | **Durasi** | 2-4 jam (hidrasi) |
+        | **Suhu** | Air dingin (15-20°C) |
+        
+        ---
+        
+        ### 2️⃣ Perataan (Grading Awal)
+        
+        - Ratakan tinggi batang di meja sortir
+        - Kelompokkan berdasarkan tinggi (90cm, 80cm, 70cm)
+        - Pisahkan bunga rusak/cacat
+        
+        ---
+        
+        ### 3️⃣ Pemotongan
+        
+        | Alat | Fungsi |
+        |:-----|:-------|
+        | **Mesin Potong** | Potong pangkal batang rata (sesuai ukuran grade) |
+        | **Gunting Tajam** | Potong manual untuk grade rusak |
+        
+        **Panjang Standar:**
+        - Grade A: 90 cm
+        - Grade B (rusak sedikit): 80 cm
+        - Grade C (rusak): 70 cm
+        
+        ---
+        
+        ### 4️⃣ Pengikatan
+        
+        | Parameter | Standar |
+        |:----------|:--------|
+        | **Alat Ikat** | Karet gelang / tali plastik |
+        | **Posisi Ikat** | 2 titik (10 cm dari pangkal, 30 cm dari pangkal) |
+        | **Jumlah per Ikat** | Sesuai grade (60/80/100/120/160 batang) |
+        
+        ---
+        
+        ### 5️⃣ Pemasangan Plastik Pelindung
+        
+        ```
+        - Plastik sleeve transparan (panjang 50-70 cm)
+        - Masukkan dari atas (bunga masuk duluan)
+        - Fungsi: Lindungi bunga dari benturan
+        ```
+        """)
+        
+    # ========== SUB-TAB 10: GRADING & PACKING ==========
+    with kr_grading:
+        st.subheader("📦 Sistem Grading & Packing")
+        
+        st.markdown("""
+        ### 🎯 Sistem Grading Krisan Spray
+        
+        **Angka Grade = Jumlah Batang per Ikat (Bundle)**
+        
+        > Contoh: **Grade 80** = 1 ikat berisi **80 batang** krisan
+        
+        ---
+        
+        ### ✅ Grade Normal (Kualitas A) - Panjang 90 cm
+        """)
+        
+        grade_normal = pd.DataFrame({
+            "Grade": [60, 80, 100, 120, 160],
+            "Jumlah Batang": ["60 batang/ikat", "80 batang/ikat", "100 batang/ikat", "120 batang/ikat", "160 batang/ikat"],
+            "Panjang": ["90 cm", "90 cm", "90 cm", "90 cm", "90 cm"],
+            "Keterangan": ["Ekonomis", "Standar", "Premium", "Super", "Jumbo"]
+        })
+        
+        st.dataframe(grade_normal, use_container_width=True, hide_index=True)
+        
+        st.markdown("""
+        ---
+        
+        ### ⚠️ Grade Rusak/BS (Kualitas B) - Panjang di Bawah Standar
+        """)
+        
+        grade_rusak = pd.DataFrame({
+            "Grade": ["R-80", "R-100", "R-160", "R-200"],
+            "Jumlah Batang": ["80 batang", "100 batang", "160 batang", "200 batang"],
+            "Panjang": ["80 cm", "80 cm", "70 cm", "70 cm"],
+            "Alasan": ["Sedikit pendek", "Sedikit pendek", "Pendek", "Sangat pendek"],
+            "Pasar": ["Lokal", "Lokal", "Lokal", "Lokal"]
+        })
+        
+        st.dataframe(grade_rusak, use_container_width=True, hide_index=True)
+        
+        st.markdown("""
+        ---
+        
+        ### 📦 Standar Packing
+        
+        | Kemasan | Isi | Keterangan |
+        |:--------|:----|:-----------|
+        | **Karton Box** | 10-20 ikat | Untuk ekspor/jarak jauh |
+        | **Bucket** | 5-10 ikat | Untuk pasar lokal |
+        | **Plastik Wrap** | Per ikat | Perlindungan tambahan |
+        
+        ---
+        
+        ### 💰 Kalkulator Estimasi Pendapatan
+        """)
+        
+        calc_col1, calc_col2 = st.columns(2)
+        
+        with calc_col1:
+            luas_greenhouse = st.number_input("Luas Greenhouse (m²)", 100, 10000, 1000, 100)
+            populasi_per_m2 = st.number_input("Populasi per m²", 40, 100, 64, 4)
+            survival_rate = st.slider("Survival Rate (%)", 70, 100, 85, 5)
+            grade_mayoritas = st.selectbox("Grade Mayoritas", [60, 80, 100, 120, 160])
+            harga_per_ikat = st.number_input("Harga per Ikat (Rp)", 50000, 200000, 80000, 5000)
+        
+        with calc_col2:
+            total_tanaman = luas_greenhouse * populasi_per_m2
+            tanaman_panen = total_tanaman * (survival_rate / 100)
+            jumlah_ikat = tanaman_panen / grade_mayoritas
+            total_pendapatan = jumlah_ikat * harga_per_ikat
+            
+            st.metric("Total Tanaman", f"{total_tanaman:,.0f}")
+            st.metric("Tanaman Panen", f"{tanaman_panen:,.0f}")
+            st.metric("Jumlah Ikat", f"{jumlah_ikat:,.0f} ikat")
+            st.metric("💰 Total Pendapatan", f"Rp {total_pendapatan:,.0f}")
+        
+        st.success(f"""
+        **Ringkasan:**
+        - Luas: {luas_greenhouse} m² × {populasi_per_m2} tanaman = {total_tanaman:,.0f} tanaman
+        - Survival {survival_rate}% = {tanaman_panen:,.0f} tanaman panen
+        - {tanaman_panen:,.0f} ÷ {grade_mayoritas} = **{jumlah_ikat:,.0f} ikat**
+        - {jumlah_ikat:,.0f} × Rp {harga_per_ikat:,} = **Rp {total_pendapatan:,.0f}**
+        """)
+
 st.markdown("---")
 st.caption("AgriSensa Sustainable Greenhouse - Membangun Pertanian yang Terukur dan Berkelanjutan.")
+
