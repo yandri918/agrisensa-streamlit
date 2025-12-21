@@ -434,6 +434,45 @@ with tab_input:
         market_access = st.selectbox("Akses Pasar", 
                                      ["Sulit", "Sedang", "Mudah", "Kontrak"])
     
+    # Price section with default and manual input
+    st.divider()
+    st.markdown("### 💰 Asumsi Harga Jual")
+    
+    price_col1, price_col2, price_col3 = st.columns(3)
+    
+    with price_col1:
+        default_price = crop_info["market_price"]
+        use_custom_price = st.checkbox("Gunakan harga kustom", value=False)
+    
+    with price_col2:
+        if use_custom_price:
+            selling_price = st.number_input(
+                "Harga Jual (Rp/kg)", 
+                min_value=100, 
+                max_value=500000, 
+                value=default_price,
+                step=500,
+                help="Masukkan estimasi harga jual Anda"
+            )
+        else:
+            selling_price = default_price
+            st.metric("Harga Default", f"Rp {default_price:,}/kg")
+    
+    with price_col3:
+        # Price risk assessment
+        if selling_price >= default_price * 1.2:
+            price_risk = "⚠️ Optimistis"
+            price_risk_score = 0.7
+        elif selling_price >= default_price * 0.8:
+            price_risk = "✅ Realistis"
+            price_risk_score = 1.0
+        else:
+            price_risk = "⛔ Pesimistis"
+            price_risk_score = 0.5
+        
+        st.metric("Asumsi Harga", price_risk)
+        st.caption(f"Range normal: Rp {int(default_price*0.8):,} - {int(default_price*1.2):,}")
+    
     st.divider()
     
     if st.button("🔬 Analisis Risiko Komprehensif", type="primary", use_container_width=True):
@@ -450,7 +489,9 @@ with tab_input:
             "pest_control": pest_control,
             "area_ha": area_ha,
             "capital": capital,
-            "market_access": market_access
+            "market_access": market_access,
+            "selling_price": selling_price,
+            "price_risk_score": price_risk_score
         }
         
         # Calculate scores
@@ -816,9 +857,12 @@ with tab_rekomendasi:
         st.markdown("### 💰 Proyeksi Ekonomi")
         
         params = data['params']
+        selling_price = params.get('selling_price', crop_info["market_price"])
+        
+        st.info(f"💵 **Harga Jual yang Digunakan:** Rp {selling_price:,}/kg")
         
         potential_yield = crop_info["yield_potential"] * params["area_ha"] * data["probability"]
-        gross_revenue = potential_yield * crop_info["market_price"]
+        gross_revenue = potential_yield * selling_price
         net_revenue = gross_revenue - crop_info["capital_per_ha"] * params["area_ha"]
         roi = (net_revenue / (crop_info["capital_per_ha"] * params["area_ha"])) * 100 if crop_info["capital_per_ha"] > 0 else 0
         
