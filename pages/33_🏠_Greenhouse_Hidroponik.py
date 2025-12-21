@@ -2130,7 +2130,12 @@ with tab_krisan:
         with calc_tabs[2]:
             st.markdown("### 💰 Rencana Anggaran Biaya (RAB) Lengkap")
             
-            st.info("💡 Masukkan data untuk menghitung RAB komprehensif")
+            # Show synced data from other tabs
+            st.success(f"""
+            **📊 Data Tersinkronisasi dari Tab Lain:**
+            - 🌱 Populasi: **{total_populasi:,} tanaman** | Luas: **{total_luas:.0f} m²**
+            - 💧 Irigasi: **{total_nozzle:,} nozzle** | Biaya: **Rp {total_irigasi:,}**
+            """)
             
             rab_col1, rab_col2 = st.columns(2)
             
@@ -2159,12 +2164,9 @@ with tab_krisan:
             
             st.divider()
             
-            # Calculations using previous values
-            pop_for_rab = total_populasi if 'total_populasi' in dir() else 10000
-            luas_for_rab = total_luas if 'total_luas' in dir() else 100
-            survival = 0.85
-            grade_avg = 80
-            harga_jual = 80000
+            # Use synced values directly
+            pop_for_rab = total_populasi
+            luas_for_rab = total_luas
             
             st.markdown("**📊 Parameter Pendapatan:**")
             rab_rev_col1, rab_rev_col2, rab_rev_col3 = st.columns(3)
@@ -2185,7 +2187,7 @@ with tab_krisan:
             biaya_pestisida_total = luas_for_rab * biaya_pestisida_per_m2
             biaya_listrik_total = biaya_listrik_per_bulan * durasi_tanam_bulan
             biaya_tenaga_kerja = jumlah_pekerja * upah_per_bulan * durasi_tanam_bulan
-            biaya_irigasi_total = total_irigasi if 'total_irigasi' in dir() else 5000000
+            biaya_irigasi_total = total_irigasi  # From synced tab
             
             # Revenue
             tanaman_panen_rab = pop_for_rab * (survival_rab / 100)
@@ -2193,23 +2195,23 @@ with tab_krisan:
             pendapatan_kotor = jumlah_ikat_rab * harga_jual_rab
             biaya_packing_total = jumlah_ikat_rab * biaya_packing
             
-            # Total
+            # Total (now includes irrigation)
             total_biaya = (biaya_bibit_total + biaya_tanam_total + biaya_pupuk_total + 
                           biaya_pestisida_total + biaya_listrik_total + biaya_tenaga_kerja + 
-                          biaya_dambo + biaya_packing_total + biaya_lainnya)
+                          biaya_irigasi_total + biaya_dambo + biaya_packing_total + biaya_lainnya)
             
             laba_bersih = pendapatan_kotor - total_biaya
             roi = (laba_bersih / total_biaya) * 100 if total_biaya > 0 else 0
             
-            # Display RAB Table
+            # Display RAB Table (now includes irrigation)
             rab_data = pd.DataFrame({
                 "Komponen": [
                     "🌱 Bibit", "👷 Upah Tanam", "🧪 Pupuk", "🧴 Pestisida",
-                    "💡 Listrik", "👷 Tenaga Kerja", "🔥 Dambo", "📦 Packing", "📋 Lain-lain"
+                    "💡 Listrik", "👷 Tenaga Kerja", "💧 Irigasi (Sync)", "🔥 Dambo", "📦 Packing", "📋 Lain-lain"
                 ],
                 "Biaya (Rp)": [
                     biaya_bibit_total, biaya_tanam_total, biaya_pupuk_total, biaya_pestisida_total,
-                    biaya_listrik_total, biaya_tenaga_kerja, biaya_dambo, biaya_packing_total, biaya_lainnya
+                    biaya_listrik_total, biaya_tenaga_kerja, biaya_irigasi_total, biaya_dambo, biaya_packing_total, biaya_lainnya
                 ]
             })
             
