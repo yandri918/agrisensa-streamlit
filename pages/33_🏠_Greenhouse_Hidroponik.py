@@ -2227,6 +2227,157 @@ with tab_krisan:
                          delta="Profit" if laba_bersih > 0 else "Loss")
             with rab_result4:
                 st.metric("ROI", f"{roi:.1f}%")
+            
+            # ===== BIAYA PER BATANG =====
+            st.divider()
+            st.markdown("### 💰 Analisis Biaya per Batang")
+            
+            biaya_per_batang = total_biaya / pop_for_rab if pop_for_rab > 0 else 0
+            biaya_per_batang_panen = total_biaya / tanaman_panen_rab if tanaman_panen_rab > 0 else 0
+            
+            bpb_col1, bpb_col2, bpb_col3 = st.columns(3)
+            with bpb_col1:
+                st.metric("💵 Biaya per Batang (Tanam)", f"Rp {biaya_per_batang:,.0f}")
+            with bpb_col2:
+                st.metric("💵 Biaya per Batang (Panen)", f"Rp {biaya_per_batang_panen:,.0f}")
+            with bpb_col3:
+                margin_per_batang = (harga_jual_rab / grade_rab) - biaya_per_batang_panen
+                st.metric("📈 Margin per Batang", f"Rp {margin_per_batang:,.0f}",
+                         delta="Profit" if margin_per_batang > 0 else "Loss")
+            
+            # ===== INPUT HASIL GRADING =====
+            st.divider()
+            st.markdown("### 📦 Input Hasil Grading Aktual")
+            
+            st.info(f"💡 Masukkan hasil grading dari panen. Potensi tanaman panen: **{tanaman_panen_rab:,.0f}** batang")
+            
+            # Default prices per grade
+            default_prices = {
+                60: 60000,
+                80: 80000,
+                100: 100000,
+                120: 120000,
+                160: 160000
+            }
+            
+            use_custom_prices = st.checkbox("Sesuaikan harga per grade", value=False)
+            
+            grading_cols = st.columns(5)
+            grades = [60, 80, 100, 120, 160]
+            grade_inputs = {}
+            grade_prices = {}
+            
+            for i, grade in enumerate(grades):
+                with grading_cols[i]:
+                    st.markdown(f"**Grade {grade}**")
+                    grade_inputs[grade] = st.number_input(
+                        f"Jumlah Ikat", min_value=0, max_value=1000, value=0, 
+                        key=f"grade_{grade}_qty"
+                    )
+                    if use_custom_prices:
+                        grade_prices[grade] = st.number_input(
+                            f"Harga (Rp)", min_value=30000, max_value=200000, 
+                            value=default_prices[grade], step=5000, key=f"grade_{grade}_price"
+                        )
+                    else:
+                        grade_prices[grade] = default_prices[grade]
+                        st.caption(f"Rp {default_prices[grade]:,}")
+            
+            # Calculate grading results
+            total_ikat_grading = sum(grade_inputs.values())
+            total_batang_grading = sum(grade * qty for grade, qty in grade_inputs.items())
+            total_pendapatan_grading = sum(grade_prices[g] * grade_inputs[g] for g in grades)
+            
+            st.divider()
+            st.markdown("### 📊 Visualisasi & Hasil Grading")
+            
+            if total_ikat_grading > 0:
+                viz_col1, viz_col2 = st.columns([2, 1])
+                
+                with viz_col1:
+                    # Pie chart for grade distribution
+                    grade_data = pd.DataFrame({
+                        "Grade": [f"Grade {g}" for g in grades],
+                        "Jumlah Ikat": [grade_inputs[g] for g in grades],
+                        "Batang": [g * grade_inputs[g] for g in grades],
+                        "Pendapatan": [grade_prices[g] * grade_inputs[g] for g in grades]
+                    })
+                    
+                    grade_data_filtered = grade_data[grade_data["Jumlah Ikat"] > 0]
+                    
+                    fig_grade = px.pie(
+                        grade_data_filtered, 
+                        values="Batang", 
+                        names="Grade",
+                        title="Distribusi Batang per Grade",
+                        color_discrete_sequence=px.colors.sequential.Greens_r
+                    )
+                    st.plotly_chart(fig_grade, use_container_width=True)
+                
+                with viz_col2:
+                    st.markdown("**📈 Ringkasan Hasil:**")
+                    st.metric("Total Ikat", f"{total_ikat_grading:,}")
+                    st.metric("Total Batang", f"{total_batang_grading:,}")
+                    st.metric("💰 Pendapatan Aktual", f"Rp {total_pendapatan_grading:,}")
+                    
+                    # Comparison
+                    laba_aktual = total_pendapatan_grading - total_biaya
+                    roi_aktual = (laba_aktual / total_biaya) * 100 if total_biaya > 0 else 0
+                    st.metric("Laba Aktual", f"Rp {laba_aktual:,.0f}",
+                             delta="Profit" if laba_aktual > 0 else "Loss")
+                    st.metric("ROI Aktual", f"{roi_aktual:.1f}%")
+                
+                # Comparison table
+                st.divider()
+                st.markdown("### 📊 Perbandingan: Potensi vs Aktual")
+                
+                comparison_data = pd.DataFrame({
+                    "Metrik": [
+                        "Tanaman Tanam", 
+                        "Tanaman Panen (Est vs Aktual)", 
+                        "Rp/Pendapatan",
+                        "Laba Bersih",
+                        "ROI"
+                    ],
+                    "Potensi (Estimasi)": [
+                        f"{pop_for_rab:,.0f}",
+                        f"{tanaman_panen_rab:,.0f}",
+                        f"Rp {pendapatan_kotor:,.0f}",
+                        f"Rp {laba_bersih:,.0f}",
+                        f"{roi:.1f}%"
+                    ],
+                    "Aktual (Grading)": [
+                        f"{pop_for_rab:,.0f}",
+                        f"{total_batang_grading:,.0f}",
+                        f"Rp {total_pendapatan_grading:,.0f}",
+                        f"Rp {laba_aktual:,.0f}",
+                        f"{roi_aktual:.1f}%"
+                    ],
+                    "Selisih": [
+                        "0",
+                        f"{total_batang_grading - tanaman_panen_rab:+,.0f}",
+                        f"Rp {total_pendapatan_grading - pendapatan_kotor:+,.0f}",
+                        f"Rp {laba_aktual - laba_bersih:+,.0f}",
+                        f"{roi_aktual - roi:+.1f}%"
+                    ]
+                })
+                
+                st.dataframe(comparison_data, use_container_width=True, hide_index=True)
+                
+                # Survival comparison
+                survival_aktual = (total_batang_grading / pop_for_rab) * 100 if pop_for_rab > 0 else 0
+                
+                surv_col1, surv_col2, surv_col3 = st.columns(3)
+                with surv_col1:
+                    st.metric("Survival Target", f"{survival_rab}%")
+                with surv_col2:
+                    st.metric("Survival Aktual", f"{survival_aktual:.1f}%")
+                with surv_col3:
+                    diff = survival_aktual - survival_rab
+                    st.metric("Selisih", f"{diff:+.1f}%", 
+                             delta="Lebih Baik" if diff > 0 else "Kurang")
+            else:
+                st.warning("⚠️ Masukkan data grading untuk melihat visualisasi dan perbandingan")
         
         # ===== TAB 4: AI OPTIMASI =====
         with calc_tabs[3]:
