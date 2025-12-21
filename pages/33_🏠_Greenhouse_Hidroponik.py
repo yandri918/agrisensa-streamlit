@@ -2134,30 +2134,67 @@ with tab_krisan:
             st.success(f"""
             **📊 Data Tersinkronisasi dari Tab Lain:**
             - 🌱 Populasi: **{total_populasi:,} tanaman** | Luas: **{total_luas:.0f} m²**
-            - 💧 Irigasi: **{total_nozzle:,} nozzle** | Biaya: **Rp {total_irigasi:,}**
+            - 💧 Irigasi: **{total_nozzle:,} nozzle** | Biaya Instalasi: **Rp {total_irigasi:,}**
             """)
+            
+            # ===== SECTION 1: MODAL / CAPEX (Investasi Awal) =====
+            with st.expander("🏗️ **INVESTASI MODAL (CAPEX)** - Aset Jangka Panjang", expanded=True):
+                st.caption("Modal awal tidak dihitung dalam ROI per siklus, tapi diperhitungkan sebagai penyusutan")
+                
+                capex_col1, capex_col2 = st.columns(2)
+                
+                with capex_col1:
+                    st.markdown("**🏠 Infrastruktur:**")
+                    modal_greenhouse = st.number_input("Biaya Greenhouse (Rp)", 10000000, 500000000, 100000000, 5000000)
+                    modal_irigasi = total_irigasi  # From synced tab
+                    st.metric("Biaya Sistem Irigasi (Sync)", f"Rp {modal_irigasi:,}")
+                    modal_lampu = st.number_input("Biaya Instalasi Lampu (Rp)", 1000000, 50000000, 10000000, 1000000)
+                
+                with capex_col2:
+                    st.markdown("**⚙️ Peralatan & Penyusutan:**")
+                    modal_peralatan = st.number_input("Biaya Peralatan Lain (Rp)", 0, 50000000, 5000000, 1000000)
+                    umur_ekonomis = st.number_input("Umur Ekonomis Aset (tahun)", 3, 20, 10, 1)
+                    siklus_per_tahun = st.number_input("Jumlah Siklus per Tahun", 2, 4, 3, 1)
+                
+                # Calculate CAPEX totals and depreciation
+                total_modal = modal_greenhouse + modal_irigasi + modal_lampu + modal_peralatan
+                penyusutan_per_tahun = total_modal / umur_ekonomis
+                penyusutan_per_siklus = penyusutan_per_tahun / siklus_per_tahun
+                
+                capex_result1, capex_result2, capex_result3 = st.columns(3)
+                with capex_result1:
+                    st.metric("💰 Total Modal", f"Rp {total_modal:,.0f}")
+                with capex_result2:
+                    st.metric("📉 Penyusutan/Tahun", f"Rp {penyusutan_per_tahun:,.0f}")
+                with capex_result3:
+                    st.metric("📉 Penyusutan/Siklus", f"Rp {penyusutan_per_siklus:,.0f}")
+            
+            st.divider()
+            
+            # ===== SECTION 2: BIAYA OPERASIONAL / OPEX (Per Siklus) =====
+            st.markdown("### 📋 BIAYA OPERASIONAL (OPEX) - Per Siklus Tanam")
             
             rab_col1, rab_col2 = st.columns(2)
             
             with rab_col1:
-                st.markdown("**🌱 Bibit & Tanam:**")
+                st.markdown("**🌱 Bahan Tanam:**")
                 harga_bibit = st.number_input("Harga Bibit (Rp/batang)", 100, 1000, 300, 50)
-                biaya_tanam = st.number_input("Upah Tanam (Rp/1000 batang)", 50000, 200000, 100000, 10000)
                 
                 st.markdown("**🧪 Pupuk & Pestisida:**")
                 biaya_pupuk_per_m2 = st.number_input("Biaya Pupuk (Rp/m²/siklus)", 500, 5000, 1500, 100)
                 biaya_pestisida_per_m2 = st.number_input("Biaya Pestisida (Rp/m²/siklus)", 500, 3000, 1000, 100)
                 
-                st.markdown("**💡 Listrik & Lampu:**")
+                st.markdown("**💡 Listrik & Utilitas:**")
                 biaya_listrik_per_bulan = st.number_input("Biaya Listrik (Rp/bulan)", 500000, 5000000, 1500000, 100000)
                 durasi_tanam_bulan = st.number_input("Durasi Tanam (bulan)", 3, 5, 4, 1)
             
             with rab_col2:
-                st.markdown("**👷 Tenaga Kerja:**")
+                st.markdown("**👷 Tenaga Kerja (Termasuk Tanam):**")
                 jumlah_pekerja = st.number_input("Jumlah Pekerja", 1, 20, 3, 1)
                 upah_per_bulan = st.number_input("Upah per Pekerja (Rp/bulan)", 1000000, 5000000, 2500000, 100000)
+                st.caption("💡 Upah tanam sudah termasuk dalam biaya tenaga kerja")
                 
-                st.markdown("**🔥 Dambo & Lainnya:**")
+                st.markdown("**🔥 Operasional Lainnya:**")
                 biaya_dambo = st.number_input("Biaya BBM Dambo (Rp/siklus)", 100000, 1000000, 300000, 50000)
                 biaya_packing = st.number_input("Biaya Packing (Rp/ikat)", 500, 3000, 1500, 100)
                 biaya_lainnya = st.number_input("Biaya Lain-lain (Rp)", 0, 5000000, 500000, 100000)
@@ -2180,14 +2217,12 @@ with tab_krisan:
             st.divider()
             st.markdown("### 📊 Hasil Perhitungan RAB")
             
-            # Calculate costs
+            # Calculate OPEX costs (no more biaya_tanam_total, merged into TK)
             biaya_bibit_total = pop_for_rab * harga_bibit
-            biaya_tanam_total = (pop_for_rab / 1000) * biaya_tanam
             biaya_pupuk_total = luas_for_rab * biaya_pupuk_per_m2
             biaya_pestisida_total = luas_for_rab * biaya_pestisida_per_m2
             biaya_listrik_total = biaya_listrik_per_bulan * durasi_tanam_bulan
-            biaya_tenaga_kerja = jumlah_pekerja * upah_per_bulan * durasi_tanam_bulan
-            biaya_irigasi_total = total_irigasi  # From synced tab
+            biaya_tenaga_kerja = jumlah_pekerja * upah_per_bulan * durasi_tanam_bulan  # Now includes all labor
             
             # Revenue
             tanaman_panen_rab = pop_for_rab * (survival_rab / 100)
@@ -2195,38 +2230,69 @@ with tab_krisan:
             pendapatan_kotor = jumlah_ikat_rab * harga_jual_rab
             biaya_packing_total = jumlah_ikat_rab * biaya_packing
             
-            # Total (now includes irrigation)
-            total_biaya = (biaya_bibit_total + biaya_tanam_total + biaya_pupuk_total + 
-                          biaya_pestisida_total + biaya_listrik_total + biaya_tenaga_kerja + 
-                          biaya_irigasi_total + biaya_dambo + biaya_packing_total + biaya_lainnya)
+            # Total OPEX (includes depreciation, NOT full modal)
+            total_opex = (biaya_bibit_total + biaya_pupuk_total + biaya_pestisida_total + 
+                          biaya_listrik_total + biaya_tenaga_kerja + 
+                          penyusutan_per_siklus + biaya_dambo + biaya_packing_total + biaya_lainnya)
             
-            laba_bersih = pendapatan_kotor - total_biaya
-            roi = (laba_bersih / total_biaya) * 100 if total_biaya > 0 else 0
+            laba_operasional = pendapatan_kotor - total_opex
+            roi_operasional = (laba_operasional / total_opex) * 100 if total_opex > 0 else 0
             
-            # Display RAB Table (now includes irrigation)
+            # Payback period
+            payback_siklus = total_modal / laba_operasional if laba_operasional > 0 else float('inf')
+            payback_tahun = payback_siklus / siklus_per_tahun if laba_operasional > 0 else float('inf')
+            
+            # Display RAB Table (OPEX only, with depreciation)
             rab_data = pd.DataFrame({
                 "Komponen": [
-                    "🌱 Bibit", "👷 Upah Tanam", "🧪 Pupuk", "🧴 Pestisida",
-                    "💡 Listrik", "👷 Tenaga Kerja", "💧 Irigasi (Sync)", "🔥 Dambo", "📦 Packing", "📋 Lain-lain"
+                    "🌱 Bibit", "🧪 Pupuk", "🧴 Pestisida",
+                    "💡 Listrik", "👷 Tenaga Kerja", "📉 Penyusutan", 
+                    "🔥 Dambo", "📦 Packing", "📋 Lain-lain"
                 ],
                 "Biaya (Rp)": [
-                    biaya_bibit_total, biaya_tanam_total, biaya_pupuk_total, biaya_pestisida_total,
-                    biaya_listrik_total, biaya_tenaga_kerja, biaya_irigasi_total, biaya_dambo, biaya_packing_total, biaya_lainnya
+                    biaya_bibit_total, biaya_pupuk_total, biaya_pestisida_total,
+                    biaya_listrik_total, biaya_tenaga_kerja, penyusutan_per_siklus,
+                    biaya_dambo, biaya_packing_total, biaya_lainnya
                 ]
             })
             
             st.dataframe(rab_data, use_container_width=True, hide_index=True)
             
+            # Keep total_biaya for backward compatibility with other sections
+            total_biaya = total_opex
+            
             rab_result1, rab_result2, rab_result3, rab_result4 = st.columns(4)
             with rab_result1:
-                st.metric("Total Biaya", f"Rp {total_biaya:,.0f}")
+                st.metric("Total OPEX", f"Rp {total_opex:,.0f}")
             with rab_result2:
                 st.metric("Pendapatan", f"Rp {pendapatan_kotor:,.0f}")
             with rab_result3:
-                st.metric("Laba Bersih", f"Rp {laba_bersih:,.0f}", 
-                         delta="Profit" if laba_bersih > 0 else "Loss")
+                st.metric("Laba Operasional", f"Rp {laba_operasional:,.0f}", 
+                         delta="Profit" if laba_operasional > 0 else "Loss")
             with rab_result4:
-                st.metric("ROI", f"{roi:.1f}%")
+                st.metric("ROI per Siklus", f"{roi_operasional:.1f}%")
+            
+            # Payback Period Analysis
+            st.divider()
+            st.markdown("### 📈 Analisis Payback Period")
+            
+            payback_col1, payback_col2, payback_col3 = st.columns(3)
+            with payback_col1:
+                st.metric("💰 Total Modal", f"Rp {total_modal:,.0f}")
+            with payback_col2:
+                if payback_siklus != float('inf'):
+                    st.metric("🔄 Payback (Siklus)", f"{payback_siklus:.1f} siklus")
+                else:
+                    st.metric("🔄 Payback (Siklus)", "∞ (Rugi)")
+            with payback_col3:
+                if payback_tahun != float('inf'):
+                    st.metric("📅 Payback (Tahun)", f"{payback_tahun:.1f} tahun")
+                else:
+                    st.metric("📅 Payback (Tahun)", "∞ (Rugi)")
+            
+            # Keep these for backward compatibility with grading section
+            laba_bersih = laba_operasional
+            roi = roi_operasional
             
             # ===== BIAYA PER BATANG =====
             st.divider()
